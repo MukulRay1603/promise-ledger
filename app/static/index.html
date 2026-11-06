@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Promise Ledger</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to main content</a>
+  <header>
+    <h1>Promise Ledger</h1>
+    <p>Plain-language answers about renting in College Park and Prince George's County, with sources.</p>
+  </header>
+
+  <main id="main">
+    <p class="notice" role="note"><strong>This is information, not legal advice.</strong>
+      For help with your situation, contact legal aid or call 211.</p>
+
+    <form id="ask-form">
+      <label for="question">Your question</label>
+      <textarea id="question" name="question" rows="4" required minlength="3" maxlength="2000"
+        aria-describedby="question-hint"></textarea>
+      <p id="question-hint" class="hint">Example: "Can my landlord raise my rent by 10%?" Please don't include your name, address or phone number.</p>
+      <button type="submit">Ask</button>
+    </form>
+
+    <section aria-labelledby="answer-heading">
+      <h2 id="answer-heading">Answer</h2>
+      <div id="status" aria-live="polite"></div>
+      <div id="answer"></div>
+      <ul id="citations" aria-label="Sources"></ul>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
