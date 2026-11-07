@@ -3,35 +3,117 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Promise Ledger</title>
+  <title>Promise Ledger: Harbor Walk review</title>
+  <meta name="description" content="A source-linked review of a made-up housing deal.">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
   <a class="skip" href="#main">Skip to main content</a>
-  <header>
-    <h1>Promise Ledger</h1>
-    <p>Plain-language answers about renting in College Park and Prince George's County, with sources.</p>
+  <p class="demo-banner" id="demo-banner" role="note">Made-up demo data.</p>
+
+  <header class="masthead">
+    <div class="wrap">
+      <p class="product">Promise Ledger</p>
+      <h1 id="page-title">Harbor Walk review</h1>
+      <p class="lede">The same homes are described in different words across five records. Check each quote against its source, then print the receipt.</p>
+    </div>
   </header>
 
-  <main id="main">
-    <p class="notice" role="note"><strong>This is information, not legal advice.</strong>
-      For help with your situation, contact legal aid or call 211.</p>
+  <nav class="jump" aria-label="On this page">
+    <div class="wrap">
+      <ul>
+        <li><a href="#claims">Claims</a></li>
+        <li><a href="#approved">What was approved?</a></li>
+        <li><a href="#terms">Terms checklist</a></li>
+        <li><a href="#receipt">Promise Receipt</a></li>
+        <li><a href="#extract">Read new text</a></li>
+      </ul>
+    </div>
+  </nav>
 
-    <form id="ask-form">
-      <label for="question">Your question</label>
-      <textarea id="question" name="question" rows="4" required minlength="3" maxlength="2000"
-        aria-describedby="question-hint"></textarea>
-      <p id="question-hint" class="hint">Example: "Can my landlord raise my rent by 10%?" Please don't include your name, address or phone number.</p>
-      <button type="submit">Ask</button>
-    </form>
+  <main id="main" class="wrap">
+    <p id="load-status" role="status">Loading the review.</p>
 
-    <section aria-labelledby="answer-heading">
-      <h2 id="answer-heading">Answer</h2>
-      <div id="status" aria-live="polite"></div>
-      <div id="answer"></div>
-      <ul id="citations" aria-label="Sources"></ul>
+    <section aria-labelledby="wording-heading">
+      <h2 id="wording-heading">How the wording changed</h2>
+      <p class="section-note">Each step is a quote about the same homes. Select one to open its source page.</p>
+      <ol class="wording" id="wording"></ol>
+    </section>
+
+    <section id="claims" aria-labelledby="claims-heading">
+      <h2 id="claims-heading">Claims</h2>
+      <p class="section-note" id="check-line"></p>
+      <div class="claims-layout">
+        <div>
+          <table class="stack claims-table" role="table">
+            <caption class="visually-hidden">Reviewed claims with exact quotes. Select a quote to open its source page.</caption>
+            <thead role="rowgroup">
+              <tr role="row">
+                <th role="columnheader" scope="col">Exact quote</th>
+                <th role="columnheader" scope="col">Source</th>
+                <th role="columnheader" scope="col">Topic</th>
+                <th role="columnheader" scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody id="claim-rows" role="rowgroup"></tbody>
+          </table>
+        </div>
+        <aside class="source" aria-labelledby="source-heading">
+          <h3 id="source-heading" tabindex="-1">Source page</h3>
+          <div id="source-body"><p>Select a quote to open its source page.</p></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="approved" aria-labelledby="approved-heading">
+      <h2 id="approved-heading">What was approved?</h2>
+      <p class="section-note">Each stage is kept separate. A claim sits only where its own record puts it. Nothing moves forward on its own.</p>
+      <ol class="stages" id="stages"></ol>
+    </section>
+
+    <section id="terms" aria-labelledby="terms-heading">
+      <h2 id="terms-heading">Terms checklist</h2>
+      <p class="section-note">"Not located" means the term was not found in this packet. It may exist in a record that is not here.</p>
+      <table class="stack terms-table" role="table">
+        <caption class="visually-hidden">Seven deal terms, what the records say about each, and where.</caption>
+        <thead role="rowgroup">
+          <tr role="row">
+            <th role="columnheader" scope="col">Term</th>
+            <th role="columnheader" scope="col">Result</th>
+            <th role="columnheader" scope="col">What the records say</th>
+            <th role="columnheader" scope="col">Furthest stage</th>
+            <th role="columnheader" scope="col">Sources</th>
+          </tr>
+        </thead>
+        <tbody id="term-rows" role="rowgroup"></tbody>
+      </table>
+    </section>
+
+    <section id="receipt" aria-labelledby="receipt-heading">
+      <div class="receipt-tools">
+        <h2 id="receipt-heading">Promise Receipt</h2>
+        <button type="button" id="print-receipt">Print receipt</button>
+      </div>
+      <article class="receipt" id="receipt-body"></article>
+    </section>
+
+    <section id="extract" aria-labelledby="extract-heading">
+      <h2 id="extract-heading">Read new text</h2>
+      <p class="section-note">The model finds candidate quotes. Code keeps only quotes that match your text word for word. A person sets every status.</p>
+      <form id="extract-form">
+        <label for="extract-text">Text from a record</label>
+        <textarea id="extract-text" name="text" rows="6" required minlength="20" aria-describedby="extract-hint"></textarea>
+        <p id="extract-hint" class="hint">Use public records only. Do not paste names, phone numbers or other personal details. Text is not saved.</p>
+        <button type="submit">Find quotes</button>
+      </form>
+      <div id="extract-status" role="status"></div>
+      <ul class="candidates" id="extract-results" aria-label="Candidate quotes"></ul>
     </section>
   </main>
+
+  <footer class="wrap site-footer">
+    <p>Promise Ledger is a review aid. It makes no legal findings. Staff decide what each record means.</p>
+  </footer>
 
   <script src="/static/app.js"></script>
 </body>

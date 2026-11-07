@@ -1,0 +1,136 @@
+{
+  "notice": "Made-up demo data. Lantern Bay, Harbor Walk, Harbor Walk Partners and every date, number and quote in this packet are fictional.",
+  "city": "Lantern Bay",
+  "project": "Harbor Walk",
+  "documents": [
+    {
+      "id": "staff-summary",
+      "type": "Staff summary",
+      "title": "Staff summary: Harbor Walk tax request",
+      "date": "2025-02-03",
+      "signed": false,
+      "pages": [
+        {
+          "page": 1,
+          "paragraphs": [
+            "MADE-UP DEMO RECORD. Lantern Bay is a fictional city.",
+            "Harbor Walk is a proposed building of 120 homes on the Old Ferry lot. The owner, Harbor Walk Partners, has asked the City for help with property taxes.",
+            "The developer has agreed to set aside 12 of the 120 homes as affordable homes.",
+            "These homes would serve households at or below 60 percent of area median income."
+          ]
+        },
+        {
+          "page": 2,
+          "paragraphs": [
+            "MADE-UP DEMO RECORD. Lantern Bay is a fictional city.",
+            "Staff understands that the income limits would last for 30 years.",
+            "The written terms are still being prepared and are not attached to this summary.",
+            "Staff recommends that the Council support the request for a 20-year property tax reduction."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "draft-letter",
+      "type": "Draft letter",
+      "title": "Draft letter from Harbor Walk Partners to the City",
+      "date": "2025-02-20",
+      "signed": false,
+      "pages": [
+        {
+          "page": 1,
+          "paragraphs": [
+            "MADE-UP DEMO RECORD. Lantern Bay is a fictional city.",
+            "DRAFT FOR DISCUSSION. NOT SIGNED.",
+            "Thank you for meeting with us about Harbor Walk.",
+            "Harbor Walk Partners will explore setting aside up to 12 homes at reduced rents.",
+            "The company will explore sending the City a yearly report on these homes.",
+            "We look forward to continuing this conversation."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "developer-slides",
+      "type": "Developer slides",
+      "title": "Harbor Walk: presentation to the Council",
+      "date": "2025-03-04",
+      "signed": false,
+      "pages": [
+        {
+          "page": 1,
+          "paragraphs": [
+            "MADE-UP DEMO RECORD. Lantern Bay is a fictional city.",
+            "Harbor Walk: new homes on the Old Ferry lot.",
+            "Presented by Harbor Walk Partners."
+          ]
+        },
+        {
+          "page": 2,
+          "paragraphs": [
+            "MADE-UP DEMO RECORD. Lantern Bay is a fictional city.",
+            "Housing for the people who work here.",
+            "We are considering 10 percent of the 120 homes as workforce homes.",
+            "Workforce homes would be for households earning up to 80 percent of area median income."
+          ]
+        },
+        {
+          "page": 3,
+          "paragraphs": [
+            "MADE-UP DEMO RECORD. Lantern Bay is a fictional city.",
+            "Next steps.",
+            "The length of the income limits is still being discussed, with 15 years as a starting point."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "minutes",
+      "type": "Minutes",
+      "title": "Lantern Bay City Council minutes",
+      "date": "2025-03-11",
+      "signed": false,
+      "pages": [
+        {
+          "page": 1,
+          "paragraphs": [
+            "MADE-UP DEMO RECORD. Lantern Bay is a fictional city.",
+            "All 7 Council members were present.",
+            "Harbor Walk Partners presented the Harbor Walk request and answered questions.",
+            "Members stated their understanding that 12 homes would be affordable.",
+            "The Council voted 5 to 2 to support the tax request."
+          ]
+        },
+        {
+          "page": 2,
+          "paragraphs": [
+            "MADE-UP DEMO RECORD. Lantern Bay is a fictional city.",
+            "The Council asked staff to confirm the terms in writing before any agreement is signed.",
+            "The meeting closed at 9:40 p.m."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "later-letter",
+      "type": "Later letter",
+      "title": "Letter from Harbor Walk Partners to the City",
+      "date": "2025-09-15",
+      "signed": true,
+      "pages": [
+        {
+          "page": 1,
+          "paragraphs": [
+            "MADE-UP DEMO RECORD. Lantern Bay is a fictional city.",
+            "This letter follows the Council meeting of March 11, 2025.",
+            "Harbor Walk Partners will provide 12 affordable homes at Harbor Walk.",
+            "These homes will be for households at or below 80 percent of area median income.",
+            "This commitment will last for 15 years from the first move-in date.",
+            "Harbor Walk Partners, as owner, is responsible for meeting this commitment.",
+            "Signed by the Managing Member, Harbor Walk Partners (fictional signature)."
+          ]
+        }
+      ]
+    }
+  ]
+}
