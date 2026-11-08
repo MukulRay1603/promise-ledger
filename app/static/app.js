@@ -1563,9 +1563,16 @@ function setupToggles() {
     theme.dataset.dark = String(dark);
     label.textContent = dark ? "Light mode" : "Dark mode";
   };
+  // The site follows the system theme. A click overrides it; choosing the system's own theme goes back to following it.
   theme.addEventListener("click", () => {
-    root.dataset.theme = isDark() ? "light" : "dark";
-    try { localStorage.setItem("pl-theme", root.dataset.theme); } catch (err) { /* This visit only. */ }
+    const next = isDark() ? "light" : "dark";
+    const followsSystem = next === (system.matches ? "dark" : "light");
+    if (followsSystem) delete root.dataset.theme;
+    else root.dataset.theme = next;
+    try {
+      if (followsSystem) localStorage.removeItem("pl-theme-choice");
+      else localStorage.setItem("pl-theme-choice", next);
+    } catch (err) { /* This visit only. */ }
     syncTheme();
   });
   system.addEventListener("change", syncTheme);

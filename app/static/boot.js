@@ -2,7 +2,10 @@
 // Apply saved display settings before first paint.
 document.documentElement.classList.add("js");
 try {
-  const theme = localStorage.getItem("pl-theme");
+  // The site follows the system theme unless the visitor chose otherwise. "pl-theme" was the old key, which
+  // also stored choices that matched the system; it is dropped so those visitors follow the system again.
+  localStorage.removeItem("pl-theme");
+  const theme = localStorage.getItem("pl-theme-choice");
   if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
   if (localStorage.getItem("pl-text") === "large") document.documentElement.classList.add("text-large");
 } catch (err) { /* Storage can be blocked. Defaults still apply. */ }

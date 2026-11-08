@@ -314,11 +314,14 @@ We avoid saying "first" or "only": our search was limited, and parts of this exi
 
 | Today | By the Dec 2 final | After |
 |---|---|---|
-| Quotes checked on their pages | Accuracy on records it was never tuned on | More cities |
-| Stages, changes and missing terms | At least one real public record, end to end | A plain-language view for residents |
-| Signing, certificate and term-end flags | More record types, including scans | A kit to run it in-house |
-| Reviewer decisions and receipt | Help acting on open questions, with a person approving every step | |
-| Share link, Excel, reminders | Input and a timed task with people who do this work | |
+| Quotes checked on their pages | Accuracy on records it was never tuned on | Ask and listen by voice |
+| Stages, changes and missing terms | At least one real public record, end to end | A help assistant for residents on shared receipts |
+| Signing, certificate and term-end flags | Reads scanned pages too | Drafts records requests and follow-up letters for staff to approve |
+| Reviewer decisions and receipt | An upload assistant that reviews records with you and names what is missing | Alerts before a term ends |
+| Share link, Excel, reminders | Ask a deal: answers only from checked quotes | Spanish and other languages |
+| | Input and a timed task with people who do this work | More cities, and a kit to run it in-house |
+
+**One rule for every assistant:** it answers only from checked quotes, shows the page, and a person approves anything it sends or saves.
 
 ## 16. Glossary
 
