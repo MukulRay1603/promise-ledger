@@ -911,7 +911,7 @@ textarea { font-family: var(--serif); font-size: 1.0625rem; }
 .stamp-block { grid-area: stamp; display: grid; justify-items: center; gap: .5rem; padding: 1.25rem .75rem; } /* Room for the tilt: the stamp is turned 6 degrees. */
 .stamp-block { max-width: 100%; }
 /* Long outcomes ("Review complete · 1 disputed · 1 needs follow-up") wrap inside the receipt instead of running past it. */
-.stamp-block .receipt-stamp { position: static; white-space: normal; max-width: 18rem; text-align: center; line-height: 1.5; }
+.stamp-block .receipt-stamp { position: static; white-space: normal; max-width: min(100%, 27rem); text-align: center; line-height: 1.5; }
 .stamp-caption { font-family: var(--mono); font-size: .75rem; color: #4A5363; transition: opacity .3s var(--ease); }
 .stamp-block .receipt-stamp:not(.landed) + .stamp-caption { opacity: 0; }
 @container (max-width: 40rem) {

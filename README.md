@@ -13,12 +13,12 @@ For city and county housing staff, compliance officers and council aides. Shared
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/images/deal.png" alt="Harbor Walk deal page: at a glance, key figures (12 of 120 homes, furthest stage Signed, 3 terms differ, 2 not located) and the four stages."><br><b>At a glance.</b> Key figures and how far the deal got: proposed, supported, signed, delivered.</td>
+    <td width="50%"><img src="docs/images/deal.png" alt="Harbor Walk deal page: at a glance, key figures (12 of 120 homes, furthest stage (any term) Signed, 3 terms differ, 2 not located) and the stages on record."><br><b>At a glance.</b> Key figures and how far the deal got: proposed, supported, signed, delivered.</td>
     <td width="50%"><img src="docs/images/source.png" alt="Source panel showing the developer's letter as a real PDF page with the quote about 12 affordable homes highlighted."><br><b>View source.</b> Every claim opens the real PDF page with the exact quote highlighted.</td>
   </tr>
   <tr>
-    <td width="50%"><img src="docs/images/decisions.png" alt="Decision dialog with Confirm, Needs follow-up and Disputed, a note, and the reviewer's name, beside the Your review panel with progress meters and a review log."><br><b>People decide.</b> Confirm, ask for follow-up or dispute each item, with a note. Every decision keeps a name and time.</td>
-    <td width="50%"><img src="docs/images/receipt.png" alt="Receipt tab: open questions each show who decided what and when, under a green stamp reading Reviewed, Dana Ortiz, Nov 8, 2026."><br><b>Receipt.</b> Stays "Flagged for human review" until every open question has a decision, then is stamped as reviewed.</td>
+    <td width="50%"><img src="docs/images/decisions.png" alt="Decision dialog with Confirm, Needs follow-up (selected) and Disputed, a note, and the reviewer's name, over the Your review panel with 3 of 9 open questions decided."><br><b>People decide.</b> Confirm, ask for follow-up or dispute each item, with a note. Every decision keeps a name and time, and shows in green, amber or red with its own icon.</td>
+    <td width="50%"><img src="docs/images/receipt.png" alt="Receipt tab: under the heading Open questions, a red stamp reads Review complete, 1 disputed, 1 needs follow-up, with Dana Ortiz, Nov 8, 2026 beneath it. Each question shows its decision in green, amber or red with an icon."><br><b>Receipt.</b> The stamp states the outcome: "Flagged for human review", then "Review in progress", then "Review complete" with any disputed or follow-up items, and the last reviewer and date beneath it.</td>
   </tr>
 </table>
 
@@ -83,14 +83,14 @@ Readings are cached in `data/readings/` by file hash and prompt version, so seed
 
 ## Results
 
-`python evals/run_pdf_evals.py` on the 3 sample deals (11 PDFs, 53 hand-labeled promises):
+`python evals/run_pdf_evals.py` on the 3 sample deals (11 PDFs, 53 hand-labeled claims):
 
 | Measure | Result |
 |---|---|
 | Precision / recall | 96.3% / 98.1% |
 | Correct page cited | 100% |
 | Correct stage (proposed, supported, signed, delivered) | 100% |
-| False "signed" or "delivered" | 0 |
+| Incorrect "signed" or "delivered" labels | 0 |
 | Changed and missing terms | exact on all 3 deals |
 | Model cost | about $0.026 for all 11 PDFs, cached by file hash |
 
@@ -99,6 +99,8 @@ Readings are cached in `data/readings/` by file hash and prompt version, so seed
 - **Text in documents is data, never instructions to the model.** Obvious personal details are removed before any model call, and pasted text is not stored or logged.
 - **Neutral wording only:** "wording differs", "not located", "flagged for human review".
 - **Every claim shows its exact quote, document type, date and page.** Statuses stay separate: a later stage is never inferred.
+- **A review records people's decisions. It is not a legal finding.** That line closes every receipt.
+- **Security headers** on every response: a Content Security Policy with scripts only from this site, `nosniff`, `Referrer-Policy` and no framing (details below).
 - **Reviewer decisions** are append-only, carry a name and time, and never change a claim, term or stage. Reviewer identity comes from one function, `current_reviewer()`, so real sign-in can replace it later.
 - **The interface:**
   - works by keyboard, with visible focus;
@@ -194,14 +196,14 @@ Exports open in a preview first, built from the same rows as the files:
 |---|---|
 | `GET/POST /api/deals` | List deals, or create one `{name, city}` |
 | `GET /api/deals/{id}` | Deal and its documents with status |
-| `POST /api/deals/{id}/documents` | Upload a PDF (multipart, 202); poll the deal until done. The same file twice in one deal returns the first copy with `duplicate: true` |
-| `POST /api/deals/{id}/documents/{doc}/retry` | Read a failed or stuck document again (202; 409 if it is still reading) |
-| `GET /api/deals/{id}/review` | Claims, stages, terms, open questions, decisions |
+| `POST /api/deals/{id}/documents` | Upload a PDF (multipart, 202); poll the deal until done. The same file twice in one deal returns the first copy with `duplicate: true`. Sample deals answer 403 (read-only) |
+| `POST /api/deals/{id}/documents/{doc}/retry` | Read a failed or stuck document again (202; 409 if it is still reading; 403 on sample deals; 10 an hour per IP) |
+| `GET /api/deals/{id}/review` | Claims, stages, terms, open questions, decisions (with the stamp `{state, text, reviewer, date, decided, total}` and the receipt footer) |
 | `GET …/documents/{doc}/file`, `…/pages/{n}` | The PDF, and the text of one page |
 | `GET/POST/DELETE /api/deals/{id}/decisions` | Read, record or reset reviewer decisions (`X-Reviewer-Name` header) |
 | `GET /api/deals/{id}/export.xlsx`, `.csv`, `.json` | Excel and CSV exports, and the JSON behind the in-app preview |
 | `POST /api/deals/{id}/share` | Read-only link `/r/{token}`; JSON at `/api/share/{token}` |
-| `GET /api/reminders` | Term end dates and yearly certificates due. `days` is positive until the date and negative after it, counted from the deal's `as_of` date when it has one |
+| `GET /api/reminders` | Term end dates and yearly certificates due. `days` is positive until the date and negative after it, counted from `as_of` (the deal's file date for samples, otherwise today). The app shows it as "in 243 days, as of Jul 1, 2025" |
 | `GET /api/review` | The reviewed Harbor Walk demo packet (also shipped inside the home page) |
 | `POST /api/extract` | Read pasted text `{text}` (up to 4,000 characters): candidate quotes, each checked word for word; nothing is stored |
 | `GET /api/media` | Which explainer videos are present, and where they are served from |
@@ -216,11 +218,11 @@ All names, places and figures are fictional. `data/samples/` has three deals as 
 
 | Deal | Homes | Records | What it shows |
 |---|---|---|---|
-| `harbor-walk` | 120 | staff summary (2 p), draft letter (1), developer slides (3), minutes (2), developer letter (1) | Units, income basis and term differ across records; rent limits and remedies not located; signed by the developer only. |
-| `beacon-point` | 80 | staff report (3), council resolution (2), PILOT and regulatory agreement signed by City and owner (4) | A complete deal: 16 homes at 60% AMI, HUD-based rent limits, 30 years, owner and later owners, yearly report, payback of abated taxes after default notice. All terms match. |
-| `mill-street` | 60 | 2011 regulatory agreement excerpt (3), 2024 compliance certificate (1), 2026 staff memo (2) | After signing: 9 homes at 50% AMI until 2026-12-31, and the 2025 certificate marked not received. |
+| `harbor-walk` | 120 | staff summary (2 p), draft letter (1), developer slides (3), minutes (2), developer letter (1) | Homes, income limit and term differ across records; rent limits and remedies not located; signed by the developer only. |
+| `beacon-point` | 80 | staff report (3), council resolution (2), PILOT and regulatory agreement signed by City and owner (4) | A complete deal: 16 homes at 60% of AMI, HUD-based rent limits, 30 years, owner and later owners, yearly report, payback of abated taxes after default notice. All terms match. |
+| `mill-street` | 60 | 2011 regulatory agreement excerpt (3), 2024 compliance certificate (1), 2026 staff memo (2) | After signing: 9 homes at 50% of AMI until 2026-12-31, and the 2025 certificate not located in this file. |
 
-Each folder has `manifest.json` (file, type, date, title, pages, signed_by) and `expected_claims.json`: the gold answers, with every promise's term, exact quote, file, page and stage, plus `not_located` and `differs`.
+Each folder has `manifest.json` (file, type, date, title, pages, signed_by) and `expected_claims.json`: the gold answers, with every claim's term, exact quote, file, page and stage, plus `not_located` and `differs`.
 
 ```bash
 pip install reportlab pypdf
@@ -232,7 +234,8 @@ python -m unittest tests.test_samples         # every gold quote is on its state
 <details>
 <summary>Interface notes</summary>
 
-- Plain HTML, CSS and JS in `app/static/`, with no framework. pdf.js (pinned) loads only when a source is opened.
+- Plain HTML, CSS and JS in `app/static/`, with no framework. pdf.js (pinned, served from `app/static/vendor/`) loads only when a source is opened.
+- Sample deals are read-only: their documents card shows "Sample deals are read-only. Start a new deal to try your own PDFs." with a New deal button in place of the upload box, and they have no Retry button. A failed document on your own deal has Retry.
 - Pages: home `#/`, deals `#/deals`, deal `#/deals/{id}`, guided tour `#/deals/{id}/tour`, and a read-only receipt at `/r/{token}`. Press Ctrl+K (Cmd+K on a Mac) for the command menu.
 - `?mock=1` forces `mock.js`, an in-browser copy of the API with made-up deals.
 - Explainer videos are `NN-slug.mp4`, `.vtt` and `.jpg` under `MEDIA_BASE_URL`; `/api/media` reports which are present.

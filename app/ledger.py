@@ -236,7 +236,7 @@ def build_questions(claims: list[dict], terms: list[dict], stages: list[dict], s
         # Keys carry the tag, so a term that is both unsigned and differs has two questions, decided apart (L9).
         if not term["located"]:
             questions.append({"key": f"{term['key']}:not_located", "term": term["key"], "tag": "not_located",
-                              "text": f"{label}: not located. Ask staff for the agreement section on {lower}."})
+                              "text": f"{label}: not located. Ask staff whether an agreement covers {lower}."})
         elif not term["signed_claim_id"]:
             questions.append({"key": f"{term['key']}:not_signed", "term": term["key"], "tag": "not_located",
                               "text": f"{label}: not located in a signed record. "

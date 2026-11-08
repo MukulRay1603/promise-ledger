@@ -1065,7 +1065,7 @@ function renderReceipt(target, review, { titleTag = "p" } = {}) {
         el("thead", {}, el("tr", {}, el("th", { scope: "col" }, "Term"), el("th", { scope: "col" }, "Signed wording"), el("th", { scope: "col" }, "Earlier wording"))),
         el("tbody", {}, ...rows))),
     el("div", { class: "receipt-flags" },
-      el("h3", {}, "Open questions, flagged for human review"),
+      el("h3", {}, "Open questions"),
       review.questions.length ? el("ul", {}, ...review.questions.map((question) => {
         const event = review.decisions?.latest?.[`question:${question.key}`];
         return el("li", {}, question.text, event

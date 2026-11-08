@@ -308,6 +308,11 @@ class Wording(unittest.TestCase):
         texts = [q["text"] for q in ledger.build_questions(by_id, terms, [], {"signers": [], "city_signed": False})]
         self.assertIn("Homes: not located in a signed record. Ask staff whether an agreement covers homes.", texts)
         self.assertTrue(any(t.endswith("Ask staff which wording, if any, is in a signed agreement.") for t in texts))
+        missing = [{"key": "rent_limits", "label": "Rent limits", "located": False, "signed_claim_id": None,
+                    "wording_differs": False, "claim_ids": []}]
+        texts = [q["text"] for q in ledger.build_questions([], missing, [], {"signers": [], "city_signed": False})]
+        self.assertIn("Rent limits: not located. Ask staff whether an agreement covers rent limits.", texts)
+        self.assertFalse(any("agreement section" in t for t in texts))
 
     def test_display_dates(self):
         self.assertEqual(deals.display_date("2026-11-08"), "Nov 8, 2026")
