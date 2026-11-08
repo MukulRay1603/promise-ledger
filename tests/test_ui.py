@@ -104,6 +104,14 @@ class Page(unittest.TestCase):
             self.assertIn("opens in a new tab", tag)
         script = (STATIC / "app.js").read_text(encoding="utf-8")
         self.assertIn('const STATIC_PAGES = { roadmap: "Roadmap", about: "About" };', script)
+        # The roadmap is six tabbed panels; each tab names the panel it controls.
+        roadmap = self.html[self.html.index('id="view-roadmap"'):]
+        roadmap = roadmap[:roadmap.index("</section>")]
+        tabs = re.findall(r'role="tab" id="(rmt-\w+)" aria-controls="(rmp-\w+)"', roadmap)
+        self.assertEqual(len(tabs), 6)
+        for tab, panel in tabs:
+            self.assertIn(f'id="{panel}" aria-labelledby="{tab}"', roadmap)
+        self.assertIn("function setupPageTabs", script)
 
     def test_media_reports_lengths(self):
         with mock.patch.dict(os.environ, {"MEDIA_BASE_URL": ""}):

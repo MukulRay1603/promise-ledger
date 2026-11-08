@@ -2312,6 +2312,37 @@ function tourButton() {
 const FONTS = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap";
 function loadFonts() { document.head.append(el("link", { rel: "stylesheet", href: FONTS })); }
 if (document.readyState === "complete") setTimeout(loadFonts, 0); else window.addEventListener("load", () => setTimeout(loadFonts, 0), { once: true });
+// Tabs on static pages ([data-tabs]): one panel at a time, arrow keys move between tabs.
+function setupPageTabs() {
+  for (const list of document.querySelectorAll("[data-tabs]")) {
+    const tabs = [...list.querySelectorAll('[role="tab"]')];
+    const select = (tab, focus) => {
+      for (const other of tabs) {
+        const on = other === tab;
+        other.setAttribute("aria-selected", String(on));
+        other.tabIndex = on ? 0 : -1;
+        byId(other.getAttribute("aria-controls")).hidden = !on;
+      }
+      if (focus) tab.focus();
+      tab.scrollIntoView({ block: "nearest", inline: "nearest" });
+    };
+    list.addEventListener("click", (event) => {
+      const tab = event.target.closest('[role="tab"]');
+      if (tab) select(tab, false);
+    });
+    list.addEventListener("keydown", (event) => {
+      const at = tabs.indexOf(document.activeElement);
+      if (at < 0) return;
+      const step = { ArrowRight: 1, ArrowLeft: -1, Home: -at, End: tabs.length - 1 - at }[event.key];
+      if (step === undefined) return;
+      event.preventDefault();
+      select(tabs[(at + step + tabs.length) % tabs.length], true);
+    });
+    // Each tab states its own aria-selected from the start (the page ships only the first one as selected).
+    for (const tab of tabs) tab.setAttribute("aria-selected", String(tab.getAttribute("aria-selected") === "true"));
+  }
+}
+
 setupToggles();
 setupGlossaryPopovers();
 setupNewDeal();
@@ -2323,6 +2354,7 @@ setupViewer();
 setupDecisionDialog();
 setupReveal();
 setupHeroMotion();
+setupPageTabs();
 ready = detectMode();
 window.addEventListener("hashchange", () => route());
 route({ initial: true });
