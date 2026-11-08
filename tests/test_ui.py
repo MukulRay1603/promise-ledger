@@ -30,6 +30,30 @@ class Page(unittest.TestCase):
         self.assertIn("Start a new deal", self.html)
         self.assertIn("check every affordable-housing promise in a deal in minutes, with the source page one click away.", self.html)
 
+    def test_landing_sections(self):
+        for title in ("The problem", "How it works", "Proof", "Learn in 60 seconds", "Who it’s for", "See a deal checked"):
+            self.assertIn(title, self.html)
+        # Proof figures are from evals/run_pdf_evals.py on the sample deals, and say so.
+        for count in ('data-count="96"', 'data-count="98"', 'data-count="0"', 'data-count="3"'):
+            self.assertIn(count, self.html)
+        self.assertIn("On sample data", self.html)
+        self.assertIn("https://github.com/MukulRay1603/promise-ledger", self.html)
+
+    def test_export_preview_dialog(self):
+        self.assertIn('id="export-dialog"', self.html)
+        for label in ("Download .xlsx", "Download .csv", "Copy as CSV", ">Close<"):
+            self.assertIn(label, self.html)
+
+    def test_theme_button_names_its_target(self):
+        self.assertIn('<span class="theme-label">Dark mode</span>', self.html)
+        js = (STATIC / "app.js").read_text(encoding="utf-8")
+        self.assertIn('dark ? "Light mode" : "Dark mode"', js)
+
+    def test_command_menu_is_labelled(self):
+        self.assertIn('id="cmdk"', self.html)
+        self.assertIn('role="combobox"', self.html)
+        self.assertIn('aria-label="Search"', self.html)
+
     def test_demo_banner_stays(self):
         self.assertIn('class="demo-banner"', self.html)
         self.assertIn("Made-up demo data", self.html)
@@ -91,11 +115,21 @@ class Rules(unittest.TestCase):
 
     def test_reduced_motion_and_print(self):
         self.assertIn("prefers-reduced-motion: reduce", self.css)
+        self.assertGreaterEqual(self.css.count("prefers-reduced-motion: reduce"), 3)  # Base, landing and printer layers.
+
+    def test_receipt_prints_and_stamps(self):
+        self.assertIn("@keyframes feed", self.css)
+        self.assertIn("@keyframes stamp", self.css)
+        self.assertIn("function printOut", self.js["app.js"])
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        self.assertIn('class="printer-slot"', html)
+        self.assertIn('class="receipt-stamp" aria-hidden="true">Flagged for human review', html)
+        self.assertIn("reducedMotion.matches", self.js["app.js"])
         self.assertIn("@media print", self.css)
         self.assertIn('[data-theme="dark"]', self.css)
 
     def test_palette(self):
-        for color in ("#0F172A", "#FAFAF7", "#0F766E", "#B45309", "#15803D"):
+        for color in ("#0F172A", "#F8F6F1", "#0F766E", "#B45309", "#15803D", "#0A0F1C"):
             self.assertIn(color, self.css)
 
 

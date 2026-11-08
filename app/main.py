@@ -171,6 +171,13 @@ def export_xlsx(deal_id: str):
                     headers={"Content-Disposition": f'attachment; filename="{deal_id}-promise-ledger.xlsx"'})
 
 
+@app.get("/api/deals/{deal_id}/export.json")
+def export_preview(deal_id: str):
+    """The rows the Excel and CSV downloads hold, for the in-app preview."""
+    _deal_or_404(deal_id)
+    return deals.export_preview(deals.deal_review(deal_id), deal_id)
+
+
 @app.get("/api/deals/{deal_id}/export.csv")
 def export_csv(deal_id: str):
     _deal_or_404(deal_id)

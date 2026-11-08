@@ -473,11 +473,35 @@ def _cell(value):
     return value
 
 
+def export_sheets(review: dict) -> list[dict]:
+    """The sheets every export is built from. The xlsx has all of them; the csv is the Claims sheet."""
+    return [
+        {"name": "Claims", "columns": CLAIM_COLUMNS, "rows": [[_cell(v) for v in row] for row in claim_rows(review)],
+         "widths": [18, 70, 40, 12, 6, 12, 10, 10]},
+        {"name": "Terms", "columns": TERM_COLUMNS, "rows": [[_cell(v) for v in row] for row in term_rows(review)],
+         "widths": [18, 14, 14, 10, 50, 12]},
+    ]
+
+
+def export_about(review: dict, exported: str) -> list[list]:
+    return [[f"{review['project']}, {review['city']}"], [review["notice"]], [f"Exported {exported}"]]
+
+
+def export_preview(review: dict, deal_id: str) -> dict:
+    """What the Excel and CSV files hold, as JSON, so the in-app preview always matches the download."""
+    sheets = [{k: v for k, v in sheet.items() if k != "widths"} for sheet in export_sheets(review)]
+    sheets.append({"name": "About", "columns": ["Note"], "rows": export_about(review, now())})
+    base = f"{deal_id}-promise-ledger"
+    return {"title": f"{review['project']} · Promise receipt", "project": review["project"], "city": review["city"],
+            "files": {"xlsx": f"{base}.xlsx", "csv": f"{base}.csv"}, "csv_sheet": "Claims", "sheets": sheets}
+
+
 def export_csv(review: dict) -> str:
+    claims = export_sheets(review)[0]
     buf = io.StringIO()
     writer = csv.writer(buf)
-    writer.writerow(CLAIM_COLUMNS)
-    writer.writerows([[_cell(v) for v in row] for row in claim_rows(review)])
+    writer.writerow(claims["columns"])
+    writer.writerows(claims["rows"])
     return buf.getvalue()
 
 
@@ -486,26 +510,23 @@ def export_xlsx(review: dict) -> bytes:
     from openpyxl.styles import Alignment, Font
 
     wb = Workbook()
-    sheets = [("Claims", CLAIM_COLUMNS, claim_rows(review), [18, 70, 40, 12, 6, 12, 10, 10]),
-              ("Terms", TERM_COLUMNS, term_rows(review), [18, 14, 14, 10, 50, 12])]
-    for index, (name, header, rows, widths) in enumerate(sheets):
+    for index, sheet in enumerate(export_sheets(review)):
         ws = wb.active if index == 0 else wb.create_sheet()
-        ws.title = name
-        ws.append(header)
+        ws.title = sheet["name"]
+        ws.append(sheet["columns"])
         for cell in ws[1]:
             cell.font = Font(bold=True)
-        for row in rows:
-            ws.append([_cell(v) for v in row])
-        for col, width in zip("ABCDEFGH", widths):
+        for row in sheet["rows"]:
+            ws.append(row)
+        for col, width in zip("ABCDEFGH", sheet["widths"]):
             ws.column_dimensions[col].width = width
         for row in ws.iter_rows(min_row=2):
             for cell in row:
                 cell.alignment = Alignment(wrap_text=True, vertical="top")
         ws.freeze_panes = "A2"
     note = wb.create_sheet("About")
-    note.append([f"{review['project']}, {review['city']}"])
-    note.append([review["notice"]])
-    note.append([f"Exported {now()}"])
+    for row in export_about(review, now()):
+        note.append(row)
     buf = io.BytesIO()
     wb.save(buf)
     return buf.getvalue()

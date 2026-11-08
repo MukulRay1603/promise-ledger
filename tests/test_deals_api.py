@@ -146,6 +146,39 @@ class DealApi(unittest.TestCase):
         self.assertEqual(parsed[0], deals.CLAIM_COLUMNS)
         self.assertEqual(len(parsed), 2)
 
+    def test_export_preview_matches_the_files(self):
+        from openpyxl import load_workbook
+
+        deal_id = self.new_deal()
+        self.upload(deal_id, type="Signed letter")
+        r = self.client.get(f"/api/deals/{deal_id}/export.json")
+        self.assertEqual(r.status_code, 200)
+        preview = r.json()
+        self.assertEqual(preview["title"], "Harbor Walk · Promise receipt")
+        self.assertEqual(preview["files"], {"xlsx": f"{deal_id}-promise-ledger.xlsx", "csv": f"{deal_id}-promise-ledger.csv"})
+        self.assertEqual(preview["csv_sheet"], "Claims")
+        wb = load_workbook(io.BytesIO(self.client.get(f"/api/deals/{deal_id}/export.xlsx").content))
+        self.assertEqual([sheet["name"] for sheet in preview["sheets"]], wb.sheetnames)
+        for sheet in preview["sheets"][:2]:  # About carries the export time, so only its shape is compared.
+            file_rows = [["" if v is None else v for v in row] for row in wb[sheet["name"]].values]  # Empty cells read back as None.
+            self.assertEqual(file_rows[0], sheet["columns"])
+            self.assertEqual(file_rows[1:], sheet["rows"])
+        text = self.client.get(f"/api/deals/{deal_id}/export.csv").content.decode("utf-8-sig")
+        claims = preview["sheets"][0]
+        self.assertEqual(list(csv.reader(io.StringIO(text))), [claims["columns"]] + [[str(v) for v in row] for row in claims["rows"]])
+        self.assertEqual(len(preview["sheets"][2]["rows"]), wb["About"].max_row)
+
+    def test_export_preview_needs_a_deal(self):
+        self.assertEqual(self.client.get("/api/deals/nope/export.json").status_code, 404)
+
+    def test_export_preview_keeps_formula_guard(self):
+        review = {"project": "P", "city": "C", "notice": "n", "documents": [{"id": "d", "title": "=HYPERLINK(1)"}], "terms": [],
+                  "claims": [{"topic": "units", "quote": "=1+1", "document": "d", "document_type": "Letter",
+                              "date": "", "page": 1, "status": "proposed", "quote_checked": True}]}
+        row = deals.export_preview(review, "p")["sheets"][0]["rows"][0]
+        self.assertEqual(row[1], "'=1+1")
+        self.assertEqual(row[2], "'=HYPERLINK(1)")
+
     def test_export_cells_cannot_run_formulas(self):
         review = {"documents": [{"id": "d", "title": "=HYPERLINK(1)"}], "terms": [],
                   "claims": [{"topic": "units", "quote": "=1+1", "document": "d", "document_type": "Letter",

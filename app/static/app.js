@@ -247,7 +247,7 @@ async function route({ initial = false } = {}) {
     window.scrollTo(0, 0);
     byId("main").focus({ preventScroll: true });
   }
-  if (next.view === "home") { document.title = "Promise Ledger"; setupVideos(); return; }
+  if (next.view === "home") { document.title = "Promise Ledger"; setupVideos(); if (!hero.running && hero.loops < HERO_LOOPS) heroPlay(); return; }
   if (next.view === "deals") return renderDeals();
   if (next.view === "deal") return renderDeal(next.id, next.tab, next.source);
   if (next.view === "shared") return renderShared(next.token);
@@ -305,6 +305,9 @@ function fillHeroReceipt(review) {
     if (claim && term?.wording_differs) badge = el("span", { class: "badge badge-warn" }, svg("0 0 16 16", ICONS.differs), "Wording differs");
     return el("li", {}, el("span", { class: "rc-term" }, label), value, badge);
   });
+  const card = byId("hero-receipt");
+  const shown = card.querySelectorAll(".rc-rows li.on").length;
+  if (card.classList.contains("assembling")) rows.forEach((row, index) => { if (!hero.running || card.classList.contains("done") || index < shown) row.classList.add("on"); });
   byId("hero-receipt-rows").replaceChildren(...rows);
   byId("hero-receipt-title").textContent = `${review.project} · ${review.city}`;
   byId("hero-receipt-checks").textContent = `${review.checks.passed} of ${review.checks.total}`;
@@ -334,6 +337,12 @@ function reminderText(item) {
 }
 
 const sourceHref = (dealId, claimId) => `#/deals/${encodeURIComponent(dealId)}${claimId ? `/source/${encodeURIComponent(claimId)}` : ""}`;
+
+// Four segments, filled up to the furthest stage. Decorative: the tag next to it says the stage in words.
+function stageBar(status) {
+  const reached = STAGES.indexOf(status) + 1;
+  return el("span", { class: "stage-bar", "aria-hidden": "true" }, STAGES.map((stage, index) => el("span", { class: index < reached ? "on" : null })));
+}
 
 function flagCell(deal) {
   const items = [];
@@ -392,7 +401,8 @@ async function renderDeals() {
         el("a", { class: "deal-name", href: `#/deals/${encodeURIComponent(deal.id)}` }, deal.name),
         el("span", { class: "deal-city" }, deal.city)),
       el("td", { "data-label": "Documents" }, el("span", { class: "num" }, String(docs))),
-      el("td", { "data-label": "Furthest stage" }, deal.furthest_status ? tag(deal.furthest_status) : tag("none")),
+      el("td", { "data-label": "Furthest stage" }, el("span", { class: "stage-cell" },
+        deal.furthest_status ? tag(deal.furthest_status) : tag("none"), stageBar(deal.furthest_status))),
       el("td", { "data-label": "Flags" }, flagCell({ ...deal, documents: docs })),
       el("td", { "data-label": "Next reminder", class: "reminder-cell" }, deal.next_reminder
         ? [el("span", {}, reminderText(deal.next_reminder)),
@@ -413,7 +423,9 @@ async function renderDeals() {
 
 function rememberSample(deals) {
   const sample = deals.find((deal) => /harbor walk/i.test(deal.name)) || deals.find((deal) => deal.documents);
-  if (sample) { sampleId = sample.id; byId("open-sample").href = `#/deals/${encodeURIComponent(sample.id)}`; }
+  if (!sample) return;
+  sampleId = sample.id;
+  document.querySelectorAll(".js-sample").forEach((link) => { link.href = `#/deals/${encodeURIComponent(sample.id)}`; });
 }
 
 // ---------- New deal dialog ----------
@@ -509,7 +521,7 @@ const DEAL_TEMPLATE = `
     </div>
     <div class="panel" role="tabpanel" id="receipt" aria-labelledby="tab-receipt" tabindex="0" hidden>
       <div class="panel-head"><h2 id="receipt-heading">Promise Receipt</h2><button type="button" class="btn btn-secondary" id="print-receipt"></button></div>
-      <article class="receipt" id="receipt-body" aria-labelledby="receipt-heading"></article>
+      <div class="printer"><div class="printer-slot" aria-hidden="true"></div><div class="paper-clip"><article class="receipt paper" id="receipt-body" aria-labelledby="receipt-heading"></article></div></div>
     </div>
     <div class="panel" role="tabpanel" id="extract" aria-labelledby="tab-extract" tabindex="0" hidden>
       <div class="panel-head"><h2>Read new text</h2><p class="panel-note">The model finds candidate quotes. Code keeps only quotes that match your text word for word. A person sets every status.</p></div>
@@ -574,14 +586,14 @@ function setDeal(id, deal, review) {
 
 function renderActions(id, deal) {
   const base = `/api/deals/${encodeURIComponent(id)}`;
-  const exportLink = (ext, label, name) => el("a", {
-    class: "btn btn-secondary", href: `${base}/export.${ext}`, download: `${name}.${ext}`,
-    onclick: (event) => { if (mock) { event.preventDefault(); mockDownload(`${base}/export.${ext}`, `${name}.${ext === "xlsx" ? "csv" : ext}`, ext); } },
+  // Excel and CSV open a preview of the file first; the downloads are inside it.
+  const exportButton = (ext, label) => el("button", {
+    type: "button", class: "btn btn-secondary", "data-export": ext, "aria-haspopup": "dialog",
+    onclick: (event) => openExport(id, ext, event.currentTarget),
   }, icon(ext === "xlsx" ? "sheet" : "file"), label);
-  const name = deal.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   byId("deal-actions").replaceChildren(
-    exportLink("xlsx", "Excel", `${name}-receipt`),
-    exportLink("csv", "CSV", `${name}-receipt`),
+    exportButton("xlsx", "Excel"),
+    exportButton("csv", "CSV"),
     el("button", { type: "button", class: "btn btn-primary", id: "share-btn", onclick: (event) => shareLink(id, event.currentTarget) }, icon("link"), "Share read-only link"),
   );
 }
@@ -687,18 +699,21 @@ function renderSummary() {
   );
 
   const stageIndex = STAGES.indexOf(s.furthest_status) + 1;
+  // Each figure gets a small picture of itself: a share bar, stage segments, or one dot per term. All decorative.
+  const dots = (count, total) => el("span", { class: "kpi-mini", "aria-hidden": "true" }, Array.from({ length: total || 0 }, (_, i) => el("span", { class: i < count ? "on" : null })));
+  const share = s.homes_total && s.homes_described ? el("span", { class: "kpi-mini frac", "aria-hidden": "true", style: `--f:${s.homes_described / s.homes_total}` }, el("span")) : null;
   const kpis = [
-    ["Homes described as affordable", s.homes_described ?? "None", s.homes_total ? `of ${s.homes_total} homes` : "homes", false],
-    ["Furthest stage", s.furthest_label, stageIndex ? `stage ${stageIndex} of ${s.stages_total}` : "nothing located", false],
-    ["Terms that differ", s.terms_differ, `of ${s.terms_total} terms`, s.terms_differ > 0],
-    ["Terms not located", s.terms_not_located, `of ${s.terms_total} terms`, s.terms_not_located > 0],
+    ["Homes described as affordable", s.homes_described ?? "None", s.homes_total ? `of ${s.homes_total} homes` : "homes", false, share],
+    ["Furthest stage", s.furthest_label, stageIndex ? `stage ${stageIndex} of ${s.stages_total}` : "nothing located", false, dots(stageIndex, s.stages_total)],
+    ["Terms that differ", s.terms_differ, `of ${s.terms_total} terms`, s.terms_differ > 0, dots(s.terms_differ, s.terms_total)],
+    ["Terms not located", s.terms_not_located, `of ${s.terms_total} terms`, s.terms_not_located > 0, dots(s.terms_not_located, s.terms_total)],
   ];
   const animate = !counted.has(id);
   counted.add(id);
-  byId("kpis").replaceChildren(...kpis.map(([label, value, unit, warn]) => {
+  byId("kpis").replaceChildren(...kpis.map(([label, value, unit, warn, mini]) => {
     const valueNode = el("span", { class: "kpi-value" }, String(value));
     if (animate) countUp(valueNode, value);
-    return el("li", { class: `kpi${warn ? " kpi-warn" : ""}` }, el("span", { class: "kpi-label" }, label), valueNode, el("span", { class: "kpi-unit" }, unit));
+    return el("li", { class: `kpi${warn ? " kpi-warn" : ""}` }, el("span", { class: "kpi-label" }, label), valueNode, el("span", { class: "kpi-unit" }, unit), mini);
   }));
 
   byId("stepper").replaceChildren(...review.stages.map((stage, index) => {
@@ -716,6 +731,7 @@ function renderSummary() {
 }
 
 // Tabs: ARIA tabs with arrow keys, Home and End. The hash names the open tab.
+let printed = null; // The deal whose receipt has already printed this visit.
 function activateTab(id, { focus = false, updateHash = false } = {}) {
   if (!TAB_IDS.includes(id) || !byId(`tab-${id}`)) return;
   for (const tabId of TAB_IDS) {
@@ -726,6 +742,10 @@ function activateTab(id, { focus = false, updateHash = false } = {}) {
     byId(tabId).hidden = !on;
   }
   if (focus) byId(`tab-${id}`).focus();
+  if (id === "receipt" && dealState && printed !== dealState.id) {
+    printed = dealState.id;
+    requestAnimationFrame(() => printOut(byId("receipt-body")));
+  }
   if (updateHash && dealState) {
     const hash = `#/deals/${encodeURIComponent(dealState.id)}/${id}`;
     if (location.hash !== hash) { history.replaceState(null, "", hash); current.tab = id; }
@@ -896,8 +916,10 @@ function renderReceipt(target, review, { titleTag = "p" } = {}) {
       el("table", {},
         el("thead", {}, el("tr", {}, el("th", { scope: "col" }, "Term"), el("th", { scope: "col" }, "Signed wording"), el("th", { scope: "col" }, "Earlier wording"))),
         el("tbody", {}, ...rows))),
-    el("h3", {}, "Open questions, flagged for human review"),
-    review.questions.length ? el("ul", {}, ...review.questions.map((question) => el("li", {}, question.text))) : el("p", {}, "None."),
+    el("div", { class: "receipt-flags" },
+      el("h3", {}, "Open questions, flagged for human review"),
+      review.questions.length ? el("ul", {}, ...review.questions.map((question) => el("li", {}, question.text))) : el("p", {}, "None."),
+      review.questions.length ? el("span", { class: "receipt-stamp", "aria-hidden": "true" }, "Flagged for human review") : null),
     el("p", { class: "receipt-foot" }, `Quote check: ${passed} of ${total} quotes found on their cited pages.`),
     el("div", { class: "sign-off" }, el("p", {}, "Reviewed by: ______________________"), el("p", {}, "Date: ______________")),
     el("p", { class: "receipt-foot" }, "This receipt is a review aid. It makes no legal findings."),
@@ -1197,7 +1219,7 @@ function setupSourceDialog() {
 async function renderShared(token) {
   document.title = "Shared receipt · Promise Ledger";
   const view = byId("view-shared");
-  const article = el("article", { class: "receipt", "aria-labelledby": "shared-title", "aria-busy": "true" },
+  const article = el("article", { class: "receipt paper", "aria-labelledby": "shared-title", "aria-busy": "true" },
     [80, 60, 90, 70, 85].map((width) => el("span", { class: "skeleton sk-line", style: `width:${width}%` })));
   const title = el("h1", { id: "shared-title" }, "Shared receipt");
   view.replaceChildren(
@@ -1205,7 +1227,7 @@ async function renderShared(token) {
       el("div", {}, title, el("p", { class: "page-sub" }, "A read-only copy of a Promise Ledger receipt. It cannot be edited from this link.")),
       el("div", { class: "page-actions" }, el("button", { type: "button", class: "btn btn-primary", onclick: () => window.print() }, icon("print"), "Print"))),
     el("p", { class: "shared-note" }, el("span", { class: "badge badge-info" }, svg("0 0 16 16", ICONS.machine), "Read-only"), "Each quote shows its document, date and page."),
-    article,
+    el("div", { class: "printer" }, el("div", { class: "printer-slot", "aria-hidden": "true" }), el("div", { class: "paper-clip" }, article)),
   );
   try {
     // A /r/{token} page arrives with the read-only review already inside it.
@@ -1217,6 +1239,7 @@ async function renderShared(token) {
     document.title = `${review.project} receipt · Promise Ledger`;
     article.removeAttribute("aria-busy");
     renderReceipt(article, review, { titleTag: "h2" });
+    printOut(article, { stampDelay: 300 });
   } catch (err) {
     article.removeAttribute("aria-busy");
     article.replaceChildren(el("p", {}, err.status === 404 ? "This link is not valid or has been turned off. Ask the person who shared it for a new link." : `The receipt did not load. ${err.message}`));
@@ -1229,7 +1252,13 @@ function setupToggles() {
   const system = window.matchMedia("(prefers-color-scheme: dark)");
   const theme = byId("theme-toggle");
   const isDark = () => (root.dataset.theme || (system.matches ? "dark" : "light")) === "dark";
-  const syncTheme = () => theme.setAttribute("aria-pressed", String(isDark()));
+  // The button names the theme it switches to, and its icon matches: a sun for "Light mode", a moon for "Dark mode".
+  const label = theme.querySelector(".theme-label");
+  const syncTheme = () => {
+    const dark = isDark();
+    theme.dataset.dark = String(dark);
+    label.textContent = dark ? "Light mode" : "Dark mode";
+  };
   theme.addEventListener("click", () => {
     root.dataset.theme = isDark() ? "light" : "dark";
     try { localStorage.setItem("pl-theme", root.dataset.theme); } catch (err) { /* This visit only. */ }
@@ -1248,6 +1277,360 @@ function setupToggles() {
   syncText();
 }
 
+// ---------- Receipt printer ----------
+// The paper feeds out of its slot, then the review stamp lands once it is on screen.
+// With reduced motion the receipt simply appears with its stamp in place.
+function landStamp(stamp, delay = 0) {
+  if (!stamp) return;
+  stamp.classList.remove("landing", "landed");
+  if (reducedMotion.matches) { stamp.classList.add("landed"); return; }
+  const land = () => setTimeout(() => { stamp.classList.add("landed", "landing"); }, delay);
+  if (!("IntersectionObserver" in window)) { land(); return; }
+  const observer = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    observer.disconnect();
+    land();
+  }, { threshold: 0.9 });
+  observer.observe(stamp);
+}
+
+function printOut(paper, { stampDelay = 1100 } = {}) {
+  if (!paper) return;
+  const stamp = paper.querySelector(".receipt-stamp");
+  if (!reducedMotion.matches) {
+    paper.classList.remove("feeding");
+    void paper.offsetWidth; // Restart the feed.
+    paper.classList.add("feeding");
+  }
+  landStamp(stamp, reducedMotion.matches ? 0 : stampDelay);
+}
+
+// ---------- Landing motion: hero receipt assembly, scroll reveal, count-up ----------
+// All of it is decoration. The content is in the page from the start, and reduced motion shows it still.
+const hero = { loops: 0, timers: [], visible: true, running: false };
+const HERO_LOOPS = 3;
+
+function heroClear() { hero.timers.forEach(clearTimeout); hero.timers = []; }
+
+function heroPlay() {
+  const card = byId("hero-receipt");
+  if (!card || reducedMotion.matches || hero.loops >= HERO_LOOPS || !hero.visible || current.view !== "home") { hero.running = false; return; }
+  hero.running = true;
+  hero.loops += 1;
+  const rows = [...card.querySelectorAll(".rc-rows li")];
+  card.classList.add("assembling", "checking");
+  card.classList.remove("done");
+  rows.forEach((row) => row.classList.remove("on"));
+  const live = card.querySelector(".rc-live-text");
+  if (live) live.textContent = "Checking";
+  const paper = card.querySelector(".paper");
+  const stamp = card.querySelector(".receipt-stamp");
+  stamp?.classList.remove("landed", "landing");
+  paper.classList.remove("feeding");
+  void paper.offsetWidth;
+  paper.classList.add("feeding");
+  // Rows are looked up when each step fires, because live data can replace them mid-loop.
+  const first = 900;
+  rows.forEach((row, index) => hero.timers.push(setTimeout(() => card.querySelectorAll(".rc-rows li")[index]?.classList.add("on"), first + index * 480)));
+  const end = first + rows.length * 480 + 250;
+  hero.timers.push(setTimeout(() => {
+    card.querySelectorAll(".rc-rows li").forEach((row) => row.classList.add("on"));
+    card.classList.add("done");
+    card.classList.remove("checking");
+    if (live) live.textContent = "Checked";
+    stamp?.classList.add("landed", "landing");
+  }, end));
+  // Hold the finished receipt, then replay. After the last loop it stays finished.
+  hero.timers.push(setTimeout(() => { if (hero.loops < HERO_LOOPS) heroPlay(); else hero.running = false; }, end + 5200));
+}
+
+function heroFinish() {
+  const card = byId("hero-receipt");
+  if (!card) return;
+  heroClear();
+  hero.running = false;
+  card.classList.add("done");
+  card.classList.remove("checking");
+  card.querySelectorAll(".rc-rows li").forEach((row) => row.classList.add("on"));
+  card.querySelector(".paper")?.classList.remove("feeding");
+  card.querySelector(".receipt-stamp")?.classList.add("landed");
+  const live = card.querySelector(".rc-live-text");
+  if (live) live.textContent = "Checked";
+}
+
+function setupHeroMotion() {
+  const card = byId("hero-receipt");
+  if (!card || reducedMotion.matches || !("IntersectionObserver" in window)) return;
+  new IntersectionObserver(([entry]) => {
+    hero.visible = entry.isIntersecting;
+    if (!hero.visible && hero.running) { heroFinish(); }
+    else if (hero.visible && !hero.running && hero.loops < HERO_LOOPS) heroPlay();
+  }, { threshold: 0.35 }).observe(card);
+  reducedMotion.addEventListener?.("change", () => { if (reducedMotion.matches) heroFinish(); });
+}
+
+function countStat(node) {
+  const target = Number(node.dataset.count);
+  const decimals = Number(node.dataset.decimals || 0);
+  const show = (value) => { node.textContent = value.toFixed(decimals); };
+  if (reducedMotion.matches || !target) { show(target); return; }
+  const start = performance.now();
+  const duration = 900;
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / duration);
+    show(target * (1 - (1 - t) ** 3));
+    if (t < 1) requestAnimationFrame(step);
+  };
+  show(0);
+  requestAnimationFrame(step);
+}
+
+function setupReveal() {
+  const sections = [...document.querySelectorAll(".reveal")];
+  const reveal = (section) => {
+    if (section.classList.contains("in")) return;
+    section.classList.add("in");
+    section.querySelectorAll("[data-count]").forEach(countStat);
+  };
+  if (reducedMotion.matches || !("IntersectionObserver" in window)) { sections.forEach((section) => section.classList.add("in")); return; }
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) if (entry.isIntersecting) { reveal(entry.target); observer.unobserve(entry.target); }
+  }, { threshold: 0.18, rootMargin: "0px 0px -8% 0px" });
+  sections.forEach((section) => observer.observe(section));
+}
+
+// ---------- Command palette (Ctrl or Cmd + K) ----------
+const CMD_ICONS = {
+  go: [["path", { d: "M5 12h14M13 6l6 6-6 6" }]],
+  deal: [["path", { d: "M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5z" }], ["path", { d: "M9 8h6M9 12h6" }]],
+  tab: [["rect", { x: 3, y: 5, width: 18, height: 14, rx: 2 }], ["path", { d: "M3 9h18M9 5v4" }]],
+  file: UI_ICONS.file,
+  theme: [["path", { d: "M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" }]],
+  text: [["path", { d: "M4 18 9 6l5 12M5.8 14h6.4M15 18l3-7 3 7M15.8 16h4.4" }]],
+  plus: UI_ICONS.plus,
+  link: UI_ICONS.link,
+};
+const TAB_NAMES = { claims: "Claims", changes: "What changed", questions: "Open questions", receipt: "Receipt", extract: "Read new text", glossary: "Glossary" };
+const cmd = { items: [], shown: [], active: 0, deals: null, opener: null };
+
+async function commandList() {
+  const list = [
+    { group: "Go to", label: "Home", icon: "go", run: () => { location.hash = "#/"; } },
+    { group: "Go to", label: "Deals", icon: "go", run: () => { location.hash = "#/deals"; } },
+  ];
+  if (!cmd.deals) { try { cmd.deals = await api("/api/deals"); } catch (err) { cmd.deals = []; } }
+  for (const deal of cmd.deals) list.push({ group: "Deals", label: deal.name, hint: deal.city, icon: "deal", run: () => { location.hash = `#/deals/${encodeURIComponent(deal.id)}`; } });
+  if (current.view === "deal" && dealState && !byId("details").hidden) {
+    for (const [id, name] of Object.entries(TAB_NAMES)) {
+      list.push({ group: `${dealState.deal.name} tabs`, label: name, icon: "tab", run: () => { activateTab(id, { updateHash: true }); byId("tablist").scrollIntoView({ block: "start" }); byId(`tab-${id}`).focus(); } });
+    }
+  }
+  if (current.view === "deal" && dealState) {
+    const buttons = [...document.querySelectorAll("#deal-actions [data-export]")];
+    buttons.forEach((button) => list.push({ group: "Actions", label: `Preview ${button.textContent.trim()} export`, icon: "file", run: () => button.click() }));
+    list.push({ group: "Actions", label: "Share read-only link", icon: "link", run: () => byId("share-btn")?.click() });
+  }
+  list.push({ group: "Actions", label: "New deal", icon: "plus", run: () => document.querySelector(".view:not([hidden]) [data-new-deal], [data-new-deal]")?.click() });
+  list.push({ group: "Display", label: `Switch to ${byId("theme-toggle").dataset.dark === "true" ? "light" : "dark"} mode`, icon: "theme", run: () => byId("theme-toggle").click() });
+  list.push({ group: "Display", label: "Toggle larger text", icon: "text", run: () => byId("text-toggle").click() });
+  return list;
+}
+
+function renderCommands() {
+  const query = byId("cmdk-input").value.trim().toLowerCase();
+  cmd.shown = cmd.items.filter((item) => !query || `${item.label} ${item.group} ${item.hint || ""}`.toLowerCase().includes(query));
+  cmd.active = Math.min(cmd.active, Math.max(0, cmd.shown.length - 1));
+  const rows = [];
+  let group = null;
+  cmd.shown.forEach((item, index) => {
+    if (item.group !== group) { group = item.group; rows.push(el("li", { class: "cmdk-group", role: "presentation" }, group)); }
+    rows.push(el("li", {
+      class: "cmdk-item", role: "option", id: `cmd-${index}`, "aria-selected": String(index === cmd.active),
+      onclick: () => runCommand(index), onmousemove: () => { if (cmd.active !== index) { cmd.active = index; markActive(); } },
+    }, svg("0 0 24 24", CMD_ICONS[item.icon] || CMD_ICONS.go), el("span", {}, item.label), item.hint ? el("span", { class: "cmdk-hint" }, item.hint) : null));
+  });
+  byId("cmdk-list").replaceChildren(...rows);
+  byId("cmdk-empty").hidden = cmd.shown.length > 0;
+  markActive();
+}
+
+function markActive() {
+  byId("cmdk-list").querySelectorAll(".cmdk-item").forEach((row) => row.setAttribute("aria-selected", String(row.id === `cmd-${cmd.active}`)));
+  const input = byId("cmdk-input");
+  if (cmd.shown.length) {
+    input.setAttribute("aria-activedescendant", `cmd-${cmd.active}`);
+    byId(`cmd-${cmd.active}`)?.scrollIntoView({ block: "nearest" });
+  } else input.removeAttribute("aria-activedescendant");
+}
+
+function runCommand(index) {
+  const item = cmd.shown[index];
+  if (!item) return;
+  cmd.opener = null; // The command decides where focus goes next.
+  byId("cmdk").close();
+  item.run();
+}
+
+async function openCommands() {
+  const dialog = byId("cmdk");
+  if (dialog.open) return;
+  cmd.opener = document.activeElement;
+  cmd.deals = null;
+  byId("cmdk-input").value = "";
+  cmd.active = 0;
+  cmd.items = [];
+  renderCommands();
+  dialog.showModal();
+  byId("cmdk-input").focus();
+  cmd.items = await commandList();
+  renderCommands();
+}
+
+function setupCommands() {
+  const dialog = byId("cmdk");
+  const input = byId("cmdk-input");
+  input.spellcheck = false;
+  byId("cmdk-open").addEventListener("click", openCommands);
+  if (!/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)) {
+    byId("cmdk-open").setAttribute("aria-keyshortcuts", "Control+K");
+  } else {
+    byId("cmdk-open").querySelector(".kbd").textContent = "⌘K";
+    byId("cmdk-open").setAttribute("aria-keyshortcuts", "Meta+K");
+  }
+  document.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      if (dialog.open) dialog.close(); else openCommands();
+    }
+  });
+  input.addEventListener("input", () => { cmd.active = 0; renderCommands(); });
+  input.addEventListener("keydown", (event) => {
+    const count = cmd.shown.length;
+    if (event.key === "ArrowDown" && count) { event.preventDefault(); cmd.active = (cmd.active + 1) % count; markActive(); }
+    else if (event.key === "ArrowUp" && count) { event.preventDefault(); cmd.active = (cmd.active - 1 + count) % count; markActive(); }
+    else if (event.key === "Home" && count && !input.value) { event.preventDefault(); cmd.active = 0; markActive(); }
+    else if (event.key === "End" && count && !input.value) { event.preventDefault(); cmd.active = count - 1; markActive(); }
+    else if (event.key === "Enter") { event.preventDefault(); runCommand(cmd.active); }
+  });
+  dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+  dialog.addEventListener("close", () => { cmd.opener?.focus?.(); });
+}
+
+// ---------- Export preview ----------
+// Excel and CSV open a preview first. It is built from /export.json, which uses the same rows as the files.
+const xp = { data: null, sheet: 0, format: "xlsx", dealId: null, opener: null };
+
+function exportCell(column, value, row = {}) {
+  const text = value === null || value === undefined ? "" : String(value);
+  // A term with no wording on file has nothing to compare, so it is not shown as matching.
+  if (column === "Wording differs" && text !== "Yes" && /not located/i.test(row.Result || "")) return el("span", { class: "cell-muted" }, "Not compared");
+  if (column === "Wording differs") return text === "Yes" ? tag("differs") : tag("ok", "Matches");
+  if (column === "Verified") return text === "Yes" ? el("span", { class: "badge badge-ok" }, svg("0 0 16 16", ICONS.ok), "Verified") : el("span", { class: "badge badge-warn" }, svg("0 0 16 16", ICONS.not_located), "Flagged");
+  if (column === "Result" && /not located/i.test(text)) return tag("not_located", text);
+  if (column === "Signed record") return text === "Yes" ? tag("signed", "Yes") : el("span", { class: "cell-muted" }, text || "No");
+  if ((column === "Stage" || column === "Furthest stage") && STAGES.includes(text.toLowerCase())) return tag(text.toLowerCase(), text);
+  if (column === "Quote") return el("span", { class: "quote" }, text);
+  return text;
+}
+
+const NUMERIC = new Set(["Page", "Date"]);
+
+function renderExportSheet() {
+  const sheets = visibleSheets();
+  const sheet = sheets[xp.sheet] || sheets[0];
+  const file = xp.format === "csv" ? xp.data.files.csv : xp.data.files.xlsx;
+  byId("xp-title").textContent = `${xp.data.title}.${xp.format}`;
+  byId("xp-meta").textContent = `${file} · ${plural(sheet.rows.length, "row")} · Sheet: ${sheet.name}`;
+  byId("xp-tabs").hidden = sheets.length < 2;
+  byId("xp-tabs").replaceChildren(...sheets.map((item, index) => el("button", {
+    type: "button", role: "tab", id: `xp-tab-${index}`, "aria-controls": "xp-scroll", "aria-selected": String(index === xp.sheet), tabindex: index === xp.sheet ? "0" : "-1",
+    onclick: () => { xp.sheet = index; renderExportSheet(); byId(`xp-tab-${index}`).focus(); },
+    onkeydown: (event) => {
+      const moves = { ArrowRight: index + 1, ArrowLeft: index - 1, Home: 0, End: sheets.length - 1 };
+      if (!(event.key in moves)) return;
+      event.preventDefault();
+      xp.sheet = (moves[event.key] + sheets.length) % sheets.length;
+      renderExportSheet();
+      byId(`xp-tab-${xp.sheet}`).focus();
+    },
+  }, item.name, el("span", { class: "tab-count" }, String(item.rows.length)))));
+  byId("xp-scroll").setAttribute("aria-label", `${sheet.name} sheet preview`);
+  if (sheets.length > 1) byId("xp-scroll").setAttribute("aria-labelledby", `xp-tab-${xp.sheet}`); else byId("xp-scroll").removeAttribute("aria-labelledby");
+  byId("xp-table").replaceChildren(
+    el("caption", { class: "visually-hidden" }, `${sheet.name}: ${plural(sheet.rows.length, "row")}`),
+    el("thead", {}, el("tr", {}, sheet.columns.map((column) => el("th", { scope: "col", class: NUMERIC.has(column) ? "num-col" : null }, column)))),
+    el("tbody", {}, sheet.rows.length
+      ? sheet.rows.map((row) => {
+        const named = Object.fromEntries(sheet.columns.map((column, index) => [column, row[index]]));
+        return el("tr", {}, row.map((value, index) => el("td", { class: NUMERIC.has(sheet.columns[index]) ? "num-col mono" : null }, exportCell(sheet.columns[index], value, named))));
+      })
+      : el("tr", {}, el("td", { colspan: sheet.columns.length, class: "cell-muted" }, "No rows yet."))),
+  );
+  byId("xp-scroll").scrollTo({ top: 0, left: 0 });
+}
+
+// The CSV holds the Claims sheet only, so a CSV preview shows just that sheet.
+const visibleSheets = () => (xp.format === "csv" ? xp.data.sheets.filter((sheet) => sheet.name === xp.data.csv_sheet) : xp.data.sheets);
+
+function csvText(sheet) {
+  const cell = (value) => {
+    const text = value === null || value === undefined ? "" : String(value);
+    return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  };
+  return [sheet.columns, ...sheet.rows].map((row) => row.map(cell).join(",")).join("\r\n") + "\r\n";
+}
+
+async function openExport(dealId, format, opener) {
+  const dialog = byId("export-dialog");
+  xp.opener = opener;
+  xp.format = format;
+  xp.dealId = dealId;
+  xp.sheet = 0;
+  opener.disabled = true;
+  try {
+    xp.data = await api(`/api/deals/${encodeURIComponent(dealId)}/export.json`);
+  } catch (err) {
+    toast(`The preview did not load. ${err.message}`, { kind: "warn" });
+    return;
+  } finally {
+    opener.disabled = false;
+  }
+  const base = `/api/deals/${encodeURIComponent(dealId)}`;
+  for (const ext of ["xlsx", "csv"]) {
+    const link = byId(`xp-dl-${ext}`);
+    link.href = `${base}/export.${ext}`;
+    link.download = xp.data.files[ext];
+    link.onclick = (event) => {
+      if (mock) { event.preventDefault(); mockDownload(`${base}/export.${ext}`, xp.data.files[ext].replace(/\.xlsx$/, ".csv"), ext); return; }
+      toast(`Downloading ${xp.data.files[ext]}.`);
+    };
+  }
+  byId("xp-dl-xlsx").classList.toggle("btn-primary", format === "xlsx");
+  byId("xp-dl-xlsx").classList.toggle("btn-secondary", format !== "xlsx");
+  byId("xp-dl-csv").classList.toggle("btn-primary", format === "csv");
+  byId("xp-dl-csv").classList.toggle("btn-secondary", format !== "csv");
+  byId("xp-icon").textContent = format.toUpperCase();
+  renderExportSheet();
+  dialog.showModal();
+  byId(`xp-dl-${format}`).focus();
+}
+
+function setupExportDialog() {
+  const dialog = byId("export-dialog");
+  byId("xp-close").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+  dialog.addEventListener("close", () => xp.opener?.focus());
+  byId("xp-copy").addEventListener("click", async () => {
+    const sheet = visibleSheets()[xp.sheet];
+    try {
+      await navigator.clipboard.writeText(csvText(sheet));
+      toast(`Copied the ${sheet.name} sheet as CSV.`);
+    } catch (err) {
+      toast("The clipboard is blocked here. Use Download .csv instead.", { kind: "info" });
+    }
+  });
+}
+
 // ---------- Start ----------
 // Web fonts load after the first paint. Metric-matched fallbacks in style.css keep text from moving when they arrive.
 const FONTS = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap";
@@ -1258,6 +1641,10 @@ setupGlossaryPopovers();
 setupNewDeal();
 setupSourceDialog();
 setupPageDrop();
+setupCommands();
+setupExportDialog();
+setupReveal();
+setupHeroMotion();
 ready = detectMode();
 window.addEventListener("hashchange", () => route());
 route({ initial: true });

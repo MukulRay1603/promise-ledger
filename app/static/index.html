@@ -9,6 +9,7 @@
   <meta name="theme-color" content="#0F766E">
   <script>
     // Apply saved display settings before first paint.
+    document.documentElement.classList.add("js");
     try {
       const theme = localStorage.getItem("pl-theme");
       if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
@@ -17,6 +18,9 @@
     // Shared links open the read-only view without drawing the home page first.
     if (/^\/r\//.test(location.pathname) || /^#\/r\//.test(location.hash)) document.documentElement.classList.add("route-shared");
     else if (/^#\/./.test(location.hash) || /^#[a-z]/.test(location.hash)) document.documentElement.classList.add("route-app");
+    // The hero receipt assembles itself; hide its rows from the first paint so they do not flash.
+    if (!document.documentElement.classList.contains("route-app") && !document.documentElement.classList.contains("route-shared")
+      && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("hero-anim");
   </script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230F766E'/%3E%3Cpath d='M10 8h12v17l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5z' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linejoin='round'/%3E%3Cpath d='M13 13h6M13 17h4' stroke='%23fff' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,8 +49,9 @@
         <a href="#/deals" data-nav="deals">Deals</a>
       </nav>
       <div class="header-tools">
+        <button type="button" class="btn btn-ghost cmdk-open" id="cmdk-open" aria-label="Search" aria-keyshortcuts="Control+K Meta+K"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span class="cmdk-label">Search</span><kbd class="kbd" aria-hidden="true">Ctrl K</kbd></button>
         <button type="button" class="btn btn-ghost btn-toggle" id="text-toggle">Larger text</button>
-        <button type="button" class="btn btn-ghost btn-toggle" id="theme-toggle">Dark mode</button>
+        <button type="button" class="btn btn-ghost theme-btn" id="theme-toggle"><svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg><svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="theme-label">Dark mode</span></button>
       </div>
     </div>
   </header>
@@ -60,38 +65,126 @@
           <div class="hero-copy">
             <h1 id="home-title">Public support should come with a receipt.</h1>
             <p class="lede"><strong>For city housing staff:</strong> check every affordable-housing promise in a deal in minutes, with the source page one click away.</p>
-            <p class="lede-2">One checked record of what a developer promised in return for a tax break: what was said, what was signed and what is still open.</p>
             <div class="hero-actions">
-              <a class="btn btn-primary btn-lg" id="open-sample" href="#/deals/harbor-walk">Open a sample deal</a>
+              <a class="btn btn-primary btn-lg js-sample" id="open-sample" href="#/deals/harbor-walk">Open a sample deal<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
               <button type="button" class="btn btn-secondary btn-lg" data-new-deal>Start a new deal</button>
             </div>
-            <ul class="hero-pillars" aria-label="How it works">
-              <li><span class="pillar-n">1</span> AI reads the records</li>
-              <li><span class="pillar-n">2</span> Code checks every quote</li>
-              <li><span class="pillar-n">3</span> People decide</li>
-            </ul>
+            <p class="hero-motto"><span>AI reads</span><span>Code checks</span><span>People decide</span></p>
           </div>
 
-          <figure class="receipt-card" id="hero-receipt" aria-labelledby="hero-receipt-cap">
-            <div class="rc-head">
-              <p class="rc-kicker">Promise receipt</p>
-              <p class="rc-title" id="hero-receipt-title">Harbor Walk · Lantern Bay</p>
+          <figure class="receipt-card printer" id="hero-receipt" aria-label="Sample promise receipt">
+            <div class="printer-slot" aria-hidden="true"></div>
+            <div class="paper-clip">
+              <div class="paper rc-paper">
+                <div class="rc-head">
+                  <div>
+                    <p class="rc-kicker">Promise receipt</p>
+                    <p class="rc-title" id="hero-receipt-title">Harbor Walk · Lantern Bay</p>
+                  </div>
+                  <span class="rc-live" aria-hidden="true"><span class="rc-dot"></span><span class="rc-live-text">Checked</span></span>
+                </div>
+                <ul class="rc-rows" id="hero-receipt-rows">
+                  <li><span class="rc-term">Homes</span><span class="rc-val">12 affordable homes</span><span class="badge badge-ok"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Quote verified · <span class="mono">p. 1</span></span></li>
+                  <li><span class="rc-term">Income limit</span><span class="rc-val">80 percent of area median income</span><span class="badge badge-warn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h10M10.5 3.2 5.5 12.8"/></svg>Wording differs</span></li>
+                  <li><span class="rc-term">Term</span><span class="rc-val">15 years</span><span class="badge badge-warn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h10M10.5 3.2 5.5 12.8"/></svg>Wording differs</span></li>
+                  <li><span class="rc-term">Remedies</span><span class="rc-val rc-muted">No wording found</span><span class="badge badge-warn"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M6.4 6.3a1.7 1.7 0 1 1 2.3 1.6c-.5.2-.7.6-.7 1.1v.4M8 11.4v.1"/></svg>Not located</span></li>
+                </ul>
+                <p class="rc-foot"><span class="mono" id="hero-receipt-checks">16 of 16</span> quotes found word for word on their cited pages.</p>
+                <span class="receipt-stamp" aria-hidden="true">Flagged for human review</span>
+              </div>
             </div>
-            <ul class="rc-rows" id="hero-receipt-rows">
-              <li><span class="rc-term">Homes</span><span class="rc-val">12 affordable homes</span><span class="badge badge-ok"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Quote verified · <span class="mono">p. 1</span></span></li>
-              <li><span class="rc-term">Income limit</span><span class="rc-val">80 percent of area median income</span><span class="badge badge-warn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h10M10.5 3.2 5.5 12.8"/></svg>Wording differs</span></li>
-              <li><span class="rc-term">Term</span><span class="rc-val">15 years</span><span class="badge badge-warn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h10M10.5 3.2 5.5 12.8"/></svg>Wording differs</span></li>
-              <li><span class="rc-term">Remedies</span><span class="rc-val rc-muted">No wording found</span><span class="badge badge-warn"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M6.4 6.3a1.7 1.7 0 1 1 2.3 1.6c-.5.2-.7.6-.7 1.1v.4M8 11.4v.1"/></svg>Not located</span></li>
-            </ul>
-            <figcaption class="rc-foot" id="hero-receipt-cap"><span class="mono" id="hero-receipt-checks">16 of 16</span> quotes found word for word on their cited pages.</figcaption>
           </figure>
         </div>
       </div>
 
-      <section class="container section videos" aria-labelledby="videos-title">
+      <section class="container section reveal" aria-labelledby="problem-title">
+        <p class="kicker">The problem</p>
+        <h2 class="section-title" id="problem-title">Promises get lost between documents.</h2>
+        <ul class="tiles">
+          <li class="tile">
+            <svg class="illo" viewBox="0 0 200 112" aria-hidden="true">
+              <g class="illo-lines"><path d="M100 52 29 30M100 52 61 20M100 52 139 20M100 52l71-22M100 52v26"/></g>
+              <g class="illo-doc"><rect x="16" y="14" width="26" height="32" rx="4"/><path d="M22 24h14M22 30h10"/></g>
+              <g class="illo-doc"><rect x="48" y="4" width="26" height="32" rx="4"/><path d="M54 14h14M54 20h10"/></g>
+              <g class="illo-doc"><rect x="126" y="4" width="26" height="32" rx="4"/><path d="M132 14h14M132 20h10"/></g>
+              <g class="illo-doc"><rect x="158" y="14" width="26" height="32" rx="4"/><path d="M164 24h14M164 30h10"/></g>
+              <g class="illo-doc"><rect x="87" y="76" width="26" height="32" rx="4"/><path d="M93 86h14M93 92h10"/></g>
+              <circle class="illo-core" cx="100" cy="50" r="15"/><path class="illo-core-mark" d="M93.5 50.5l4.5 4.5 8.5-9"/>
+            </svg>
+            <h3>One promise, five documents</h3>
+            <p class="tile-note">report · letter · slides · minutes · agreement</p>
+          </li>
+          <li class="tile">
+            <svg class="illo" viewBox="0 0 200 112" aria-hidden="true">
+              <g class="illo-chip illo-old"><rect x="14" y="34" width="66" height="40" rx="20"/><text x="47" y="60" text-anchor="middle">60%</text><path class="illo-strike" d="M26 54h42"/></g>
+              <path class="illo-arrow" d="M90 54h22M104 46l8 8-8 8"/>
+              <g class="illo-chip illo-new"><rect x="120" y="34" width="66" height="40" rx="20"/><text x="153" y="60" text-anchor="middle">80%</text></g>
+              <text class="illo-cap" x="47" y="94" text-anchor="middle">Feb</text><text class="illo-cap" x="153" y="94" text-anchor="middle">Sep</text>
+            </svg>
+            <h3>Wording drifts</h3>
+            <p class="tile-note">60% → 80% of AMI before signing</p>
+          </li>
+          <li class="tile">
+            <svg class="illo" viewBox="0 0 200 112" aria-hidden="true">
+              <path class="illo-track" d="M16 74h168"/>
+              <path class="illo-span" d="M16 74h168"/>
+              <g class="illo-ticks"><path d="M16 68v12M72 68v12M128 68v12M184 68v12"/></g>
+              <g class="illo-person p1"><circle cx="44" cy="36" r="8"/><path d="M32 58a12 10 0 0 1 24 0"/></g>
+              <g class="illo-person p2"><circle cx="100" cy="36" r="8"/><path d="M88 58a12 10 0 0 1 24 0"/></g>
+              <g class="illo-person p3"><circle cx="156" cy="36" r="8"/><path d="M144 58a12 10 0 0 1 24 0"/></g>
+              <text class="illo-cap" x="16" y="98">2012</text><text class="illo-cap" x="184" y="98" text-anchor="end">2042</text>
+            </svg>
+            <h3>Deals outlast staff</h3>
+            <p class="tile-note">30-year terms, many hand-offs</p>
+          </li>
+        </ul>
+      </section>
+
+      <section class="container section reveal" aria-labelledby="how-title">
+        <p class="kicker">How it works</p>
+        <h2 class="section-title" id="how-title">From a stack of PDFs to one receipt.</h2>
+        <ol class="steps">
+          <li class="hstep"><span class="hstep-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg></span><span class="hstep-name">Upload</span><span class="hstep-sub">Drag in the PDFs</span></li>
+          <li class="hstep"><span class="hstep-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M9 11h5M9 15h3"/><circle cx="16.5" cy="16.5" r="3"/><path d="M18.7 18.7 21 21"/></svg></span><span class="hstep-name">Read</span><span class="hstep-sub">AI finds each promise</span></li>
+          <li class="hstep"><span class="hstep-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6z"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg></span><span class="hstep-name">Check</span><span class="hstep-sub">Code matches every quote</span></li>
+          <li class="hstep"><span class="hstep-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span><span class="hstep-name">Receipt</span><span class="hstep-sub">Share, print or export</span></li>
+        </ol>
+      </section>
+
+      <section class="container section reveal" aria-labelledby="proof-title">
+        <p class="kicker">Proof</p>
+        <h2 class="section-title" id="proof-title">Checked against hand-reviewed answers.</h2>
+        <ul class="bento">
+          <li class="bento-tile bento-big">
+            <svg class="ring" viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="50"/><circle class="ring-fill" cx="60" cy="60" r="50" style="--p:.963"/></svg>
+            <p class="stat"><span class="stat-num" data-count="96">96</span><span class="stat-unit">%</span></p>
+            <p class="stat-label">precision: kept quotes that match a hand-checked answer</p>
+          </li>
+          <li class="bento-tile bento-big">
+            <svg class="ring" viewBox="0 0 120 120" aria-hidden="true"><circle class="ring-track" cx="60" cy="60" r="50"/><circle class="ring-fill" cx="60" cy="60" r="50" style="--p:.981"/></svg>
+            <p class="stat"><span class="stat-num" data-count="98">98</span><span class="stat-unit">%</span></p>
+            <p class="stat-label">recall: hand-checked promises that were found</p>
+          </li>
+          <li class="bento-tile bento-accent">
+            <p class="stat"><span class="stat-num" data-count="0">0</span></p>
+            <p class="stat-label">incorrect “signed” or “delivered” labels</p>
+          </li>
+          <li class="bento-tile">
+            <p class="stat"><span class="stat-num" data-count="3">3</span></p>
+            <p class="stat-label">sample deals · 11 PDFs · 53 promises</p>
+          </li>
+          <li class="bento-tile">
+            <p class="stat"><span class="stat-unit">≈ $</span><span class="stat-num" data-count="0.002" data-decimals="3">0.002</span></p>
+            <p class="stat-label">model cost per document</p>
+          </li>
+        </ul>
+        <p class="fine">On sample data. Scores from <span class="mono">evals/run_pdf_evals.py</span>, compared with 53 hand-checked claims.</p>
+      </section>
+
+      <section class="container section videos reveal" aria-labelledby="videos-title">
         <div class="section-head">
-          <h2 id="videos-title">Learn in 60 seconds</h2>
-          <p class="section-note">Eight short explainers, with captions. Each loads only when you press play.</p>
+          <h2 class="section-title" id="videos-title">Learn in 60 seconds</h2>
+          <p class="section-note">Eight short explainers, with captions.</p>
         </div>
         <ol class="video-row" id="video-row">
           <li class="video-card" data-video="01-why-homes-cost">
@@ -127,6 +220,24 @@
             <p class="video-meta"><span class="video-n">08</span><span class="video-title" id="vt-08">Harbor Walk walkthrough</span></p>
           </li>
         </ol>
+      </section>
+
+      <section class="container section reveal" aria-labelledby="who-title">
+        <p class="kicker">Who it’s for</p>
+        <h2 class="section-title" id="who-title">One record everyone can read.</h2>
+        <ul class="chips">
+          <li class="chip"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M8 9V7a4 4 0 0 1 8 0v2M12 13v3"/></svg>City housing staff</li>
+          <li class="chip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 4l9 6"/><path d="M5 10v9M9 10v9M15 10v9M19 10v9M3 20h18"/></svg>Council members</li>
+          <li class="chip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>Residents</li>
+        </ul>
+      </section>
+
+      <section class="container section reveal" aria-labelledby="cta-title">
+        <div class="cta-band">
+          <div class="cta-glow" aria-hidden="true"></div>
+          <h2 id="cta-title">See a deal checked, start to finish.</h2>
+          <a class="btn btn-primary btn-lg js-sample" href="#/deals/harbor-walk">Open a sample deal<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
       </section>
     </section>
 
@@ -171,12 +282,49 @@
   </dialog>
 
   <div id="glossary-popovers"></div>
+  <dialog class="xport" id="export-dialog" aria-labelledby="xp-title" aria-describedby="xp-meta">
+    <div class="xp-head">
+      <span class="xp-file" id="xp-icon" aria-hidden="true">XLSX</span>
+      <div class="xp-titles">
+        <h2 id="xp-title">Export preview</h2>
+        <p class="xp-meta" id="xp-meta"></p>
+      </div>
+      <button type="button" class="btn btn-ghost" id="xp-close">Close</button>
+    </div>
+    <div class="xp-tabs" id="xp-tabs" role="tablist" aria-label="Sheets"></div>
+    <div class="xp-scroll" id="xp-scroll" role="region" tabindex="0">
+      <table class="xp-table" id="xp-table"></table>
+    </div>
+    <div class="xp-foot">
+      <p class="xp-note">Same rows as the file you download.</p>
+      <div class="xp-actions">
+        <button type="button" class="btn btn-ghost" id="xp-copy">Copy as CSV</button>
+        <a class="btn btn-secondary" id="xp-dl-csv" href="#">Download .csv</a>
+        <a class="btn btn-primary" id="xp-dl-xlsx" href="#">Download .xlsx</a>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="cmdk" id="cmdk" aria-labelledby="cmdk-title">
+    <div class="cmdk-box">
+      <h2 class="visually-hidden" id="cmdk-title">Command menu</h2>
+      <div class="cmdk-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+        <input id="cmdk-input" type="text" role="combobox" aria-expanded="true" aria-controls="cmdk-list" aria-autocomplete="list" autocomplete="off" placeholder="Jump to a deal, a tab or an action" aria-label="Search commands">
+        <kbd class="kbd" aria-hidden="true">Esc</kbd>
+      </div>
+      <ul class="cmdk-list" id="cmdk-list" role="listbox" aria-label="Commands"></ul>
+      <p class="cmdk-empty" id="cmdk-empty" hidden>No matches.</p>
+    </div>
+  </dialog>
+
   <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <p>Promise Ledger is a review aid. It makes no legal findings. Staff decide what each record means.</p>
       <p class="footer-motto">AI reads. Code checks. People decide.</p>
+      <p>All places, companies, people and figures here are fictional. Promise Ledger is a review aid and makes no legal findings.</p>
+      <p class="footer-links"><span>Code: Apache-2.0 · Docs: CC BY 4.0</span><a href="https://github.com/MukulRay1603/promise-ledger" rel="noopener">GitHub</a></p>
     </div>
   </footer>
 </body>

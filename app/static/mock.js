@@ -240,6 +240,24 @@ export function createMock(seed) {
       return { token, url: `${location.origin}/#/r/${token}` };
     }
     if (sub === "export.csv" || sub === "export.xlsx") return new Blob([csvFor(deal.review)], { type: "text/csv" });
+    if (sub === "export.json") {
+      // Same shape as the server's preview: Claims and Terms sheets plus an About note.
+      const r = deal.review;
+      const differs = new Set(r.terms.filter((t) => t.wording_differs).map((t) => t.key));
+      const stage = (s) => (s ? s[0].toUpperCase() + s.slice(1) : "");
+      const titles = Object.fromEntries(r.documents.map((d) => [d.id, d.title]));
+      return {
+        title: `${r.project} · Promise receipt`, project: r.project, city: r.city, csv_sheet: "Claims",
+        files: { xlsx: `${deal.id}-promise-ledger.xlsx`, csv: `${deal.id}-promise-ledger.csv` },
+        sheets: [
+          { name: "Claims", columns: ["Term", "Quote", "Document", "Date", "Page", "Stage", "Wording differs", "Verified"],
+            rows: r.claims.map((c) => [r.topics[c.topic] || c.topic, c.quote, titles[c.document] || c.document_type, c.date, c.page, stage(c.status), differs.has(c.topic) ? "Yes" : "No", c.quote_checked ? "Yes" : "No"]) },
+          { name: "Terms", columns: ["Term", "Result", "Furthest stage", "Wording differs", "Values", "Signed record"],
+            rows: r.terms.map((t) => [t.label, t.located ? "Located" : "Not located", "", t.wording_differs ? "Yes" : "No", "", t.signed_claim_id ? "Yes" : "No"]) },
+          { name: "About", columns: ["Note"], rows: [[`${r.project}, ${r.city}`], [r.notice]] },
+        ],
+      };
+    }
     if (sub === "documents" && method === "POST") {
       const file = body.get("file");
       for (let step = 1; step <= 6; step += 1) { await wait(110); onProgress?.(step / 6); }

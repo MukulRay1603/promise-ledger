@@ -34,7 +34,7 @@ python evals/run_evals.py                   # live model cases, needs GEMINI_API
 The packet in `data/demo/` is made up: the fictional city of Lantern Bay and the fictional Harbor Walk project. It has a staff summary, draft letter, developer slides, minutes and a later letter.
 
 Pages (hash routes):
-- **Home `#/`:** what Promise Ledger is, a sample receipt, and the "Learn in 60 seconds" explainers.
+- **Home `#/`:** a short landing: hero with a receipt that assembles itself, the problem in three pictures, how it works, proof figures from the sample-data evals, the explainer videos, who it is for, and a call to open a sample deal. Press Ctrl+K (Cmd+K on a Mac) anywhere for the command menu.
 - **Deals `#/deals`:** every deal with its documents, furthest stage, flags and next reminder, plus a reminders panel and a New deal dialog.
 - **Deal `#/deals/{id}`:** at a glance, key figures, stages, documents with drag-and-drop PDF upload, and tabs for Claims, What changed, Open questions, Receipt, Read new text and Glossary. "View source" opens the real PDF page with the quote highlighted. If the quote cannot be matched on the page, the page text is shown with the quote marked. Export to Excel or CSV, or share a read-only link.
 - **Shared receipt `#/r/{token}`:** a read-only receipt that prints cleanly.
