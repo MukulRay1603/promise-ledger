@@ -5,7 +5,7 @@
   <img src="docs/images/hero-light.png" alt="Promise Ledger home page: the headline 'Public support should come with a receipt.' beside a printed promise receipt for the fictional Harbor Walk deal, with three terms marked 'Wording differs', one 'Not located', and a 'Flagged for human review' stamp.">
 </picture>
 
-**Source-linked receipts for public housing deals.** When a project gets a tax break or other public support, its affordable-housing promises are scattered across staff reports, letters, slides and minutes. Promise Ledger turns those PDFs into one checked receipt: how many homes, for whom, for how long, and the exact page that says so.
+**Source-linked receipts for subsidized housing deals.** When a project gets a tax break or other public support, its affordable-housing promises are scattered across staff reports, letters, slides and minutes. Promise Ledger turns those PDFs into one checked receipt: how many homes, for whom, for how long, and the exact page that says so.
 
 **Live demo:** https://promise-ledger-1071927289312.us-central1.run.app (open Harbor Walk, then "Take the 60-second tour")
 

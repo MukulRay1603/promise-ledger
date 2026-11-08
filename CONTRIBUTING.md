@@ -1,6 +1,6 @@
 # Contributing
 
-Promise Ledger is a review tool for public housing deal records. These rules keep it accurate and safe to use.
+Promise Ledger is a review tool for the records of subsidized housing deals. These rules keep it accurate and safe to use.
 
 ## Workflow
 - Work on a branch and open a pull request into `main`. Keep changes small.

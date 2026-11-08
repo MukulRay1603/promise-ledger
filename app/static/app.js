@@ -189,6 +189,7 @@ const fileUrl = (dealId, docId) => (mock ? mock.fileUrl(dealId, docId) : `/api/d
 
 // ---------- Glossary ----------
 const GLOSSARY = {
+  deal: { title: "Deal", text: "Public support for one housing development: a tax abatement, PILOT, grant or land sale that a city or county gives a developer, and the affordable-housing commitments made in return. It is not a home for sale or rent." },
   ami: { title: "AMI (area median income)", text: "Area median income: the midpoint income for a metro area or county, from figures HUD publishes each year. Income limits are set as a percent of AMI (for example 60 or 80 percent) and adjusted for household size." },
   abatement: { title: "Tax abatement / PILOT", text: "A tax abatement lowers or delays property taxes for a set time. A PILOT (payment in lieu of taxes) replaces regular property taxes with an agreed payment. Cities often ask for affordable homes in return." },
   term: { title: "Affordability term", text: "How long the restrictions last, counted from a start date the agreement names (for example first occupancy, placed in service, or a fixed date)." },
@@ -525,7 +526,7 @@ async function renderDeals() {
 
   view.replaceChildren(
     el("div", { class: "page-head" },
-      el("div", {}, el("h1", { id: "deals-title" }, "Deals"), el("p", { class: "page-sub" }, "Every deal under review, how far its records go, and what is due next.")),
+      el("div", {}, el("h1", { id: "deals-title" }, "Deals"), el("p", { class: "page-sub" }, "Developments that got a tax break or other public support, how far their affordable-housing commitments got, and what is due next.")),
       el("div", { class: "page-actions" }, el("button", { type: "button", class: "btn btn-primary", "data-new-deal": true }, icon("plus"), "New deal"))),
     el("div", { class: "deals-layout" },
       el("section", { class: "card deals-scroll", "aria-labelledby": "deals-table-cap" },

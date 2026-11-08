@@ -28,7 +28,7 @@ class Page(unittest.TestCase):
         self.assertIn("Public support should come with a receipt.", self.html)
         self.assertIn("Open a sample deal", self.html)
         self.assertIn("Start a new deal", self.html)
-        self.assertIn("review the affordable-housing promises in a deal's records, with the source page one click away.", self.html)
+        self.assertIn("check the affordable-housing commitments a developer made in exchange for a tax break or other public support, with the source page one click away.", self.html)
 
     def test_landing_sections(self):
         for title in ("The problem", "How it works", "Proof", "Learn the basics", "Who it’s for", "See a deal checked"):

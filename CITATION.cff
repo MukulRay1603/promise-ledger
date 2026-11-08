@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use or build on Promise Ledger, please credit its authors."
-title: "Promise Ledger: source-linked receipts for public housing deals"
+title: "Promise Ledger: source-linked receipts for subsidized housing deals"
 type: software
 authors:
   - given-names: Mukul

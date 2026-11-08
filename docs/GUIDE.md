@@ -1,6 +1,6 @@
 # Promise Ledger: the complete guide
 
-Source-linked receipts for public housing deals. **AI reads, code checks, people decide.**
+Source-linked receipts for subsidized housing deals. **AI reads, code checks, people decide.**
 
 | | |
 |---|---|
@@ -324,6 +324,7 @@ We avoid saying "first" or "only": our search was limited, and parts of this exi
 
 | Term | Meaning |
 |---|---|
+| **Deal** | Public support for one housing development (a tax abatement, PILOT, grant or land sale) and the affordable-housing commitments made in return. Not a home for sale or rent. |
 | **AMI** | Area median income. "60% of AMI" means homes for households earning at most 60% of the local median. |
 | **PILOT** | Payment in lieu of taxes: a deal where an owner pays a set amount instead of normal property tax. |
 | **Regulatory agreement** | The signed contract that binds an owner to the affordability terms. |
