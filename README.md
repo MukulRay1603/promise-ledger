@@ -4,7 +4,11 @@ Source-linked receipts for public housing deals.
 
 When a housing project asks for public support, its affordability terms get spread across staff reports, letters, slides and minutes. Promise Ledger turns those records into one review page: how many homes, for whom, for how long, and where the evidence is.
 
-**Status:** early prototype for GDG AI for Good 2026: Housing. The demo uses a made-up packet. Nothing here makes legal findings.
+**Live demo:** https://promise-ledger-1071927289312.us-central1.run.app (open Harbor Walk, then "Take the 60-second tour")
+
+**Status:** working prototype for GDG AI for Good 2026: Housing. All data is made up. Nothing here makes legal findings.
+
+**Who it is for:** city and county housing staff, compliance officers and council aides who track the affordable-housing promises made in exchange for public support. Shared receipts are read-only, so the public can see them too.
 
 ## Team
 Liyue Housing Association: Mukul and Karthik.
@@ -95,6 +99,18 @@ Public demo guard (`app/guard.py`, on unless `DEMO_MODE=0`):
 python evals/run_pdf_evals.py              # score the pipeline on data/samples/ (cached; at most 30 live calls)
 ```
 
+## Results
+`python evals/run_pdf_evals.py` on the 3 sample deals (11 PDFs, 53 hand-labeled promises):
+
+| Measure | Result |
+|---|---|
+| Precision / recall | 96.3% / 98.1% |
+| Correct page cited | 100% |
+| Correct stage (proposed, supported, signed, delivered) | 100% |
+| False "signed" or "delivered" | 0 |
+| Changed and missing terms | exact on all 3 deals |
+| Model cost | about $0.026 for all 11 PDFs, cached by file hash |
+
 ## How the work is split
 AI reads, code checks, humans decide.
 
@@ -102,6 +118,10 @@ AI reads, code checks, humans decide.
 - Code checks that quotes match their source word for word, that dates match, and that the arithmetic adds up. A quote that does not match is dropped.
 - Stages for uploaded records come from code rules on the document type and checked signatures. Every claim stays flagged for human review. Claims in `data/demo/claims.json` were reviewed by hand.
 - Pasted text is not stored or logged. Obvious personal details are removed before the model call.
+- Text inside documents is treated as data, never as instructions to the model.
+- Wording stays neutral: "wording differs", "not located", "flagged for human review".
+- Reviewer decisions sit beside the record and never change a claim, term or stage.
+- The UI is keyboard-usable, with visible focus, 4.5:1 contrast, reduced-motion support and a larger-text mode.
 
 ## Docs
 - [Plan](docs/PLAN.md)
