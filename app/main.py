@@ -133,11 +133,11 @@ def upload_document(deal_id: str, request: Request, file: UploadFile = File(...)
         try:
             date.fromisoformat(date_)
         except ValueError:
-            raise HTTPException(422, "Date must be YYYY-MM-DD.")
+            raise HTTPException(422, "Date must be YYYY-MM-DD.") from None
     try:
         doc = deals.add_document(deal_id, file.filename or "document.pdf", data, type, date_ or None, title)
     except pipeline.PdfError as err:
-        raise HTTPException(422, str(err))
+        raise HTTPException(422, str(err)) from err
     out = deals.public_doc(get_store().get_document(deal_id, doc["id"]) or doc)
     if doc.get("duplicate"):  # The same file is already in this deal; its claims are not added twice (L11).
         out["duplicate"] = True

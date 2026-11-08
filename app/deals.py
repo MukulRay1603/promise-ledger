@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timezone
 from pathlib import Path
 
-from app import ai, guard, ledger, pipeline
+from app import guard, ledger, pipeline
 from app.storage import Storage, get_store
 
 ROOT = Path(__file__).resolve().parent.parent

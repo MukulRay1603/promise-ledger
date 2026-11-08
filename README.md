@@ -9,7 +9,7 @@
 
 **Live demo:** https://promise-ledger-1071927289312.us-central1.run.app (open Harbor Walk, then "Take the 60-second tour")
 
-For city and county housing staff, compliance officers and council aides. Shared receipts are read-only, so residents can see them too. All data is made up, and nothing here makes legal findings. Built for GDG AI for Good 2026: Housing by Liyue Housing Association (Mukul and Karthik).
+For city and county housing staff, compliance officers and council aides. Shared receipts are read-only, so residents can see them too. All data is made up, and nothing here makes legal findings. Built for GDG AI for Good 2026: Housing by Liyue Housing Association, a two-person student team (Mukul Rayana and Karthik Ramanathan).
 
 <table>
   <tr>
@@ -93,6 +93,8 @@ Readings are cached in `data/readings/` by file hash and prompt version, so seed
 | Incorrect "signed" or "delivered" labels | 0 |
 | Changed and missing terms | exact on all 3 deals |
 | Model cost | about $0.026 for all 11 PDFs, cached by file hash |
+
+**What these numbers do and don't show.** This is our development set: 3 made-up deals we wrote (`tools/make_samples.py`) and labeled ourselves, and the code rules were tuned on the same set. It shows the pipeline works end to end and that code-checked stages don't drift. It is not yet a held-out test. The saved readings came from the fallback model (`gemini-flash-lite-latest`, 9 PDFs) and `gemini-3.8-flash` (2 PDFs), and a claim counts as matched when its quote overlaps the labeled quote. Before the Dec 2 final we'll add a held-out set labeled blind and at least one real public record, and report them separately.
 
 ## Safety and accessibility
 
@@ -243,7 +245,7 @@ python -m unittest tests.test_samples         # every gold quote is on its state
 
 ## Team
 
-Built for GDG AI for Good 2026: Housing (College Park) by **Liyue Housing Association**:
+Built for GDG AI for Good 2026: Housing (College Park) by **Liyue Housing Association**, a two-person student team:
 
 - **Mukul Rayana**: [portfolio](https://mukulray1603.github.io) · [LinkedIn](https://www.linkedin.com/in/mukul-rayana/) · [GitHub](https://github.com/MukulRay1603)
 - **Karthik Ramanathan**: [GitHub](https://github.com/Karthik0803) · [LinkedIn](https://www.linkedin.com/in/karthik-ramanathan-4902471b3/)

@@ -1,6 +1,4 @@
 """Logic fixes from the pre-submission audit (L1-L15) and the server-side wording (W)."""
-import io
-import os
 import tempfile
 import unittest
 from datetime import date, datetime, timedelta, timezone
@@ -9,7 +7,7 @@ from unittest import mock
 
 from fastapi.testclient import TestClient
 
-from app import ai, deals, guard, ledger, pipeline, storage
+from app import ai, deals, ledger, pipeline, storage
 from app.main import app
 from tests.test_deals_api import letter_pdf, stub_reading
 

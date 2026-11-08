@@ -31,7 +31,7 @@ class Page(unittest.TestCase):
         self.assertIn("review the affordable-housing promises in a deal's records, with the source page one click away.", self.html)
 
     def test_landing_sections(self):
-        for title in ("The problem", "How it works", "Proof", "Learn in 60 seconds", "Who it’s for", "See a deal checked"):
+        for title in ("The problem", "How it works", "Proof", "Learn the basics", "Who it’s for", "See a deal checked"):
             self.assertIn(title, self.html)
         # Proof figures are from evals/run_pdf_evals.py on the sample deals, and say so.
         for count in ('data-count="96"', 'data-count="98"', 'data-count="0"', 'data-count="3"'):

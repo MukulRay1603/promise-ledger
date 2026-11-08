@@ -89,6 +89,9 @@ function toast(message, { kind = "ok", detail = null, timeout = 4500 } = {}) {
   node.addEventListener("mouseenter", () => clearTimeout(timer));
   node.addEventListener("focusin", () => clearTimeout(timer));
   node.addEventListener("mouseleave", () => { timer = setTimeout(remove, 2500); });
+  // Leaving the toast (or its link field) restarts the clock, so a focused toast cannot stay forever.
+  node.addEventListener("focusout", (event) => { if (!node.contains(event.relatedTarget)) timer = setTimeout(remove, 2500); });
+  node.append(el("button", { type: "button", class: "toast-close", "aria-label": "Dismiss", onclick: remove }, "×"));
   while (byId("toasts").children.length > 3) byId("toasts").firstElementChild.remove();
 }
 
@@ -485,10 +488,14 @@ function stageBar(status) {
   return el("span", { class: "stage-bar", "aria-hidden": "true" }, STAGES.map((stage, index) => el("span", { class: index < reached ? "on" : null })));
 }
 
-function flagCell(deal) {
+function flagCell(deal, next = null) {
   const items = [];
   if (deal.terms_differ) items.push(tag("differs", `${deal.terms_differ} differ`));
   if (deal.terms_not_located) items.push(tag("not_located", `${deal.terms_not_located} not located`));
+  // Dates need attention too: a certificate past due and not in the file, or a term ending within a year.
+  const days = next ? reminderDays(next) : null;
+  if (next?.kind === "missing_record" && days !== null && days < 0) items.push(tag("not_located", "Certificate missing"));
+  if (next?.kind === "term_end" && days !== null && days <= 365) items.push(tag("differs", days < 0 ? "Term ended" : days > 1 ? `Term ends in ${days} days` : "Term ends soon"));
   return items.length ? el("span", { class: "counts" }, items) : el("span", { class: "cell-muted" }, deal.documents ? "None" : "No documents yet");
 }
 
@@ -547,7 +554,7 @@ async function renderDeals() {
       el("td", { "data-label": "Documents" }, el("span", { class: "num" }, String(docs))),
       el("td", { "data-label": "Furthest stage (any term)" }, el("span", { class: "stage-cell" },
         deal.furthest_status ? tag(deal.furthest_status) : tag("none"), stageBar(deal.furthest_status))),
-      el("td", { "data-label": "Flags" }, flagCell({ ...deal, documents: docs })),
+      el("td", { "data-label": "Flags" }, flagCell({ ...deal, documents: docs }, next)),
       el("td", { "data-label": "Next reminder", class: "reminder-cell" }, next
         ? [el("span", {}, reminderText(next)),
           deal.next_reminder.claim_id ? el("a", { class: "reminder-source", href: sourceHref(deal.id, deal.next_reminder.claim_id) }, "Source", el("span", { class: "visually-hidden" }, ` for ${deal.name} reminder`)) : null]
@@ -675,7 +682,7 @@ const DEAL_TEMPLATE = `
       <div class="printer"><div class="printer-slot" aria-hidden="true"></div><div class="paper-clip"><article class="receipt paper" id="receipt-body" aria-labelledby="receipt-heading"></article></div></div>
     </div>
     <div class="panel" role="tabpanel" id="extract" aria-labelledby="tab-extract" tabindex="0" hidden>
-      <div class="panel-head"><h2>Read new text</h2><p class="panel-note">The model finds candidate quotes. Code keeps only quotes that match your text word for word. A person sets every status.</p></div>
+      <div class="panel-head"><h2>Read new text</h2><p class="panel-note">The model finds candidate quotes. Code keeps only quotes that match your text word for word. Nothing here is saved or given a stage.</p></div>
       <form id="extract-form" class="extract-form">
         <label for="extract-text">Text from a record</label>
         <p id="extract-hint" class="hint">Use public records only. Do not paste names, phone numbers or other personal details. Text is not saved.</p>
@@ -884,7 +891,10 @@ function renderSummary() {
   const share = s.homes_total && s.homes_described ? el("span", { class: "kpi-mini frac", "aria-hidden": "true", style: `--f:${s.homes_described / s.homes_total}` }, el("span")) : null;
   const kpis = [
     ["Homes described as affordable", s.homes_described ?? "None", s.homes_total ? `of ${s.homes_total} homes` : "homes", false, share],
-    ["Furthest stage (any term)", s.furthest_label, stageIndex ? `stage ${stageIndex} of ${s.stages_total}` : "nothing located", false, dots(stageIndex, s.stages_total)],
+    // A letter only the developer signed is not a signed agreement: say so and mark it amber.
+    s.furthest_status === "signed" && s.signed_by_developer_only
+      ? ["Furthest stage (any term)", "Signed", `by the developer only · stage ${stageIndex} of ${s.stages_total}`, true, dots(stageIndex, s.stages_total)]
+      : ["Furthest stage (any term)", s.furthest_label, stageIndex ? `stage ${stageIndex} of ${s.stages_total}` : "nothing located", false, dots(stageIndex, s.stages_total)],
     ["Terms that differ", s.terms_differ, `of ${s.terms_total} terms`, s.terms_differ > 0, dots(s.terms_differ, s.terms_total)],
     ["Terms not located", s.terms_not_located, `of ${s.terms_total} terms`, s.terms_not_located > 0, dots(s.terms_not_located, s.terms_total)],
   ];
@@ -1035,15 +1045,19 @@ function diffWords(before, after) {
   return ops;
 }
 
+// The value code compares ("up to 12 homes", "10 percent of 120 homes"), so this view agrees with "Wording differs".
+// Hand-reviewed demo claims have no compare key and show their reviewed value.
+const comparedValue = (claim) => claim.compare || claim.value;
+
 function changeStep(claim, previous) {
-  const ops = previous ? diffWords(previous.value, claim.value) : [];
+  const ops = previous ? diffWords(comparedValue(previous), comparedValue(claim)) : [];
   const removed = ops.filter(([kind]) => kind === "removed").map(([, word]) => word).join(" ");
   const added = ops.filter(([kind]) => kind === "added").map(([, word]) => word).join(" ");
   const value = previous
     ? ops.map(([kind, word], at) => [at ? " " : "", kind === "same" ? word : el(kind === "added" ? "ins" : "del", {}, word)])
-    : [claim.value];
+    : [comparedValue(claim)];
   let labels = "First record.";
-  if (previous && !removed && !added) labels = "Same wording as the previous record.";
+  if (previous && !removed && !added) labels = "Same value as the previous record.";
   if (removed || added) {
     labels = [
       removed ? [el("b", {}, "Removed: "), removed] : null,
@@ -1125,7 +1139,7 @@ function renderReceipt(target, review, { titleTag = "p" } = {}) {
         ? [el("span", { class: "q" }, `“${signed.quote}”`), el("span", { class: "receipt-source" }, sourceShort(signed))]
         : el("span", { class: "not-located" }, term.located ? "Not located in a signed record" : "Not located")),
       el("td", {}, earlier.length
-        ? el("ul", { class: "plain" }, ...earlier.map((claim) => el("li", {}, `${claim.value} (${claim.document_type}, p. ${claim.page})`)))
+        ? el("ul", { class: "plain" }, ...earlier.map((claim) => el("li", {}, `${comparedValue(claim)} (${claim.document_type}, p. ${claim.page})`)))
         : "None"));
   });
   const support = review.claims.filter((claim) => claim.topic === "public_support");
