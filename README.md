@@ -241,6 +241,15 @@ python -m unittest tests.test_samples         # every gold quote is on its state
 - Explainer videos are `NN-slug.mp4`, `.vtt` and `.jpg` under `MEDIA_BASE_URL`; `/api/media` reports which are present.
 </details>
 
+## Team
+
+Built for GDG AI for Good 2026: Housing (College Park) by **Liyue Housing Association**:
+
+- **Mukul Rayana**: [portfolio](https://mukulray1603.github.io) · [LinkedIn](https://www.linkedin.com/in/mukul-rayana/) · [GitHub](https://github.com/MukulRay1603)
+- **Karthik Ramanathan**: [GitHub](https://github.com/Karthik0803) · [LinkedIn](https://www.linkedin.com/in/karthik-ramanathan-4902471b3/)
+
+The live site has the same credits at `#/about`, and the roadmap to the Dec 2 final at `#/roadmap`.
+
 ## Docs and license
 
 [Plan](docs/PLAN.md) · [Contributing](CONTRIBUTING.md). Code: Apache-2.0 ([LICENSE](LICENSE)). Docs and evaluation data (`docs/`, `data/demo/`, `data/samples/`, `data/readings/`, `evals/cases.jsonl`): CC BY 4.0 ([LICENSE-docs](LICENSE-docs)). pdf.js in `app/static/vendor/` is Apache-2.0 (Mozilla Foundation).

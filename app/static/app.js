@@ -242,6 +242,8 @@ function withTerm(text, phrase, key) {
 
 // ---------- Router ----------
 let current = { view: null };
+// Pages that are plain markup in index.html: route name -> title.
+const STATIC_PAGES = { roadmap: "Roadmap", about: "About" };
 let sampleId = "harbor-walk";
 
 function parseRoute() {
@@ -253,6 +255,7 @@ function parseRoute() {
   if (!hash.startsWith("/")) return { view: "home" };
   const parts = hash.split("/").filter(Boolean);
   if (parts[0] === "deals" && parts.length === 1) return { view: "deals" };
+  if (STATIC_PAGES[parts[0]] && parts.length === 1) return { view: parts[0] };
   if (parts[0] === "deals" && parts[1] && parts[2] === "source" && parts[3]) return { view: "deal", id: parts[1], tab: "claims", source: parts[3] };
   if (parts[0] === "deals" && parts[1] && parts[2] === "tour") return { view: "deal", id: parts[1], tab: "claims", tour: true };
   if (parts[0] === "deals" && parts[1]) return { view: "deal", id: parts[1], tab: TAB_IDS.includes(parts[2]) ? parts[2] : null };
@@ -290,6 +293,7 @@ async function route({ initial = false } = {}) {
     byId("main").focus({ preventScroll: true });
   }
   if (next.view === "home") { document.title = "Promise Ledger"; setupVideos(); if (!hero.running && hero.loops < HERO_LOOPS) heroPlay(); return; }
+  if (STATIC_PAGES[next.view]) { document.title = `${STATIC_PAGES[next.view]} · Promise Ledger`; return; }
   if (next.view === "deals") return renderDeals();
   if (next.view === "deal") return renderDeal(next.id, next.tab, next.source, next.tour);
   if (next.view === "shared") return renderShared(next.token);
@@ -1691,6 +1695,7 @@ async function commandList() {
   const list = [
     { group: "Go to", label: "Home", icon: "go", run: () => { location.hash = "#/"; } },
     { group: "Go to", label: "Deals", icon: "go", run: () => { location.hash = "#/deals"; } },
+    ...Object.entries(STATIC_PAGES).map(([path, label]) => ({ group: "Go to", label, icon: "go", run: () => { location.hash = `#/${path}`; } })),
   ];
   if (!cmd.deals) { try { cmd.deals = await api("/api/deals"); } catch (err) { cmd.deals = []; } }
   for (const deal of cmd.deals) list.push({ group: "Deals", label: deal.name, hint: deal.city, icon: "deal", run: () => { location.hash = `#/deals/${encodeURIComponent(deal.id)}`; } });

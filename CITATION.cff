@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use or build on Promise Ledger, please credit its authors."
+title: "Promise Ledger: source-linked receipts for public housing deals"
+type: software
+authors:
+  - given-names: Mukul
+    family-names: Rayana
+  - given-names: Karthik
+    family-names: Ramanathan
+repository-code: "https://github.com/MukulRay1603/promise-ledger"
+url: "https://promise-ledger-1071927289312.us-central1.run.app"
+license: Apache-2.0
+date-released: "2026-11-09"
+keywords:
+  - affordable housing
+  - civic tech
+  - responsible AI

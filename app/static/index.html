@@ -33,6 +33,8 @@
       <nav class="main-nav" aria-label="Main">
         <a href="#/" data-nav="home">Home</a>
         <a href="#/deals" data-nav="deals">Deals</a>
+        <a href="#/roadmap" data-nav="roadmap">Roadmap</a>
+        <a href="#/about" data-nav="about">About</a>
       </nav>
       <div class="header-tools">
         <button type="button" class="btn btn-ghost cmdk-open" id="cmdk-open" aria-label="Search" aria-keyshortcuts="Control+K Meta+K"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span class="cmdk-label">Search</span><kbd class="kbd" aria-hidden="true">Ctrl K</kbd></button>
@@ -238,6 +240,99 @@
         <a class="btn btn-primary" href="#/deals">Go to deals</a>
       </div>
     </section>
+
+    <!-- About: who built it. Plain markup, no script needed. -->
+    <section class="view container info-page" id="view-about" data-view="about" aria-labelledby="about-title" hidden>
+      <header class="info-head">
+        <p class="info-eyebrow">About</p>
+        <h1 id="about-title">Who built Promise Ledger</h1>
+        <p class="lede">Built by team <strong>Liyue Housing Association</strong> for GDG AI for Good 2026: Housing.</p>
+      </header>
+
+      <ul class="team" aria-label="Team">
+        <li class="person">
+          <span class="monogram" aria-hidden="true">MR</span>
+          <div class="person-body">
+            <h2 class="person-name">Mukul Rayana</h2>
+            <p class="person-role">Co-creator · product, AI pipeline and design</p>
+            <ul class="person-links" aria-label="Mukul Rayana's links">
+              <li><a href="https://mukulray1603.github.io" target="_blank" rel="noopener">Portfolio<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="visually-hidden"> (opens in a new tab)</span></a></li>
+              <li><a href="https://www.linkedin.com/in/mukul-rayana/" target="_blank" rel="noopener">LinkedIn<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="visually-hidden"> (opens in a new tab)</span></a></li>
+              <li><a href="https://github.com/MukulRay1603" target="_blank" rel="noopener">GitHub<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="visually-hidden"> (opens in a new tab)</span></a></li>
+            </ul>
+          </div>
+        </li>
+        <li class="person">
+          <span class="monogram" aria-hidden="true">KR</span>
+          <div class="person-body">
+            <h2 class="person-name">Karthik Ramanathan</h2>
+            <p class="person-role">Co-creator · cloud and deployment</p>
+            <ul class="person-links" aria-label="Karthik Ramanathan's links">
+              <li><a href="https://github.com/Karthik0803" target="_blank" rel="noopener">GitHub<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="visually-hidden"> (opens in a new tab)</span></a></li>
+              <li><a href="https://www.linkedin.com/in/karthik-ramanathan-4902471b3/" target="_blank" rel="noopener">LinkedIn<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="visually-hidden"> (opens in a new tab)</span></a></li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+
+      <section class="info-block" aria-labelledby="about-project-title">
+        <h2 id="about-project-title">The project</h2>
+        <dl class="info-facts">
+          <div><dt>Event</dt><dd>GDG AI for Good 2026: Housing</dd></div>
+          <div><dt>First submission</dt><dd>Nov 9, 2026</dd></div>
+          <div><dt>Final</dt><dd>Dec 2, 2026</dd></div>
+          <div><dt>License</dt><dd>Code Apache-2.0 · docs and demo data CC BY 4.0</dd></div>
+          <div><dt>Source</dt><dd><a href="https://github.com/MukulRay1603/promise-ledger" target="_blank" rel="noopener">github.com/MukulRay1603/promise-ledger<span class="visually-hidden"> (opens in a new tab)</span></a></dd></div>
+          <div><dt>Data</dt><dd>Every city, project, company, person and number in the demo is made up.</dd></div>
+        </dl>
+        <p class="info-next"><a class="btn btn-secondary" href="#/roadmap">See the roadmap<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+      </section>
+    </section>
+
+    <!-- Roadmap: what works now and where it is going. Kept at the level of outcomes. -->
+    <section class="view container info-page" id="view-roadmap" data-view="roadmap" aria-labelledby="roadmap-title" hidden>
+      <header class="info-head">
+        <p class="info-eyebrow">Roadmap</p>
+        <h1 id="roadmap-title">Where Promise Ledger goes next</h1>
+        <p class="lede">What works today, and what we are building toward the Dec 2 final.</p>
+      </header>
+
+      <ol class="road">
+        <li class="road-col road-now">
+          <h2><span class="road-tag">Working today</span></h2>
+          <ul class="road-list">
+            <li>Reads a deal's PDFs and finds each promise, with its exact quote and page</li>
+            <li>Code checks every quote word for word and sets each stage from rules, not from the model</li>
+            <li>Shows what changed between documents and which terms are missing</li>
+            <li>Reviewers confirm, question or dispute each item, with their name and a note</li>
+            <li>One-page receipt, read-only share link, Excel and CSV export</li>
+            <li>Reminders for report and term dates</li>
+            <li>On 3 made-up deals: 96% precision, 98% recall, 0 incorrect “signed” or “delivered” labels</li>
+            <li>Keyboard, screen reader, larger text and dark mode</li>
+          </ul>
+        </li>
+        <li class="road-col road-next">
+          <h2><span class="road-tag">By the Dec 2 final</span></h2>
+          <ul class="road-list">
+            <li>Staff accounts with roles, so a review follows the reviewer</li>
+            <li>Feedback from people who do this work in a housing office</li>
+            <li>Wording reviewed by a lawyer</li>
+            <li>Faster ways to bring a deal's records in</li>
+            <li>Promise checks in the places staff already read records</li>
+            <li>A published write-up of how we measure accuracy</li>
+          </ul>
+        </li>
+        <li class="road-col road-later">
+          <h2><span class="road-tag">After that</span></h2>
+          <ul class="road-list">
+            <li>More record types and more cities</li>
+            <li>A plain-language view for residents</li>
+            <li>A hand-off kit so a city or non-profit can run it on their own</li>
+          </ul>
+        </li>
+      </ol>
+      <p class="info-note">Want to try it on your own records, or help test it? Reach us through the <a href="#/about">About</a> page.</p>
+    </section>
   </main>
 
   <dialog class="modal" id="new-deal-dialog" aria-labelledby="new-deal-title">
@@ -356,7 +451,8 @@
     <div class="container footer-inner">
       <p class="footer-motto">AI reads. Code checks. People decide.</p>
       <p>All places, companies, people and figures here are fictional. Promise Ledger is a review aid and makes no legal findings.</p>
-      <p class="footer-links"><span>Code: Apache-2.0 · Docs: CC BY 4.0</span><a href="https://github.com/MukulRay1603/promise-ledger" rel="noopener">GitHub</a></p>
+      <p class="footer-credit">© 2026 Built by <a href="#/about">Mukul Rayana and Karthik Ramanathan</a> for GDG AI for Good 2026: Housing.</p>
+      <p class="footer-links"><span>Code: Apache-2.0 · Docs: CC BY 4.0</span><a href="#/roadmap">Roadmap</a><a href="#/about">About</a><a href="https://github.com/MukulRay1603/promise-ledger" rel="noopener">GitHub</a></p>
     </div>
   </footer>
 </body>

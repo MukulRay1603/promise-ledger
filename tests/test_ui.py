@@ -88,6 +88,23 @@ class Page(unittest.TestCase):
         track = script[script.index('el("track"'):].split(")", 1)[0]
         self.assertNotIn("default", track)
 
+    def test_about_and_roadmap_pages(self):
+        for view in ("about", "roadmap"):
+            self.assertIn(f'data-view="{view}"', self.html)
+            self.assertIn(f'href="#/{view}" data-nav="{view}"', self.html)
+        # Team credit, Mukul first, with the links the team gave.
+        about = self.html[self.html.index('id="view-about"'):self.html.index('id="view-roadmap"')]
+        self.assertLess(about.index("Mukul Rayana"), about.index("Karthik Ramanathan"))
+        for link in ("https://mukulray1603.github.io", "https://www.linkedin.com/in/mukul-rayana/",
+                     "https://github.com/Karthik0803", "https://www.linkedin.com/in/karthik-ramanathan-4902471b3/"):
+            self.assertIn(link, about)
+        # New-tab links say so to screen readers and keep rel=noopener.
+        for tag in re.findall(r'<a [^>]*target="_blank"[^>]*>.*?</a>', about, flags=re.S):
+            self.assertIn('rel="noopener"', tag)
+            self.assertIn("opens in a new tab", tag)
+        script = (STATIC / "app.js").read_text(encoding="utf-8")
+        self.assertIn('const STATIC_PAGES = { roadmap: "Roadmap", about: "About" };', script)
+
     def test_media_reports_lengths(self):
         with mock.patch.dict(os.environ, {"MEDIA_BASE_URL": ""}):
             data = self.client.get("/api/media").json()
