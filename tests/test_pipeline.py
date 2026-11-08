@@ -46,7 +46,7 @@ class QuoteChecks(unittest.TestCase):
             cand("The developer has agreed to set aside 12 of the 120 homes as affordable homes.", page=1),
         ])
         out = pipeline.verify_reading(r, PAGES, {"id": "d1", "type": "Staff report", "date": "2025-02-03"})
-        self.assertEqual(out["counts"], {"candidates": 4, "kept": 2, "page_corrected": 1, "dropped": 1, "duplicates": 1, "absent": 0})
+        self.assertEqual(out["counts"], {"candidates": 4, "kept": 2, "page_corrected": 1, "dropped": 1, "duplicates": 1, "absent": 0, "boilerplate": 0, "off_term": 0})
         units, term = out["claims"]
         self.assertEqual((units["page"], units["stated_page"], units["page_corrected"]), (1, 2, True))
         self.assertEqual(units["homes"], {"count": 12, "of": 120})
@@ -64,7 +64,9 @@ class QuoteChecks(unittest.TestCase):
         key = pipeline.compare_key
         self.assertEqual(key("units", "The owner will reserve 16 of the 80 homes as affordable homes."), "16 homes")
         self.assertIsNone(key("units", "The owner proposes to build 80 homes on the lot."))
-        self.assertEqual(key("units", "We are considering 10 percent of the 120 homes."), "12 homes")
+        self.assertEqual(key("units", "We are considering 10 percent of the 120 homes."), "10 percent of 120 homes")
+        self.assertEqual(key("units", "We will explore setting aside up to 12 homes at reduced rents."), "up to 12 homes")
+        self.assertEqual(key("units", "As of December 31, 2024, 9 of the 9 required Affordable Homes were leased."), None)  # A delivery count is not compared.
         self.assertEqual(key("term", "The period ends on December 31, 2026."), "ends december 31 2026")
         self.assertIsNone(key("term", "The City approves a payment in lieu of taxes for 15 years."))
         self.assertEqual(key("reporting", "The owner will file a certificate by March 1 of each year."), "due march 1")
@@ -109,9 +111,9 @@ SIG = {"party": "HARBOR WALK PARTNERS LLC", "quote": "[signature on file]", "pag
 
 
 class StageRules(unittest.TestCase):
-    def stage(self, type_, pages, model_type="other", signatures=(), draft=False, quote=None):
+    def stage(self, type_, pages, model_type="other", signatures=(), draft=False, quote=None, topic="units"):
         quote = quote or pages[0].split("\n")[0 if "DRAFT" not in pages[0] else 1]
-        r = reading([cand(quote)], signatures=signatures, document_type=model_type, draft=draft)
+        r = reading([cand(quote, topic=topic)], signatures=signatures, document_type=model_type, draft=draft)
         return pipeline.verify_reading(r, pages, {"id": "d", "type": type_}, ["Harbor Walk Partners LLC"])
 
     def test_signed_letter_is_signed_and_names_the_signer(self):
@@ -145,7 +147,8 @@ class StageRules(unittest.TestCase):
         self.assertEqual(out["stage"], "proposed")
 
     def test_staff_recommendation_is_support(self):
-        out = self.stage("Staff report", PAGES, quote="Staff recommends that the Council support the request.")
+        out = self.stage("Staff report", PAGES, quote="Staff recommends that the Council support the request.",
+                         topic="public_support")
         self.assertEqual((out["stage"], out["claims"][0]["status"]), ("proposed", "supported"))
 
     def test_minutes_need_a_recorded_action(self):

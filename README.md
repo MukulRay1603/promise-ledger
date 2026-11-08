@@ -74,6 +74,10 @@ Each PDF goes through `app/pipeline.py`:
 5. Code rules set the stage, never the model alone: staff reports, slides and unsigned letters are *proposed* (a staff recommendation is *supported*); minutes and resolutions with a recorded vote or approval are *supported*; an agreement or letter is *signed* only when code finds a completed signature line under the party's name and the record is not marked draft; certificates with occupancy or certification wording are *delivered*.
 6. The deal review is rebuilt from the verified claims. It has the same shape as `/api/review`.
 
+Code also sets aside candidates that do not state the term they are filed under. Each term needs its own words, for example a home count with "affordable" or "reserved" for units, or "default", "cure" or "repay" for remedies. Code also drops headers, footers and sentences that describe the record itself, sentences saying a term is missing, and the same sentence filed under a second term. Each document's `counts` shows how many were set aside and why. "Wording differs" compares values that code reads from the quote: the home count and whether it is a flat number, a cap ("up to 12") or a share ("10 percent of 120"), years or end date, percent, report due date and cure days.
+
+Each sample manifest has an `as_of` date (its latest record), and that deal's reminders are computed as of that date, so they read the same on any day.
+
 Readings are cached in `data/readings/` by file hash and prompt version, so seeding and evals do not call the model again. Reminders (`/api/reminders`) come from signed term and reporting clauses and the certificates on file.
 
 API: `GET/POST /api/deals`, `GET /api/deals/{id}`, `POST /api/deals/{id}/documents` (multipart, 202, poll the deal), `GET /api/deals/{id}/review`, `GET …/documents/{doc}/file`, `GET …/documents/{doc}/pages/{n}`, `GET /api/deals/{id}/export.xlsx` and `export.csv`, `POST /api/deals/{id}/share` → `/r/{token}`, and `GET /api/reminders`.

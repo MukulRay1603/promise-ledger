@@ -12,27 +12,20 @@
     "topic": "units",
     "quote": "Harbor Walk Partners will explore setting aside up to 12 homes at reduced rents.",
     "page": 1,
-    "wording": "will explore setting aside up to 12 homes",
+    "wording": "will explore setting aside",
     "value": "up to 12 homes"
-   },
-   {
-    "topic": "rent_limits",
-    "quote": "Harbor Walk Partners will explore setting aside up to 12 homes at reduced rents.",
-    "page": 1,
-    "wording": "reduced rents",
-    "value": "reduced rents"
    },
    {
     "topic": "reporting",
     "quote": "The company will explore sending the City a yearly report on these homes.",
     "page": 1,
-    "wording": "will explore sending the City a yearly report",
+    "wording": "will explore sending",
     "value": "yearly report"
    }
   ]
  },
- "tokens_in": 605,
- "tokens_out": 277,
- "cost_usd": 0.000874,
+ "tokens_in": 667,
+ "tokens_out": 199,
+ "cost_usd": 0.000698,
  "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

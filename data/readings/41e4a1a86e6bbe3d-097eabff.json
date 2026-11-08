@@ -12,27 +12,41 @@
     "topic": "reporting",
     "quote": "This memo reports the status of the yearly owner certificates for Mill Street Lofts under the Regulatory Agreement dated June 14, 2011, and notes the upcoming end of the affordability period.",
     "page": 1,
-    "wording": "yearly owner certificates",
-    "value": "yearly"
+    "wording": "reports the status of the yearly owner certificates",
+    "value": "yearly owner certificates status report"
    },
    {
     "topic": "reporting",
     "quote": "The certificate for reporting year 2025 was due on March 31, 2026 and is marked not received.",
     "page": 1,
-    "wording": "due on March 31, 2026",
-    "value": "March 31, 2026"
+    "wording": "was due on March 31, 2026 and is marked not received",
+    "value": "2025 certificate not received"
+   },
+   {
+    "topic": "reporting",
+    "quote": "A reminder notice was sent to the owner on April 2, 2026.",
+    "page": 1,
+    "wording": "reminder notice was sent",
+    "value": "reminder notice sent April 2 2026"
    },
    {
     "topic": "term",
     "quote": "Under Section 5.1 of the agreement, the affordability period ends on December 31, 2026.",
     "page": 1,
     "wording": "ends on December 31, 2026",
-    "value": "December 31, 2026"
+    "value": "affordability period ends December 31 2026"
+   },
+   {
+    "topic": "reporting",
+    "quote": "(a) Staff will send a second notice asking for the 2025 certificate by May 15, 2026.",
+    "page": 2,
+    "wording": "Staff will send a second notice",
+    "value": "second notice for 2025 certificate by May 15 2026"
    }
   ]
  },
- "tokens_in": 952,
- "tokens_out": 347,
- "cost_usd": 0.001153,
+ "tokens_in": 1014,
+ "tokens_out": 537,
+ "cost_usd": 0.001647,
  "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

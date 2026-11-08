@@ -214,8 +214,11 @@ Return:
 - candidates: at most {MAX_PDF_CANDIDATES} statements about these terms:
   units, income_basis, rent_limits, term, responsible_party, reporting, remedies, public_support.
   public_support covers the tax relief, payment or subsidy asked for or given, including staff
-  recommendations and Council votes about it.
+  recommendations, Council votes, and conditions the Council attaches to its support.
+  reporting covers the duty to report and statements that a required report or certificate is submitted.
   Include every statement of a term, even when the same term appears in several sentences.
+  Skip page headers and footers, sentences that only describe the record itself, and sentences
+  that say a term is missing. File each sentence under one term only.
   "quote" is copied word for word from one page, one sentence, with no changes.
   "wording" is the shortest phrase from the quote that shows how firm it is.
   "value" is a short plain summary of the term's value, such as "12 of 120 homes" or "15 years".

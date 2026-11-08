@@ -44,6 +44,23 @@
         "c09",
         "c15"
       ]
+    },
+    {
+      "term": "units",
+      "values": [
+        "12 of 120 homes",
+        "up to 12 homes",
+        "10 percent of 120 homes",
+        "12 homes",
+        "12 affordable homes"
+      ],
+      "claims": [
+        "c01",
+        "c05",
+        "c07",
+        "c10",
+        "c13"
+      ]
     }
   ],
   "stage_notes": {

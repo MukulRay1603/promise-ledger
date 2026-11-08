@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import threading
 import time
 from pathlib import Path
@@ -31,6 +32,9 @@ class Storage(Protocol):
     def get_share(self, token: str) -> str | None: ...
     def put_blob(self, key: str, data: bytes, content_type: str) -> None: ...
     def get_blob(self, key: str) -> bytes | None: ...
+    def delete_deal(self, deal_id: str) -> None: ...
+    def acquire_lock(self, name: str, owner: str, ttl_seconds: int) -> bool: ...
+    def release_lock(self, name: str, owner: str) -> None: ...
 
 
 def _safe(part: str) -> str:
@@ -118,6 +122,44 @@ class LocalStorage:
         except FileNotFoundError:
             return None
 
+    def delete_deal(self, deal_id: str) -> None:
+        """Remove the deal, its documents and claims, and its files. Share links stay and resolve if it returns."""
+        with self._lock:
+            shutil.rmtree(self._deal_dir(deal_id), ignore_errors=True)
+            shutil.rmtree(self.root / "files" / "deals" / _safe(deal_id), ignore_errors=True)
+
+    def acquire_lock(self, name: str, owner: str, ttl_seconds: int) -> bool:
+        """Create a lock file atomically. A lock older than ttl_seconds is treated as abandoned."""
+        path = self.root / "locks" / f"{_safe(name)}.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        for _ in range(2):
+            try:
+                fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            except FileExistsError:
+                held = self._read(path) or {}
+                if time.time() - float(held.get("at", 0)) < ttl_seconds:
+                    return False
+                try:
+                    path.unlink()
+                except FileNotFoundError:
+                    pass
+                continue
+            with os.fdopen(fd, "w", encoding="utf-8") as fh:
+                json.dump({"owner": owner, "at": time.time()}, fh)
+            return True
+        return False
+
+    def release_lock(self, name: str, owner: str) -> None:
+        path = self.root / "locks" / f"{_safe(name)}.json"
+        held = self._read(path)
+        if held and held.get("owner") == owner:
+            path.unlink(missing_ok=True)
+
+
+def _already_exists(err: Exception) -> bool:
+    """google.api_core.exceptions.AlreadyExists is a 409 Conflict."""
+    return type(err).__name__ in ("AlreadyExists", "Conflict") or getattr(err, "code", None) == 409
+
 
 class GcpStorage:
     """Firestore collections: deals/{id}, deals/{id}/documents/{doc_id}, shares/{token}. Files in GCS."""
@@ -176,6 +218,45 @@ class GcpStorage:
         if not blob.exists():
             return None
         return blob.download_as_bytes()
+
+    def delete_deal(self, deal_id: str) -> None:
+        """Remove the deal, its documents (claims live on them) and its files under deals/{id}/."""
+        for snap in self._docs(deal_id).stream():
+            snap.reference.delete()
+        self._deals().document(_safe(deal_id)).delete()
+        for blob in self.bucket.list_blobs(prefix=f"deals/{_safe(deal_id)}/"):
+            blob.delete()
+
+    def acquire_lock(self, name: str, owner: str, ttl_seconds: int) -> bool:
+        """Take locks/{name} with an atomic create. Two instances cannot both succeed.
+
+        An abandoned lock (older than ttl_seconds) is removed only if it has not changed since it was read
+        (a last-update precondition), then the create is tried once more.
+        """
+        ref = self.db.collection("locks").document(_safe(name))
+        for _ in range(2):
+            try:
+                ref.create({"owner": owner, "at": time.time()})
+                return True
+            except Exception as err:
+                if not _already_exists(err):
+                    raise
+            snap = ref.get()
+            if not snap.exists:
+                continue
+            if time.time() - float((snap.to_dict() or {}).get("at", 0)) < ttl_seconds:
+                return False
+            try:
+                ref.delete(option=self.db.write_option(last_update_time=snap.update_time))
+            except Exception:  # Someone else took or refreshed it first.
+                return False
+        return False
+
+    def release_lock(self, name: str, owner: str) -> None:
+        ref = self.db.collection("locks").document(_safe(name))
+        snap = ref.get()
+        if snap.exists and (snap.to_dict() or {}).get("owner") == owner:
+            ref.delete(option=self.db.write_option(last_update_time=snap.update_time))
 
 
 _store: Storage | None = None

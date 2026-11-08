@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import csv
 import io
+import hashlib
 import json
 import re
 import secrets
@@ -35,12 +36,14 @@ def _slug(text: str) -> str:
 # Deals
 
 def create_deal(name: str, city: str, developer: str | None = None, deal_id: str | None = None,
-                store: Storage | None = None) -> dict:
+                store: Storage | None = None, as_of: str | None = None) -> dict:
     store = store or get_store()
     deal_id = deal_id or f"{_slug(name)}-{uuid.uuid4().hex[:6]}"
     stamp = now()
     deal = {"id": deal_id, "name": name.strip(), "city": city.strip(), "developer": (developer or "").strip() or None,
             "created_at": stamp, "updated_at": stamp}
+    if as_of:
+        deal["as_of"] = date.fromisoformat(as_of).isoformat()  # Reminders are computed as of this date.
     store.put_deal(deal)
     return deal
 
@@ -270,7 +273,7 @@ def build_deal_review(deal: dict, docs: list[dict], store: Storage | None = None
                           "text": f"Term: the signed record counts the term from an event with no date on file "
                                   f"(“{end['claim']['quote']}”). Ask staff for that date to set the end date."})
     counts = {k: sum((d.get("counts") or {}).get(k, 0) for d in done)
-              for k in ("candidates", "kept", "page_corrected", "dropped", "duplicates", "absent")}
+              for k in ("candidates", "kept", "page_corrected", "dropped", "duplicates", "absent", "boilerplate", "off_term")}
     by_id = {c["id"]: c for c in ordered}
     what_changed = [
         {"key": t["key"], "label": t["label"], "values": t["values"],
@@ -384,8 +387,11 @@ def term_end(claims: list[dict], docs: list[dict]) -> dict | None:
 
 
 def deal_reminders(deal: dict, docs: list[dict], today: date | None = None) -> list[dict]:
-    """Upcoming end dates and missing yearly checks, from signed agreement terms and certificate records."""
-    today = today or date.today()
+    """Upcoming end dates and missing yearly checks, from signed agreement terms and certificate records.
+
+    A deal with an "as_of" date (the sample deals) is read as of that date, so its reminders never change.
+    """
+    today = today or (date.fromisoformat(deal["as_of"]) if deal.get("as_of") else date.today())
     done = [d for d in docs if d.get("status") == "done"]
     claims = [c for d in done for c in d.get("claims") or []]
     out = []
@@ -419,11 +425,14 @@ def deal_reminders(deal: dict, docs: list[dict], today: date | None = None) -> l
             when = date(year, month, min(day, 28) if month == 2 else day)
             if year in received:
                 continue
+            first = not received and year == start.year + 1
+            name = "First yearly certificate" if first else "Yearly certificate"
             if when < today:
-                add("missing_record", when, f"Yearly certificate due {when.isoformat()} not located. "
+                add("missing_record", when, f"{name} due {when.isoformat()}: not in the file yet. "
                                           "Ask the owner or staff for it.", rule["id"])
             else:
-                add("other", when, f"Yearly certificate due {when.isoformat()}.", rule["id"])
+                add("other", when, f"{name} due {when.isoformat()}" + ("; not in the file yet." if first else "."),
+                    rule["id"])
                 break
     return out
 
@@ -526,37 +535,133 @@ def shared_review(token: str, store: Storage | None = None) -> dict | None:
 # ---------------------------------------------------------------------------
 # Seeding
 
-def seed(store: Storage | None = None, samples_dir: Path = SAMPLES_DIR) -> list[str]:
-    """If there are no deals yet, add the sample deals (or the Harbor Walk demo). Returns seeded ids."""
-    store = store or get_store()
-    if store.list_deals():
-        return []
-    manifests = sorted(samples_dir.glob("*/manifest.json")) if samples_dir.exists() else []
-    seeded = [sid for m in manifests if (sid := seed_sample(m, store))]
-    if not seeded:
-        seeded = [seed_demo(store)]
-    return seeded
+REFRESH_LOCK = "sample-refresh"
+REFRESH_LOCK_TTL = 600  # Seconds before a lock left by a crashed instance is ignored.
+# Code that shapes stored claims. When it changes, sample deals are re-checked from the cached readings.
+_PIPELINE_FILES = [ROOT / "app" / "pipeline.py", ROOT / "app" / "deals.py"]
 
 
-def seed_sample(manifest_path: Path, store: Storage) -> str | None:
-    """Create one deal from data/samples/<deal>/manifest.json and queue its PDFs."""
+def _manifest(path: Path) -> dict | None:
     try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return None
+
+
+def sample_slug(manifest: dict, folder: Path) -> str:
+    return manifest.get("slug") or manifest.get("id") or _slug(folder.name)
+
+
+def sample_version(manifest_path: Path) -> str:
+    """Hash of the manifest, its PDFs, the prompt version and the pipeline code."""
+    h = hashlib.sha256()
+    h.update(manifest_path.read_bytes())
+    manifest = _manifest(manifest_path) or {}
+    for entry in manifest.get("documents") or []:
+        path = manifest_path.parent / (entry.get("file") or entry.get("filename") or "")
+        h.update(path.name.encode())
+        h.update(path.read_bytes() if path.is_file() else b"missing")
+    h.update(pipeline.PROMPT_ID.encode())
+    for source in _PIPELINE_FILES:
+        h.update(source.read_bytes() if source.exists() else b"")
+    return h.hexdigest()[:16]
+
+
+def is_sample_deal(deal: dict, slug: str) -> bool:
+    """A deal seeded from a sample: it carries the slug, or (seeded before slugs were stored) its id is the slug.
+
+    Deals people create always get a random suffix on their id, so they never match.
+    """
+    return deal.get("sample_slug") == slug or (not deal.get("sample_slug") and deal.get("id") == slug)
+
+
+def stale_samples(store: Storage, manifests: list[Path]) -> list[tuple[Path, str]]:
+    """(manifest, version) for each sample that is missing or stored with another version."""
+    out = []
+    for path in manifests:
+        manifest = _manifest(path)
+        if manifest is None:
+            continue
+        slug, version = sample_slug(manifest, path.parent), sample_version(path)
+        try:
+            existing = store.get_deal(slug)
+        except ValueError:
+            continue
+        if existing and not is_sample_deal(existing, slug):
+            continue  # Never touch a deal that is not a sample.
+        if not existing or existing.get("sample_version") != version:
+            out.append((path, version))
+    return out
+
+
+def refresh_samples(store: Storage | None = None, samples_dir: Path = SAMPLES_DIR, owner: str | None = None) -> list[str]:
+    """Re-seed sample deals whose manifest, PDFs, prompt or pipeline changed. Returns the refreshed ids.
+
+    Idempotent: nothing happens when every stored version matches. Only one instance does the work:
+    the others see the lock and leave it, and the next start finds the versions already current.
+    Cached readings make this free; a sample with no cached reading is read in the background.
+    """
+    store = store or get_store()
+    manifests = sorted(samples_dir.glob("*/manifest.json")) if samples_dir.exists() else []
+    if not stale_samples(store, manifests):
+        return []
+    owner = owner or uuid.uuid4().hex
+    if not store.acquire_lock(REFRESH_LOCK, owner, REFRESH_LOCK_TTL):
+        print("Sample refresh: another instance holds the lock.")
+        return []
+    try:
+        refreshed = []
+        for path, version in stale_samples(store, manifests):  # Checked again under the lock.
+            slug = sample_slug(_manifest(path) or {}, path.parent)
+            if store.get_deal(slug):
+                store.delete_deal(slug)
+            if seed_sample(path, store, version=version):
+                refreshed.append(slug)
+        return refreshed
+    finally:
+        store.release_lock(REFRESH_LOCK, owner)
+
+
+def seed(store: Storage | None = None, samples_dir: Path = SAMPLES_DIR) -> list[str]:
+    """Bring the sample deals up to date, or seed the Harbor Walk demo into an empty store without samples."""
+    store = store or get_store()
+    if samples_dir.exists() and any(samples_dir.glob("*/manifest.json")):
+        return refresh_samples(store, samples_dir)
+    if store.list_deals():
+        return []
+    return [seed_demo(store)]
+
+
+def seed_sample(manifest_path: Path, store: Storage, version: str | None = None) -> str | None:
+    """Create one deal from data/samples/<deal>/manifest.json and read its PDFs.
+
+    A PDF with a cached reading is checked right away, so the deal is complete when this returns;
+    one without is queued for the background reader.
+    """
+    manifest = _manifest(manifest_path)
+    if manifest is None:
+        return None
     folder = manifest_path.parent
+    slug = sample_slug(manifest, folder)
     deal = create_deal(manifest.get("deal") or manifest.get("name") or manifest.get("project") or folder.name,
                        manifest.get("city") or "", manifest.get("owner") or manifest.get("developer"),
-                       deal_id=manifest.get("slug") or manifest.get("id") or _slug(folder.name), store=store)
+                       deal_id=slug, store=store, as_of=manifest.get("as_of"))
+    deal.update(sample_slug=slug, sample_version=version or sample_version(manifest_path))
+    store.put_deal(deal)
     for entry in manifest.get("documents") or []:
         path = folder / (entry.get("file") or entry.get("filename") or "")
         if not path.is_file():
             continue
         try:
-            add_document(deal["id"], path.name, path.read_bytes(), entry.get("type"), entry.get("date"),
-                         entry.get("title"), store=store)
+            doc = add_document(deal["id"], path.name, path.read_bytes(), entry.get("type"), entry.get("date"),
+                               entry.get("title"), store=store, process=False)
         except (pipeline.PdfError, ValueError) as err:
             print(f"Seed skipped {path.name}: {err}")
+            continue
+        if pipeline.cached_reading(doc["sha256"]):
+            process_document(deal["id"], doc["id"], store)
+        else:
+            submit(deal["id"], doc["id"], store)
     return deal["id"]
 
 

@@ -27,14 +27,14 @@
     "quote": "Each affordable home must be leased to a household with income at or below 60 percent of area median income.",
     "page": 1,
     "wording": "must be leased",
-    "value": "at or below 60 percent of area median income"
+    "value": "60 percent of AMI"
    },
    {
     "topic": "rent_limits",
     "quote": "Rents for the affordable homes may not exceed the 60 percent rent limit based on the HUD income limits published each year.",
     "page": 2,
     "wording": "may not exceed",
-    "value": "60 percent rent limit"
+    "value": "60 percent HUD rent limit"
    },
    {
     "topic": "term",
@@ -47,8 +47,8 @@
     "topic": "responsible_party",
     "quote": "The owner, and any later owner of the property, is responsible for meeting these requirements.",
     "page": 2,
-    "wording": "is responsible for",
-    "value": "The owner, and any later owner"
+    "wording": "is responsible",
+    "value": "owner and any later owner"
    },
    {
     "topic": "reporting",
@@ -66,8 +66,8 @@
    }
   ]
  },
- "tokens_in": 1141,
- "tokens_out": 675,
- "cost_usd": 0.00203,
+ "tokens_in": 1203,
+ "tokens_out": 667,
+ "cost_usd": 0.002028,
  "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

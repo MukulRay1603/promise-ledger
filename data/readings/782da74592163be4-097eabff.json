@@ -3,7 +3,7 @@
  "model": "gemini-flash-lite-latest",
  "reading": {
   "document_type": "minutes",
-  "title": "Lantern Bay City Council Regular Meeting Minutes",
+  "title": "Lantern Bay City Council · Regular Meeting",
   "date": "2025-03-11",
   "draft": false,
   "signatures": [
@@ -18,27 +18,27 @@
     "topic": "units",
     "quote": "Members stated their understanding that 12 homes would be affordable.",
     "page": 1,
-    "wording": "12 homes would be affordable",
+    "wording": "would be",
     "value": "12 homes"
    },
    {
     "topic": "public_support",
     "quote": "Council Member (Seat 3) moved to support the tax request.",
     "page": 1,
-    "wording": "moved to support the tax request",
+    "wording": "moved to support",
     "value": "support the tax request"
    },
    {
     "topic": "public_support",
     "quote": "The Council voted 5 to 2 to support the tax request.",
     "page": 1,
-    "wording": "voted 5 to 2 to support the tax request",
+    "wording": "voted 5 to 2 to support",
     "value": "5 to 2 vote to support tax request"
    }
   ]
  },
- "tokens_in": 828,
- "tokens_out": 315,
- "cost_usd": 0.001036,
+ "tokens_in": 890,
+ "tokens_out": 305,
+ "cost_usd": 0.00103,
  "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

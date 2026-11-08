@@ -20,14 +20,7 @@
     "quote": "These homes would serve households at or below 60 percent of area median income.",
     "page": 1,
     "wording": "would serve",
-    "value": "at or below 60 percent of AMI"
-   },
-   {
-    "topic": "rent_limits",
-    "quote": "Rent levels for these homes were not described in the request.",
-    "page": 1,
-    "wording": "were not described",
-    "value": "not described"
+    "value": "60 percent of area median income"
    },
    {
     "topic": "term",
@@ -41,19 +34,19 @@
     "quote": "The request is for a 50 percent reduction in property taxes on the new building for 20 years.",
     "page": 2,
     "wording": "request is for",
-    "value": "50 percent property tax reduction for 20 years"
+    "value": "50 percent reduction in property taxes for 20 years"
    },
    {
     "topic": "public_support",
     "quote": "Staff recommends that the Council support the request for a 20-year property tax reduction.",
     "page": 2,
-    "wording": "recommends that the Council support",
-    "value": "support for 20-year property tax reduction"
+    "wording": "recommends that",
+    "value": "20-year property tax reduction"
    }
   ]
  },
- "tokens_in": 889,
- "tokens_out": 505,
- "cost_usd": 0.001529,
+ "tokens_in": 951,
+ "tokens_out": 435,
+ "cost_usd": 0.001373,
  "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

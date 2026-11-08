@@ -178,7 +178,7 @@ class DealApi(unittest.TestCase):
         demo = ledger.build_review()
         self.assertEqual(review["summary"]["sentences"], demo["summary"]["sentences"])
         self.assertTrue(all(c["verified"] for c in review["claims"]))
-        self.assertEqual(deals.seed(store), [])  # Only on an empty store.
+        self.assertEqual(deals.seed(store, samples_dir=Path(self.tmp.name) / "none"), [])  # Only on an empty store.
 
 
 class FakeSnap:

@@ -173,10 +173,15 @@ def compare_key(topic: str, quote: str) -> str | None:
     """
     q = normalize(quote)
     if topic == "units":
+        # The count and the form of the commitment: "up to 12" is a cap and "10 percent of 120" is a share,
+        # so both differ from a flat "12 homes", as in the hand-reviewed demo. "12 of the 120" is a flat 12.
         n = numbers(topic, quote)
         if "math" in n:
-            return f"{n['math']['equals']} homes"
-        if "homes" in n and _AFFORD.search(q):
+            return f"{n['math']['percent']} percent of {n['math']['of']} homes"
+        m = re.search(r"\bup to (\d[\d,]*)\b", q, re.I)
+        if m and (_AFFORD.search(q) or _UNITS_WORDS.search(q)):
+            return f"up to {_int(m.group(1))} homes"
+        if "homes" in n and (_AFFORD.search(q) or "of" in n["homes"]):
             return f"{n['homes']['count']} homes"
         return None
     if topic == "term":
@@ -403,6 +408,82 @@ def canonical_party(party: str, known: list[str]) -> str:
     return party
 
 
+# ---------------------------------------------------------------------------
+# Term fit and boilerplate: code rules that keep only sentences that state the term they are filed under
+
+_NUMBER_HOMES = re.compile(r"\b\d[\d,]*\b(?:[^.]{0,40}?)\b(?:homes?|units?|apartments?)\b", re.I)
+_UNITS_WORDS = re.compile(r"afford|reserve|set(?:ting)? aside|set-aside|workforce|income|restricted|required|leased|"
+                          r"reduced rents?", re.I)
+_TERM_WORDS = re.compile(r"\b\d+[\s-]*years?\b|\bends?\b|\buntil\b|\bexpires?\b|\bperiod\b|\bremain in effect\b", re.I)
+_SUPPORT_WORDS = re.compile(r"\btax|payment in lieu|\bPILOT\b|abate|exemption|subsid|loan|grant|incentive|support", re.I)
+_SUPPORT_ACTION = re.compile(r"recommend|approv|adopt|vote|support|award|grant|shall pay|asked staff|confirm", re.I)
+_MOTION = re.compile(r"\bmoved to\b|\bseconded\b", re.I)
+# A condition the Council puts on its support, such as asking for the terms in writing.
+_SUPPORT_CONDITION = re.compile(r"\bCouncil\b.*\b(?:asked|directed|required) (?:the )?(?:staff|owner|developer)\b|"
+                                r"\bsubject to\b|\bon (?:the )?condition\b", re.I)
+# Status notes ("marked not received") are observations about a duty, not the duty itself.
+_STATUS_NOTE = re.compile(r"\bnot received\b|\bis marked\b|\bwas received\b|\breminder notice\b", re.I)
+_REPORT_WORDS = re.compile(r"report|certif|records?|submit|file|deliver", re.I)
+# A reporting duty has a cadence. A one-off deadline ("a second notice ... by May 15") is a follow-up, not the duty.
+_REPORT_WHEN = re.compile(r"annual|yearly|each year|every year|submitted|reporting year \d{4}", re.I)
+_REMEDY_WORDS = re.compile(r"default|cure|repay|recapture|penalt|terminat|liquidated|breach", re.I)
+_PARTY_WORDS = re.compile(r"responsib|\bbinds?\b|successor|later owner|obligat|liable", re.I)
+_RENT_WORDS = re.compile(r"\brents?\b|\brental charge", re.I)
+_RENT_LIMIT = re.compile(r"limit|exceed|above|below|percent|%|\bcap\b|maximum|\bHUD\b", re.I)
+_INCOME_WORDS = re.compile(r"income|\bAMI\b|median", re.I)
+_SELF_DESCRIPTION = re.compile(r"^(?:this|the) (?:memo|memorandum|report|letter|presentation|summary|document)\b"
+                               r"[^.]{0,20}\b(?:reports|describes|summarizes|follows|provides|is)\b", re.I)
+_TAX_SPAN = re.compile(r"\btax|payment in lieu|\bPILOT\b|abate", re.I)
+
+
+def term_fits(topic: str, quote: str) -> bool:
+    """True if the sentence states the kind of term it is filed under. Applied to every model candidate."""
+    q = normalize(quote)
+    if topic == "units":
+        return bool(_NUMBER_HOMES.search(q) and _UNITS_WORDS.search(q))
+    if topic == "term":
+        return bool(_TERM_WORDS.search(q)) and not _TAX_SPAN.search(q)
+    if topic == "public_support":
+        if _MOTION.search(q):
+            return False
+        return bool(_SUPPORT_WORDS.search(q) and _SUPPORT_ACTION.search(q)) or bool(_SUPPORT_CONDITION.search(q))
+    if topic == "reporting":
+        return bool(_REPORT_WORDS.search(q) and _REPORT_WHEN.search(q)) and not _STATUS_NOTE.search(q)
+    if topic == "remedies":
+        return bool(_REMEDY_WORDS.search(q))
+    if topic == "responsible_party":
+        return bool(_PARTY_WORDS.search(q))
+    if topic == "rent_limits":
+        return bool(_RENT_WORDS.search(q) and _RENT_LIMIT.search(q))
+    if topic == "income_basis":
+        return bool(_INCOME_WORDS.search(q))
+    return True
+
+
+def repeated_lines(pages: list[str]) -> set[str]:
+    """Lines printed on more than one page, such as headers and footers."""
+    seen: dict[str, int] = {}
+    for text in pages:
+        for line in {normalize(l).lower() for l in text.split("\n") if len(l.strip()) >= 8}:
+            seen[line] = seen.get(line, 0) + 1
+    return {line for line, n in seen.items() if n > 1} if len(pages) > 1 else set()
+
+
+_FOOTER = re.compile(r"sample document|\bpage \d+ of \d+\b|made-up demo record", re.I)
+# A definition ('"Area Median Income" means ...') explains a word; the term itself is stated elsewhere.
+_DEFINITION = re.compile(r'^(?:\(?[a-z0-9]{1,3}[.)]\s*)?["“][^"”]{2,60}["”]\s+(?:means|shall mean|refers to)\b', re.I)
+
+
+def is_boilerplate(quote: str, chrome: set[str]) -> bool:
+    """Headers, footers, page numbers and a record describing itself are not terms."""
+    q = normalize(quote)
+    low = q.lower()
+    if _FOOTER.search(q) or _SELF_DESCRIPTION.search(q) or _DEFINITION.search(q):
+        return True
+    # A quote that sits inside a line repeated on every page is a header or footer.
+    return any(low.rstrip(".") in line for line in chrome)
+
+
 def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_parties: list[str] | None = None) -> dict:
     """Check the model's reading against the page text. Returns the fields to save on the document."""
     kind = type_key(doc.get("type")) or reading.document_type
@@ -421,7 +502,9 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
             date_note = "Date not located in the record."
 
     claims, counts = [], {"candidates": len(reading.candidates), "kept": 0, "page_corrected": 0,
-                          "dropped": 0, "duplicates": 0, "absent": 0}
+                          "dropped": 0, "duplicates": 0, "absent": 0,
+                          "boilerplate": 0, "off_term": 0}
+    chrome = repeated_lines(pages)
     seen = set()
     label = doc.get("type") or TYPE_LABELS.get(kind, "Record")
     for cand in reading.candidates:
@@ -435,7 +518,14 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
         if _ABSENT.search(normalize(cand.quote)):
             counts["absent"] += 1
             continue
-        key = (cand.topic, normalize(cand.quote).lower())
+        if is_boilerplate(cand.quote, chrome):
+            counts["boilerplate"] += 1
+            continue
+        if not term_fits(cand.topic, cand.quote):
+            counts["off_term"] += 1
+            continue
+        # One sentence is one claim: the same quote filed under a second term is a duplicate.
+        key = normalize(cand.quote).lower().rstrip(".")
         if key in seen:
             counts["duplicates"] += 1
             continue

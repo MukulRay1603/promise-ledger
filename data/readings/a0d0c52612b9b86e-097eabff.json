@@ -8,7 +8,7 @@
   "draft": false,
   "signatures": [
    {
-    "party": "Mill Street Housing Associates LP",
+    "party": "MILL STREET HOUSING ASSOCIATES LP",
     "quote": "Authorized Officer",
     "page": 1
    },
@@ -20,37 +20,44 @@
   ],
   "candidates": [
    {
+    "topic": "reporting",
+    "quote": "This certificate is submitted under Section 7.1 of the Agreement for reporting year 2024.",
+    "page": 1,
+    "wording": "submitted under",
+    "value": "reporting year 2024"
+   },
+   {
     "topic": "units",
     "quote": "Affordable Homes required (Section 4.1)",
     "page": 1,
-    "wording": "Affordable Homes required",
+    "wording": "required",
     "value": "9"
    },
    {
     "topic": "units",
     "quote": "As of December 31, 2024, 9 of the 9 required Affordable Homes were leased to income-qualified households.",
     "page": 1,
-    "wording": "9 of the 9 required Affordable Homes",
-    "value": "9 homes"
+    "wording": "required",
+    "value": "9 of 9 required"
    },
    {
     "topic": "income_basis",
     "quote": "All 9 households in Affordable Homes had incomes at or below 50 percent of Area Median Income when last certified.",
     "page": 1,
-    "wording": "at or below 50 percent of Area Median Income",
-    "value": "50 percent of AMI"
+    "wording": "at or below",
+    "value": "50 percent of Area Median Income"
    },
    {
     "topic": "rent_limits",
     "quote": "No Affordable Home was charged rent above the limit in Section 4.3 during the reporting year.",
     "page": 1,
-    "wording": "charged rent above the limit in Section 4.3",
+    "wording": "above the limit",
     "value": "Section 4.3 limit"
    }
   ]
  },
- "tokens_in": 829,
- "tokens_out": 447,
- "cost_usd": 0.001366,
+ "tokens_in": 891,
+ "tokens_out": 502,
+ "cost_usd": 0.001522,
  "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

@@ -400,6 +400,10 @@ def harbor_walk() -> dict:
                                                 "80 percent of area median income"],
              "claims": ["c02", "c08", "c14"]},
             {"term": "term", "values": ["30 years", "15 years"], "claims": ["c03", "c09", "c15"]},
+            # Same count, different commitment: a flat 12, a cap of "up to 12", and a share of "10 percent".
+            {"term": "units", "values": ["12 of 120 homes", "up to 12 homes", "10 percent of 120 homes",
+                                         "12 homes", "12 affordable homes"],
+             "claims": ["c01", "c05", "c07", "c10", "c13"]},
         ],
         "stage_notes": demo["stage_notes"],
         "story": "The same 12 homes are described as \"has agreed\", \"will explore\", \"considering\", "
@@ -827,7 +831,9 @@ def finish(out: Path, name, slug, homes, owner, docs, claims, gold) -> dict:
     if missing != gold["not_located"]:
         raise SystemExit(f"{slug}: not_located should be {missing}, not {gold['not_located']}")
     manifest = {"notice": NOTICE, "deal": name, "slug": slug, "city": "Lantern Bay", "county": "Bayside County",
-                "homes": homes, "owner": owner, "documents": docs}
+                "homes": homes, "owner": owner,
+                # The file is read as of its latest record, so reminders are the same on any day.
+                "as_of": max(d["date"] for d in docs), "documents": docs}
     expected = {"notice": NOTICE, "deal": name, "terms": TERMS, "stages": STAGES, **gold, "claims": claims}
     for fname, data in [("manifest.json", manifest), ("expected_claims.json", expected)]:
         (out / fname).write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8",

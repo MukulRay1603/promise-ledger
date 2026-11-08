@@ -1,15 +1,15 @@
 {
  "mode": "live",
- "model": "gemini-flash-lite-latest",
+ "model": "gemini-3.8-flash",
  "reading": {
   "document_type": "letter",
-  "title": "Harbor Walk affordable homes",
+  "title": "Re: Harbor Walk affordable homes",
   "date": "2025-09-15",
   "draft": false,
   "signatures": [
    {
     "party": "HARBOR WALK PARTNERS LLC",
-    "quote": "HARBOR WALK PARTNERS LLC",
+    "quote": "[signature on file]",
     "page": 1
    }
   ],
@@ -18,34 +18,34 @@
     "topic": "units",
     "quote": "Harbor Walk Partners will provide 12 affordable homes at Harbor Walk.",
     "page": 1,
-    "wording": "will provide 12 affordable homes",
-    "value": "12 homes"
+    "wording": "will provide",
+    "value": "12 affordable homes"
    },
    {
     "topic": "income_basis",
     "quote": "These homes will be for households at or below 80 percent of area median income.",
     "page": 1,
-    "wording": "at or below 80 percent of area median income",
-    "value": "80 percent of AMI"
+    "wording": "will be for",
+    "value": "at or below 80 percent of area median income"
    },
    {
     "topic": "term",
     "quote": "This commitment will last for 15 years from the first move-in date.",
     "page": 1,
-    "wording": "will last for 15 years",
-    "value": "15 years"
+    "wording": "will last for",
+    "value": "15 years from the first move-in date"
    },
    {
     "topic": "responsible_party",
     "quote": "Harbor Walk Partners, as owner, is responsible for meeting this commitment.",
     "page": 1,
-    "wording": "is responsible for meeting this commitment",
-    "value": "Harbor Walk Partners"
+    "wording": "is responsible for",
+    "value": "Harbor Walk Partners, as owner"
    }
   ]
  },
- "tokens_in": 621,
- "tokens_out": 393,
- "cost_usd": 0.001169,
- "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+ "tokens_in": 683,
+ "tokens_out": 1025,
+ "cost_usd": 0.002767,
+ "notice": "Read by gemini-3.8-flash. Every quote is checked against the page text."
 }
