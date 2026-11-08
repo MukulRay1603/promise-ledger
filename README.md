@@ -1,105 +1,88 @@
 # Promise Ledger
 
-Source-linked receipts for public housing deals.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/hero-dark.png">
+  <img src="docs/images/hero-light.png" alt="Promise Ledger home page: the headline 'Public support should come with a receipt.' beside a printed promise receipt for the fictional Harbor Walk deal, with three terms marked 'Wording differs', one 'Not located', and a 'Flagged for human review' stamp.">
+</picture>
 
-When a housing project asks for public support, its affordability terms get spread across staff reports, letters, slides and minutes. Promise Ledger turns those records into one review page: how many homes, for whom, for how long, and where the evidence is.
+**Source-linked receipts for public housing deals.** When a project gets a tax break or other public support, its affordable-housing promises are scattered across staff reports, letters, slides and minutes. Promise Ledger turns those PDFs into one checked receipt: how many homes, for whom, for how long, and the exact page that says so.
 
 **Live demo:** https://promise-ledger-1071927289312.us-central1.run.app (open Harbor Walk, then "Take the 60-second tour")
 
-**Status:** working prototype for GDG AI for Good 2026: Housing. All data is made up. Nothing here makes legal findings.
+For city and county housing staff, compliance officers and council aides. Shared receipts are read-only, so residents can see them too. All data is made up, and nothing here makes legal findings. Built for GDG AI for Good 2026: Housing by Liyue Housing Association (Mukul and Karthik).
 
-**Who it is for:** city and county housing staff, compliance officers and council aides who track the affordable-housing promises made in exchange for public support. Shared receipts are read-only, so the public can see them too.
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/deal.png" alt="Harbor Walk deal page: at a glance, key figures (12 of 120 homes, furthest stage Signed, 3 terms differ, 2 not located) and the four stages."><br><b>At a glance.</b> Key figures and how far the deal got: proposed, supported, signed, delivered.</td>
+    <td width="50%"><img src="docs/images/source.png" alt="Source panel showing the developer's letter as a real PDF page with the quote about 12 affordable homes highlighted."><br><b>View source.</b> Every claim opens the real PDF page with the exact quote highlighted.</td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/images/decisions.png" alt="Decision dialog with Confirm, Needs follow-up and Disputed, a note, and the reviewer's name, beside the Your review panel with progress meters and a review log."><br><b>People decide.</b> Confirm, ask for follow-up or dispute each item, with a note. Every decision keeps a name and time.</td>
+    <td width="50%"><img src="docs/images/receipt.png" alt="Receipt tab: open questions each show who decided what and when, under a green stamp reading Reviewed, Dana Ortiz, Nov 8, 2026."><br><b>Receipt.</b> Stays "Flagged for human review" until every open question has a decision, then is stamped as reviewed.</td>
+  </tr>
+</table>
 
-## Team
-Liyue Housing Association: Mukul and Karthik.
+<p align="center"><img src="docs/images/receipt-print.webp" width="420" alt="Animation: the receipt feeds out of a printer slot, each line is checked, and the 'Flagged for human review' stamp lands."></p>
 
-## Run locally
-Works with no API key. Python 3.10 or newer.
+## How it works
 
-```bash
-python -m venv .venv
-.venv\Scripts\activate          # macOS/Linux: source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8080
+```mermaid
+flowchart TB
+  subgraph READ["AI reads"]
+    direction LR
+    A["PDF records<br/>reports, letters,<br/>minutes, agreements"] --> B["pypdf<br/>text for each page"]
+    B --> C["Personal details<br/>redacted, pages tagged"]
+    C --> D["Gemini, structured output:<br/>candidate quotes with<br/>term, page and signers"]
+  end
+  subgraph CHECK["Code checks"]
+    direction LR
+    E["Quote on the cited page?<br/>Fix the page or drop it"] --> F["Stage rules: proposed ·<br/>supported · signed · delivered"]
+    F --> G["Compare terms:<br/>wording differs · not located"]
+  end
+  subgraph DECIDE["People decide"]
+    P["Reviewer decisions:<br/>Confirm · Needs follow-up ·<br/>Disputed, with a note"]
+  end
+  READ --> CHECK
+  CHECK --> S[("Firestore + Cloud Storage<br/>(or local files)")]
+  DECIDE --> S
+  S --> R["Deal review"]
+  R --> R1["Receipt"] & R2["Read-only share link"] & R3["Excel and CSV export"] & R4["Reminders"]
 ```
 
-Open http://localhost:8080. Health check: http://localhost:8080/api/health (use `/api/health` on Cloud Run, which reserves paths ending in "z" such as `/healthz`).
+**AI reads · code checks · people decide.** The model only proposes quotes. Code keeps a quote only if it is on the cited page, word for word, and code rules (never the model alone) set each stage. People record the decisions, which sit beside the record and never change a claim, a term or a stage.
 
-Optional live extraction: copy `.env.example` to `.env` and set `GEMINI_API_KEY`. `GEMINI_MODEL` picks the model (default `gemini-3.5-flash`). If it is busy or times out, one retry goes to `GEMINI_FALLBACK_MODEL` (default `gemini-flash-lite-latest`). Without a key, or if a live call fails, the page shows saved sample output and says so.
+<details>
+<summary>Pipeline, step by step</summary>
 
-## Test
-```bash
-python -m unittest discover -s tests -t .   # all tests
-python -m app.ledger                        # check every quote against its cited page
-python evals/run_evals.py                   # live model cases, needs GEMINI_API_KEY
-```
+Each uploaded PDF goes through `app/pipeline.py`:
 
-## What the demo shows
-The packet in `data/demo/` is made up: the fictional city of Lantern Bay and the fictional Harbor Walk project. It has a staff summary, draft letter, developer slides, minutes and a later letter.
-
-Pages (hash routes):
-- **Home `#/`:** a short landing: hero with a receipt that assembles itself, the problem in three pictures, how it works, proof figures from the sample-data evals, the explainer videos, who it is for, and a call to open a sample deal. Press Ctrl+K (Cmd+K on a Mac) anywhere for the command menu.
-- **Deals `#/deals`:** every deal with its documents, furthest stage, flags and next reminder, plus a reminders panel and a New deal dialog.
-- **Deal `#/deals/{id}`:** at a glance, key figures, stages, documents with drag-and-drop PDF upload, and tabs for Claims, What changed, Open questions, Receipt, Read new text and Glossary. "View source" opens the real PDF page with the quote highlighted. If the quote cannot be matched on the page, the page text is shown with the quote marked. Export to Excel or CSV, or share a read-only link.
-- **People decide:** every claim and every open question can be marked Confirmed, Needs follow-up or Disputed, with an optional note. The reviewer's name is asked once per browser, and each decision keeps a name and time. The deal page shows progress and a review log. The receipt stays "Flagged for human review" until every open question has a decision, then reads "Reviewed · name · date". Decisions never change a stage. API: `GET/POST /api/deals/{id}/decisions`.
-- **Guided tour:** "Take the 60-second tour" on a deal (or `#/deals/{id}/tour`) walks through upload, claims, the PDF highlight, what changed, decisions and the receipt. Escape ends it.
-- **Shared receipt `#/r/{token}`:** a read-only receipt that prints cleanly.
-
-Notes for the interface (`app/static/`):
-- No framework. `pdfview.js` loads pdf.js (pinned, from jsDelivr) only when a source is opened.
-- Until the deals API answers, the page uses `mock.js`, an in-browser copy of the API with made-up deals. Add `?mock=1` to the address to force it.
-- Explainer videos are `NN-slug.mp4`, `.vtt` and `.jpg`. Set `MEDIA_BASE_URL` to a public folder (for example a Cloud Storage bucket, with CORS for GET so captions load). If it is empty, the page uses `app/static/media/`. `/api/media` reports which videos are present, and missing ones keep their placeholder.
-
-## Sample deals (PDF)
-`data/samples/` has three fictional deals as real PDF records, for the live demo and for tests of PDF reading. Every page carries the footer "SAMPLE DOCUMENT · fictional · for demonstration". Names are generic roles only, and the compliance certificate has counts and dates only.
-
-| Deal | Homes | Records | What it shows |
-|---|---|---|---|
-| `harbor-walk` | 120 | staff summary (2 p), draft letter (1), developer slides (3), minutes (2), developer letter (1) | The demo story above, with the same quotes and pages. Income basis and term differ; rent limits and remedies not located; signed by the developer only. |
-| `beacon-point` | 80 | staff report (3), council resolution (2), PILOT and regulatory agreement signed by City and owner (4) | A complete deal: 16 homes at 60% AMI, HUD-based rent limits, 30 years, owner and later owners, yearly report, payback of abated taxes after default notice. All terms match. |
-| `mill-street` | 60 | 2011 regulatory agreement excerpt (3), 2024 compliance certificate (1), 2026 staff memo (2) | After signing: 9 homes at 50% AMI until 2026-12-31, and the 2025 certificate marked not received. |
-
-Each folder has `manifest.json` (file, type, date, title, pages, signed_by) and `expected_claims.json` (gold answers: every promise with term, exact quote, file, page and stage, plus `not_located` and `differs`; Mill Street also has `observations` and `follow_up`).
-
-```bash
-pip install reportlab pypdf
-python tools/make_samples.py                  # rebuild data/samples/ (deterministic)
-python -m unittest tests.test_samples         # every gold quote is on its stated page
-```
-
-Quote checks read each page with pypdf and treat line breaks as spaces (about half the quotes wrap across a line). Nothing else is normalized: the PDFs use standard fonts with no hyphenation or ligatures.
-
-## Deals and PDF uploads
-Staff create a deal, upload its PDFs, and get a checked review for that deal. On an empty store the app seeds the sample deals above (or the Harbor Walk demo when `data/samples/` is missing).
-
-Each PDF goes through `app/pipeline.py`:
 1. The file is stored. Limits: 20 MB, 60 pages, no password.
-2. pypdf extracts text per page. Pages with no text layer are flagged as scanned and listed as open questions.
+2. pypdf extracts the text of each page. Pages with no text layer are flagged as scanned and listed as open questions.
 3. The model gets the redacted page text, tagged `<page n="1">…`, and returns candidate quotes with term, page, document type and named signers.
 4. Code checks every quote against the page text (whitespace, quote marks and dashes normalized). A quote found on another page gets its page corrected; a quote found nowhere is dropped. Counts are kept per document.
-5. Code rules set the stage, never the model alone: staff reports, slides and unsigned letters are *proposed* (a staff recommendation is *supported*); minutes and resolutions with a recorded vote or approval are *supported*; an agreement or letter is *signed* only when code finds a completed signature line under the party's name and the record is not marked draft; certificates with occupancy or certification wording are *delivered*.
+5. Code rules set the stage, never the model alone:
+   - staff reports, slides and unsigned letters are *proposed* (a staff recommendation is *supported*);
+   - minutes and resolutions with a recorded vote or approval are *supported*;
+   - an agreement or letter is *signed* only when code finds a completed signature line under the party's name and the record is not marked draft;
+   - certificates with occupancy or certification wording are *delivered*.
 6. The deal review is rebuilt from the verified claims. It has the same shape as `/api/review`.
 
-Code also sets aside candidates that do not state the term they are filed under. Each term needs its own words, for example a home count with "affordable" or "reserved" for units, or "default", "cure" or "repay" for remedies. Code also drops headers, footers and sentences that describe the record itself, sentences saying a term is missing, and the same sentence filed under a second term. Each document's `counts` shows how many were set aside and why. "Wording differs" compares values that code reads from the quote: the home count and whether it is a flat number, a cap ("up to 12") or a share ("10 percent of 120"), years or end date, percent, report due date and cure days.
+Code also sets aside candidates that don't state the term they are filed under. Each term needs its own words, for example a home count with "affordable" or "reserved" for units, or "default", "cure" or "repay" for remedies.
 
-Each sample manifest has an `as_of` date (its latest record), and that deal's reminders are computed as of that date, so they read the same on any day.
+Code drops headers, footers and sentences that describe the record itself, sentences saying a term is missing, and the same sentence filed under a second term. Each document's `counts` shows how many were set aside and why.
 
-Readings are cached in `data/readings/` by file hash and prompt version, so seeding and evals do not call the model again. Reminders (`/api/reminders`) come from signed term and reporting clauses and the certificates on file.
+"Wording differs" compares values that code reads from the quote:
+- the home count, and whether it is a flat number, a cap ("up to 12") or a share ("10 percent of 120");
+- years or end date;
+- percent;
+- report due date;
+- cure days.
 
-API: `GET/POST /api/deals`, `GET /api/deals/{id}`, `POST /api/deals/{id}/documents` (multipart, 202, poll the deal), `GET /api/deals/{id}/review`, `GET …/documents/{doc}/file`, `GET …/documents/{doc}/pages/{n}`, `GET /api/deals/{id}/export.xlsx` and `export.csv`, `POST /api/deals/{id}/share` → `/r/{token}`, and `GET /api/reminders`.
-
-Storage: `STORAGE=local` (default; JSON and files under `data/runtime/`) or `STORAGE=gcp` (Firestore Native for records, Cloud Storage bucket `GCS_BUCKET` for PDFs; optional `FIRESTORE_DATABASE`). Uploads are read on a background thread, so on Cloud Run deploy with `--no-cpu-throttling`. Also set `PUBLIC_BASE_URL` to give share links the public host.
-
-Public demo guard (`app/guard.py`, on unless `DEMO_MODE=0`):
-- Each IP (the last `X-Forwarded-For` hop, which Cloud Run appends, so it cannot be spoofed) gets 5 uploads and 3 new deals an hour (`RATE_LIMIT_UPLOADS_PER_HOUR`, `RATE_LIMIT_DEALS_PER_HOUR`). Over the limit, the API answers 429 with a plain message and `Retry-After`. Counts live in memory per instance. Reviewer decisions use the same limiter: 60 a minute per demo session, always on.
-- Deals and uploads made by visitors are marked `demo`. A sweep deletes them, with their files, after `DEMO_TTL_HOURS` (24). It runs on the first request after start and then at most once an hour, under a lock so only one instance sweeps. Sample deals are never deleted; visitor uploads on them are. Non-sample deals from before the flag existed (no `demo` field) are swept the same way, once, as a migration.
-- Responses carry `X-Demo-Mode: 1`, and the page then shows a note in the upload area and the New deal dialog.
-
-```bash
-python evals/run_pdf_evals.py              # score the pipeline on data/samples/ (cached; at most 30 live calls)
-```
+Readings are cached in `data/readings/` by file hash and prompt version, so seeding and evals don't call the model again. Reminders (`/api/reminders`) come from signed term and reporting clauses and the certificates on file; each sample deal's reminders are computed as of its `as_of` date, so they read the same on any day.
+</details>
 
 ## Results
+
 `python evals/run_pdf_evals.py` on the 3 sample deals (11 PDFs, 53 hand-labeled promises):
 
 | Measure | Result |
@@ -111,21 +94,134 @@ python evals/run_pdf_evals.py              # score the pipeline on data/samples/
 | Changed and missing terms | exact on all 3 deals |
 | Model cost | about $0.026 for all 11 PDFs, cached by file hash |
 
-## How the work is split
-AI reads, code checks, humans decide.
+## Safety and accessibility
 
-- The model finds candidate quotes in pasted text or uploaded PDFs. It never sets a status.
-- Code checks that quotes match their source word for word, that dates match, and that the arithmetic adds up. A quote that does not match is dropped.
-- Stages for uploaded records come from code rules on the document type and checked signatures. Every claim stays flagged for human review. Claims in `data/demo/claims.json` were reviewed by hand.
-- Pasted text is not stored or logged. Obvious personal details are removed before the model call.
-- Text inside documents is treated as data, never as instructions to the model.
-- Wording stays neutral: "wording differs", "not located", "flagged for human review".
-- Reviewer decisions sit beside the record and never change a claim, term or stage.
-- The UI is keyboard-usable, with visible focus, 4.5:1 contrast, reduced-motion support and a larger-text mode.
+- **Text in documents is data, never instructions to the model.** Obvious personal details are removed before any model call, and pasted text is not stored or logged.
+- **Neutral wording only:** "wording differs", "not located", "flagged for human review".
+- **Every claim shows its exact quote, document type, date and page.** Statuses stay separate: a later stage is never inferred.
+- **Reviewer decisions** are append-only, carry a name and time, and never change a claim, term or stage. Reviewer identity comes from one function, `current_reviewer()`, so real sign-in can replace it later.
+- **The interface:**
+  - works by keyboard, with visible focus;
+  - meets 4.5:1 contrast in light and dark;
+  - supports reduced motion and has a larger-text mode;
+  - scores 100 for accessibility in Lighthouse.
 
-## Docs
-- [Plan](docs/PLAN.md)
-- [Contributor rules](AGENTS.md)
+<details>
+<summary>Public demo guard</summary>
 
-## License
-Code: Apache-2.0. Docs and evaluation data: CC-BY 4.0.
+`app/guard.py` is on unless `DEMO_MODE=0`.
+
+- **Upload and new-deal limits.** Each IP gets 5 uploads and 3 new deals an hour. The IP is the last `X-Forwarded-For` hop, which Cloud Run appends, so it can't be spoofed. Over the limit, the API answers 429 with a plain message and `Retry-After`.
+- **Decision limit.** Reviewer decisions allow 60 a minute per demo session.
+- **Counts** live in memory, per instance.
+- **Clean-up.** Deals and uploads made by visitors are marked `demo` and deleted, with their files, after `DEMO_TTL_HOURS` (24). Sample deals are never deleted; visitor uploads on them are.
+- **Sample-deal reviews are kept per browser.** The browser sends a random session id, so one visitor's decisions, notes and stamp never appear for another visitor or on their share links. "Reset my review" starts over. Deals created by staff keep one shared review.
+</details>
+
+## Run locally
+
+Works with no API key. Python 3.10 or newer.
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate          # macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8080
+```
+
+Open http://localhost:8080. For live extraction, copy `.env.example` to `.env` and set `GEMINI_API_KEY`. Without a key, or if a live call fails, the app uses saved readings and says so.
+
+```bash
+python -m unittest discover -s tests -t .   # all tests
+python -m app.ledger                        # check every demo quote against its cited page
+python evals/run_pdf_evals.py               # score the pipeline on data/samples/ (cached; at most 30 live calls)
+```
+
+## Deploy (Cloud Run)
+
+```bash
+gcloud firestore databases create --location=us-central1          # once (Native mode)
+gcloud storage buckets create gs://YOUR_BUCKET --location=us-central1
+printf '%s' "$GEMINI_API_KEY" | gcloud secrets create gemini-api-key --data-file=-
+gcloud run deploy promise-ledger --source . --region us-central1 --allow-unauthenticated \
+  --no-cpu-throttling \
+  --set-env-vars STORAGE=gcp,GCS_BUCKET=YOUR_BUCKET,PUBLIC_BASE_URL=https://YOUR-SERVICE.run.app \
+  --set-secrets GEMINI_API_KEY=gemini-api-key:latest
+```
+
+Uploads are read on a background thread, hence `--no-cpu-throttling`. The service account needs access to Firestore, the bucket and the secret. Health check: `/api/health` (Cloud Run reserves paths ending in "z", so `/healthz` works only locally).
+
+**Running cost.** Cloud Run scales to zero when nobody is using it. Records and PDFs for a demo of this size fit in the Firestore and Cloud Storage free tiers. Model cost is about $0.002 per PDF (all 11 sample PDFs cost about $0.026), and each reading is cached by file hash, so a file is never paid for twice.
+
+| Variable | Default | What it does |
+|---|---|---|
+| `GEMINI_API_KEY` | none | Turns on live reading. Without it, saved readings are used. |
+| `GEMINI_MODEL` | `gemini-3.5-flash` | Model for reading records. |
+| `GEMINI_FALLBACK_MODEL` | `gemini-flash-lite-latest` | Tried once if the main model is busy or times out. |
+| `STORAGE` | `local` | `local` (files under `data/runtime/`) or `gcp` (Firestore and Cloud Storage). |
+| `GCS_BUCKET` | none | Bucket for PDFs and page text when `STORAGE=gcp`. |
+| `FIRESTORE_DATABASE` | `(default)` | Firestore database name. |
+| `PUBLIC_BASE_URL` | request host | Public host used in share links. |
+| `MEDIA_BASE_URL` | `/static/media/` | Where the explainer videos live, for example a public bucket folder (needs CORS for GET). |
+| `DEMO_MODE` | `1` | Public demo guard: rate limits, clean-up, demo notices. Set `0` for a staff deployment. |
+| `DEMO_TTL_HOURS` | `24` | Hours before visitor deals and uploads are deleted. |
+| `RATE_LIMIT_UPLOADS_PER_HOUR` | `5` | Uploads per IP per hour. |
+| `RATE_LIMIT_DEALS_PER_HOUR` | `3` | New deals per IP per hour. |
+| `SEED` | `1` | Seed or refresh the sample deals at start. |
+
+## API
+
+Exports open in a preview first, built from the same rows as the files:
+
+<p align="center"><img src="docs/images/export.png" width="720" alt="Excel preview dialog for Harbor Walk: Claims, Terms, Open questions, Review log and About sheets, with status chips, and Download .xlsx, Download .csv and Copy as CSV buttons."></p>
+
+| Endpoint | What it does |
+|---|---|
+| `GET/POST /api/deals` | List deals, or create one `{name, city}` |
+| `GET /api/deals/{id}` | Deal and its documents with status |
+| `POST /api/deals/{id}/documents` | Upload a PDF (multipart, 202); poll the deal until done |
+| `GET /api/deals/{id}/review` | Claims, stages, terms, open questions, decisions |
+| `GET …/documents/{doc}/file`, `…/pages/{n}` | The PDF, and the text of one page |
+| `GET/POST/DELETE /api/deals/{id}/decisions` | Read, record or reset reviewer decisions (`X-Reviewer-Name` header) |
+| `GET /api/deals/{id}/export.xlsx`, `.csv`, `.json` | Excel and CSV exports, and the JSON behind the in-app preview |
+| `POST /api/deals/{id}/share` | Read-only link `/r/{token}`; JSON at `/api/share/{token}` |
+| `GET /api/reminders` | Term end dates and yearly certificates due |
+| `GET /api/review` | The reviewed Harbor Walk demo packet (also shipped inside the home page) |
+| `POST /api/extract` | Read pasted text `{text}` (up to 4,000 characters): candidate quotes, each checked word for word; nothing is stored |
+| `GET /api/media` | Which explainer videos are present, and where they are served from |
+| `GET /api/health` | Health check |
+
+## Sample data
+
+All names, places and figures are fictional. `data/samples/` has three deals as real PDF records, and every page carries the footer "SAMPLE DOCUMENT · fictional · for demonstration".
+
+<details>
+<summary>The three sample deals</summary>
+
+| Deal | Homes | Records | What it shows |
+|---|---|---|---|
+| `harbor-walk` | 120 | staff summary (2 p), draft letter (1), developer slides (3), minutes (2), developer letter (1) | Units, income basis and term differ across records; rent limits and remedies not located; signed by the developer only. |
+| `beacon-point` | 80 | staff report (3), council resolution (2), PILOT and regulatory agreement signed by City and owner (4) | A complete deal: 16 homes at 60% AMI, HUD-based rent limits, 30 years, owner and later owners, yearly report, payback of abated taxes after default notice. All terms match. |
+| `mill-street` | 60 | 2011 regulatory agreement excerpt (3), 2024 compliance certificate (1), 2026 staff memo (2) | After signing: 9 homes at 50% AMI until 2026-12-31, and the 2025 certificate marked not received. |
+
+Each folder has `manifest.json` (file, type, date, title, pages, signed_by) and `expected_claims.json`: the gold answers, with every promise's term, exact quote, file, page and stage, plus `not_located` and `differs`.
+
+```bash
+pip install reportlab pypdf
+python tools/make_samples.py                  # rebuild data/samples/ (deterministic)
+python -m unittest tests.test_samples         # every gold quote is on its stated page
+```
+</details>
+
+<details>
+<summary>Interface notes</summary>
+
+- Plain HTML, CSS and JS in `app/static/`, with no framework. pdf.js (pinned) loads only when a source is opened.
+- Pages: home `#/`, deals `#/deals`, deal `#/deals/{id}`, guided tour `#/deals/{id}/tour`, and a read-only receipt at `/r/{token}`. Press Ctrl+K (Cmd+K on a Mac) for the command menu.
+- `?mock=1` forces `mock.js`, an in-browser copy of the API with made-up deals.
+- Explainer videos are `NN-slug.mp4`, `.vtt` and `.jpg` under `MEDIA_BASE_URL`; `/api/media` reports which are present.
+</details>
+
+## Docs and license
+
+[Plan](docs/PLAN.md) · [Contributor rules](AGENTS.md). Code: Apache-2.0. Docs and evaluation data: CC-BY 4.0.
