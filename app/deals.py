@@ -36,8 +36,12 @@ def _slug(text: str) -> str:
 # Deals
 
 def create_deal(name: str, city: str, developer: str | None = None, deal_id: str | None = None,
-                store: Storage | None = None, as_of: str | None = None, demo: bool | None = None) -> dict:
-    """demo defaults to on for visitor deals (no fixed id) while DEMO_MODE is on; the sweep expires those."""
+                store: Storage | None = None, as_of: str | None = None, demo: bool | None = None,
+                owner_session: str | None = None) -> dict:
+    """demo defaults to on for visitor deals (no fixed id) while DEMO_MODE is on; the sweep expires those.
+
+    owner_session is the creating browser's demo session. In DEMO_MODE only that browser can see the deal.
+    """
     store = store or get_store()
     if demo is None:
         demo = deal_id is None and guard.enabled()
@@ -46,10 +50,29 @@ def create_deal(name: str, city: str, developer: str | None = None, deal_id: str
     deal = {"id": deal_id, "name": name.strip(), "city": city.strip(), "developer": (developer or "").strip() or None,
             "created_at": stamp, "updated_at": stamp}
     deal["demo"] = bool(demo)  # Always stored: a deal with no flag predates it, and the demo sweep treats it as a visitor's.
+    if owner_session:
+        deal["owner_session"] = owner_session  # Never returned by the API (see public_deal).
     if as_of:
         deal["as_of"] = date.fromisoformat(as_of).isoformat()  # Reminders are computed as of this date.
     store.put_deal(deal)
     return deal
+
+
+PRIVATE_DEAL_FIELDS = ("owner_session",)
+
+
+def public_deal(deal: dict) -> dict:
+    """A deal as the API returns it: without the owner's session id (S3)."""
+    return {k: v for k, v in deal.items() if k not in PRIVATE_DEAL_FIELDS}
+
+
+def visible_to(deal: dict, session: str | None) -> bool:
+    """Who may see and change a deal (S2). Sample deals are public; in DEMO_MODE a visitor deal belongs to the
+    browser that made it. With DEMO_MODE off (a staff deployment) every deal is shared."""
+    if not guard.enabled() or is_sample(deal):
+        return True
+    owner = deal.get("owner_session")
+    return bool(owner) and owner == session
 
 
 def touch(deal_id: str, store: Storage) -> None:
@@ -79,28 +102,32 @@ def get_deal_detail(deal_id: str, store: Storage | None = None) -> dict | None:
     deal = store.get_deal(deal_id)
     if not deal:
         return None
-    return {**deal, "documents": [public_doc(d) for d in _sort_docs(store.list_documents(deal_id))]}
+    return {**public_deal(deal), "documents": [public_doc(d) for d in _sort_docs(store.list_documents(deal_id))]}
 
 
-def list_deals(store: Storage | None = None) -> list[dict]:
+def _sort_reminders(rows: list[dict]) -> list[dict]:
+    return sorted(rows, key=lambda r: (not r["overdue"], r["date"]))
+
+
+def list_deals(store: Storage | None = None, session: str | None = None) -> list[dict]:
+    """The deals this browser may see, each with its next reminder. Each deal's documents are listed once (P5)."""
     store = store or get_store()
     rows = []
-    reminders = all_reminders(store)
     for deal in store.list_deals():
+        if not visible_to(deal, session):
+            continue
         docs = store.list_documents(deal["id"])
         review = build_deal_review(deal, docs)
         summary = review["summary"]
-        upcoming = [r for r in reminders if r["deal_id"] == deal["id"]]
+        upcoming = _sort_reminders(deal_reminders(deal, docs))
         nxt = upcoming[0] if upcoming else None
         rows.append({
             "id": deal["id"],
             "name": deal["name"],
             "city": deal["city"],
-            "document_count": len(docs),
             "documents": len(docs),
             "documents_processing": sum(d.get("status") in ("queued", "reading", "checking") for d in docs),
             "claim_count": len(review["claims"]),
-            "furthest_stage": summary["furthest_status"],
             "furthest_status": summary["furthest_status"],
             "terms_differ": summary["terms_differ"],
             "terms_not_located": summary["terms_not_located"],
@@ -340,9 +367,10 @@ def deal_review(deal_id: str, store: Storage | None = None, with_pages: bool = F
     review = build_deal_review(deal, store.list_documents(deal_id), store=store, with_pages=with_pages)
     # Reviewer decisions sit beside the record. They never change a claim, a term or a stage.
     sandboxed = is_sample(deal)
-    events = store.list_decisions(deal_id)
-    if sandboxed:
-        events = [e for e in events if session and e.get("session") == session]
+    if sandboxed:  # Only this browser's events, read with a query rather than by streaming everyone's (P2).
+        events = store.list_decisions(deal_id, session=session) if session else []
+    else:
+        events = store.list_decisions(deal_id)
     review["decisions"] = decision_view(review, events)
     review["decisions"]["sandboxed"] = sandboxed
     return review
@@ -378,13 +406,14 @@ def decision_targets(review: dict) -> dict:
     return targets
 
 
-def add_decision(deal_id: str, payload: dict, reviewer: dict, store: Storage | None = None) -> dict:
+def add_decision(deal_id: str, payload: dict, reviewer: dict, store: Storage | None = None,
+                 review: dict | None = None) -> dict:
     """Record one reviewer decision. `reviewer` comes from identity.current_reviewer(), never from the payload.
 
-    Notes are stored as plain text and never read as instructions.
+    Notes are stored as plain text and never read as instructions. Pass `review` to reuse one already built.
     """
     store = store or get_store()
-    review = deal_review(deal_id, store, session=reviewer.get("session"))
+    review = review or deal_review(deal_id, store, session=reviewer.get("session"))
     if review is None:
         raise DecisionError("Deal not found.")
     target = (str(payload.get("target_type") or ""), str(payload.get("target_id") or ""))
@@ -411,6 +440,22 @@ def add_decision(deal_id: str, payload: dict, reviewer: dict, store: Storage | N
     return event
 
 
+def decide(deal_id: str, payload: dict, reviewer: dict, store: Storage | None = None) -> dict:
+    """Record a decision and return the public event with the updated decisions view, building the review once."""
+    store = store or get_store()
+    review = deal_review(deal_id, store, session=reviewer.get("session"))
+    event = add_decision(deal_id, payload, reviewer, store, review=review)
+    deal = store.get_deal(deal_id) or {}
+    session = reviewer.get("session")
+    events = (store.list_decisions(deal_id, session=session) if session else []) if is_sample(deal) \
+        else store.list_decisions(deal_id)
+    if event["id"] not in {e["id"] for e in events}:  # A store with delayed reads still shows the new event.
+        events.append(event)
+    view = decision_view(review, events)
+    view["sandboxed"] = is_sample(deal)
+    return {"event": public_event(event), **view}
+
+
 def reset_decisions(deal_id: str, session: str | None, store: Storage | None = None) -> dict:
     """Start this browser's review of a sample deal over. Earlier events stay stored; a marker hides them."""
     store = store or get_store()
@@ -425,6 +470,14 @@ def reset_decisions(deal_id: str, session: str | None, store: Storage | None = N
     return event
 
 
+PRIVATE_EVENT_FIELDS = ("session", "reviewer_id")
+
+
+def public_event(event: dict) -> dict:
+    """A decision as the API, exports and share pages show it: no session or reviewer id (S3)."""
+    return {k: v for k, v in event.items() if k not in PRIVATE_EVENT_FIELDS}
+
+
 def _normalize(event: dict) -> dict:
     """Events saved before the identity seam had a plain "reviewer" field."""
     if "reviewer_name" not in event:
@@ -437,7 +490,7 @@ def decision_view(review: dict, events: list[dict]) -> dict:
     targets = decision_targets(review)
     resets = [e["id"] for e in events if e.get("kind") == "reset"]
     since = max(resets) if resets else ""
-    log = sorted((_normalize(e) for e in events if e.get("kind") != "reset" and e["id"] > since
+    log = sorted((public_event(_normalize(e)) for e in events if e.get("kind") != "reset" and e["id"] > since
                   and (e.get("target_type"), e.get("target_id")) in targets), key=lambda e: e["id"])
     latest = {}
     for event in log:
@@ -578,12 +631,13 @@ def deal_reminders(deal: dict, docs: list[dict], today: date | None = None) -> l
     return out
 
 
-def all_reminders(store: Storage | None = None, today: date | None = None) -> list[dict]:
+def all_reminders(store: Storage | None = None, today: date | None = None, session: str | None = None) -> list[dict]:
     store = store or get_store()
     rows = []
     for deal in store.list_deals():
-        rows.extend(deal_reminders(deal, store.list_documents(deal["id"]), today))
-    return sorted(rows, key=lambda r: (not r["overdue"], r["date"]))
+        if visible_to(deal, session):
+            rows.extend(deal_reminders(deal, store.list_documents(deal["id"]), today))
+    return _sort_reminders(rows)
 
 
 # ---------------------------------------------------------------------------
@@ -659,7 +713,7 @@ def export_sheets(review: dict) -> list[dict]:
 
 
 def export_about(review: dict, exported: str) -> list[list]:
-    return [[f"{review['project']}, {review['city']}"], [review["notice"]], [f"Exported {exported}"]]
+    return [[_cell(f"{review['project']}, {review['city']}")], [_cell(review["notice"])], [f"Exported {exported}"]]
 
 
 def export_preview(review: dict, deal_id: str) -> dict:
@@ -680,6 +734,13 @@ def export_csv(review: dict) -> str:
     return buf.getvalue()
 
 
+def _as_text(cells) -> None:
+    """Store every string as text, never as a formula, whatever it starts with (S4)."""
+    for cell in cells:
+        if isinstance(cell.value, str):
+            cell.data_type = "s"
+
+
 def export_xlsx(review: dict) -> bytes:
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Font
@@ -693,6 +754,7 @@ def export_xlsx(review: dict) -> bytes:
             cell.font = Font(bold=True)
         for row in sheet["rows"]:
             ws.append(row)
+            _as_text(ws[ws.max_row])
         for col, width in zip("ABCDEFGHIJKL", sheet["widths"]):
             ws.column_dimensions[col].width = width
         for row in ws.iter_rows(min_row=2):
@@ -702,6 +764,7 @@ def export_xlsx(review: dict) -> bytes:
     note = wb.create_sheet("About")
     for row in export_about(review, now()):
         note.append(row)
+        _as_text(note[note.max_row])
     buf = io.BytesIO()
     wb.save(buf)
     return buf.getvalue()

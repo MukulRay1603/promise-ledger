@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import threading
 import time
 from collections import deque
 from functools import lru_cache
@@ -77,11 +78,16 @@ class ExtractResult(BaseModel):
 
 _PII = [
     (re.compile(r"\b\d{3}-\d{2}-\d{4}\b"), "[SSN]"),
-    (re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+"), "[EMAIL]"),
+    # Bounded, and anchored at the start of a token: the unbounded form backtracked quadratically on long runs of
+    # letters (90k characters took minutes), which a crafted PDF page could use to stall a reader thread.
+    (re.compile(r"(?<![\w.+-])[\w.+-]{1,64}@[\w-]{1,63}(?:\.[\w-]{1,63})+"), "[EMAIL]"),
     (re.compile(r"\(?\b\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b"), "[PHONE]"),
 ]
 
 _live_calls: deque[float] = deque()
+_live_lock = threading.Lock()  # Reader threads and request threads share the cap.
+# Text sent to the model for one document. Longer records are cut at a page boundary (S6).
+MAX_RECORD_CHARS = int(os.getenv("MAX_RECORD_CHARS") or 200_000)
 
 
 def redact(text: str) -> str:
@@ -121,12 +127,22 @@ def _saved(text: str, reason: str) -> ExtractResult:
 
 def _allow_live_call() -> bool:
     now = time.monotonic()
-    while _live_calls and now - _live_calls[0] > 60:
-        _live_calls.popleft()
-    if len(_live_calls) >= MAX_LIVE_CALLS_PER_MINUTE:
-        return False
-    _live_calls.append(now)
-    return True
+    with _live_lock:
+        while _live_calls and now - _live_calls[0] > 60:
+            _live_calls.popleft()
+        if len(_live_calls) >= MAX_LIVE_CALLS_PER_MINUTE:
+            return False
+        _live_calls.append(now)
+        return True
+
+
+@lru_cache(maxsize=4)
+def _client(api_key: str, timeout_ms: int):
+    """One Gemini client per key and timeout, reused across calls."""
+    from google import genai
+    from google.genai import types
+
+    return genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=timeout_ms))
 
 
 def _is_busy(err: Exception) -> bool:
@@ -138,13 +154,9 @@ def _is_busy(err: Exception) -> bool:
 
 
 def _call_model(text: str, model: str = MODEL) -> Extraction:
-    from google import genai
     from google.genai import types
 
-    client = genai.Client(
-        api_key=os.environ["GEMINI_API_KEY"],
-        http_options=types.HttpOptions(timeout=TIMEOUT_MS),
-    )
+    client = _client(os.environ["GEMINI_API_KEY"], TIMEOUT_MS)
     response = client.models.generate_content(
         model=model,
         contents=f"<record>\n{text}\n</record>",
@@ -264,19 +276,29 @@ class ReadResult(BaseModel):
     notice: str = ""
 
 
-def pages_to_record(pages: list[str]) -> str:
-    """Redacted page-tagged text. Personal details never reach the model or the store."""
-    return "\n".join(f'<page n="{i}">\n{redact(text)}\n</page>' for i, text in enumerate(pages, 1))
+def pages_to_record(pages: list[str], limit: int | None = None) -> str:
+    """Redacted page-tagged text. Personal details never reach the model or the store.
+
+    At most `limit` characters (MAX_RECORD_CHARS): later pages are left out, and the last one included is cut.
+    """
+    limit = MAX_RECORD_CHARS if limit is None else limit
+    parts, used = [], 0
+    for i, text in enumerate(pages, 1):
+        page = f'<page n="{i}">\n{redact(text)}\n</page>'
+        if used + len(page) > limit:
+            room = limit - used - len(f'<page n="{i}">\n\n</page>')
+            if room > 200:
+                parts.append(f'<page n="{i}">\n{redact(text)[:room]}\n</page>')
+            break
+        parts.append(page)
+        used += len(page) + 1
+    return "\n".join(parts)
 
 
 def _call_pdf_model(record: str, model: str) -> tuple[PdfReading, int, int]:
-    from google import genai
     from google.genai import types
 
-    client = genai.Client(
-        api_key=os.environ["GEMINI_API_KEY"],
-        http_options=types.HttpOptions(timeout=PDF_TIMEOUT_MS),
-    )
+    client = _client(os.environ["GEMINI_API_KEY"], PDF_TIMEOUT_MS)
     response = client.models.generate_content(
         model=model,
         contents=f"<record>\n{record}\n</record>",

@@ -111,11 +111,19 @@ Readings are cached in `data/readings/` by file hash and prompt version, so seed
 
 `app/guard.py` is on unless `DEMO_MODE=0`.
 
-- **Upload and new-deal limits.** Each IP gets 5 uploads and 3 new deals an hour. The IP is the last `X-Forwarded-For` hop, which Cloud Run appends, so it can't be spoofed. Over the limit, the API answers 429 with a plain message and `Retry-After`.
-- **Decision limit.** Reviewer decisions allow 60 a minute per demo session.
-- **Counts** live in memory, per instance.
-- **Clean-up.** Deals and uploads made by visitors are marked `demo` and deleted, with their files, after `DEMO_TTL_HOURS` (24). Sample deals are never deleted; visitor uploads on them are.
+- **Your deals are yours.** A deal a visitor creates belongs to their browser's demo session. Other browsers get 404 for it, its files and its exports, and don't see it in their list or reminders. Sample deals are public and read-only: uploads to them get "Sample deals are read-only. Start a new deal to try your own PDFs." Session ids are never returned by the API or put on share pages, and are never read from the query string.
+- **Rate limits** per IP, in memory per instance: 5 uploads, 3 new deals, 20 share links, 30 pasted-text readings and 120 exports an hour. Over a limit, the API answers 429 with a plain message and `Retry-After`. Reviewer decisions allow 60 a minute per session and 300 a minute per network.
+- **Which IP.** The last `X-Forwarded-For` hop, which Cloud Run's front end appends, so a client can't spoof it. That holds only directly behind Cloud Run; behind another proxy or load balancer the client moves one hop left. IPv6 is counted per /64.
+- **Clean-up.** Deals and uploads made by visitors are marked `demo` and deleted, with their files, after `DEMO_TTL_HOURS` (24), along with each browser's decisions on sample deals. Sample deals are never deleted.
 - **Sample-deal reviews are kept per browser.** The browser sends a random session id, so one visitor's decisions, notes and stamp never appear for another visitor or on their share links. "Reset my review" starts over. Deals created by staff keep one shared review.
+</details>
+
+<details>
+<summary>Hardening that is always on</summary>
+
+- **Security headers** on every response: a Content Security Policy that allows scripts only from this site (pdf.js is served from `app/static/vendor/`, not a CDN), `nosniff`, `Referrer-Policy`, and no framing. Videos may come from `storage.googleapis.com` or the `MEDIA_BASE_URL` host. App code is sent with `Cache-Control: no-cache`, so a deploy is picked up at once.
+- **PDF limits.** Each PDF is parsed in a separate process that is stopped after 15 seconds, with at most 300,000 characters of text. An upload whose `Content-Length` is over 20 MB is refused before it is read. At most 200,000 characters of one record go to the model.
+- **Image.** The container runs as a non-root user, and dependencies are pinned.
 </details>
 
 ## Run locally
@@ -149,7 +157,7 @@ gcloud run deploy promise-ledger --source . --region us-central1 --allow-unauthe
   --set-secrets GEMINI_API_KEY=gemini-api-key:latest
 ```
 
-Uploads are read on a background thread, hence `--no-cpu-throttling`. The service account needs access to Firestore, the bucket and the secret. Health check: `/api/health` (Cloud Run reserves paths ending in "z", so `/healthz` works only locally).
+Uploads are read on a background thread, hence `--no-cpu-throttling`. The service account needs access to Firestore, the bucket and the secret. Health check: `/api/health` (Cloud Run reserves paths ending in "z", such as `/healthz`).
 
 **Running cost.** Cloud Run scales to zero when nobody is using it. Records and PDFs for a demo of this size fit in the Firestore and Cloud Storage free tiers. Model cost is about $0.002 per PDF (all 11 sample PDFs cost about $0.026), and each reading is cached by file hash, so a file is never paid for twice.
 
@@ -167,6 +175,12 @@ Uploads are read on a background thread, hence `--no-cpu-throttling`. The servic
 | `DEMO_TTL_HOURS` | `24` | Hours before visitor deals and uploads are deleted. |
 | `RATE_LIMIT_UPLOADS_PER_HOUR` | `5` | Uploads per IP per hour. |
 | `RATE_LIMIT_DEALS_PER_HOUR` | `3` | New deals per IP per hour. |
+| `RATE_LIMIT_SHARES_PER_HOUR` | `20` | Share links per IP per hour. |
+| `RATE_LIMIT_EXTRACTS_PER_HOUR` | `30` | Pasted-text readings per IP per hour. |
+| `RATE_LIMIT_EXPORTS_PER_HOUR` | `120` | Excel, CSV and preview exports per IP per hour. |
+| `PDF_SANDBOX` | `1` | Parse each PDF in a separate process with a 15-second limit. `0` parses in-process. |
+| `MAX_RECORD_CHARS` | `200000` | Most characters of one record sent to the model. |
+| `READINGS_WRITE_DIR` | see note | Where new live readings are saved: `data/readings/` locally, the runtime folder on Cloud Run (newest 200 kept). |
 | `SEED` | `1` | Seed or refresh the sample deals at start. |
 
 ## API
@@ -224,4 +238,4 @@ python -m unittest tests.test_samples         # every gold quote is on its state
 
 ## Docs and license
 
-[Plan](docs/PLAN.md) · [Contributor rules](AGENTS.md). Code: Apache-2.0. Docs and evaluation data: CC-BY 4.0.
+[Plan](docs/PLAN.md) · [Contributor rules](AGENTS.md). Code: Apache-2.0 ([LICENSE](LICENSE)). Docs and evaluation data (`docs/`, `data/demo/`, `data/samples/`, `data/readings/`, `evals/cases.jsonl`): CC BY 4.0 ([LICENSE-docs](LICENSE-docs)). pdf.js in `app/static/vendor/` is Apache-2.0 (Mozilla Foundation).

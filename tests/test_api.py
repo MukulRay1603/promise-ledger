@@ -43,7 +43,6 @@ class NoKey(unittest.TestCase):
         self.assertEqual(self.client.get("/").status_code, 200)
         health = self.client.get("/api/health").json()
         self.assertTrue(health["ok"])
-        self.assertEqual(health, self.client.get("/healthz").json())
 
     def test_page_ships_the_review_data(self):
         html = self.client.get("/").text
@@ -55,7 +54,7 @@ class NoKey(unittest.TestCase):
 
     def test_record_text_cannot_close_the_script_tag(self):
         payload = {"notice": "</script><script>alert(1)</script>"}
-        with mock.patch.object(main, "review", return_value=payload):
+        with mock.patch.object(main, "review", return_value=payload), mock.patch.dict(main._page_cache, clear=True):
             html = self.client.get("/").text
         self.assertNotIn("<script>alert(1)", html)
         self.assertIn("\\u003c/script>", html)

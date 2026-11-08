@@ -24,8 +24,11 @@ class IdentityError(ValueError):
 
 
 def demo_session(request) -> str | None:
-    """The browser's demo session id, from the header (or ?session= for plain download links)."""
-    value = request.headers.get(SESSION_HEADER) or request.query_params.get("session") or ""
+    """The browser's demo session id, from the X-Demo-Session header only.
+
+    It is never read from the query string, so it cannot leak through links, logs or the Referer header (S3).
+    """
+    value = request.headers.get(SESSION_HEADER) or ""
     return value if _SESSION_RE.fullmatch(value) else None
 
 

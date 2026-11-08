@@ -77,7 +77,7 @@ class DealApi(unittest.TestCase):
         self.assertTrue(all(c["quote_checked"] for c in review["claims"]))
         listing = self.client.get("/api/deals").json()
         row = next(r for r in listing if r["id"] == deal_id)
-        self.assertEqual((row["document_count"], row["claim_count"], row["furthest_stage"]), (1, 1, "signed"))
+        self.assertEqual((row["documents"], row["claim_count"], row["furthest_status"]), (1, 1, "signed"))
         self.assertEqual(row["terms_not_located"], len(ledger.TERMS) - 1)
         self.assertEqual((row["documents"], row["furthest_status"]), (1, "signed"))
 
@@ -224,6 +224,18 @@ class FakeSnap:
         return json.loads(json.dumps(self._data))
 
 
+class NotFound(Exception):
+    code = 404
+
+
+class FakeQuery:
+    def __init__(self, snaps):
+        self.snaps = snaps
+
+    def stream(self):
+        return self.snaps
+
+
 class FakeDocRef:
     def __init__(self, tree, path):
         self.tree, self.path = tree, path
@@ -249,6 +261,10 @@ class FakeCollection:
         n = len(self.path) + 1
         return [FakeSnap(v) for k, v in self.tree.items() if len(k) == n and k[:-1] == self.path]
 
+    def where(self, field, op, value):
+        assert op == "=="
+        return FakeQuery([snap for snap in self.stream() if (snap.to_dict() or {}).get(field) == value])
+
 
 class FakeFirestore:
     def __init__(self):
@@ -269,6 +285,8 @@ class FakeBlob:
         return self.key in self.files
 
     def download_as_bytes(self):
+        if self.key not in self.files:
+            raise NotFound(self.key)
         return self.files[self.key][0]
 
 
@@ -298,8 +316,8 @@ class GcpStorageTests(unittest.TestCase):
         self.assertIn(("deals", "beacon", "documents", "d1"), self.fs.tree)
         self.assertIsNone(self.store.get_document("beacon", "d2"))
         self.store.put_share("tok", "beacon")
-        self.assertEqual(self.store.get_share("tok"), "beacon")
-        self.assertIsNone(self.store.get_share("nope"))
+        self.assertEqual(self.store.get_share_record("tok")["deal_id"], "beacon")
+        self.assertIsNone(self.store.get_share_record("nope"))
 
     def test_files_go_to_the_bucket(self):
         self.store.put_blob("deals/b/d1.pdf", b"%PDF-1.4", "application/pdf")

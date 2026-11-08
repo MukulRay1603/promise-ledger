@@ -14,6 +14,7 @@ from tests.test_deals_api import letter_pdf, stub_reading
 from tests.test_sample_refresh import SAMPLES, Firestore, Gcs, no_model
 
 OLD = "2020-01-01T00:00:00+00:00"
+SESSION = "guard-session-aaaaaaaaaaaaaaaa"
 READINGS = pipeline.READINGS_DIR  # Cached sample readings, so seeding needs no model.
 
 
@@ -41,13 +42,13 @@ class GuardSetup(unittest.TestCase):
         return storage.LocalStorage(Path(self.tmp.name) / "runtime")
 
     # Cloud Run appends the address it saw, so the client's real IP is the last X-Forwarded-For hop.
-    def new_deal(self, ip="203.0.113.7", spoof="10.0.0.1"):
+    def new_deal(self, ip="203.0.113.7", spoof="10.0.0.1", session=SESSION):
         return self.client.post("/api/deals", json={"name": "Test deal", "city": "Lantern Bay"},
-                                headers={"X-Forwarded-For": f"{spoof}, {ip}"})
+                                headers={"X-Forwarded-For": f"{spoof}, {ip}", "X-Demo-Session": session})
 
-    def upload(self, deal_id, ip="203.0.113.7", spoof=None):
+    def upload(self, deal_id, ip="203.0.113.7", spoof=None, session=SESSION):
         hops = f"{spoof}, {ip}" if spoof else ip
-        return self.client.post(f"/api/deals/{deal_id}/documents", headers={"X-Forwarded-For": hops},
+        return self.client.post(f"/api/deals/{deal_id}/documents", headers={"X-Forwarded-For": hops, "X-Demo-Session": session},
                                 files={"file": ("letter.pdf", letter_pdf(), "application/pdf")})
 
 
@@ -182,7 +183,7 @@ class SamplesAreKept(GuardSetup):
     def test_samples_are_never_deleted(self):
         before = self.doc_ids()
         self.assertEqual(sorted(before), ["beacon-point", "harbor-walk", "mill-street"])
-        self.assertEqual(guard.sweep(self.store), {"deals": [], "documents": []})
+        self.assertEqual(guard.sweep(self.store), {"deals": [], "documents": [], "decisions": 0})
         self.assertEqual(self.doc_ids(), before)
 
     def test_samples_without_a_demo_flag_are_not_migrated_away(self):
@@ -190,12 +191,13 @@ class SamplesAreKept(GuardSetup):
         for deal in self.store.list_deals():  # As stored before demo flags existed.
             deal.pop("demo", None)
             self.store.put_deal(deal)
-        self.assertEqual(guard.sweep(self.store), {"deals": [], "documents": []})
+        self.assertEqual(guard.sweep(self.store), {"deals": [], "documents": [], "decisions": 0})
         self.assertEqual(self.doc_ids(), before)
 
     def test_old_visitor_uploads_on_a_sample_are_removed(self):
+        # Samples no longer take uploads (S2); uploads made before that are still swept.
         seeded = self.doc_ids()["harbor-walk"]
-        self.assertEqual(self.upload("harbor-walk").status_code, 202)
+        deals.add_document("harbor-walk", "letter.pdf", letter_pdf(), store=self.store, demo=True)
         visitor = next(d for d in self.store.list_documents("harbor-walk") if d.get("demo"))
         visitor["created_at"] = OLD
         self.store.put_document("harbor-walk", visitor)
@@ -239,7 +241,7 @@ class DemoModeOff(GuardSetup):
         unflagged.pop("demo")
         self.store.put_deal(unflagged)  # The migration only runs in demo mode.
         with mock.patch.object(self.store, "acquire_lock", side_effect=AssertionError("no sweep")):
-            self.assertEqual(guard.sweep(self.store), {"deals": [], "documents": []})
+            self.assertEqual(guard.sweep(self.store), {"deals": [], "documents": [], "decisions": 0})
         self.assertIsNotNone(self.store.get_deal(deal_id))
         self.assertIsNotNone(self.store.get_deal("old-visitor-deal"))
 

@@ -23,9 +23,18 @@ from app import ai, ledger
 
 ROOT = Path(__file__).resolve().parent.parent
 READINGS_DIR = Path(os.getenv("READINGS_DIR") or ROOT / "data" / "readings")
+# New live readings. Locally they join the committed cache; on Cloud Run (K_SERVICE is set) the image is
+# read-only in spirit and its disk is memory, so they go to the runtime folder and only the newest are kept (P16).
+# None means "the same folder as READINGS_DIR".
+READINGS_WRITE_DIR: Path | None = (Path(os.environ["READINGS_WRITE_DIR"]) if os.getenv("READINGS_WRITE_DIR") else
+                                   Path(os.getenv("RUNTIME_DIR") or ROOT / "data" / "runtime") / "readings"
+                                   if os.getenv("K_SERVICE") else None)
+MAX_RUNTIME_READINGS = 200
 
 MAX_PDF_BYTES = 20 * 1024 * 1024
 MAX_PDF_PAGES = 60
+MAX_TEXT_CHARS = 300_000  # Total text read from one PDF (S1).
+PARSE_TIMEOUT_SECONDS = 15  # A crafted PDF can make pypdf very slow; parsing runs in a child process (S1).
 MIN_PAGE_CHARS = 20  # Fewer characters than this and the page is treated as scanned.
 
 # ---------------------------------------------------------------------------
@@ -35,25 +44,82 @@ class PdfError(ValueError):
     """The upload is not a PDF we can read. The message is safe to show."""
 
 
-def extract_pages(data: bytes) -> list[str]:
+def _read_pages(data: bytes) -> list[str]:
     from pypdf import PdfReader
     from pypdf.errors import PdfReadError
 
-    if len(data) > MAX_PDF_BYTES:
-        raise PdfError("The file is larger than 20 MB.")
-    if not data.lstrip()[:5].startswith(b"%PDF"):
-        raise PdfError("The file is not a PDF.")
     try:
         reader = PdfReader(io.BytesIO(data))
         if reader.is_encrypted:
             raise PdfError("The PDF is password protected.")
         if len(reader.pages) > MAX_PDF_PAGES:
             raise PdfError(f"The PDF has more than {MAX_PDF_PAGES} pages.")
-        return [(page.extract_text() or "") for page in reader.pages]
+        pages, total = [], 0
+        for page in reader.pages:
+            text = page.extract_text() or ""
+            total += len(text)
+            if total > MAX_TEXT_CHARS:
+                raise PdfError(f"The PDF has more than {MAX_TEXT_CHARS:,} characters of text. Upload a shorter record.")
+            pages.append(text)
+        return pages
     except PdfError:
         raise
     except (PdfReadError, Exception) as err:
         raise PdfError(f"The PDF could not be read ({type(err).__name__}).") from err
+
+
+def _worker_main() -> None:
+    """Child process entry: PDF bytes on stdin, {"pages": [...]} or {"error": "..."} as JSON on stdout."""
+    import sys
+
+    data = sys.stdin.buffer.read()
+    try:
+        out = {"pages": _read_pages(data)}
+    except PdfError as err:
+        out = {"error": str(err)}
+    except Exception as err:  # pragma: no cover - _read_pages wraps everything
+        out = {"error": f"The PDF could not be read ({type(err).__name__})."}
+    sys.stdout.write(json.dumps(out))
+
+
+def _read_pages_sandboxed(data: bytes, timeout: float) -> list[str]:
+    """Parse in a separate Python process and kill it after `timeout` seconds, so one PDF cannot hold the server.
+
+    A plain subprocess (not multiprocessing) so the child never re-imports the server's or test runner's main module.
+    """
+    import subprocess
+    import sys
+
+    try:
+        done = subprocess.run([sys.executable, "-c", "from app.pipeline import _worker_main; _worker_main()"],
+                              input=data, capture_output=True, timeout=timeout, cwd=str(ROOT))
+    except subprocess.TimeoutExpired:
+        raise PdfError("The PDF took too long to read. Try a simpler or shorter file.") from None
+    try:
+        out = json.loads(done.stdout.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        raise PdfError("The PDF could not be read.") from None
+    if "error" in out:
+        raise PdfError(out["error"])
+    return out["pages"]
+
+
+def sandbox_enabled() -> bool:
+    return os.getenv("PDF_SANDBOX", "1").strip().lower() not in ("0", "false", "off", "no")
+
+
+def extract_pages(data: bytes, sandbox: bool | None = None) -> list[str]:
+    """Page texts. Raises PdfError with a message that is safe to show.
+
+    With the sandbox on (PDF_SANDBOX, default on) parsing runs in a child process with a time limit.
+    """
+    if len(data) > MAX_PDF_BYTES:
+        raise PdfError("The file is larger than 20 MB.")
+    if not data.lstrip()[:5].startswith(b"%PDF"):
+        raise PdfError("The file is not a PDF.")
+    if sandbox_enabled() if sandbox is None else sandbox:
+        return _read_pages_sandboxed(data, PARSE_TIMEOUT_SECONDS)
+    return _read_pages(data)
 
 
 def scanned_pages(pages: list[str]) -> list[int]:
@@ -156,7 +222,11 @@ def canonical_value(topic: str, quote: str, model_value: str) -> str:
         m = re.search(r"\b(\d+)\s*(?:percent|%)", q)
         if m:
             return f"{m.group(1)} percent of area median income" if topic == "income_basis" else f"{m.group(1)} percent"
-    return normalize(model_value).strip().rstrip(".") or normalize(quote)
+    # The model's own wording is kept only if it is short and every number in it is in the quote (S10).
+    value = normalize(model_value or "").strip().rstrip(".")
+    if value and len(value) <= 80 and set(re.findall(r"\d+", value)) <= set(re.findall(r"\d+", normalize(quote))):
+        return value
+    return normalize(quote)
 
 
 _AFFORD = re.compile(r"afford|income-restricted|workforce|reduced[- ]rent", re.I)
@@ -354,15 +424,23 @@ def _reading_path(sha: str) -> Path:
 
 
 def cached_reading(sha: str) -> dict | None:
-    try:
-        return json.loads(_reading_path(sha).read_text(encoding="utf-8"))
-    except (FileNotFoundError, json.JSONDecodeError):
-        return None
+    """The committed cache first, then readings saved at runtime."""
+    for path in (_reading_path(sha), (READINGS_WRITE_DIR or READINGS_DIR) / _reading_path(sha).name):
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (FileNotFoundError, json.JSONDecodeError):
+            continue
+    return None
 
 
 def save_reading(sha: str, result: ai.ReadResult) -> None:
-    READINGS_DIR.mkdir(parents=True, exist_ok=True)
-    _reading_path(sha).write_text(result.model_dump_json(indent=1), encoding="utf-8")
+    folder = READINGS_WRITE_DIR or READINGS_DIR
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / _reading_path(sha).name).write_text(result.model_dump_json(indent=1), encoding="utf-8")
+    if folder.resolve() != READINGS_DIR.resolve():  # Runtime cache: keep only the newest readings.
+        saved = sorted(folder.glob("*.json"), key=lambda f: f.stat().st_mtime, reverse=True)
+        for old in saved[MAX_RUNTIME_READINGS:]:
+            old.unlink(missing_ok=True)
 
 
 def read_with_cache(sha: str, pages: list[str], reader=None, use_cache: bool = True) -> tuple[ai.ReadResult, bool]:
@@ -493,6 +571,11 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
         sig["party"] = canonical_party(sig["party"], known_parties or [])
     stage, signed_by, reason = decide_stage(kind, pages, signatures, draft)
 
+    # The model's title is kept only if it is printed in the record (S10); otherwise the filename shows.
+    found = normalize(reading.title or "").lower().rstrip(".")
+    title = doc.get("title") or (reading.title if len(found) >= 4 and any(found in normalize(p).lower() for p in pages)
+                                 else None)
+
     doc_date = doc.get("date") or ""
     date_note = ""
     if not doc_date:
@@ -538,7 +621,7 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
             "quote": normalize(cand.quote),
             "document": doc["id"],
             "document_type": label,
-            "document_title": doc.get("title") or reading.title,
+            "document_title": title,
             "date": doc_date,
             "page": page,
             "stated_page": cand.page,
@@ -557,7 +640,7 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
     return {
         "type": label,
         "type_key": kind,
-        "title": doc.get("title") or reading.title,
+        "title": title,
         "date": doc_date,
         "date_note": date_note,
         "stage": stage,

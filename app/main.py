@@ -1,4 +1,5 @@
 import json
+import mimetypes
 import os
 from contextlib import asynccontextmanager
 from datetime import date
@@ -17,6 +18,8 @@ from app import ai, deals, guard, identity, ledger, pipeline  # noqa: E402  (nee
 from app.storage import get_store  # noqa: E402
 
 STATIC = Path(__file__).parent / "static"
+mimetypes.add_type("text/javascript", ".mjs")  # pdf.js ships as ES modules; some systems do not know .mjs.
+SAMPLE_READ_ONLY = "Sample deals are read-only. Start a new deal to try your own PDFs."
 
 
 @asynccontextmanager
@@ -48,9 +51,8 @@ class NewDeal(BaseModel):
     developer: str | None = Field(default=None, max_length=120)
 
 
-# Cloud Run reserves paths ending in "z", so /healthz only works locally. Use /api/health on the live service.
+# Cloud Run reserves paths ending in "z" (such as /healthz), so the health check is /api/health.
 @app.get("/api/health")
-@app.get("/healthz")
 def healthz():
     checks = ledger.build_review()["checks"]
     model = ai.MODEL if os.getenv("GEMINI_API_KEY") else "saved output"
@@ -76,18 +78,19 @@ def extract(pasted: PastedText):
 # ---------------------------------------------------------------------------
 # Deals
 
-def _deal_or_404(deal_id: str) -> dict:
+def _deal_or_404(deal_id: str, request: Request) -> dict:
+    """The deal, if this browser may see it. Another visitor's deal answers 404, the same as a missing one (S2)."""
     try:
         deal = get_store().get_deal(deal_id)
     except ValueError:
         deal = None
-    if not deal:
+    if not deal or not deals.visible_to(deal, identity.demo_session(request)):
         raise HTTPException(404, "Deal not found.")
     return deal
 
 
-def _doc_or_404(deal_id: str, doc_id: str) -> dict:
-    _deal_or_404(deal_id)
+def _doc_or_404(deal_id: str, doc_id: str, request: Request) -> dict:
+    _deal_or_404(deal_id, request)
     try:
         doc = get_store().get_document(deal_id, doc_id)
     except ValueError:
@@ -98,26 +101,32 @@ def _doc_or_404(deal_id: str, doc_id: str) -> dict:
 
 
 @app.get("/api/deals")
-def list_deals():
-    return deals.list_deals()
+def list_deals(request: Request):
+    return deals.list_deals(session=identity.demo_session(request))
 
 
 @app.post("/api/deals", status_code=201)
-def create_deal(new: NewDeal):
-    return deals.create_deal(new.name, new.city, new.developer)
+def create_deal(new: NewDeal, request: Request):
+    session = identity.demo_session(request)
+    if guard.enabled() and not session:
+        raise HTTPException(400, "This browser sent no demo session. Reload the page and try again.")
+    return deals.public_deal(deals.create_deal(new.name, new.city, new.developer, owner_session=session))
 
 
 @app.get("/api/deals/{deal_id}")
-def get_deal(deal_id: str):
-    _deal_or_404(deal_id)
+def get_deal(deal_id: str, request: Request):
+    _deal_or_404(deal_id, request)
     return deals.get_deal_detail(deal_id)
 
 
+# A plain def: FastAPI runs it on a worker thread, so parsing a PDF never blocks the event loop (S1).
 @app.post("/api/deals/{deal_id}/documents", status_code=202)
-async def upload_document(deal_id: str, file: UploadFile = File(...), type: str | None = Form(None),
-                          date_: str | None = Form(None, alias="date"), title: str | None = Form(None)):
-    _deal_or_404(deal_id)
-    data = await file.read(pipeline.MAX_PDF_BYTES + 1)
+def upload_document(deal_id: str, request: Request, file: UploadFile = File(...), type: str | None = Form(None),
+                    date_: str | None = Form(None, alias="date"), title: str | None = Form(None)):
+    deal = _deal_or_404(deal_id, request)
+    if guard.enabled() and deals.is_sample(deal):
+        raise HTTPException(403, SAMPLE_READ_ONLY)
+    data = file.file.read(pipeline.MAX_PDF_BYTES + 1)
     if len(data) > pipeline.MAX_PDF_BYTES:
         raise HTTPException(413, "The file is larger than 20 MB.")
     if date_:
@@ -133,13 +142,13 @@ async def upload_document(deal_id: str, file: UploadFile = File(...), type: str 
 
 
 @app.get("/api/deals/{deal_id}/documents/{doc_id}")
-def get_document(deal_id: str, doc_id: str):
-    return deals.public_doc(_doc_or_404(deal_id, doc_id))
+def get_document(deal_id: str, doc_id: str, request: Request):
+    return deals.public_doc(_doc_or_404(deal_id, doc_id, request))
 
 
 @app.get("/api/deals/{deal_id}/documents/{doc_id}/file")
-def document_file(deal_id: str, doc_id: str):
-    doc = _doc_or_404(deal_id, doc_id)
+def document_file(deal_id: str, doc_id: str, request: Request):
+    doc = _doc_or_404(deal_id, doc_id, request)
     data = get_store().get_blob(doc["file_key"])
     if data is None:
         raise HTTPException(404, "File not found.")
@@ -150,8 +159,8 @@ def document_file(deal_id: str, doc_id: str):
 
 
 @app.get("/api/deals/{deal_id}/documents/{doc_id}/pages/{n}")
-def document_page(deal_id: str, doc_id: str, n: int):
-    _doc_or_404(deal_id, doc_id)
+def document_page(deal_id: str, doc_id: str, n: int, request: Request):
+    _doc_or_404(deal_id, doc_id, request)
     pages = deals.page_texts(deal_id, doc_id, get_store())
     if not 1 <= n <= len(pages):
         raise HTTPException(404, "Page not found.")
@@ -160,13 +169,13 @@ def document_page(deal_id: str, doc_id: str, n: int):
 
 @app.get("/api/deals/{deal_id}/review")
 def deal_review(deal_id: str, request: Request):
-    _deal_or_404(deal_id)
+    _deal_or_404(deal_id, request)
     return deals.deal_review(deal_id, session=identity.demo_session(request))
 
 
 @app.get("/api/deals/{deal_id}/export.xlsx")
 def export_xlsx(deal_id: str, request: Request):
-    _deal_or_404(deal_id)
+    _deal_or_404(deal_id, request)
     data = deals.export_xlsx(deals.deal_review(deal_id, session=identity.demo_session(request)))
     return Response(data, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     headers={"Content-Disposition": f'attachment; filename="{deal_id}-promise-ledger.xlsx"'})
@@ -174,7 +183,7 @@ def export_xlsx(deal_id: str, request: Request):
 
 @app.get("/api/deals/{deal_id}/decisions")
 def get_decisions(deal_id: str, request: Request):
-    _deal_or_404(deal_id)
+    _deal_or_404(deal_id, request)
     return deals.deal_review(deal_id, session=identity.demo_session(request))["decisions"]
 
 
@@ -186,27 +195,25 @@ class DecisionIn(BaseModel):
 
 
 def _rate_limited(request: Request) -> None:
-    key = identity.demo_session(request) or guard.client_ip(request)
-    if not guard.decision_limit.allow(key):
+    if not guard.allow_decision(request, identity.demo_session(request)):
         raise HTTPException(429, "That is a lot of decisions in one minute. Wait a moment and try again.")
 
 
 @app.post("/api/deals/{deal_id}/decisions", status_code=201)
 def post_decision(deal_id: str, body: DecisionIn, request: Request):
-    _deal_or_404(deal_id)
+    _deal_or_404(deal_id, request)
     _rate_limited(request)
     try:
         reviewer = identity.current_reviewer(request)
-        event = deals.add_decision(deal_id, body.model_dump(), reviewer)
+        return deals.decide(deal_id, body.model_dump(), reviewer)  # Builds the review once (P2).
     except (deals.DecisionError, identity.IdentityError) as err:
         raise HTTPException(422, str(err)) from err
-    return {"event": event, **deals.deal_review(deal_id, session=reviewer["session"])["decisions"]}
 
 
 @app.delete("/api/deals/{deal_id}/decisions")
 def reset_decisions(deal_id: str, request: Request):
     """Reset this browser's review of a sample deal. Shared deals cannot be reset from here."""
-    _deal_or_404(deal_id)
+    _deal_or_404(deal_id, request)
     _rate_limited(request)
     session = identity.demo_session(request)
     try:
@@ -219,13 +226,13 @@ def reset_decisions(deal_id: str, request: Request):
 @app.get("/api/deals/{deal_id}/export.json")
 def export_preview(deal_id: str, request: Request):
     """The rows the Excel and CSV downloads hold, for the in-app preview."""
-    _deal_or_404(deal_id)
+    _deal_or_404(deal_id, request)
     return deals.export_preview(deals.deal_review(deal_id, session=identity.demo_session(request)), deal_id)
 
 
 @app.get("/api/deals/{deal_id}/export.csv")
 def export_csv(deal_id: str, request: Request):
-    _deal_or_404(deal_id)
+    _deal_or_404(deal_id, request)
     text = deals.export_csv(deals.deal_review(deal_id, session=identity.demo_session(request)))
     return Response("﻿" + text, media_type="text/csv; charset=utf-8",
                     headers={"Content-Disposition": f'attachment; filename="{deal_id}-promise-ledger.csv"'})
@@ -233,7 +240,7 @@ def export_csv(deal_id: str, request: Request):
 
 @app.post("/api/deals/{deal_id}/share")
 def share(deal_id: str, request: Request):
-    _deal_or_404(deal_id)
+    _deal_or_404(deal_id, request)
     token = deals.create_share(deal_id, session=identity.demo_session(request))
     base = os.getenv("PUBLIC_BASE_URL") or str(request.base_url).rstrip("/")
     return {"url": f"{base}/r/{token}", "token": token}
@@ -247,7 +254,6 @@ def _shared_or_404(token: str) -> dict:
 
 
 @app.get("/api/share/{token}")
-@app.get("/api/r/{token}")
 def shared_json(token: str):
     return JSONResponse(_shared_or_404(token), headers={"X-Robots-Tag": "noindex"})
 
@@ -304,24 +310,36 @@ def media():
 
 
 @app.get("/api/reminders")
-def reminders():
-    return deals.all_reminders()
+def reminders(request: Request):
+    return deals.all_reminders(session=identity.demo_session(request))
 
 
 DATA_SLOT = '<script id="review-data" type="application/json"></script>'
+
+
+_page_cache: dict = {}
+
+
+def _template() -> str:
+    """index.html, read once per process (P13)."""
+    if "template" not in _page_cache:
+        _page_cache["template"] = (STATIC / "index.html").read_text(encoding="utf-8")
+    return _page_cache["template"]
 
 
 def _page_with(data: dict) -> str:
     # The review data ships inside the page so the dashboard draws on first paint without moving.
     # "<" is escaped so record text can never close the script tag.
     raw = json.dumps(data, ensure_ascii=False).replace("<", "\\u003c")
-    page = (STATIC / "index.html").read_text(encoding="utf-8")
-    return page.replace(DATA_SLOT, DATA_SLOT.replace("></script>", f">{raw}</script>"))
+    return _template().replace(DATA_SLOT, DATA_SLOT.replace("></script>", f">{raw}</script>"))
 
 
 @app.get("/", response_class=HTMLResponse)
 def index():
-    return _page_with(review())
+    # The home page ships the reviewed demo, which never changes while the process runs (P13).
+    if "home" not in _page_cache:
+        _page_cache["home"] = _page_with(review())
+    return HTMLResponse(_page_cache["home"], headers={"Cache-Control": "no-cache"})
 
 
 app.mount("/static", StaticFiles(directory=STATIC), name="static")

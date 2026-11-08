@@ -21,6 +21,10 @@ class AlreadyExists(Exception):
     code = 409
 
 
+class NotFound(Exception):
+    code = 404
+
+
 class PreconditionFailed(Exception):
     code = 412
 
@@ -75,6 +79,11 @@ class Collection:
         n = len(self.path) + 1
         return [Snap(DocRef(self.db, k), v) for k, v in list(self.db.tree.items()) if len(k) == n and k[:-1] == self.path]
 
+    def where(self, field, op, value):
+        assert op == "=="
+        snaps = [snap for snap in self.stream() if (snap.to_dict() or {}).get(field) == value]
+        return type("Query", (), {"stream": lambda _self: snaps})()
+
 
 class Firestore:
     def __init__(self):
@@ -98,6 +107,8 @@ class Blob:
         return self.name in self.files
 
     def download_as_bytes(self):
+        if self.name not in self.files:
+            raise NotFound(self.name)
         return self.files[self.name]
 
     def delete(self):

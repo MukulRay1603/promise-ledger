@@ -1,11 +1,12 @@
-fastapi>=0.110
-uvicorn[standard]>=0.29
-google-genai>=1.0
-python-dotenv>=1.0
-pydantic>=2.6
-python-multipart>=0.0.9
-pypdf>=4.0
-openpyxl>=3.1
-reportlab>=4.0
-google-cloud-firestore>=2.16
-google-cloud-storage>=2.16
+# Pinned to the versions the tests run against. Plain uvicorn: no file watcher or extras in the image.
+fastapi==0.143.3
+uvicorn==0.54.0
+google-genai==2.31.0
+python-dotenv==1.2.4
+pydantic==2.14.1
+python-multipart==0.0.32
+pypdf==7.0.0
+openpyxl==3.1.5
+reportlab==5.1.0
+google-cloud-firestore==2.34.1
+google-cloud-storage==3.17.1

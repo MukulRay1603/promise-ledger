@@ -1,22 +1,23 @@
-# Plan
+# Roadmap
 
-## Dates
-- **Nov 9:** share on https://codingjam.dev/jam/44862 (live URL, repo, 2-4 sentence pitch, surprise note, chapter)
-- **Dec 2:** demo and judging at the Chesapeake Innovation Summit
+Promise Ledger turns the records of a housing deal into one checked receipt: AI reads, code checks, people decide.
 
-## Tonight's target
-One working review flow with a made-up packet:
-1. Show the quotes from four documents.
-2. Click a quote to see its source.
-3. Show proposed vs supported vs signed vs delivered.
-4. Show the terms checklist.
-5. Show the Promise Receipt.
+## Done (Nov 2026)
+- Live on Cloud Run with three made-up sample deals as real PDFs, plus the hand-reviewed Harbor Walk packet.
+- PDF upload: pypdf text, Gemini structured reading, every quote checked against its page, stages set by code rules.
+- Per-deal review: claims, what changed, open questions, receipt, reminders, Excel/CSV export, read-only share links.
+- Reviewer decisions (confirm, follow up, dispute) beside the record; sample deals keep each browser's review apart.
+- Public demo guard: rate limits, session-owned visitor deals, uploads deleted after 24 hours, security headers.
+- Evals on the sample deals with gold answers (`python evals/run_pdf_evals.py`).
 
-## By Nov 9
-Live Cloud Run URL, small live Gemini upload with cached fallback, small labeled test, README, Apache license check.
+## Next
+- **Nov 9:** Coding Jam submission (live URL, repo, short pitch).
+- **Before Dec 2:** tighter stage rules (signatures, votes, certificates), number parsing, steadier sample refresh,
+  retry for failed uploads, and the reminder countdown measured from each deal's own date.
+- **Dec 2:** demo and judging at the Chesapeake Innovation Summit.
 
-## By Dec 2
-Two more cases, promise history, next-check queue, reviewer log, full test results, accessibility testing, one real staff user trying a real task.
-
-## Rubric (100)
-Problem and impact 25 · AI and architecture 25 · Safety, privacy and accessibility 25 · Deployment, cost and docs 25
+## Later
+- Real sign-in for staff, replacing the browser session (`app/identity.py` is the seam).
+- More deal types and a few more labeled cases for the evals.
+- A staff deployment with `DEMO_MODE=0`: shared deals, no expiry.
+- One real staff user trying a real task, and a full accessibility pass with assistive tech.

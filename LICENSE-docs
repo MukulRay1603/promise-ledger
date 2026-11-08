@@ -1,0 +1,24 @@
+Promise Ledger documentation and evaluation data
+Copyright 2026 the Promise Ledger authors
+
+Licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0).
+You may share and adapt this material for any purpose, including commercially, as long as you
+give appropriate credit, link to the license, and indicate if changes were made.
+
+Full legal code: https://creativecommons.org/licenses/by/4.0/legalcode
+Summary:         https://creativecommons.org/licenses/by/4.0/
+
+This license covers:
+- README.md and everything under docs/
+- data/demo/      (the made-up Harbor Walk packet and its hand-reviewed claims)
+- data/samples/   (the made-up sample deal PDFs, manifests and expected_claims.json gold answers)
+- data/readings/  (cached model readings of the sample PDFs)
+- evals/cases.jsonl
+
+Everything else, including all code under app/, tests/, tools/ and evals/*.py, is licensed under
+the Apache License 2.0 (see LICENSE).
+
+app/static/vendor/pdfjs-4.10.38/ is pdf.js by the Mozilla Foundation, Apache License 2.0
+(see the LICENSE file in that folder).
+
+All names, places, projects and numbers in the data are fictional.

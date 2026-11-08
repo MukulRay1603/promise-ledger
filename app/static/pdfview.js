@@ -1,7 +1,8 @@
 // Renders one real PDF page with pdf.js and highlights an exact quote on its text layer.
 // Loaded only when someone opens a source, so the main page stays light.
+// Served from this site (app/static/vendor), so the CSP can keep scripts and workers to 'self'.
 const PDFJS_VERSION = "4.10.38";
-const BASE = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/`;
+const BASE = `/static/vendor/pdfjs-${PDFJS_VERSION}/`;
 
 let libPromise = null;
 const documents = new Map();
@@ -17,9 +18,9 @@ function loadLib() {
   return libPromise;
 }
 
-function openDocument(lib, url) {
+function openDocument(lib, url, headers = {}) {
   if (!documents.has(url)) {
-    const task = lib.getDocument({ url, isEvalSupported: false }).promise;
+    const task = lib.getDocument({ url, httpHeaders: headers, isEvalSupported: false }).promise;
     task.catch(() => documents.delete(url));
     documents.set(url, task);
   }
@@ -88,9 +89,9 @@ export function highlight(layer, quote) {
 }
 
 // Draws page `pageNumber` of the PDF at `url` into `container`, `width` CSS pixels wide.
-export async function renderPage({ url, pageNumber, quote, container, width }) {
+export async function renderPage({ url, pageNumber, quote, container, width, headers = {} }) {
   const lib = await loadLib();
-  const pdf = await openDocument(lib, url);
+  const pdf = await openDocument(lib, url, headers);
   const page = await pdf.getPage(Math.min(Math.max(1, pageNumber), pdf.numPages));
   const scale = width / page.getViewport({ scale: 1 }).width;
   const viewport = page.getViewport({ scale });

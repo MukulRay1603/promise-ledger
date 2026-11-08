@@ -7,21 +7,7 @@
   <meta name="description" content="One checked record of the affordable-housing promises made in exchange for public support. AI reads, code checks, people decide. Made-up demo data.">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#0F766E">
-  <script>
-    // Apply saved display settings before first paint.
-    document.documentElement.classList.add("js");
-    try {
-      const theme = localStorage.getItem("pl-theme");
-      if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
-      if (localStorage.getItem("pl-text") === "large") document.documentElement.classList.add("text-large");
-    } catch (err) { /* Storage can be blocked. Defaults still apply. */ }
-    // Shared links open the read-only view without drawing the home page first.
-    if (/^\/r\//.test(location.pathname) || /^#\/r\//.test(location.hash)) document.documentElement.classList.add("route-shared");
-    else if (/^#\/./.test(location.hash) || /^#[a-z]/.test(location.hash)) document.documentElement.classList.add("route-app");
-    // The hero receipt assembles itself; hide its rows from the first paint so they do not flash.
-    if (!document.documentElement.classList.contains("route-app") && !document.documentElement.classList.contains("route-shared")
-      && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("hero-anim");
-  </script>
+  <script src="/static/boot.js"></script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230F766E'/%3E%3Cpath d='M10 8h12v17l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5z' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linejoin='round'/%3E%3Cpath d='M13 13h6M13 17h4' stroke='%23fff' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

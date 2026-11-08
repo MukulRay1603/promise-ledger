@@ -30,9 +30,9 @@ class Storage(Protocol):
     def put_document(self, deal_id: str, doc: dict) -> None: ...
     def put_share(self, token: str, deal_id: str, session: str | None = None) -> None: ...
     def get_share_record(self, token: str) -> dict | None: ...
-    def list_decisions(self, deal_id: str) -> list[dict]: ...
+    def list_decisions(self, deal_id: str, session: str | None = None) -> list[dict]: ...
+    def delete_decision(self, deal_id: str, event_id: str) -> None: ...
     def put_decision(self, deal_id: str, event: dict) -> None: ...
-    def get_share(self, token: str) -> str | None: ...
     def put_blob(self, key: str, data: bytes, content_type: str) -> None: ...
     def get_blob(self, key: str) -> bytes | None: ...
     def delete_deal(self, deal_id: str) -> None: ...
@@ -111,19 +111,20 @@ class LocalStorage:
     def get_share_record(self, token: str) -> dict | None:
         return self._read(self.root / "shares" / f"{_safe(token)}.json")
 
-    def list_decisions(self, deal_id: str) -> list[dict]:
+    def list_decisions(self, deal_id: str, session: str | None = None) -> list[dict]:
+        """All events, or only one browser's when `session` is given."""
         base = self._deal_dir(deal_id) / "decisions"
         if not base.exists():
             return []
         events = [self._read(p) for p in base.glob("*.json")]
-        return [e for e in events if e]
+        return [e for e in events if e and (session is None or e.get("session") == session)]
 
     def put_decision(self, deal_id: str, event: dict) -> None:
         self._write(self._deal_dir(deal_id) / "decisions" / f"{_safe(event['id'])}.json", event)
 
-    def get_share(self, token: str) -> str | None:
-        record = self.get_share_record(token)
-        return record["deal_id"] if record else None
+    def delete_decision(self, deal_id: str, event_id: str) -> None:
+        with self._lock:
+            (self._deal_dir(deal_id) / "decisions" / f"{_safe(event_id)}.json").unlink(missing_ok=True)
 
     def _blob_path(self, key: str) -> Path:
         return self.root.joinpath("files", *[_safe(p) for p in key.split("/")])
@@ -239,24 +240,34 @@ class GcpStorage:
     def _decisions(self, deal_id: str):
         return self._deals().document(_safe(deal_id)).collection("decisions")
 
-    def list_decisions(self, deal_id: str) -> list[dict]:
-        return [snap.to_dict() for snap in self._decisions(deal_id).stream()]
+    def list_decisions(self, deal_id: str, session: str | None = None) -> list[dict]:
+        """All events, or only one browser's (a Firestore query, so a sample deal never streams everyone's)."""
+        query = self._decisions(deal_id)
+        if session is not None:
+            import warnings
+
+            with warnings.catch_warnings():  # Positional where() still works; it only warns.
+                warnings.simplefilter("ignore", UserWarning)
+                query = query.where("session", "==", session)
+        return [snap.to_dict() for snap in query.stream()]
 
     def put_decision(self, deal_id: str, event: dict) -> None:
         self._decisions(deal_id).document(_safe(event["id"])).set(event)
 
-    def get_share(self, token: str) -> str | None:
-        snap = self.db.collection("shares").document(_safe(token)).get()
-        return snap.to_dict()["deal_id"] if snap.exists else None
+    def delete_decision(self, deal_id: str, event_id: str) -> None:
+        self._decisions(deal_id).document(_safe(event_id)).delete()
 
     def put_blob(self, key: str, data: bytes, content_type: str) -> None:
         self.bucket.blob(key).upload_from_string(data, content_type=content_type)
 
     def get_blob(self, key: str) -> bytes | None:
-        blob = self.bucket.blob(key)
-        if not blob.exists():
-            return None
-        return blob.download_as_bytes()
+        """One request: download, and treat NotFound as missing (P6)."""
+        try:
+            return self.bucket.blob(key).download_as_bytes()
+        except Exception as err:
+            if type(err).__name__ == "NotFound" or getattr(err, "code", None) == 404:
+                return None
+            raise
 
     def delete_deal(self, deal_id: str) -> None:
         """Remove the deal, its documents (claims live on them) and its files under deals/{id}/."""

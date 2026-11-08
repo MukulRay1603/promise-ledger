@@ -626,6 +626,22 @@ function renderActions(id, deal) {
   ].filter(Boolean));
 }
 
+// Exports download through fetch, so the demo session travels in a header and never in a link (S3).
+async function downloadFile(path, filename) {
+  try {
+    const blob = await api(path);
+    const url = URL.createObjectURL(blob);
+    const link = el("a", { href: url, download: filename });
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    toast(`Saved ${filename}.`, { kind: "ok" });
+  } catch (err) {
+    toast(`The download did not finish. ${err.message}`, { kind: "warn" });
+  }
+}
+
 async function mockDownload(path, filename, ext) {
   const blob = await api(path);
   const url = URL.createObjectURL(blob);
@@ -1249,7 +1265,7 @@ async function showSourcePage(claim, doc, pageNumber, pageCount, parts) {
     if (!url) throw new Error("No PDF file for this record.");
     const { renderPage } = await import("./pdfview.js");
     const width = Math.max(280, stage.clientWidth || 600);
-    const result = await renderPage({ url, pageNumber, quote: onQuotePage ? claim.quote : null, container: stage, width });
+    const result = await renderPage({ url, pageNumber, quote: onQuotePage ? claim.quote : null, container: stage, width, headers: mock ? {} : { "X-Demo-Session": demoSession() } });
     if (token !== sourceToken) return;
     if (!pageCount) pageCount = result.pages;
     if (!onQuotePage) { status.textContent = `Showing page ${pageNumber}. The quote is on page ${claim.page}.`; return; }
@@ -1682,11 +1698,12 @@ async function openExport(dealId, format, opener) {
   const base = `/api/deals/${encodeURIComponent(dealId)}`;
   for (const ext of ["xlsx", "csv"]) {
     const link = byId(`xp-dl-${ext}`);
-    link.href = `${base}/export.${ext}?session=${encodeURIComponent(demoSession())}`;
+    link.href = `${base}/export.${ext}`;
     link.download = xp.data.files[ext];
     link.onclick = (event) => {
-      if (mock) { event.preventDefault(); mockDownload(`${base}/export.${ext}`, xp.data.files[ext].replace(/\.xlsx$/, ".csv"), ext); return; }
-      toast(`Downloading ${xp.data.files[ext]}.`);
+      event.preventDefault();
+      if (mock) { mockDownload(`${base}/export.${ext}`, xp.data.files[ext].replace(/\.xlsx$/, ".csv"), ext); return; }
+      downloadFile(`${base}/export.${ext}`, xp.data.files[ext]);
     };
   }
   byId("xp-dl-xlsx").classList.toggle("btn-primary", format === "xlsx");

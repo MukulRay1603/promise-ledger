@@ -71,8 +71,12 @@ class Decisions(Base):
         self.assertEqual(r.status_code, 201)
         event = r.json()["event"]
         self.assertEqual((event["decision"], event["label"]), ("confirmed", "Confirmed"))
-        self.assertEqual((event["reviewer_id"], event["reviewer_name"]), (f"demo:{SESSION_A}", "Sam Rivera"))
-        self.assertNotIn("reviewer", event)
+        self.assertEqual(event["reviewer_name"], "Sam Rivera")
+        for private in ("reviewer", "reviewer_id", "session"):  # Session ids never leave the server (S3).
+            self.assertNotIn(private, event)
+        self.assertNotIn(SESSION_A, r.text)
+        stored = self.store.list_decisions(self.deal)[0]
+        self.assertEqual((stored["reviewer_id"], stored["session"]), (f"demo:{SESSION_A}", SESSION_A))
         self.assertTrue(event["at"].endswith("+00:00"))
         data = self.view()
         self.assertEqual(data["latest"][f"claim:{self.review['claims'][0]['id']}"]["id"], event["id"])
@@ -144,8 +148,10 @@ class Decisions(Base):
         self.assertEqual(row[claims["columns"].index("Decision")], "Confirmed")
         self.assertEqual(row[claims["columns"].index("Reviewer")], "Sam Rivera")
         self.assertEqual(row[claims["columns"].index("Note")], "'=HYPERLINK(1)")  # Formula guard.
-        # Plain download links carry the session in the query string.
-        text = self.client.get(f"/api/deals/{self.deal}/export.csv?session={SESSION_A}").content.decode("utf-8-sig")
+        self.assertNotIn(SESSION_A, self.client.get(f"/api/share/{token}").text)  # Not on share pages either.
+        self.assertNotIn(SESSION_A, self.client.get(f"/r/{token}").text)
+        # Downloads send the session header; the query string is ignored (S3).
+        text = self.client.get(f"/api/deals/{self.deal}/export.csv", headers=headers()).content.decode("utf-8-sig")
         parsed = list(csv.reader(io.StringIO(text)))
         self.assertEqual(parsed[1][deals.CLAIM_COLUMNS.index("Decision")], "Confirmed")
         self.assertEqual(parsed[2][deals.CLAIM_COLUMNS.index("Decision")], "Not reviewed")
@@ -168,8 +174,10 @@ class Sandbox(Base):
         self.assertEqual(self.view(session=None)["log"], [])
         review_b = self.client.get(f"/api/deals/{self.deal}/review", headers=headers(SESSION_B, None)).json()
         self.assertEqual(review_b["decisions"]["log"], [])
-        csv_b = self.client.get(f"/api/deals/{self.deal}/export.csv?session={SESSION_B}").content.decode("utf-8-sig")
+        csv_b = self.client.get(f"/api/deals/{self.deal}/export.csv", headers=headers(SESSION_B, None)).content.decode("utf-8-sig")
         self.assertNotIn("Sam Rivera", csv_b)
+        csv_q = self.client.get(f"/api/deals/{self.deal}/export.csv?session={SESSION_A}").content.decode("utf-8-sig")
+        self.assertNotIn("Sam Rivera", csv_q)  # ?session= is not accepted.
 
     def test_no_one_can_stamp_the_sample_for_everyone(self):
         for question in self.review["questions"]:
@@ -189,8 +197,8 @@ class Sandbox(Base):
             data = self.view(deal=staff, session=session)
             self.assertFalse(data["sandboxed"])
             self.assertEqual(len(data["log"]), 1)
-        self.assertEqual(self.post(deal=staff, session=None, name="Kim Lee", target_id=claim).json()["event"]["reviewer_id"],
-                         "local:kim lee")
+        self.assertEqual(self.post(deal=staff, session=None, name="Kim Lee", target_id=claim).status_code, 201)
+        self.assertIn("local:kim lee", {e["reviewer_id"] for e in self.store.list_decisions(staff)})
 
     def test_reset_my_review(self):
         self.post(session=SESSION_A)
@@ -230,7 +238,8 @@ class Identity(unittest.TestCase):
     def test_session_must_look_random(self):
         self.assertIsNone(identity.demo_session(self.request({identity.SESSION_HEADER: "short"})))
         self.assertIsNone(identity.demo_session(self.request({identity.SESSION_HEADER: "../" + "a" * 20})))
-        self.assertEqual(identity.demo_session(self.request(query={"session": SESSION_B})), SESSION_B)
+        self.assertIsNone(identity.demo_session(self.request(query={"session": SESSION_B})))  # Header only (S3).
+        self.assertEqual(identity.demo_session(self.request({identity.SESSION_HEADER: SESSION_B})), SESSION_B)
 
     def test_rate_limit_window(self):
         limit = guard.RateLimit(2, 60)
@@ -249,7 +258,7 @@ class GcpDecisions(unittest.TestCase):
         self.assertIn(("deals", "beacon", "decisions", "e1"), fs.tree)
         store.put_share("tok", "beacon", session=SESSION_A)
         self.assertEqual(store.get_share_record("tok")["session"], SESSION_A)
-        self.assertEqual(store.get_share("tok"), "beacon")
+        self.assertEqual(store.get_share_record("tok")["deal_id"], "beacon")
 
 
 if __name__ == "__main__":
