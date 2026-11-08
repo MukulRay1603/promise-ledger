@@ -5,7 +5,8 @@ const PDFJS_VERSION = "4.10.38";
 const BASE = `/static/vendor/pdfjs-${PDFJS_VERSION}/`;
 
 let libPromise = null;
-const documents = new Map();
+const documents = new Map(); // url -> loading task promise, most recently used last
+const MAX_OPEN = 2;
 
 function loadLib() {
   if (!libPromise) {
@@ -19,12 +20,21 @@ function loadLib() {
 }
 
 function openDocument(lib, url, headers = {}) {
-  if (!documents.has(url)) {
-    const task = lib.getDocument({ url, httpHeaders: headers, isEvalSupported: false }).promise;
+  let task = documents.get(url);
+  if (task) {
+    documents.delete(url); // Move to the most recently used end.
+  } else {
+    task = lib.getDocument({ url, httpHeaders: headers, isEvalSupported: false }).promise;
     task.catch(() => documents.delete(url));
-    documents.set(url, task);
   }
-  return documents.get(url);
+  documents.set(url, task);
+  // Free the memory and worker state of documents nobody is looking at.
+  while (documents.size > MAX_OPEN) {
+    const [oldUrl, oldTask] = documents.entries().next().value;
+    documents.delete(oldUrl);
+    oldTask.then((pdf) => pdf.destroy()).catch(() => {});
+  }
+  return task;
 }
 
 // Text normalizing shared by the page text and the quote, so curly quotes, dashes and spacing do not block a match.
@@ -123,6 +133,7 @@ export async function renderPage({ url, pageNumber, quote, container, width, hea
   await textLayer.render();
 
   container.replaceChildren(wrapper);
+  page.cleanup(); // Drop the page's decoded resources; the canvas and text layer stay on screen.
   const mark = quote ? highlight(layer, quote) : null;
   return { mark, pages: pdf.numPages, page: page.pageNumber };
 }

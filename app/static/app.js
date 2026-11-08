@@ -58,7 +58,7 @@ const TAG_TEXT = { not_located: "Not located", differs: "Wording differs", machi
 const tag = (kind, text = TAG_TEXT[kind] || stageLabel(kind)) => el("span", { class: `tag tag-${kind}` }, svg("0 0 16 16", ICONS[kind] || []), text);
 
 const quoteBadge = (claim) => (claim.quote_checked
-  ? el("span", { class: "badge badge-ok" }, svg("0 0 16 16", ICONS.ok), "Quote verified · ", el("span", { class: "mono" }, `p. ${claim.page}`))
+  ? el("span", { class: "badge badge-ok" }, svg("0 0 16 16", ICONS.ok), "Quote found · ", el("span", { class: "mono" }, `p. ${claim.page}`))
   : el("span", { class: "badge badge-warn" }, svg("0 0 16 16", ICONS.not_located), "Flagged for human review · ", el("span", { class: "mono" }, `p. ${claim.page}`)));
 
 const UI_ICONS = {
@@ -135,7 +135,18 @@ function demoSession() {
   }
 }
 
-async function api(path, { method = "GET", body = null, onProgress = null, reviewer = null } = {}) {
+// Term labels read "Homes" and "Income limit" everywhere, whatever an older server sends.
+const PLAIN_LABELS = { units: "Homes", income_basis: "Income limit" };
+function plainLabels(data) {
+  if (!data || typeof data !== "object") return data;
+  if (data.topics) Object.assign(data.topics, PLAIN_LABELS);
+  for (const term of Array.isArray(data.terms) ? data.terms : []) if (PLAIN_LABELS[term.key]) term.label = PLAIN_LABELS[term.key];
+  return data;
+}
+
+async function api(path, options = {}) { return plainLabels(await rawApi(path, options)); }
+
+async function rawApi(path, { method = "GET", body = null, onProgress = null, reviewer = null } = {}) {
   await ready;
   if (mock) {
     try { return await mock.handle(method, path, body, { onProgress, reviewer, session: demoSession() }); } catch (err) { throw new ApiError(err.status || 500, err.message); }
@@ -175,11 +186,17 @@ const fileUrl = (dealId, docId) => (mock ? mock.fileUrl(dealId, docId) : `/api/d
 
 // ---------- Glossary ----------
 const GLOSSARY = {
-  ami: { title: "AMI (area median income)", text: "The middle household income for an area, published each year by the U.S. Department of Housing and Urban Development (HUD). Affordable homes are often limited to households earning at or below a share of AMI, such as 60 or 80 percent." },
+  ami: { title: "AMI (area median income)", text: "Area median income: the midpoint income for a metro area or county, from figures HUD publishes each year. Income limits are set as a percent of AMI (for example 60 or 80 percent) and adjusted for household size." },
   abatement: { title: "Tax abatement / PILOT", text: "A tax abatement lowers or delays property taxes for a set time. A PILOT (payment in lieu of taxes) replaces regular property taxes with an agreed payment. Cities often ask for affordable homes in return." },
-  term: { title: "Affordability term", text: "How long the homes must stay affordable, usually counted in years from a start date such as the first move-in." },
-  remedies: { title: "Remedies", text: "What happens if a commitment is not met, such as repayment, penalties or ending the tax break. Remedies are usually written into the signed agreement." },
-  stages: { title: "Stages", text: "Proposed: described as a plan or idea. Supported: recommended by staff or backed by a vote. Signed: written in a signed record. Delivered: a record shows the homes were built, leased or checked. Each claim sits only at the stage its own record shows." },
+  term: { title: "Affordability term", text: "How long the restrictions last, counted from a start date the agreement names (for example first occupancy, placed in service, or a fixed date)." },
+  remedies: { title: "Remedies", text: "What the agreement says happens if a term is not met, such as cure periods, repayment of the tax benefit (clawback or recapture), penalties or ending the abatement." },
+  stages: { title: "Stages", text: "Proposed: described as a plan or idea. Supported: recommended by staff or backed by a vote. Signed: stated in a record with at least one completed signature. Check who signed. A letter signed by one party is not an agreement signed by both. Delivered: a certificate or occupancy record states the homes were built, leased or certified. It reports what the record says; it is not an inspection. Each claim sits only at the stage its own record shows." },
+  rent_limits: { title: "Rent limits", text: "The most rent allowed for a restricted home, usually based on HUD figures (often 30 percent of the income limit, adjusted for unit size)." },
+  regulatory_agreement: { title: "Regulatory agreement", text: "A recorded contract between the owner and the public agency that sets the affordability terms." },
+  deed_restriction: { title: "Deed restriction", text: "Affordability terms recorded against the property so they bind later owners." },
+  compliance_certificate: { title: "Compliance certificate", text: "The owner's own yearly statement that it met the terms. It is not an inspection." },
+  certificate_of_occupancy: { title: "Certificate of occupancy", text: "A building-department approval to occupy a building. It does not show who rents the homes or at what rent." },
+  income_restricted: { title: "Income-restricted", text: "Homes limited to households at or below a set income." },
   not_located: { title: "Not located", text: "The item was not found in this packet. It may exist in a record that is not here. It is not a finding that the item is missing from the deal." },
 };
 const popoverSupported = typeof HTMLElement !== "undefined" && "popover" in HTMLElement.prototype;
@@ -209,6 +226,12 @@ function termButton(key, text) {
     return el("button", { type: "button", class: "term", popovertarget: `pop-${key}` }, text, el("span", { class: "visually-hidden" }, " (definition)"));
   }
   return el("button", { type: "button", class: "term", onclick: () => openGlossary(key) }, text, el("span", { class: "visually-hidden" }, " (open glossary)"));
+}
+
+// A record type with a glossary entry ("Regulatory agreement", "Compliance certificate", ...) gets its definition on click.
+function docType(type) {
+  const key = String(type || "").toLowerCase().replace(/[^a-z]+/g, "_");
+  return GLOSSARY[key] ? termButton(key, type) : type;
 }
 
 function withTerm(text, phrase, key) {
@@ -335,8 +358,15 @@ function fillHeroReceipt(review) {
 // ---------- Deals ----------
 const REMINDER_ICON = { term_end: "calendar", missing_record: "docq" };
 
-function inDays(iso) {
-  const days = daysFromToday(iso);
+// Days until the reminder is due: the server's count when it sends one (sample deals count from their
+// "as of" date, so they read the same on any day), otherwise counted from today in the browser.
+function reminderDays(item) {
+  if (Number.isInteger(item?.days)) return item.days;
+  const due = item?.due || item?.date;
+  return due ? daysFromToday(due) : null;
+}
+
+function inDays(days) {
   if (days > 1) return `in ${days} days`;
   if (days === 1) return "tomorrow";
   if (days === 0) return "today";
@@ -348,11 +378,20 @@ function reminderText(item) {
   const due = item.due || item.date;
   if (!due) return item.text;
   const when = formatDate(due);
-  const past = daysFromToday(due) < 0;
-  if (item.kind === "term_end") return past ? `Affordability ended ${when}` : `Affordability ends ${when} (${inDays(due)})`;
-  if (item.kind === "missing_record") return `Yearly certificate due ${when}: not in the file yet`;
-  if (item.kind === "other") return `Next yearly certificate due ${when} (${inDays(due)})`;
+  const days = reminderDays(item);
+  const past = days < 0;
+  // Sample deals are read as of the file's date, not today, so the count always names its reference date.
+  const asOf = item.as_of && item.as_of !== localToday() ? `, as of ${formatDate(item.as_of)}` : "";
+  const count = days === null ? "" : ` · ${inDays(days)}${asOf}`;
+  if (item.kind === "term_end") return `${past ? `Affordability term ended ${when}` : `Affordability term ends ${when}`}, per signed record${count}`;
+  if (item.kind === "missing_record") return `Yearly certificate due ${when}: not located in this file${count}`;
+  if (item.kind === "other") return `${past ? `Yearly certificate was due ${when}` : `Yearly certificate due ${when}`}${count}`;
   return item.text;
+}
+
+function localToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 const sourceHref = (dealId, claimId) => `#/deals/${encodeURIComponent(dealId)}${claimId ? `/source/${encodeURIComponent(claimId)}` : ""}`;
@@ -392,7 +431,7 @@ async function renderDeals() {
       el("section", { class: "card deals-scroll", "aria-labelledby": "deals-table-cap" },
         el("table", { class: "deals-table stack", "aria-describedby": "deals-mode" },
           el("caption", { class: "visually-hidden", id: "deals-table-cap" }, "All deals"),
-          el("thead", {}, el("tr", {}, ["Deal", "Documents", "Furthest stage", "Flags", "Next reminder"].map((text) => el("th", { scope: "col" }, text)))),
+          el("thead", {}, el("tr", {}, ["Deal", "Documents", "Furthest stage (any term)", "Flags", "Next reminder"].map((text) => el("th", { scope: "col" }, text)))),
           tbody)),
       el("aside", { class: "card reminders", "aria-labelledby": "reminders-title" },
         el("div", { class: "card-head" }, el("h2", { id: "reminders-title" }, "Reminders"), reminderCount),
@@ -412,19 +451,22 @@ async function renderDeals() {
   if (current.view !== "deals") return;
   modeNote.hidden = !mock;
   rememberSample(deals);
+  // The deal row's next reminder may lack the as-of date; the full reminder list has it for each deal.
+  const asOfByDeal = new Map((Array.isArray(reminders) ? reminders : []).filter((r) => r.as_of).map((r) => [r.deal_id, r.as_of]));
 
   tbody.replaceChildren(...(deals.length ? deals.map((deal) => {
+    const next = deal.next_reminder ? { as_of: asOfByDeal.get(deal.id) || deal.as_of, ...deal.next_reminder } : null;
     const docs = typeof deal.documents === "number" ? deal.documents : (deal.documents || []).length;
     return el("tr", {},
       el("th", { scope: "row", "data-label": "Deal" },
         el("a", { class: "deal-name", href: `#/deals/${encodeURIComponent(deal.id)}` }, deal.name),
         el("span", { class: "deal-city" }, deal.city)),
       el("td", { "data-label": "Documents" }, el("span", { class: "num" }, String(docs))),
-      el("td", { "data-label": "Furthest stage" }, el("span", { class: "stage-cell" },
+      el("td", { "data-label": "Furthest stage (any term)" }, el("span", { class: "stage-cell" },
         deal.furthest_status ? tag(deal.furthest_status) : tag("none"), stageBar(deal.furthest_status))),
       el("td", { "data-label": "Flags" }, flagCell({ ...deal, documents: docs })),
-      el("td", { "data-label": "Next reminder", class: "reminder-cell" }, deal.next_reminder
-        ? [el("span", {}, reminderText(deal.next_reminder)),
+      el("td", { "data-label": "Next reminder", class: "reminder-cell" }, next
+        ? [el("span", {}, reminderText(next)),
           deal.next_reminder.claim_id ? el("a", { class: "reminder-source", href: sourceHref(deal.id, deal.next_reminder.claim_id) }, "Source", el("span", { class: "visually-hidden" }, ` for ${deal.name} reminder`)) : null]
         : el("span", { class: "cell-muted" }, "None")));
   }) : [el("tr", {}, el("td", { colspan: 5 }, "No deals yet. Use New deal to add one."))]));
@@ -499,7 +541,7 @@ const DEAL_TEMPLATE = `
       <div class="summary-box"><h2 id="glance-heading">At a glance</h2><ul class="glance-list" id="glance-list"></ul><p class="glance-foot" id="glance-foot"></p></div>
       <ul class="kpis" id="kpis" aria-label="Key figures"></ul>
     </section>
-    <div class="stepper-wrap"><h2 class="stepper-heading" id="stepper-heading">Deal <span id="stage-term">stages</span></h2><ol class="stepper" id="stepper" aria-labelledby="stepper-heading"></ol></div>
+    <div class="stepper-wrap"><h2 class="stepper-heading" id="stepper-heading"><span id="stage-term">Stages</span> on record</h2><ol class="stepper" id="stepper" aria-labelledby="stepper-heading"></ol></div>
     <section class="card review-panel" id="review-panel" aria-labelledby="review-title"></section>
   </div>
   <section class="card docs-card" id="docs-card" aria-labelledby="docs-title" style="margin-top:1rem">
@@ -513,6 +555,10 @@ const DEAL_TEMPLATE = `
         <input type="file" id="file-input" accept="application/pdf,.pdf" multiple hidden>
         <p class="hint">PDF only, up to 20 MB each. AI reads the text, code checks every quote, and you decide.</p>
         <p class="demo-note">Public demo: please don&rsquo;t upload real records. Uploads are deleted after 24 hours.</p>
+      </div>
+      <div class="readonly-note" id="readonly-note" hidden>
+        <p>Sample deals are read-only. Start a new deal to try your own PDFs.</p>
+        <button type="button" class="btn btn-secondary btn-small" data-new-deal>New deal</button>
       </div>
     </div>
   </section>
@@ -609,7 +655,13 @@ function setDeal(id, deal, review) {
     documentsById: new Map(review.documents.map((doc) => [doc.id, doc])),
     termsByKey: new Map(review.terms.map((term) => [term.key, term])),
   };
+  // Sample deals take no uploads (the server answers 403), so the dropzone gives way to a short note.
+  const readOnly = isReadOnly();
+  byId("dropzone")?.toggleAttribute("hidden", readOnly);
+  byId("readonly-note")?.toggleAttribute("hidden", !readOnly);
 }
+
+const isReadOnly = () => Boolean(dealState?.review?.decisions?.sandboxed);
 
 function renderActions(id, deal) {
   const base = `/api/deals/${encodeURIComponent(id)}`;
@@ -679,7 +731,7 @@ function renderReview({ tab = null, keepTab = false } = {}) {
   byId("docs-card").classList.toggle("empty-deal", empty);
   if (empty) return;
 
-  byId("stage-term").replaceChildren(termButton("stages", "stages"));
+  byId("stage-term").replaceChildren(termButton("stages", "Stages"));
   renderSummary();
   renderReviewPanel();
   // Draw the open tab now and the rest when the browser is idle, so the first paint is not held up.
@@ -749,7 +801,7 @@ function renderSummary() {
   const share = s.homes_total && s.homes_described ? el("span", { class: "kpi-mini frac", "aria-hidden": "true", style: `--f:${s.homes_described / s.homes_total}` }, el("span")) : null;
   const kpis = [
     ["Homes described as affordable", s.homes_described ?? "None", s.homes_total ? `of ${s.homes_total} homes` : "homes", false, share],
-    ["Furthest stage", s.furthest_label, stageIndex ? `stage ${stageIndex} of ${s.stages_total}` : "nothing located", false, dots(stageIndex, s.stages_total)],
+    ["Furthest stage (any term)", s.furthest_label, stageIndex ? `stage ${stageIndex} of ${s.stages_total}` : "nothing located", false, dots(stageIndex, s.stages_total)],
     ["Terms that differ", s.terms_differ, `of ${s.terms_total} terms`, s.terms_differ > 0, dots(s.terms_differ, s.terms_total)],
     ["Terms not located", s.terms_not_located, `of ${s.terms_total} terms`, s.terms_not_located > 0, dots(s.terms_not_located, s.terms_total)],
   ];
@@ -841,6 +893,7 @@ function termLabel(key) {
   const label = dealState.review.topics[key] || key;
   if (key === "term") return termButton("term", label);
   if (key === "remedies") return termButton("remedies", label);
+  if (key === "rent_limits") return termButton("rent_limits", label);
   if (key === "income_basis") return el("span", { class: "nowrap" }, label, " (", termButton("ami", "AMI"), ")");
   return label;
 }
@@ -871,7 +924,7 @@ function renderClaims() {
       el("th", { scope: "row", "data-label": "Term" }, termLabel(claim.topic)),
       el("td", { "data-label": "Exact quote" }, el("span", { class: "quote" }, `“${claim.quote}”`)),
       el("td", { "data-label": "Source" }, el("span", { class: "source-cell" },
-        el("span", { class: "source-line" }, `${claim.document_type} · ${formatDate(claim.date)}`), quoteBadge(claim), viewSourceButton(claim))),
+        el("span", { class: "source-line" }, docType(claim.document_type), ` · ${formatDate(claim.date)}`), quoteBadge(claim), viewSourceButton(claim))),
       el("td", { "data-label": "Stage" }, tag(claim.status)),
       el("td", { "data-label": "Wording" }, wording),
       el("td", { "data-label": "Review" }, decisionCell("claim", claim.id, `${review.topics[claim.topic] || claim.topic}, ${claim.document_type} page ${claim.page}`)));
@@ -945,7 +998,7 @@ function renderChanges() {
 function renderQuestions() {
   const { questions } = dealState.review;
   byId("count-questions").textContent = String(questions.length);
-  byId("question-note").textContent = `${plural(questions.length, "question")} from terms that are not located or differ across records. Each needs a decision before the receipt is stamped as reviewed.`;
+  byId("question-note").textContent = `${plural(questions.length, "question")} from terms that are not located or differ across records. Each needs a decision before the review is complete.`;
   byId("question-list").replaceChildren(...questions.map((question) => el("li", { class: "task task-decide" },
     el("p", { class: "task-text" }, question.text),
     tag(question.tag),
@@ -956,13 +1009,25 @@ function renderQuestions() {
 const layerMarks = (first) => [...(first.closest(".textLayer")?.querySelectorAll("mark.hl") || [first])];
 
 // The stamp reads "Flagged for human review" until every open question has a decision.
+// Stamp states from the server: flagged | in_progress | complete_confirmed | complete_follow_up | complete_disputed.
+// Older servers send state "reviewed" with the name and date inside the text; both shapes are read.
+const STAMP_TONE = { flagged: "ink", in_progress: "ink", complete_confirmed: "confirmed", complete_follow_up: "follow_up", complete_disputed: "disputed", reviewed: "confirmed" };
+function stampInfo(review) {
+  const stamp = review.decisions?.stamp || {};
+  const state = STAMP_TONE[stamp.state] ? stamp.state : "flagged";
+  const reviewer = stamp.reviewer || stamp.reviewer_name || "";
+  let text = stamp.text || "Flagged for human review";
+  if (stamp.state === "reviewed") text = "Reviewed"; // The old text repeated the name and date.
+  const caption = reviewer && stamp.date ? `${reviewer} · ${formatDate(stamp.date)}` : "";
+  return { state, tone: STAMP_TONE[state], text, caption, complete: state.startsWith("complete") || state === "reviewed" };
+}
+
+// The stamp sits in its own grid area next to the heading, so it never covers the list.
 function receiptStamp(review) {
-  const stamp = review.decisions?.stamp;
-  if (stamp?.state === "reviewed") {
-    const text = stamp.reviewer_name ? `Reviewed · ${stamp.reviewer_name} · ${formatDate(stamp.date)}` : "Reviewed";
-    return el("span", { class: "receipt-stamp reviewed", "aria-hidden": "true" }, text);
-  }
-  return el("span", { class: "receipt-stamp", "aria-hidden": "true" }, "Flagged for human review");
+  const info = stampInfo(review);
+  return el("div", { class: `stamp-block tone-${info.tone}`, "aria-hidden": "true" },
+    el("span", { class: `receipt-stamp tone-${info.tone}` }, info.text),
+    info.caption ? el("span", { class: "stamp-caption" }, info.caption) : null);
 }
 
 // Receipt: black on white, the same on screen, in a shared link and in print.
@@ -1004,15 +1069,16 @@ function renderReceipt(target, review, { titleTag = "p" } = {}) {
       review.questions.length ? el("ul", {}, ...review.questions.map((question) => {
         const event = review.decisions?.latest?.[`question:${question.key}`];
         return el("li", {}, question.text, event
-          ? el("span", { class: "receipt-decision" }, `${event.label} by ${event.reviewer_name}, ${formatDate(event.at.slice(0, 10))}${event.note ? `: “${event.note}”` : "."}`)
+          ? el("span", { class: `receipt-decision decided-${event.decision}` }, svg("0 0 16 16", DECISION_ICON[event.decision] || DECISION_ICON.confirmed),
+            `${event.label} by ${event.reviewer_name}, ${formatDate(event.at.slice(0, 10))}${event.note ? `: “${event.note}”` : "."}`)
           : el("span", { class: "receipt-decision pending" }, "Not reviewed yet."));
       })) : el("p", {}, "None."),
-      review.questions.length ? receiptStamp(review) : null),
+      review.claims.length ? receiptStamp(review) : null),
     review.decisions?.progress ? el("p", { class: "receipt-foot" },
       `Review: ${review.decisions.progress.claims_reviewed} of ${review.decisions.progress.claims_total} claims and ${review.decisions.progress.flagged_reviewed} of ${review.decisions.progress.flagged_total} open questions have a reviewer decision. Decisions do not change any stage.`) : null,
     el("p", { class: "receipt-foot" }, `Quote check: ${passed} of ${total} quotes found on their cited pages.`),
     el("div", { class: "sign-off" }, el("p", {}, "Reviewed by: ______________________"), el("p", {}, "Date: ______________")),
-    el("p", { class: "receipt-foot" }, "This receipt is a review aid. It makes no legal findings.")
+    el("p", { class: "receipt-foot" }, review.decisions?.footer || "A review records people's decisions. It is not a legal finding.")
   ].filter(Boolean));
 }
 
@@ -1061,7 +1127,10 @@ function progressSteps(phase) {
   }));
 }
 
-function docItem({ title, sub, phase, progress = null, error = null }) {
+// A document's display name: its title, else its file name, else a plain label. Never blank or "null".
+const docName = (doc) => (doc?.title || "").trim() || (doc?.filename || doc?.name || "").trim() || "Untitled document";
+
+function docItem({ title, sub, phase, progress = null, error = null, retry = null }) {
   const busy = phase !== "done" && phase !== "failed";
   let status = null;
   if (phase === "done") status = el("span", { class: "badge badge-ok" }, svg("0 0 16 16", ICONS.ok), "Checked");
@@ -1074,7 +1143,9 @@ function docItem({ title, sub, phase, progress = null, error = null }) {
     busy || phase === "failed" ? progressSteps(phase) : null,
     phase === "uploading" && progress !== null ? el("span", { class: "bar", "aria-hidden": "true" }, el("span", { style: `width:${Math.round(progress * 100)}%` })) : null,
     phase === "reading" || phase === "checking" ? el("span", { class: `bar working ${phase}`, "aria-hidden": "true" }, el("span")) : null,
-    error ? el("p", { class: "doc-error" }, error) : null);
+    error ? el("p", { class: "doc-error" }, error) : null,
+    retry ? el("button", { type: "button", class: "btn btn-secondary btn-small doc-retry", onclick: retry, "aria-label": `Try reading ${title} again` },
+      svg("0 0 24 24", [["path", { d: "M20 11a8 8 0 1 0-2.3 5.7" }], ["path", { d: "M20 4v7h-7" }]]), "Retry") : null);
 }
 
 function renderDocs() {
@@ -1084,9 +1155,12 @@ function renderDocs() {
   const items = [
     ...docs.map((doc) => {
       const pages = doc.pages ? ` · ${plural(doc.pages, "page")}` : "";
-      return docItem({ title: doc.title, sub: `${doc.type || "Record"} · ${formatDate(doc.date)}${pages}`, phase: phaseOf(doc.status), error: doc.error });
+      const phase = phaseOf(doc.status);
+      return docItem({ title: docName(doc), sub: [docType(doc.type || "Record"), ` · ${formatDate(doc.date)}${pages}`], phase, error: doc.error,
+        retry: phase === "failed" && !isReadOnly() ? (event) => retryDocument(doc, event.currentTarget) : null });
     }),
-    ...local.map((item) => docItem({ title: item.name, sub: fileSize(item.size), phase: item.error ? "failed" : "uploading", progress: item.progress, error: item.error })),
+    ...local.map((item) => docItem({ title: item.name, sub: fileSize(item.size), phase: item.error ? "failed" : "uploading", progress: item.progress, error: item.error,
+      retry: item.error && item.file ? () => { uploads.delete(item.key); uploadOne(item.dealId, item.file); } : null })),
   ];
   byId("doc-list").replaceChildren(...items);
   byId("doc-list").hidden = items.length === 0;
@@ -1120,6 +1194,7 @@ function setupPageDrop() {
 }
 
 function addFiles(dealId, fileList) {
+  if (isReadOnly()) { toast("Sample deals are read-only. Start a new deal to try your own PDFs.", { kind: "warn" }); return null; }
   for (const file of fileList) {
     if (file.type !== "application/pdf" && !/\.pdf$/i.test(file.name)) { toast(`${file.name} is not a PDF. Only PDF files can be read.`, { kind: "warn" }); continue; }
     if (file.size > MAX_UPLOAD) { toast(`${file.name} is ${fileSize(file.size)}. The limit is 20 MB.`, { kind: "warn" }); continue; }
@@ -1129,7 +1204,7 @@ function addFiles(dealId, fileList) {
 
 async function uploadOne(dealId, file) {
   const key = `${Date.now()}-${Math.random()}`;
-  const item = { dealId, name: file.name, size: file.size, progress: 0, docId: null, error: null };
+  const item = { key, dealId, file, name: file.name, size: file.size, progress: 0, docId: null, error: null };
   uploads.set(key, item);
   renderDocs();
   const form = new FormData();
@@ -1141,6 +1216,7 @@ async function uploadOne(dealId, file) {
       onProgress: (fraction) => { item.progress = fraction; if (dealState?.id === dealId) renderDocs(); },
     });
     item.docId = doc.id;
+    if (doc.duplicate) toast("This file is already in the deal.", { kind: "info" });
     if (dealState?.id === dealId) {
       dealState.deal.documents = [...(dealState.deal.documents || []).filter((existing) => existing.id !== doc.id), doc];
       renderDocs();
@@ -1148,9 +1224,35 @@ async function uploadOne(dealId, file) {
     }
     uploads.delete(key);
   } catch (err) {
+    item.progress = null;
     item.error = err.message;
     if (dealState?.id === dealId) renderDocs();
     toast(`${file.name} did not upload. ${err.message}`, { kind: "warn" });
+  }
+}
+
+// Retry: ask the server to read a failed document again, then follow it like a new upload.
+async function retryDocument(doc, button) {
+  if (!dealState) return;
+  const dealId = dealState.id;
+  button.disabled = true;
+  try {
+    const fresh = await api(`/api/deals/${encodeURIComponent(dealId)}/documents/${encodeURIComponent(doc.id)}/retry`, { method: "POST" });
+    if (dealState?.id !== dealId) return;
+    dealState.deal.documents = (dealState.deal.documents || []).map((d) => (d.id === doc.id ? { ...d, ...(fresh || {}), status: fresh?.status || "queued", error: null } : d));
+    renderDocs();
+    toast(`Reading ${docName(doc)} again.`, { kind: "info" });
+    pollIfBusy();
+  } catch (err) {
+    button.disabled = false;
+    const why = {
+      403: "Sample deals are read-only. Start a new deal to try your own PDFs.",
+      404: "Retry is not available on this server yet.",
+      405: "Retry is not available on this server yet.",
+      409: `${docName(doc)} is still being read. Wait for it to finish.`,
+      429: "That is the retry limit for this hour. Try again later.",
+    }[err.status];
+    toast(why || `${docName(doc)} could not be retried. ${err.message}`, { kind: "warn" });
   }
 }
 
@@ -1173,8 +1275,8 @@ function pollIfBusy() {
       for (const doc of deal.documents) {
         const was = before.get(doc.id);
         const now = phaseOf(doc.status);
-        if (was && was !== now && now === "done") { changed = true; toast(`${doc.title} was read and its quotes were checked.`); }
-        if (was && was !== now && now === "failed") toast(`${doc.title} could not be read. ${doc.error || ""}`.trim(), { kind: "warn" });
+        if (was && was !== now && now === "done") { changed = true; toast(`${docName(doc)} was read and its quotes were checked.`); }
+        if (was && was !== now && now === "failed") { changed = true; toast(`${docName(doc)} could not be read. ${doc.error || ""}`.trim(), { kind: "warn" }); }
       }
       renderDocs();
       if (changed) {
@@ -1212,7 +1314,7 @@ function openSource(claim, opener, { modal = true } = {}) {
   const doc = dealState.documentsById.get(claim.document) || { id: claim.document, title: claim.document_type, type: claim.document_type, date: claim.date, pages: [] };
   const pageCount = Array.isArray(doc.pages) ? doc.pages.length : (doc.page_count ?? doc.pages);
   sourceOpener = opener;
-  byId("source-title").textContent = doc.title;
+  byId("source-title").textContent = docName(doc);
   const status = el("p", { class: "sp-status", role: "status" });
   const stage = el("div", { class: "pdf-stage" }, el("span", { class: "skeleton" }));
   const fallback = el("div", { class: "fallback", hidden: true });
@@ -1326,7 +1428,7 @@ async function renderShared(token) {
     // A /r/{token} page arrives with the read-only review already inside it.
     const inline = byId("review-data")?.textContent.trim();
     const shipped = inline ? JSON.parse(inline) : null;
-    const review = shipped?.read_only ? shipped : await api(`/api/share/${encodeURIComponent(token)}`);
+    const review = shipped?.read_only ? plainLabels(shipped) : await api(`/api/share/${encodeURIComponent(token)}`);
     if (current.view !== "shared") return;
     title.textContent = `${review.project}, ${review.city}`;
     document.title = `${review.project} receipt · Promise Ledger`;
@@ -1619,10 +1721,10 @@ function exportCell(column, value, row = {}) {
   // A term with no wording on file has nothing to compare, so it is not shown as matching.
   if (column === "Wording differs" && text !== "Yes" && /not located/i.test(row.Result || "")) return el("span", { class: "cell-muted" }, "Not compared");
   if (column === "Wording differs") return text === "Yes" ? tag("differs") : tag("ok", "Matches");
-  if (column === "Verified") return text === "Yes" ? el("span", { class: "badge badge-ok" }, svg("0 0 16 16", ICONS.ok), "Verified") : el("span", { class: "badge badge-warn" }, svg("0 0 16 16", ICONS.not_located), "Flagged");
+  if (column === "Quote found on page" || column === "Verified") return /^(yes|found)$/i.test(text) ? el("span", { class: "badge badge-ok" }, svg("0 0 16 16", ICONS.ok), "Found") : el("span", { class: "badge badge-warn" }, svg("0 0 16 16", ICONS.not_located), "Flagged for human review");
   if (column === "Result" && /not located/i.test(text)) return tag("not_located", text);
   if (column === "Signed record") return text === "Yes" ? tag("signed", "Yes") : el("span", { class: "cell-muted" }, text || "No");
-  if ((column === "Stage" || column === "Furthest stage") && STAGES.includes(text.toLowerCase())) return tag(text.toLowerCase(), text);
+  if ((column === "Stage" || column.startsWith("Furthest stage")) && STAGES.includes(text.toLowerCase())) return tag(text.toLowerCase(), text);
   if (column === "Quote") return el("span", { class: "quote" }, text);
   if (column === "Decided" || column === "When") return el("span", { class: "mono nowrap" }, text);
   if (column === "Note") return el("span", { class: "xp-note-cell" }, text);
@@ -1873,8 +1975,8 @@ function renderReviewPanel() {
       el("div", { class: "meters" },
         bar(p.claims_reviewed, p.claims_total, "claims reviewed"),
         bar(p.flagged_reviewed, p.flagged_total, "open questions decided"),
-        el("p", { class: `review-state ${p.complete ? "done" : ""}` }, p.complete
-          ? [svg("0 0 16 16", ICONS.ok), d.stamp.text.replace(/\d{4}-\d{2}-\d{2}$/, (m) => formatDate(m))]
+        el("p", { class: `review-state ${p.complete ? `done tone-${stampInfo(dealState.review).tone}` : ""}` }, p.complete
+          ? [svg("0 0 16 16", ICONS.ok), [stampInfo(dealState.review).text, stampInfo(dealState.review).caption].filter(Boolean).join(" · ")]
           : `The receipt stays “Flagged for human review” until every open question has a decision.`)),
       el("div", { class: "review-log" },
         el("h3", {}, "Review log"),
@@ -1928,7 +2030,7 @@ function refreshDecisions({ justCompleted = false, changed = null } = {}) {
     cell?.classList.add("just-decided");
   }
   if (justCompleted) {
-    toast("Every open question has a decision. The receipt is stamped as reviewed.");
+    toast("Every open question has a decision.");
     const stamp = byId("receipt-body").querySelector(".receipt-stamp");
     if (stamp) landStamp(stamp, 200);
   } else {
@@ -1954,7 +2056,7 @@ const TOUR = [
   {
     title: "Upload",
     text: "Drag in the deal's PDFs. AI reads each page, and code checks every quote it finds.",
-    run: async () => { byId("source-dialog").open && byId("source-dialog").close(); return byId("dropzone"); },
+    run: async () => { byId("source-dialog").open && byId("source-dialog").close(); return byId(isReadOnly() ? "readonly-note" : "dropzone"); },
   },
   {
     title: "Claims",
