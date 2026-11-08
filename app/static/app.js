@@ -213,6 +213,7 @@ function parseRoute() {
   if (!hash.startsWith("/")) return { view: "home" };
   const parts = hash.split("/").filter(Boolean);
   if (parts[0] === "deals" && parts.length === 1) return { view: "deals" };
+  if (parts[0] === "deals" && parts[1] && parts[2] === "source" && parts[3]) return { view: "deal", id: parts[1], tab: "claims", source: parts[3] };
   if (parts[0] === "deals" && parts[1]) return { view: "deal", id: parts[1], tab: TAB_IDS.includes(parts[2]) ? parts[2] : null };
   if (parts[0] === "r" && parts[1]) return { view: "shared", token: parts[1] };
   return { view: "missing" };
@@ -233,6 +234,7 @@ async function route({ initial = false } = {}) {
   const sameDeal = next.view === "deal" && current.view === "deal" && current.id === next.id && dealState;
   if (sameDeal) {
     activateTab(next.tab || "claims", { focus: false });
+    if (next.source) { openSourceFromLink(next.source); return; }
     if (next.tab) byId("tablist").scrollIntoView({ block: "start", behavior: reducedMotion.matches ? "auto" : "smooth" });
     current = next;
     return;
@@ -245,31 +247,41 @@ async function route({ initial = false } = {}) {
     window.scrollTo(0, 0);
     byId("main").focus({ preventScroll: true });
   }
-  if (next.view === "home") { document.title = "Promise Ledger"; return; }
+  if (next.view === "home") { document.title = "Promise Ledger"; setupVideos(); return; }
   if (next.view === "deals") return renderDeals();
-  if (next.view === "deal") return renderDeal(next.id, next.tab);
+  if (next.view === "deal") return renderDeal(next.id, next.tab, next.source);
   if (next.view === "shared") return renderShared(next.token);
   document.title = "Page not found · Promise Ledger";
 }
 
 // ---------- Home ----------
+// The server says where the videos live (MEDIA_BASE_URL or /static/media/) and which are present.
+// Missing videos keep their placeholder.
+let videosSetUp = false;
 async function setupVideos() {
+  if (videosSetUp) return;
+  videosSetUp = true;
   let list = [];
+  let root = "/static/media/";
   try {
-    const res = await fetch("/static/media/videos.json");
-    if (res.ok) list = (await res.json()).videos || [];
+    const res = await fetch("/api/media", { headers: { Accept: "application/json" } });
+    if (!res.ok) return;
+    const data = await res.json();
+    list = data.videos || [];
+    root = data.base || root;
   } catch (err) { return; }
+  const crossOrigin = new URL(root, location.href).origin !== location.origin;
   for (const video of list) {
     if (!video.ready) continue;
     const card = document.querySelector(`[data-video="${video.slug}"]`);
     if (!card) continue;
     const frame = card.querySelector(".video-frame");
     const n = video.slug.slice(0, 2);
-    const base = `/static/media/${video.slug}`;
-    const play = el("button", { type: "button", class: "video-play", "aria-describedby": `vt-${n}`, "aria-label": `Play video ${n}, with captions` },
+    const base = `${root}${video.slug}`;
+    const play = el("button", { type: "button", class: "video-play", "aria-label": `Play: ${video.title} (with captions)` },
       el("span", { class: "play-dot" }, svg("0 0 24 24", [["path", { d: "M8 5v14l11-7z" }]])));
     play.addEventListener("click", () => {
-      const player = el("video", { controls: true, playsinline: true, preload: "auto", poster: `${base}.jpg`, "aria-labelledby": `vt-${n}` },
+      const player = el("video", { controls: true, playsinline: true, preload: "auto", poster: `${base}.jpg`, "aria-labelledby": `vt-${n}`, crossorigin: crossOrigin ? "anonymous" : null },
         el("source", { src: `${base}.mp4`, type: "video/mp4" }),
         el("track", { kind: "captions", srclang: "en", label: "English", src: `${base}.vtt`, default: true }));
       frame.replaceChildren(player);
@@ -301,14 +313,27 @@ function fillHeroReceipt(review) {
 // ---------- Deals ----------
 const REMINDER_ICON = { term_end: "calendar", missing_record: "docq" };
 
-function reminderDue(item) {
-  if (!item.due) return "No due date";
-  const days = daysFromToday(item.due);
-  if (days > 1) return `Due ${formatDate(item.due)} · in ${days} days`;
-  if (days === 1) return `Due tomorrow, ${formatDate(item.due)}`;
-  if (days === 0) return "Due today";
-  return `Was due ${formatDate(item.due)}`;
+function inDays(iso) {
+  const days = daysFromToday(iso);
+  if (days > 1) return `in ${days} days`;
+  if (days === 1) return "tomorrow";
+  if (days === 0) return "today";
+  return `${plural(-days, "day")} ago`;
 }
+
+// Short, plain reminder wording built from the reminder's kind and date. The server's own sentence is the fallback.
+function reminderText(item) {
+  const due = item.due || item.date;
+  if (!due) return item.text;
+  const when = formatDate(due);
+  const past = daysFromToday(due) < 0;
+  if (item.kind === "term_end") return past ? `Affordability ended ${when}` : `Affordability ends ${when} (${inDays(due)})`;
+  if (item.kind === "missing_record") return `Yearly certificate due ${when}: not in the file yet`;
+  if (item.kind === "other") return `Next yearly certificate due ${when} (${inDays(due)})`;
+  return item.text;
+}
+
+const sourceHref = (dealId, claimId) => `#/deals/${encodeURIComponent(dealId)}${claimId ? `/source/${encodeURIComponent(claimId)}` : ""}`;
 
 function flagCell(deal) {
   const items = [];
@@ -336,7 +361,7 @@ async function renderDeals() {
       el("div", {}, el("h1", { id: "deals-title" }, "Deals"), el("p", { class: "page-sub" }, "Every deal under review, how far its records go, and what is due next.")),
       el("div", { class: "page-actions" }, el("button", { type: "button", class: "btn btn-primary", "data-new-deal": true }, icon("plus"), "New deal"))),
     el("div", { class: "deals-layout" },
-      el("section", { class: "card", "aria-labelledby": "deals-table-cap" },
+      el("section", { class: "card deals-scroll", "aria-labelledby": "deals-table-cap" },
         el("table", { class: "deals-table stack", "aria-describedby": "deals-mode" },
           el("caption", { class: "visually-hidden", id: "deals-table-cap" }, "All deals"),
           el("thead", {}, el("tr", {}, ["Deal", "Documents", "Furthest stage", "Flags", "Next reminder"].map((text) => el("th", { scope: "col" }, text)))),
@@ -370,7 +395,8 @@ async function renderDeals() {
       el("td", { "data-label": "Furthest stage" }, deal.furthest_status ? tag(deal.furthest_status) : tag("none")),
       el("td", { "data-label": "Flags" }, flagCell({ ...deal, documents: docs })),
       el("td", { "data-label": "Next reminder", class: "reminder-cell" }, deal.next_reminder
-        ? [el("span", {}, deal.next_reminder.text), el("span", { class: "deal-city" }, reminderDue(deal.next_reminder))]
+        ? [el("span", {}, reminderText(deal.next_reminder)),
+          deal.next_reminder.claim_id ? el("a", { class: "reminder-source", href: sourceHref(deal.id, deal.next_reminder.claim_id) }, "Source", el("span", { class: "visually-hidden" }, ` for ${deal.name} reminder`)) : null]
         : el("span", { class: "cell-muted" }, "None")));
   }) : [el("tr", {}, el("td", { colspan: 5 }, "No deals yet. Use New deal to add one."))]));
 
@@ -378,8 +404,10 @@ async function renderDeals() {
   reminderCount.textContent = plural(reminders.length, "item");
   reminderList.replaceChildren(...(reminders.length ? reminders.map((item) => el("li", { class: "reminder" },
     el("span", { class: `reminder-ico${item.kind === "term_end" ? "" : " soft"}` }, icon(REMINDER_ICON[item.kind] || "bell")),
-    el("p", { class: "reminder-text" }, item.text),
-    el("p", { class: "reminder-sub" }, reminderDue(item), " · ", el("a", { href: `#/deals/${encodeURIComponent(item.deal_id)}` }, item.deal_name || "Open deal"))))
+    el("p", { class: "reminder-text" }, reminderText(item)),
+    el("p", { class: "reminder-sub" },
+      el("a", { href: `#/deals/${encodeURIComponent(item.deal_id)}` }, item.deal_name || "Open deal"),
+      item.claim_id ? [" · ", el("a", { href: sourceHref(item.deal_id, item.claim_id) }, "Source", el("span", { class: "visually-hidden" }, ` for: ${reminderText(item)}`))] : null)))
     : [el("li", { class: "reminder" }, el("p", { class: "reminder-text" }, "Nothing due."))]));
 }
 
@@ -500,7 +528,7 @@ const DEAL_TEMPLATE = `
     </div>
   </section>`;
 
-async function renderDeal(id, tab) {
+async function renderDeal(id, tab, sourceClaim = null) {
   dealState = null;
   const view = byId("view-deal");
   view.innerHTML = DEAL_TEMPLATE; // Static markup only. Data is added below as text nodes.
@@ -530,7 +558,8 @@ async function renderDeal(id, tab) {
   byId("deal-sub").textContent = deal.city;
   renderActions(id, deal);
   renderDocs();
-  renderReview({ tab });
+  renderReview({ tab: sourceClaim ? null : tab });
+  if (sourceClaim) openSourceFromLink(sourceClaim);
   pollIfBusy();
 }
 
@@ -627,7 +656,7 @@ function renderReview({ tab = null, keepTab = false } = {}) {
 function viewSourceButton(claim, label = "View source") {
   return el("button", {
     type: "button", class: "btn btn-secondary btn-small",
-    "aria-label": `${label}: ${claim.document_type}, ${formatDate(claim.date)}, page ${claim.page}`,
+    "aria-label": `${label}: ${claim.document_type}, ${formatDate(claim.date)}, page ${claim.page}`, "data-claim": claim.id,
     onclick: (event) => openSource(claim, event.currentTarget),
   }, label);
 }
@@ -1142,6 +1171,16 @@ async function showSourcePage(claim, doc, pageNumber, pageCount, parts) {
   }
 }
 
+// A reminder's "Source" link opens the deal with that claim's page already showing.
+function openSourceFromLink(claimId) {
+  const claim = dealState?.claimsById.get(claimId);
+  history.replaceState(null, "", `#/deals/${encodeURIComponent(dealState.id)}`);
+  current = { view: "deal", id: dealState.id, tab: null };
+  if (!claim) { toast("That source is no longer in this deal.", { kind: "info" }); return; }
+  const opener = [...document.querySelectorAll("#claim-rows button.btn-small")].find((button) => button.dataset.claim === claimId) || byId("main");
+  openSource(claim, opener);
+}
+
 function setupSourceDialog() {
   const dialog = byId("source-dialog");
   byId("source-close").addEventListener("click", () => dialog.close());
@@ -1222,7 +1261,6 @@ setupPageDrop();
 ready = detectMode();
 window.addEventListener("hashchange", () => route());
 route({ initial: true });
-setupVideos();
 ready.then(async () => {
   if (current.view === "shared") return; // A shared link needs nothing beyond its receipt.
   try {

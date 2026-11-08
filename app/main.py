@@ -207,6 +207,50 @@ def shared(token: str):
     return HTMLResponse(_page_with(data), headers={"X-Robots-Tag": "noindex", "Referrer-Policy": "no-referrer"})
 
 
+# Explainer videos. MEDIA_BASE_URL points at a public bucket folder; empty means /static/media/.
+MEDIA_DIR = STATIC / "media"
+MEDIA_EXTS = ("mp4", "vtt", "jpg")
+_media_cache: dict = {"at": 0.0, "base": None, "ready": {}}
+
+
+def _remote_ready(base: str, slugs: list[str]) -> dict:
+    """HEAD each file once every few minutes, so missing videos keep their placeholder."""
+    import time
+    import urllib.request
+    from concurrent.futures import ThreadPoolExecutor
+
+    if _media_cache["base"] == base and time.time() - _media_cache["at"] < 300:
+        return _media_cache["ready"]
+
+    def exists(url: str) -> bool:
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=3) as res:
+                return res.status == 200
+        except Exception:
+            return False
+
+    urls = [f"{base}{slug}.{ext}" for slug in slugs for ext in MEDIA_EXTS]
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        found = dict(zip(urls, pool.map(exists, urls)))
+    ready = {slug: all(found[f"{base}{slug}.{ext}"] for ext in MEDIA_EXTS) for slug in slugs}
+    _media_cache.update(at=time.time(), base=base, ready=ready)
+    return ready
+
+
+@app.get("/api/media")
+def media():
+    manifest = json.loads((MEDIA_DIR / "videos.json").read_text(encoding="utf-8"))["videos"]
+    slugs = [video["slug"] for video in manifest]
+    base = os.getenv("MEDIA_BASE_URL", "").strip()
+    if base:
+        base = base.rstrip("/") + "/"
+        ready = _remote_ready(base, slugs)
+    else:
+        base = "/static/media/"
+        ready = {slug: all((MEDIA_DIR / f"{slug}.{ext}").is_file() for ext in MEDIA_EXTS) for slug in slugs}
+    return {"base": base, "videos": [{"slug": v["slug"], "title": v["title"], "ready": ready[v["slug"]]} for v in manifest]}
+
+
 @app.get("/api/reminders")
 def reminders():
     return deals.all_reminders()

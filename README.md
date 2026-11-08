@@ -42,7 +42,7 @@ Pages (hash routes):
 Notes for the interface (`app/static/`):
 - No framework. `pdfview.js` loads pdf.js (pinned, from jsDelivr) only when a source is opened.
 - Until the deals API answers, the page uses `mock.js`, an in-browser copy of the API with made-up deals. Add `?mock=1` to the address to force it.
-- Explainer videos go in `app/static/media/` as `NN-slug.mp4`, `.vtt` and `.jpg`. Set `"ready": true` for each one in `media/videos.json`. Until then the page shows placeholders.
+- Explainer videos are `NN-slug.mp4`, `.vtt` and `.jpg`. Set `MEDIA_BASE_URL` to a public folder (for example a Cloud Storage bucket, with CORS for GET so captions load). If it is empty, the page uses `app/static/media/`. `/api/media` reports which videos are present, and missing ones keep their placeholder.
 
 ## Sample deals (PDF)
 `data/samples/` has three fictional deals as real PDF records, for the live demo and for tests of PDF reading. Every page carries the footer "SAMPLE DOCUMENT · fictional · for demonstration". Names are generic roles only, and the compliance certificate has counts and dates only.

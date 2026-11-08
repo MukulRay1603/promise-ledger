@@ -1,11 +1,14 @@
 """Checks on the static interface: what the page ships, and the rules it must keep."""
 import json
+import os
 import re
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from fastapi.testclient import TestClient
 
+from app import main
 from app.main import app
 
 STATIC = Path(__file__).resolve().parent.parent / "app" / "static"
@@ -25,6 +28,7 @@ class Page(unittest.TestCase):
         self.assertIn("Public support should come with a receipt.", self.html)
         self.assertIn("Open a sample deal", self.html)
         self.assertIn("Start a new deal", self.html)
+        self.assertIn("check every affordable-housing promise in a deal in minutes, with the source page one click away.", self.html)
 
     def test_demo_banner_stays(self):
         self.assertIn('class="demo-banner"', self.html)
@@ -38,15 +42,26 @@ class Page(unittest.TestCase):
             self.assertIn(f'data-video="{video["slug"]}"', self.html)
             self.assertIn(video["title"].replace("&", "&amp;"), self.html)
 
-    def test_ready_videos_have_their_files(self):
-        manifest = json.loads((STATIC / "media" / "videos.json").read_text(encoding="utf-8"))["videos"]
-        for video in manifest:
-            if video["ready"]:
-                for ext in ("mp4", "vtt", "jpg"):
-                    self.assertTrue((STATIC / "media" / f"{video['slug']}.{ext}").exists(), f"{video['slug']}.{ext} missing")
+    def test_media_falls_back_to_static(self):
+        with mock.patch.dict(os.environ, {"MEDIA_BASE_URL": ""}):
+            data = self.client.get("/api/media").json()
+        self.assertEqual(data["base"], "/static/media/")
+        self.assertEqual([video["title"] for video in data["videos"]], VIDEO_TITLES)
+        for video in data["videos"]:
+            present = all((STATIC / "media" / f"{video['slug']}.{ext}").is_file() for ext in ("mp4", "vtt", "jpg"))
+            self.assertEqual(video["ready"], present)
+
+    def test_media_base_url_is_used(self):
+        def fake_ready(base, slugs):
+            return {slug: slug.startswith("01") for slug in slugs}
+        env = {"MEDIA_BASE_URL": "https://storage.example/bucket/media"}
+        with mock.patch.dict(os.environ, env), mock.patch.object(main, "_remote_ready", side_effect=fake_ready):
+            data = self.client.get("/api/media").json()
+        self.assertEqual(data["base"], "https://storage.example/bucket/media/")
+        self.assertEqual([v["ready"] for v in data["videos"]], [True] + [False] * 7)
 
     def test_static_files_are_served(self):
-        for name in ("app.js", "style.css", "mock.js", "pdfview.js", "media/videos.json"):
+        for name in ("app.js", "style.css", "mock.js", "pdfview.js"):
             self.assertEqual(self.client.get(f"/static/{name}").status_code, 200, name)
 
 

@@ -1,45 +1,37 @@
 {
-  "_note": "Set ready to true once NN-slug.mp4, .vtt and .jpg are in this folder.",
+  "_note": "Titles and slugs for the explainer row. Files are NN-slug.mp4, .vtt and .jpg under MEDIA_BASE_URL, or in this folder when it is empty. /api/media reports which are present.",
   "videos": [
     {
       "slug": "01-why-homes-cost",
-      "title": "Why new homes cost so much",
-      "ready": false
+      "title": "Why new homes cost so much"
     },
     {
       "slug": "02-how-cities-help",
-      "title": "How cities help",
-      "ready": false
+      "title": "How cities help"
     },
     {
       "slug": "03-the-deal",
-      "title": "The deal",
-      "ready": false
+      "title": "The deal"
     },
     {
       "slug": "04-what-ami-means",
-      "title": "What 60% of AMI means",
-      "ready": false
+      "title": "What 60% of AMI means"
     },
     {
       "slug": "05-why-promises-slip",
-      "title": "Why promises slip",
-      "ready": false
+      "title": "Why promises slip"
     },
     {
       "slug": "06-meet-promise-ledger",
-      "title": "Meet Promise Ledger",
-      "ready": false
+      "title": "Meet Promise Ledger"
     },
     {
       "slug": "07-how-it-works",
-      "title": "How it works",
-      "ready": false
+      "title": "How it works"
     },
     {
       "slug": "08-harbor-walk-walkthrough",
-      "title": "Harbor Walk walkthrough",
-      "ready": false
+      "title": "Harbor Walk walkthrough"
     }
   ]
 }

@@ -97,7 +97,8 @@ def list_deals(store: Storage | None = None) -> list[dict]:
             "furthest_status": summary["furthest_status"],
             "terms_differ": summary["terms_differ"],
             "terms_not_located": summary["terms_not_located"],
-            "next_reminder": {"date": nxt["date"], "due": nxt["date"], "text": nxt["text"], "kind": nxt["kind"]} if nxt else None,
+            "next_reminder": {"date": nxt["date"], "due": nxt["date"], "text": nxt["text"], "kind": nxt["kind"],
+                              "claim_id": nxt["claim_id"]} if nxt else None,
             "updated_at": deal.get("updated_at"),
         })
     return sorted(rows, key=lambda r: r["updated_at"] or "", reverse=True)
