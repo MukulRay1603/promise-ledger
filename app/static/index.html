@@ -289,48 +289,207 @@
       </section>
     </section>
 
-    <!-- Roadmap: what works now and where it is going. Kept at the level of outcomes. -->
+    <!-- Roadmap: why it matters, where it helps, how it differs, what is measured, and what comes next.
+         Plans past today are kept at the level of outcomes. -->
     <section class="view container info-page" id="view-roadmap" data-view="roadmap" aria-labelledby="roadmap-title" hidden>
       <header class="info-head">
         <p class="info-eyebrow">Roadmap</p>
-        <h1 id="roadmap-title">Where Promise Ledger goes next</h1>
-        <p class="lede">What works today, and what we are building toward the Dec 2 final.</p>
+        <h1 id="roadmap-title">Where it helps, what’s different, and what’s next</h1>
+        <p class="lede">Promises made for public support are easy to make and hard to follow. This page shows the moments where Promise Ledger helps, how it compares with what people use today, what we have measured, and where we are going by the Dec 2 final.</p>
       </header>
 
-      <ol class="road">
-        <li class="road-col road-now">
-          <h2><span class="road-tag">Working today</span></h2>
-          <ul class="road-list">
-            <li>Reads a deal's PDFs and finds each promise, with its exact quote and page</li>
-            <li>Code checks every quote word for word and sets each stage from rules, not from the model</li>
-            <li>Shows what changed between documents and which terms are missing</li>
-            <li>Reviewers confirm, question or dispute each item, with their name and a note</li>
-            <li>One-page receipt, read-only share link, Excel and CSV export</li>
-            <li>Reminders for report and term dates</li>
-            <li>On 3 made-up deals: 96% precision, 98% recall, 0 incorrect “signed” or “delivered” labels</li>
-            <li>Keyboard, screen reader, larger text and dark mode</li>
-          </ul>
-        </li>
-        <li class="road-col road-next">
-          <h2><span class="road-tag">By the Dec 2 final</span></h2>
-          <ul class="road-list">
-            <li>Staff accounts with roles, so a review follows the reviewer</li>
-            <li>Feedback from people who do this work in a housing office</li>
-            <li>Wording reviewed by a lawyer</li>
-            <li>Faster ways to bring a deal's records in</li>
-            <li>Promise checks in the places staff already read records</li>
-            <li>A published write-up of how we measure accuracy</li>
-          </ul>
-        </li>
-        <li class="road-col road-later">
-          <h2><span class="road-tag">After that</span></h2>
-          <ul class="road-list">
-            <li>More record types and more cities</li>
-            <li>A plain-language view for residents</li>
-            <li>A hand-off kit so a city or non-profit can run it on their own</li>
-          </ul>
-        </li>
-      </ol>
+      <!-- 1. The problem, on the record -->
+      <section class="info-block" aria-labelledby="rm-why">
+        <p class="kicker">Why it matters</p>
+        <h2 id="rm-why">The problem is already on the record</h2>
+        <div class="evidence">
+          <figure class="evidence-card">
+            <blockquote><p>A city audit of housing tax abatements found oversight split between agencies, and too little done to confirm that owners delivered the public benefits they promised.</p></blockquote>
+            <figcaption>Portland City Auditor, Report #362, <cite>Housing Tax Abatements: Oversight Inadequate to Ensure Program Goals</cite>, July 2008. <a href="https://efiles.portlandoregon.gov/record/3754034/file/document" target="_blank" rel="noopener">Read the audit<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="visually-hidden"> (opens in a new tab)</span></a></figcaption>
+          </figure>
+          <figure class="evidence-card">
+            <p class="evidence-num">2 million+</p>
+            <blockquote><p>federally assisted rental homes had affordability contracts or restrictions due to end between 2014 and 2024, by the count of Harvard’s Joint Center for Housing Studies.</p></blockquote>
+            <figcaption>Harvard Joint Center for Housing Studies, using the National Housing Preservation Database. <a href="https://www.jchs.harvard.edu/blog/with-more-than-2-million-units-at-risk-how-can-the-u-s-preserve-its-affordable-rental-housing-stock" target="_blank" rel="noopener">Read the analysis<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="visually-hidden"> (opens in a new tab)</span></a></figcaption>
+          </figure>
+          <div class="evidence-card evidence-gap">
+            <p class="evidence-num">5 records, 7 terms</p>
+            <p>A single deal’s promise can be spread across a staff summary, a letter, slides, minutes and an agreement. Checking 7 terms by hand across 5 records is 35 look-ups, before anyone compares them.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Case studies on the sample deals -->
+      <section class="info-block" aria-labelledby="rm-cases">
+        <p class="kicker">Where it helps</p>
+        <h2 id="rm-cases">Three moments, three sample deals</h2>
+        <p class="info-sub">Each case uses one of the made-up sample deals in the demo, so you can open it and check every line yourself.</p>
+        <ol class="cases">
+          <li class="case case-warn">
+            <p class="case-moment"><span>Before the vote</span> A council aide</p>
+            <h3><a href="#/deals/harbor-walk/changes">Harbor Walk</a></h3>
+            <p class="case-q">“Is what the developer signed the same as what the council was told?”</p>
+            <ol class="track" aria-label="Furthest stage on record: Signed, by the developer only">
+              <li class="is-done">Proposed</li><li class="is-done">Supported</li><li class="is-flag">Signed<small>developer only</small></li><li>Delivered</li>
+            </ol>
+            <dl class="case-facts">
+              <div><dt>By hand</dt><dd>5 records, 9 pages, 35 look-ups</dd></div>
+              <div><dt>Promise Ledger shows</dt><dd>The staff summary said <b>60% of AMI for 30 years</b>. The slides and the signed letter say <b>80% for 15 years</b>. Rent limits and remedies are in none of the records. Only the developer has signed.</dd></div>
+            </dl>
+            <a class="case-link" href="#/deals/harbor-walk/changes">See what changed <span aria-hidden="true">→</span></a>
+          </li>
+          <li class="case case-due">
+            <p class="case-moment"><span>Years after signing</span> A compliance officer</p>
+            <h3><a href="#/deals/mill-street">Mill Street</a></h3>
+            <p class="case-q">“Are the 9 homes still protected, and is the paperwork in?”</p>
+            <ol class="track" aria-label="Furthest stage on record: Delivered">
+              <li class="is-done">Proposed</li><li class="is-done">Supported</li><li class="is-done">Signed</li><li class="is-done">Delivered</li>
+            </ol>
+            <dl class="case-facts">
+              <div><dt>By hand</dt><dd>A 2011 agreement, a 2024 certificate and a 2026 memo, in different places</dd></div>
+              <div><dt>Promise Ledger shows</dt><dd><b>9 homes at 50% of AMI until Dec 31, 2026.</b> The 2024 certificate is on file; the yearly certificate due Mar 31, 2026 is not. A reminder says who to ask.</dd></div>
+            </dl>
+            <a class="case-link" href="#/deals/mill-street">See the reminders <span aria-hidden="true">→</span></a>
+          </li>
+          <li class="case case-ok">
+            <p class="case-moment"><span>When it all matches</span> A housing staff reviewer</p>
+            <h3><a href="#/deals/beacon-point">Beacon Point</a></h3>
+            <p class="case-q">“Can I confirm this deal is in order, and move on?”</p>
+            <ol class="track" aria-label="Furthest stage on record: Signed, by the City and the owner">
+              <li class="is-done">Proposed</li><li class="is-done">Supported</li><li class="is-done">Signed<small>City and owner</small></li><li>Delivered</li>
+            </ol>
+            <dl class="case-facts">
+              <div><dt>By hand</dt><dd>3 records, 9 pages, 21 look-ups</dd></div>
+              <div><dt>Promise Ledger shows</dt><dd>All 7 terms match: <b>16 of 80 homes at 60% of AMI for 30 years</b>, signed by both parties. Good news is stated as plainly as a gap, so a deal in order isn’t left under a cloud.</dd></div>
+            </dl>
+            <a class="case-link" href="#/deals/beacon-point">See the receipt <span aria-hidden="true">→</span></a>
+          </li>
+        </ol>
+        <p class="info-sub">And for residents and reporters: a read-only receipt link, with every quote and page, and no account needed.</p>
+      </section>
+
+      <!-- 3. What is different -->
+      <section class="info-block" aria-labelledby="rm-diff">
+        <p class="kicker">What’s different</p>
+        <h2 id="rm-diff">Promise by promise, with the page as proof</h2>
+        <ul class="pillars">
+          <li><b>Promises, not documents.</b> The unit is one promise, such as “12 homes” or “30 years”, followed across every record of a deal.</li>
+          <li><b>Proof, not paraphrase.</b> Every claim is an exact quote that code finds on its page. If it can’t be found, it isn’t shown.</li>
+          <li><b>The whole life of a deal.</b> Each promise carries the stage it reached: proposed, supported, signed or delivered, and who signed.</li>
+        </ul>
+        <div class="compare-wrap">
+          <table class="compare">
+            <caption>How a deal’s promises get checked today, and with Promise Ledger. These are kinds of tools, not named products; some tools do parts of this.</caption>
+            <thead>
+              <tr><th scope="col">Task</th><th scope="col">PDFs and a spreadsheet</th><th scope="col">AI chat over PDFs</th><th scope="col">Subsidy and housing databases</th><th scope="col" class="is-us">Promise Ledger</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Find every promise in every record</th><td data-label="PDFs and a spreadsheet">By hand</td><td data-label="AI chat over PDFs">One question at a time</td><td data-label="Databases">Project-level fields only</td><td data-label="Promise Ledger" class="is-us">All records at once</td></tr>
+              <tr><th scope="row">Proof for each claim</th><td data-label="PDFs and a spreadsheet">Whoever typed it</td><td data-label="AI chat over PDFs">Citations vary, answers can paraphrase</td><td data-label="Databases">Rarely down to the page</td><td data-label="Promise Ledger" class="is-us">Exact quote, checked on its page</td></tr>
+              <tr><th scope="row">How far each promise got</th><td data-label="PDFs and a spreadsheet">If someone tracks it</td><td data-label="AI chat over PDFs">Not tracked</td><td data-label="Databases">Some show a project status</td><td data-label="Promise Ledger" class="is-us">Four stages, set by code rules</td></tr>
+              <tr><th scope="row">Spot changed or missing terms</th><td data-label="PDFs and a spreadsheet">If someone notices</td><td data-label="AI chat over PDFs">Only if you ask</td><td data-label="Databases">Not covered</td><td data-label="Promise Ledger" class="is-us">Flagged across records</td></tr>
+              <tr><th scope="row">Who signed</th><td data-label="PDFs and a spreadsheet">Read each signature page</td><td data-label="AI chat over PDFs">Not checked</td><td data-label="Databases">Not covered</td><td data-label="Promise Ledger" class="is-us">Flags one-party signing</td></tr>
+              <tr><th scope="row">Decisions on record</th><td data-label="PDFs and a spreadsheet">Email threads</td><td data-label="AI chat over PDFs">Not kept</td><td data-label="Databases">Not covered</td><td data-label="Promise Ledger" class="is-us">Name, note and time on each item</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 4. Pipeline -->
+      <section class="info-block" aria-labelledby="rm-how">
+        <p class="kicker">How it works</p>
+        <h2 id="rm-how">The model is one step of eight</h2>
+        <p class="info-sub">AI reads the wording, code checks it, and people make every decision.</p>
+        <ol class="flow">
+          <li data-kind="code"><span class="flow-kind">Code</span><b>Read pages</b>Text from each PDF page; scans are flagged</li>
+          <li data-kind="code"><span class="flow-kind">Code</span><b>Redact</b>ID numbers, emails and phone numbers removed</li>
+          <li data-kind="ai"><span class="flow-kind">AI</span><b>Propose</b>Gemini suggests quotes, terms, pages and signers</li>
+          <li data-kind="code"><span class="flow-kind">Code</span><b>Verify</b>Each quote must be on its page, word for word</li>
+          <li data-kind="code"><span class="flow-kind">Code</span><b>Set stage</b>Rules, never the model alone</li>
+          <li data-kind="code"><span class="flow-kind">Code</span><b>Compare</b>Changed and missing terms across records</li>
+          <li data-kind="people"><span class="flow-kind">People</span><b>Decide</b>Confirm, follow up or dispute, with a note</li>
+          <li data-kind="out"><span class="flow-kind">Output</span><b>Share</b>Receipt, read-only link, Excel and reminders</li>
+        </ol>
+      </section>
+
+      <!-- 5. Measured so far -->
+      <section class="info-block" aria-labelledby="rm-measured">
+        <p class="kicker">Measured so far</p>
+        <h2 id="rm-measured">Numbers, with what they don’t show</h2>
+        <ul class="metrics">
+          <li><b>96.3%</b><span>precision</span></li>
+          <li><b>98.1%</b><span>recall</span></li>
+          <li><b>100%</b><span>correct page cited</span></li>
+          <li><b>0</b><span>incorrect “signed” or “delivered”</span></li>
+          <li><b>~$0.002</b><span>model cost per sample PDF</span></li>
+          <li><b>258</b><span>automated tests</span></li>
+        </ul>
+        <div class="measure-notes">
+          <div>
+            <h3>What these are</h3>
+            <p>Our development set: 3 made-up deals, 11 PDFs and 53 claims we labeled by hand, scored with <code>evals/run_pdf_evals.py</code>. The rules were tuned on the same set, and the sample PDFs are 1 to 4 pages, so cost grows with longer records.</p>
+          </div>
+          <div>
+            <h3>Not measured yet</h3>
+            <ul>
+              <li>A held-out set, labeled blind</li>
+              <li>Real public records</li>
+              <li>Scanned pages and long packets</li>
+              <li>Time saved for real staff</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Care -->
+      <section class="info-block" aria-labelledby="rm-care">
+        <p class="kicker">Built with care</p>
+        <h2 id="rm-care">Who could be hurt by a wrong flag, and what we do about it</h2>
+        <ul class="care">
+          <li><b>Developers and staff.</b> A wrong “differs” could embarrass someone in public. Labels stay neutral, nothing is a legal finding, and a person decides every item.</li>
+          <li><b>What the model sees.</b> Only redacted page text. The redactor catches ID numbers, emails and phone numbers, not names or addresses, so the demo asks for made-up records only.</li>
+          <li><b>Data use.</b> Demo uploads are deleted after 24 hours. A real deployment should use the paid Gemini API or Vertex AI, whose terms don’t use prompts to train models.</li>
+        </ul>
+      </section>
+
+      <!-- 7. Roadmap -->
+      <section class="info-block" aria-labelledby="rm-next">
+        <p class="kicker">What’s next</p>
+        <h2 id="rm-next">From working demo to a tool a housing office can use</h2>
+        <ol class="road">
+          <li class="road-col road-now">
+            <h3><span class="road-tag">Working today</span></h3>
+            <ul class="road-list">
+              <li>Reads a deal’s PDFs and finds each promise, with its exact quote and page</li>
+              <li>Code checks every quote word for word and sets each stage from rules</li>
+              <li>Shows what changed between records and which terms are missing</li>
+              <li>Flags one-party signing, missing certificates and terms about to end</li>
+              <li>Reviewers confirm, question or dispute each item, with their name and a note</li>
+              <li>One-page receipt, read-only share link, Excel and CSV export</li>
+              <li>Keyboard, screen reader, larger text and dark mode</li>
+            </ul>
+          </li>
+          <li class="road-col road-next">
+            <h3><span class="road-tag">By the Dec 2 final</span></h3>
+            <ul class="road-list">
+              <li>Accuracy on records it was never tuned on, reported apart from today’s set</li>
+              <li>At least one real public record, read end to end</li>
+              <li>Reads more kinds of records, including scans</li>
+              <li>Helps staff act on open questions, with a person approving every step</li>
+              <li>Feedback and a timed task with people who do this work</li>
+              <li>Staff accounts with roles, so a review follows the reviewer</li>
+            </ul>
+          </li>
+          <li class="road-col road-later">
+            <h3><span class="road-tag">After that</span></h3>
+            <ul class="road-list">
+              <li>More record types and more cities</li>
+              <li>A plain-language view for residents</li>
+              <li>A hand-off kit so a city or non-profit can run it on their own</li>
+            </ul>
+          </li>
+        </ol>
+      </section>
       <p class="info-note">Want to try it on your own records, or help test it? Reach us through the <a href="#/about">About</a> page.</p>
     </section>
   </main>
