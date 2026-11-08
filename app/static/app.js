@@ -475,6 +475,16 @@ function reminderText(item) {
   return item.text;
 }
 
+// The deals table has little room: what is due and when, then how far off. The Reminders list keeps the full text.
+function reminderShort(item) {
+  const due = item.due || item.date;
+  if (!due) return [item.text, ""];
+  const when = formatDate(due);
+  const days = reminderDays(item);
+  const what = { term_end: "Term ends", missing_record: "Certificate not on file, due", other: "Certificate due" }[item.kind];
+  return [what ? `${what} ${when}` : item.text, days === null ? "" : inDays(days)];
+}
+
 function localToday() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -555,8 +565,9 @@ async function renderDeals() {
       el("td", { "data-label": "Furthest stage (any term)" }, el("span", { class: "stage-cell" },
         deal.furthest_status ? tag(deal.furthest_status) : tag("none"), stageBar(deal.furthest_status))),
       el("td", { "data-label": "Flags" }, flagCell({ ...deal, documents: docs }, next)),
-      el("td", { "data-label": "Next reminder", class: "reminder-cell" }, next
-        ? [el("span", {}, reminderText(next)),
+      el("td", { "data-label": "Next reminder", class: "reminder-cell", title: next ? reminderText(next) : null }, next
+        ? [el("span", {}, reminderShort(next)[0]),
+          el("span", { class: "reminder-when" }, reminderShort(next)[1]),
           deal.next_reminder.claim_id ? el("a", { class: "reminder-source", href: sourceHref(deal.id, deal.next_reminder.claim_id) }, "Source", el("span", { class: "visually-hidden" }, ` for ${deal.name} reminder`)) : null]
         : el("span", { class: "cell-muted" }, "None")));
   }) : [el("tr", {}, el("td", { colspan: 5 }, "No deals yet. Use New deal to add one."))]));
