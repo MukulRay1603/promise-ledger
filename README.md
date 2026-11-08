@@ -243,4 +243,4 @@ python -m unittest tests.test_samples         # every gold quote is on its state
 
 ## Docs and license
 
-[Plan](docs/PLAN.md) · [Contributor rules](AGENTS.md). Code: Apache-2.0 ([LICENSE](LICENSE)). Docs and evaluation data (`docs/`, `data/demo/`, `data/samples/`, `data/readings/`, `evals/cases.jsonl`): CC BY 4.0 ([LICENSE-docs](LICENSE-docs)). pdf.js in `app/static/vendor/` is Apache-2.0 (Mozilla Foundation).
+[Plan](docs/PLAN.md) · [Contributing](CONTRIBUTING.md). Code: Apache-2.0 ([LICENSE](LICENSE)). Docs and evaluation data (`docs/`, `data/demo/`, `data/samples/`, `data/readings/`, `evals/cases.jsonl`): CC BY 4.0 ([LICENSE-docs](LICENSE-docs)). pdf.js in `app/static/vendor/` is Apache-2.0 (Mozilla Foundation).
