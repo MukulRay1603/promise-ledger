@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 
 load_dotenv()
 
-from app import ai, deals, identity, ledger, pipeline  # noqa: E402  (needs env loaded first)
+from app import ai, deals, guard, identity, ledger, pipeline  # noqa: E402  (needs env loaded first)
 from app.storage import get_store  # noqa: E402
 
 STATIC = Path(__file__).parent / "static"
@@ -35,6 +35,7 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(title="Promise Ledger", lifespan=lifespan)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+guard.install(app)  # Public demo: rate limits, expiry of visitor deals (DEMO_MODE).
 
 
 class PastedText(BaseModel):
@@ -185,8 +186,8 @@ class DecisionIn(BaseModel):
 
 
 def _rate_limited(request: Request) -> None:
-    key = identity.demo_session(request) or (request.client.host if request.client else "unknown")
-    if not identity.decision_limit.allow(key):
+    key = identity.demo_session(request) or guard.client_ip(request)
+    if not guard.decision_limit.allow(key):
         raise HTTPException(429, "That is a lot of decisions in one minute. Wait a moment and try again.")
 
 

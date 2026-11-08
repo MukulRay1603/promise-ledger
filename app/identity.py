@@ -10,9 +10,6 @@ Later, current_reviewer() can read a verified Firebase ID token instead and retu
 from __future__ import annotations
 
 import re
-import threading
-import time
-from collections import deque
 from urllib.parse import unquote
 
 SESSION_HEADER = "X-Demo-Session"
@@ -50,29 +47,3 @@ def current_reviewer(request) -> dict:
         raise IdentityError(f"Keep the reviewer name under {MAX_NAME} characters.")
     session = demo_session(request)
     return {"id": f"demo:{session}" if session else f"local:{name.lower()}", "name": name, "session": session}
-
-
-class RateLimit:
-    """A small sliding-window limit per key, in memory. Enough to stop a public demo being flooded."""
-
-    def __init__(self, limit: int, window_seconds: float):
-        self.limit, self.window = limit, window_seconds
-        self._hits: dict[str, deque] = {}
-        self._lock = threading.Lock()
-
-    def allow(self, key: str, now: float | None = None) -> bool:
-        now = time.monotonic() if now is None else now
-        with self._lock:
-            hits = self._hits.setdefault(key, deque())
-            while hits and now - hits[0] > self.window:
-                hits.popleft()
-            if len(hits) >= self.limit:
-                return False
-            hits.append(now)
-            if len(self._hits) > 10000:  # Forget idle keys so memory stays small.
-                for stale in [k for k, v in self._hits.items() if not v or now - v[-1] > self.window][:5000]:
-                    self._hits.pop(stale, None)
-            return True
-
-
-decision_limit = RateLimit(limit=60, window_seconds=60)

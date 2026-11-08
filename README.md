@@ -86,6 +86,11 @@ API: `GET/POST /api/deals`, `GET /api/deals/{id}`, `POST /api/deals/{id}/documen
 
 Storage: `STORAGE=local` (default; JSON and files under `data/runtime/`) or `STORAGE=gcp` (Firestore Native for records, Cloud Storage bucket `GCS_BUCKET` for PDFs; optional `FIRESTORE_DATABASE`). Uploads are read on a background thread, so on Cloud Run deploy with `--no-cpu-throttling`. Also set `PUBLIC_BASE_URL` to give share links the public host.
 
+Public demo guard (`app/guard.py`, on unless `DEMO_MODE=0`):
+- Each IP (the last `X-Forwarded-For` hop, which Cloud Run appends, so it cannot be spoofed) gets 5 uploads and 3 new deals an hour (`RATE_LIMIT_UPLOADS_PER_HOUR`, `RATE_LIMIT_DEALS_PER_HOUR`). Over the limit, the API answers 429 with a plain message and `Retry-After`. Counts live in memory per instance. Reviewer decisions use the same limiter: 60 a minute per demo session, always on.
+- Deals and uploads made by visitors are marked `demo`. A sweep deletes them, with their files, after `DEMO_TTL_HOURS` (24). It runs on the first request after start and then at most once an hour, under a lock so only one instance sweeps. Sample deals are never deleted; visitor uploads on them are. Non-sample deals from before the flag existed (no `demo` field) are swept the same way, once, as a migration.
+- Responses carry `X-Demo-Mode: 1`, and the page then shows a note in the upload area and the New deal dialog.
+
 ```bash
 python evals/run_pdf_evals.py              # score the pipeline on data/samples/ (cached; at most 30 live calls)
 ```

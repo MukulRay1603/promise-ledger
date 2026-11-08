@@ -481,6 +481,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .dropzone svg { width: 2rem; height: 2rem; fill: none; stroke: var(--primary); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .dropzone strong { color: var(--ink); }
 .dropzone .hint { font-size: .8125rem; }
+/* Shown only when the server reports DEMO_MODE (X-Demo-Mode header). */
+.demo-note { display: none; color: var(--muted); font-size: .8125rem; }
+[data-demo] .demo-note { display: block; }
 .empty-deal .dropzone { padding: 3rem 1.5rem; }
 
 /* Tabs */

@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timezone
 from pathlib import Path
 
-from app import ai, ledger, pipeline
+from app import ai, guard, ledger, pipeline
 from app.storage import Storage, get_store
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -36,12 +36,16 @@ def _slug(text: str) -> str:
 # Deals
 
 def create_deal(name: str, city: str, developer: str | None = None, deal_id: str | None = None,
-                store: Storage | None = None, as_of: str | None = None) -> dict:
+                store: Storage | None = None, as_of: str | None = None, demo: bool | None = None) -> dict:
+    """demo defaults to on for visitor deals (no fixed id) while DEMO_MODE is on; the sweep expires those."""
     store = store or get_store()
+    if demo is None:
+        demo = deal_id is None and guard.enabled()
     deal_id = deal_id or f"{_slug(name)}-{uuid.uuid4().hex[:6]}"
     stamp = now()
     deal = {"id": deal_id, "name": name.strip(), "city": city.strip(), "developer": (developer or "").strip() or None,
             "created_at": stamp, "updated_at": stamp}
+    deal["demo"] = bool(demo)  # Always stored: a deal with no flag predates it, and the demo sweep treats it as a visitor's.
     if as_of:
         deal["as_of"] = date.fromisoformat(as_of).isoformat()  # Reminders are computed as of this date.
     store.put_deal(deal)
@@ -111,8 +115,12 @@ def list_deals(store: Storage | None = None) -> list[dict]:
 # Documents
 
 def add_document(deal_id: str, filename: str, data: bytes, type_: str | None = None, date_: str | None = None,
-                 title: str | None = None, store: Storage | None = None, process: bool = True) -> dict:
-    """Check and store the file, then queue it for reading. Raises pipeline.PdfError for a bad file."""
+                 title: str | None = None, store: Storage | None = None, process: bool = True,
+                 demo: bool | None = None) -> dict:
+    """Check and store the file, then queue it for reading. Raises pipeline.PdfError for a bad file.
+
+    Uploads made while DEMO_MODE is on are marked demo, so the sweep removes them even from sample deals.
+    """
     store = store or get_store()
     pages = pipeline.extract_pages(data)  # Size, type and page limits are checked here, before anything is stored.
     if date_:
@@ -129,6 +137,8 @@ def add_document(deal_id: str, filename: str, data: bytes, type_: str | None = N
         "file_key": file_key, "sha256": pipeline.file_hash(data), "claims": [],
         "created_at": stamp, "updated_at": stamp,
     }
+    if (guard.enabled() if demo is None else demo):
+        doc["demo"] = True
     store.put_document(deal_id, doc)
     touch(deal_id, store)
     if process:
@@ -841,7 +851,7 @@ def seed_sample(manifest_path: Path, store: Storage, version: str | None = None)
             continue
         try:
             doc = add_document(deal["id"], path.name, path.read_bytes(), entry.get("type"), entry.get("date"),
-                               entry.get("title"), store=store, process=False)
+                               entry.get("title"), store=store, process=False, demo=False)
         except (pipeline.PdfError, ValueError) as err:
             print(f"Seed skipped {path.name}: {err}")
             continue

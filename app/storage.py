@@ -36,6 +36,7 @@ class Storage(Protocol):
     def put_blob(self, key: str, data: bytes, content_type: str) -> None: ...
     def get_blob(self, key: str) -> bytes | None: ...
     def delete_deal(self, deal_id: str) -> None: ...
+    def delete_document(self, deal_id: str, doc_id: str) -> None: ...
     def acquire_lock(self, name: str, owner: str, ttl_seconds: int) -> bool: ...
     def release_lock(self, name: str, owner: str) -> None: ...
 
@@ -143,6 +144,15 @@ class LocalStorage:
         with self._lock:
             shutil.rmtree(self._deal_dir(deal_id), ignore_errors=True)
             shutil.rmtree(self.root / "files" / "deals" / _safe(deal_id), ignore_errors=True)
+
+    def delete_document(self, deal_id: str, doc_id: str) -> None:
+        """Remove one document, its claims and its files (deals/{id}/{doc}.pdf and .pages.json)."""
+        with self._lock:
+            (self._deal_dir(deal_id) / "documents" / f"{_safe(doc_id)}.json").unlink(missing_ok=True)
+            folder = self.root / "files" / "deals" / _safe(deal_id)
+            if folder.exists():
+                for path in folder.glob(f"{_safe(doc_id)}.*"):
+                    path.unlink(missing_ok=True)
 
     def acquire_lock(self, name: str, owner: str, ttl_seconds: int) -> bool:
         """Create a lock file atomically. A lock older than ttl_seconds is treated as abandoned."""
@@ -256,6 +266,12 @@ class GcpStorage:
             snap.reference.delete()
         self._deals().document(_safe(deal_id)).delete()
         for blob in self.bucket.list_blobs(prefix=f"deals/{_safe(deal_id)}/"):
+            blob.delete()
+
+    def delete_document(self, deal_id: str, doc_id: str) -> None:
+        """Remove one document, its claims and its files (deals/{id}/{doc}.pdf and .pages.json)."""
+        self._docs(deal_id).document(_safe(doc_id)).delete()
+        for blob in self.bucket.list_blobs(prefix=f"deals/{_safe(deal_id)}/{_safe(doc_id)}."):
             blob.delete()
 
     def acquire_lock(self, name: str, owner: str, ttl_seconds: int) -> bool:

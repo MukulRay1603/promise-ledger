@@ -10,7 +10,7 @@ from urllib.parse import quote
 
 from fastapi.testclient import TestClient
 
-from app import deals, identity, storage
+from app import deals, guard, identity, storage
 from app.main import app
 from tests.test_deals_api import FakeFirestore, FakeGcs
 
@@ -34,7 +34,7 @@ class Base(unittest.TestCase):
         self.store = storage.LocalStorage(Path(self.tmp.name) / "runtime")
         storage.set_store(self.store)
         self.addCleanup(storage.set_store, None)
-        patcher = mock.patch.object(identity, "decision_limit", identity.RateLimit(1000, 60))
+        patcher = mock.patch.object(guard, "decision_limit", guard.RateLimit(1000, 60))
         patcher.start()
         self.addCleanup(patcher.stop)
         deals.seed_demo(self.store)  # The reviewed Harbor Walk packet, a sample deal, with no model call.
@@ -206,7 +206,7 @@ class Sandbox(Base):
         self.assertEqual(self.client.delete(f"/api/deals/{staff}/decisions", headers=headers()).status_code, 409)
 
     def test_rate_limit(self):
-        with mock.patch.object(identity, "decision_limit", identity.RateLimit(2, 60)):
+        with mock.patch.object(guard, "decision_limit", guard.RateLimit(2, 60)):
             self.assertEqual(self.post().status_code, 201)
             self.assertEqual(self.post().status_code, 201)
             r = self.post()
@@ -233,7 +233,7 @@ class Identity(unittest.TestCase):
         self.assertEqual(identity.demo_session(self.request(query={"session": SESSION_B})), SESSION_B)
 
     def test_rate_limit_window(self):
-        limit = identity.RateLimit(2, 60)
+        limit = guard.RateLimit(2, 60)
         self.assertTrue(limit.allow("k", now=0))
         self.assertTrue(limit.allow("k", now=1))
         self.assertFalse(limit.allow("k", now=2))

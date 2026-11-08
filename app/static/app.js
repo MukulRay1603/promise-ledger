@@ -110,7 +110,10 @@ async function detectMode() {
   if (!forceMock) {
     try {
       const res = await fetch("/api/deals", { headers: { Accept: "application/json" } });
-      if (res.ok && (res.headers.get("content-type") || "").includes("json")) return "live";
+      if (res.ok && (res.headers.get("content-type") || "").includes("json")) {
+        document.documentElement.toggleAttribute("data-demo", res.headers.get("x-demo-mode") === "1");
+        return "live";
+      }
     } catch (err) { /* Not reachable. Use the mock. */ }
   }
   const [{ createMock }, seed] = await Promise.all([import("./mock.js"), loadSeed()]);
@@ -509,6 +512,7 @@ const DEAL_TEMPLATE = `
         <button type="button" class="btn btn-secondary" id="choose-files">Choose PDFs</button>
         <input type="file" id="file-input" accept="application/pdf,.pdf" multiple hidden>
         <p class="hint">PDF only, up to 20 MB each. AI reads the text, code checks every quote, and you decide.</p>
+        <p class="demo-note">Public demo: please don&rsquo;t upload real records. Uploads are deleted after 24 hours.</p>
       </div>
     </div>
   </section>
