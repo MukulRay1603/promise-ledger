@@ -320,6 +320,23 @@
     </div>
   </dialog>
 
+  <dialog class="viewer" id="video-dialog" aria-labelledby="vv-title">
+    <div class="vv-head">
+      <span class="vv-n" id="vv-n" aria-hidden="true">01</span>
+      <div class="vv-titles">
+        <h2 id="vv-title">Explainer</h2>
+        <p class="vv-meta" id="vv-meta"></p>
+      </div>
+      <button type="button" class="btn btn-ghost" id="vv-close">Close</button>
+    </div>
+    <div class="vv-stage" id="vv-stage"></div>
+    <div class="vv-foot">
+      <button type="button" class="btn btn-secondary" id="vv-prev">Previous</button>
+      <ol class="vv-strip" id="vv-strip" aria-label="All explainers"></ol>
+      <button type="button" class="btn btn-secondary" id="vv-next">Next</button>
+    </div>
+  </dialog>
+
   <dialog class="cmdk" id="cmdk" aria-labelledby="cmdk-title">
     <div class="cmdk-box">
       <h2 class="visually-hidden" id="cmdk-title">Command menu</h2>

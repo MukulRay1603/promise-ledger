@@ -298,40 +298,119 @@ async function route({ initial = false } = {}) {
 
 // ---------- Home ----------
 // The server says where the videos live (MEDIA_BASE_URL or /static/media/) and which are present.
-// Missing videos keep their placeholder.
+// Missing videos keep their placeholder. Ready ones get their thumbnail and open in the viewer dialog.
+// Captions are burned into the videos, so the caption track is offered but off by default.
 let videosSetUp = false;
+const viewer = { list: [], index: 0, root: "/static/media/", cross: false, opener: null };
+const clock = (secs) => secs ? `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}` : "";
 async function setupVideos() {
   if (videosSetUp) return;
   videosSetUp = true;
   let list = [];
-  let root = "/static/media/";
   try {
     const res = await fetch("/api/media", { headers: { Accept: "application/json" } });
     if (!res.ok) return;
     const data = await res.json();
     list = data.videos || [];
-    root = data.base || root;
+    viewer.root = data.base || viewer.root;
   } catch (err) { return; }
-  const crossOrigin = new URL(root, location.href).origin !== location.origin;
-  for (const video of list) {
-    if (!video.ready) continue;
+  viewer.cross = new URL(viewer.root, location.href).origin !== location.origin;
+  viewer.list = list.filter((video) => video.ready);
+  viewer.list.forEach((video, index) => {
     const card = document.querySelector(`[data-video="${video.slug}"]`);
-    if (!card) continue;
-    const frame = card.querySelector(".video-frame");
-    const n = video.slug.slice(0, 2);
-    const base = `${root}${video.slug}`;
-    const play = el("button", { type: "button", class: "video-play", "aria-label": `Play: ${video.title} (with captions)` },
-      el("span", { class: "play-dot" }, svg("0 0 24 24", [["path", { d: "M8 5v14l11-7z" }]])));
-    play.addEventListener("click", () => {
-      const player = el("video", { controls: true, playsinline: true, preload: "auto", poster: `${base}.jpg`, "aria-labelledby": `vt-${n}`, crossorigin: crossOrigin ? "anonymous" : null },
-        el("source", { src: `${base}.mp4`, type: "video/mp4" }),
-        el("track", { kind: "captions", srclang: "en", label: "English", src: `${base}.vtt`, default: true }));
-      frame.replaceChildren(player);
-      player.focus();
-      player.play().catch(() => { /* The browser may wait for another press. Controls are there. */ });
-    });
-    frame.replaceChildren(el("img", { src: `${base}.jpg`, alt: "", loading: "lazy", decoding: "async", width: 1280, height: 720 }), play);
+    if (!card) return;
+    const base = `${viewer.root}${video.slug}`;
+    const open = el("button", { type: "button", class: "video-play", "aria-haspopup": "dialog",
+      "aria-label": `Play ${video.title}${video.secs ? `, ${clock(video.secs)}` : ""}` },
+      el("span", { class: "video-len" }, svg("0 0 24 24", [["path", { d: "M8 5v14l11-7z" }]]), video.secs ? clock(video.secs) : "Play"));
+    open.addEventListener("click", () => openViewer(index, open));
+    card.classList.add("is-ready");
+    card.querySelector(".video-frame").replaceChildren(
+      el("img", { src: `${base}.jpg`, alt: "", loading: "lazy", decoding: "async", width: 1280, height: 720 }), open);
+  });
+  buildStrip();
+}
+
+function buildStrip() {
+  const strip = byId("vv-strip");
+  strip.replaceChildren(...viewer.list.map((video, index) => el("li", {},
+    el("button", { type: "button", class: "vv-thumb", "data-index": index, "aria-label": `${video.slug.slice(0, 2)}: ${video.title}` },
+      el("img", { src: `${viewer.root}${video.slug}.jpg`, alt: "", loading: "lazy", decoding: "async", width: 160, height: 90 })))));
+  strip.addEventListener("click", (event) => {
+    const button = event.target.closest(".vv-thumb");
+    if (button) showVideo(Number(button.dataset.index), true);
+  });
+}
+
+function openViewer(index, opener) {
+  viewer.opener = opener;
+  byId("video-dialog").showModal();
+  showVideo(index, true);
+}
+
+function showVideo(index, autoplay) {
+  const count = viewer.list.length;
+  if (!count) return;
+  viewer.index = (index + count) % count;
+  const video = viewer.list[viewer.index];
+  const n = video.slug.slice(0, 2);
+  const base = `${viewer.root}${video.slug}`;
+  byId("vv-n").textContent = n;
+  byId("vv-title").textContent = video.title;
+  byId("vv-meta").textContent = [`Explainer ${Number(n)} of ${count}`, clock(video.secs), "Captions in the video"].filter(Boolean).join(" · ");
+  const player = el("video", { controls: true, playsinline: true, preload: "metadata", poster: `${base}.jpg`,
+    "aria-label": video.title, crossorigin: viewer.cross ? "anonymous" : null },
+    el("source", { src: `${base}.mp4`, type: "video/mp4" }),
+    el("track", { kind: "captions", srclang: "en", label: "English (text track)", src: `${base}.vtt` }));
+  player.addEventListener("ended", () => showEnd());
+  byId("vv-stage").replaceChildren(player);
+  for (const button of byId("vv-strip").querySelectorAll(".vv-thumb")) {
+    const on = Number(button.dataset.index) === viewer.index;
+    button.toggleAttribute("aria-current", on);
+    if (on) button.scrollIntoView({ block: "nearest", inline: "nearest", behavior: reducedMotion.matches ? "auto" : "smooth" });
   }
+  byId("vv-prev").disabled = viewer.index === 0;
+  byId("vv-next").disabled = viewer.index === count - 1;
+  if (autoplay) {
+    player.focus({ preventScroll: true });
+    player.play().catch(() => { /* The browser may wait for a press. Controls are there. */ });
+  }
+}
+
+function showEnd() {
+  const next = viewer.list[viewer.index + 1];
+  const card = el("div", { class: "vv-end" },
+    el("p", { class: "vv-end-label" }, next ? "Up next" : "That's all eight"),
+    next ? el("p", { class: "vv-end-title" }, next.title) : el("p", { class: "vv-end-title" }, "Try it on Harbor Walk"));
+  const go = next
+    ? el("button", { type: "button", class: "btn btn-primary" }, `Play ${next.slug.slice(0, 2)}`)
+    : el("a", { class: "btn btn-primary", href: "#/deals/harbor-walk" }, "Open Harbor Walk");
+  const again = el("button", { type: "button", class: "btn btn-secondary" }, "Watch again");
+  if (next) go.addEventListener("click", () => showVideo(viewer.index + 1, true));
+  again.addEventListener("click", () => showVideo(viewer.index, true));
+  card.append(el("div", { class: "vv-end-actions" }, go, again));
+  byId("vv-stage").append(card);
+  go.focus();
+}
+
+function setupViewer() {
+  const dialog = byId("video-dialog");
+  byId("vv-close").addEventListener("click", () => dialog.close());
+  byId("vv-prev").addEventListener("click", () => showVideo(viewer.index - 1, true));
+  byId("vv-next").addEventListener("click", () => showVideo(viewer.index + 1, true));
+  dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+  dialog.addEventListener("keydown", (event) => {
+    if (event.target.closest?.("video") || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key === "ArrowRight" && viewer.index < viewer.list.length - 1) { event.preventDefault(); showVideo(viewer.index + 1, true); }
+    if (event.key === "ArrowLeft" && viewer.index > 0) { event.preventDefault(); showVideo(viewer.index - 1, true); }
+  });
+  dialog.addEventListener("close", () => {
+    // Stop the download as well as the sound.
+    const player = byId("vv-stage").querySelector("video");
+    if (player) { player.pause(); player.removeAttribute("src"); player.replaceChildren(); player.load(); }
+    byId("vv-stage").replaceChildren();
+    viewer.opener?.focus();
+  });
 }
 
 function fillHeroReceipt(review) {
@@ -2221,6 +2300,7 @@ setupSourceDialog();
 setupPageDrop();
 setupCommands();
 setupExportDialog();
+setupViewer();
 setupDecisionDialog();
 setupReveal();
 setupHeroMotion();

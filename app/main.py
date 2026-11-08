@@ -322,7 +322,7 @@ def media():
     else:
         base = "/static/media/"
         ready = {slug: all((MEDIA_DIR / f"{slug}.{ext}").is_file() for ext in MEDIA_EXTS) for slug in slugs}
-    return {"base": base, "videos": [{"slug": v["slug"], "title": v["title"], "ready": ready[v["slug"]]} for v in manifest]}
+    return {"base": base, "videos": [{"slug": v["slug"], "title": v["title"], "secs": v.get("secs"), "ready": ready[v["slug"]]} for v in manifest]}
 
 
 @app.get("/api/reminders")

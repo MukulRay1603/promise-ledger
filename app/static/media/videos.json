@@ -1,37 +1,45 @@
 {
-  "_note": "Titles and slugs for the explainer row. Files are NN-slug.mp4, .vtt and .jpg under MEDIA_BASE_URL, or in this folder when it is empty. /api/media reports which are present.",
+  "_note": "Titles, slugs and lengths in seconds for the explainer row. Files are NN-slug.mp4, .vtt and .jpg (the thumbnail) under MEDIA_BASE_URL, or in this folder when it is empty. /api/media reports which are present.",
   "videos": [
     {
       "slug": "01-why-homes-cost",
-      "title": "Why new homes cost so much"
+      "title": "Why new homes cost so much",
+      "secs": 43
     },
     {
       "slug": "02-how-cities-help",
-      "title": "How cities help"
+      "title": "How cities help",
+      "secs": 47
     },
     {
       "slug": "03-the-deal",
-      "title": "The deal"
+      "title": "The deal",
+      "secs": 39
     },
     {
       "slug": "04-what-ami-means",
-      "title": "What 60% of AMI means"
+      "title": "What 60% of AMI means",
+      "secs": 51
     },
     {
       "slug": "05-why-promises-slip",
-      "title": "Why promises slip"
+      "title": "Why promises slip",
+      "secs": 57
     },
     {
       "slug": "06-meet-promise-ledger",
-      "title": "Meet Promise Ledger"
+      "title": "Meet Promise Ledger",
+      "secs": 39
     },
     {
       "slug": "07-how-it-works",
-      "title": "How it works"
+      "title": "How it works",
+      "secs": 48
     },
     {
       "slug": "08-harbor-walk-walkthrough",
-      "title": "Harbor Walk walkthrough"
+      "title": "Harbor Walk walkthrough",
+      "secs": 55
     }
   ]
 }

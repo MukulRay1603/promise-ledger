@@ -80,6 +80,19 @@ class Page(unittest.TestCase):
             self.assertIn(f'data-video="{video["slug"]}"', self.html)
             self.assertIn(video["title"].replace("&", "&amp;"), self.html)
 
+    def test_video_viewer_is_in_page(self):
+        self.assertIn('id="video-dialog"', self.html)
+        self.assertIn('id="vv-strip"', self.html)
+        script = (STATIC / "app.js").read_text(encoding="utf-8")
+        # Captions are burned into the videos; the text track is offered but must not show by default.
+        track = script[script.index('el("track"'):].split(")", 1)[0]
+        self.assertNotIn("default", track)
+
+    def test_media_reports_lengths(self):
+        with mock.patch.dict(os.environ, {"MEDIA_BASE_URL": ""}):
+            data = self.client.get("/api/media").json()
+        self.assertTrue(all(isinstance(video["secs"], int) and 30 <= video["secs"] <= 90 for video in data["videos"]))
+
     def test_media_falls_back_to_static(self):
         with mock.patch.dict(os.environ, {"MEDIA_BASE_URL": ""}):
             data = self.client.get("/api/media").json()
