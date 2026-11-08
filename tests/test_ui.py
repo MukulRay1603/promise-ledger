@@ -49,6 +49,20 @@ class Page(unittest.TestCase):
         js = (STATIC / "app.js").read_text(encoding="utf-8")
         self.assertIn('dark ? "Light mode" : "Dark mode"', js)
 
+    def test_guided_tour(self):
+        js = (STATIC / "app.js").read_text(encoding="utf-8")
+        self.assertIn("Take the 60-second tour", self.html)
+        self.assertIn('href="#/deals/harbor-walk/tour"', self.html)
+        self.assertEqual(js.count("    title: \""), 6)  # Six steps.
+        for step in ("Upload", "Claims", "View source", "What changed", "People decide", "Receipt and share"):
+            self.assertIn(f'title: "{step}"', js)
+        self.assertIn('event.key === "Escape"', js)
+        self.assertIn("reducedMotion.matches", js)
+
+    def test_decision_dialog(self):
+        for text in ("Confirm", "Needs follow-up", "Disputed", 'maxlength="500"', 'id="dd-name"'):
+            self.assertIn(text, self.html)
+
     def test_command_menu_is_labelled(self):
         self.assertIn('id="cmdk"', self.html)
         self.assertIn('role="combobox"', self.html)
@@ -107,6 +121,27 @@ class Rules(unittest.TestCase):
         self.assertEqual(uses, ["DEAL_TEMPLATE"])
         self.assertNotIn("innerHTML", self.js["mock.js"] + self.js["pdfview.js"])
         self.assertNotIn("insertAdjacentHTML", self.js["app.js"])
+
+    def test_no_bare_null_children(self):
+        # replaceChildren prints null as text, so optional children must go through a filtered list.
+        js = self.js["app.js"]
+        bad = []
+        for m in re.finditer(r"\.replaceChildren\(", js):
+            i, depth = m.end(), 1
+            while depth:
+                depth += {"(": 1, ")": -1}.get(js[i], 0)
+                i += 1
+            body = js[m.end():i - 1]
+            if body.lstrip().startswith("..."):
+                continue
+            # Only top-level arguments matter: drop nested calls before looking for ": null".
+            top, level = [], 0
+            for ch in body:
+                level += {"(": 1, "[": 1, "{": 1, ")": -1, "]": -1, "}": -1}.get(ch, 0)
+                top.append(ch if level == 0 or ch in "([{" else "")
+            if re.search(r":\s*null", "".join(top)):
+                bad.append(js.count(chr(10), 0, m.start()) + 1)
+        self.assertEqual(bad, [])
 
     def test_neutral_wording(self):
         text = " ".join(self.js.values()).lower()

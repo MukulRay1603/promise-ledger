@@ -184,6 +184,24 @@ export function createMock(seed) {
     { kind: "missing_record", due: null, text: "Harbor Walk: City-signed agreement not located" },
   ];
 
+  // Mirrors the server's decision_view: latest per item, newest-first log, progress and the stamp.
+  const decisionView = (deal) => {
+    const log = [...(deal.decisions || [])].sort((a, b) => a.id.localeCompare(b.id));
+    const latest = {};
+    for (const e of log) latest[`${e.target_type}:${e.target_id}`] = e;
+    const r = deal.review;
+    const claimsDone = r.claims.filter((c) => latest[`claim:${c.id}`]).length;
+    const flagged = r.questions.map((q) => q.key);
+    const flaggedDone = flagged.filter((k) => latest[`question:${k}`]).length;
+    const complete = flagged.length > 0 && flaggedDone === flagged.length;
+    let stamp = { state: "flagged", text: "Flagged for human review" };
+    if (complete) {
+      const last = flagged.map((k) => latest[`question:${k}`]).sort((a, b) => a.id.localeCompare(b.id)).pop();
+      stamp = { state: "reviewed", reviewer_name: last.reviewer_name, date: last.at.slice(0, 10), text: `Reviewed · ${last.reviewer_name} · ${last.at.slice(0, 10)}` };
+    }
+    return { latest, log: log.reverse(), stamp, sandboxed: true, progress: { claims_reviewed: claimsDone, claims_total: r.claims.length, flagged_reviewed: flaggedDone, flagged_total: flagged.length, reviewed: claimsDone + flaggedDone, total: r.claims.length + flagged.length, complete } };
+  };
+
   const find = (id) => { const deal = deals.get(id); if (!deal) throw new MockError(404, "Deal not found"); return deal; };
   const advance = (doc) => {
     if (doc.status === "done" || doc.status === "failed" || !doc._t) return;
@@ -204,7 +222,8 @@ export function createMock(seed) {
     };
   };
 
-  async function handle(method, path, body, { onProgress } = {}) {
+  async function handle(method, path, body, options = {}) {
+    const { onProgress } = options;
     await wait(120 + Math.random() * 160);
     const url = new URL(path, location.origin);
     const parts = url.pathname.replace(/^\/api\//, "").split("/").filter(Boolean);
@@ -234,7 +253,20 @@ export function createMock(seed) {
 
     const deal = find(id);
     if (!sub && method === "GET") return { id: deal.id, name: deal.name, city: deal.city, documents: deal.documents.map(publicDoc) };
-    if (sub === "review") return clone(deal.review);
+    if (sub === "review") return { ...clone(deal.review), decisions: decisionView(deal) };
+    if (sub === "decisions" && method === "GET") return decisionView(deal);
+    if (sub === "decisions" && method === "DELETE") { deal.decisions = []; return decisionView(deal); }
+    if (sub === "decisions" && method === "POST") {
+      const labels = { confirmed: "Confirmed", follow_up: "Needs follow-up", disputed: "Disputed" };
+      const reviewer = String(options.reviewer || "").trim();
+      if (!labels[body?.decision]) throw new MockError(422, "Choose Confirm, Needs follow-up or Disputed.");
+      if (!reviewer) throw new MockError(422, "Enter a reviewer name.");
+      if (String(body.note || "").length > 500) throw new MockError(422, "Keep the note under 500 characters.");
+      const event = { id: `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`, target_type: body.target_type, target_id: body.target_id,
+        decision: body.decision, label: labels[body.decision], note: String(body.note || "").trim(), reviewer_id: `demo:${options.session}`, reviewer_name: reviewer, at: new Date().toISOString().replace(/\.\d+Z$/, "+00:00") };
+      (deal.decisions ||= []).push(event);
+      return { event, ...decisionView(deal) };
+    }
     if (sub === "share" && method === "POST") {
       const token = `demo-${btoa(deal.id).replace(/=+$/, "")}`;
       return { token, url: `${location.origin}/#/r/${token}` };

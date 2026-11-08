@@ -316,12 +316,143 @@ def build_deal_review(deal: dict, docs: list[dict], store: Storage | None = None
     }
 
 
-def deal_review(deal_id: str, store: Storage | None = None, with_pages: bool = False) -> dict | None:
+def is_sample(deal: dict) -> bool:
+    """Sample deals are public. Their reviews are kept per browser so visitors never see each other's."""
+    return bool(deal.get("sample_slug")) or deal.get("id") == DEMO_DEAL_ID
+
+
+def deal_review(deal_id: str, store: Storage | None = None, with_pages: bool = False,
+                session: str | None = None) -> dict | None:
     store = store or get_store()
     deal = store.get_deal(deal_id)
     if not deal:
         return None
-    return build_deal_review(deal, store.list_documents(deal_id), store=store, with_pages=with_pages)
+    review = build_deal_review(deal, store.list_documents(deal_id), store=store, with_pages=with_pages)
+    # Reviewer decisions sit beside the record. They never change a claim, a term or a stage.
+    sandboxed = is_sample(deal)
+    events = store.list_decisions(deal_id)
+    if sandboxed:
+        events = [e for e in events if session and e.get("session") == session]
+    review["decisions"] = decision_view(review, events)
+    review["decisions"]["sandboxed"] = sandboxed
+    return review
+
+
+# ---------------------------------------------------------------------------
+# Reviewer decisions: "People decide"
+
+DECISIONS = {"confirmed": "Confirmed", "follow_up": "Needs follow-up", "disputed": "Disputed"}
+TARGET_TYPES = ("claim", "question")
+MAX_NOTE = 500
+MAX_REVIEWER = 80
+_CONTROL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+
+
+class DecisionError(ValueError):
+    """The decision is not valid for this deal."""
+
+
+def _clean(text, limit: int, field: str, required: bool) -> str:
+    text = _CONTROL.sub("", str(text or "")).strip()
+    if required and not text:
+        raise DecisionError(f"Enter a {field}.")
+    if len(text) > limit:
+        raise DecisionError(f"Keep the {field} under {limit} characters.")
+    return text
+
+
+def decision_targets(review: dict) -> dict:
+    """Everything a person can decide on: each claim, and each open question (the term checks)."""
+    targets = {("claim", c["id"]): c for c in review["claims"]}
+    targets.update({("question", q["key"]): q for q in review["questions"]})
+    return targets
+
+
+def add_decision(deal_id: str, payload: dict, reviewer: dict, store: Storage | None = None) -> dict:
+    """Record one reviewer decision. `reviewer` comes from identity.current_reviewer(), never from the payload.
+
+    Notes are stored as plain text and never read as instructions.
+    """
+    store = store or get_store()
+    review = deal_review(deal_id, store, session=reviewer.get("session"))
+    if review is None:
+        raise DecisionError("Deal not found.")
+    target = (str(payload.get("target_type") or ""), str(payload.get("target_id") or ""))
+    if target[0] not in TARGET_TYPES:
+        raise DecisionError("Choose a claim or an open question.")
+    if target not in decision_targets(review):
+        raise DecisionError("That item is not in this deal.")
+    decision = str(payload.get("decision") or "")
+    if decision not in DECISIONS:
+        raise DecisionError("Choose Confirm, Needs follow-up or Disputed.")
+    event = {
+        "id": f"{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}-{secrets.token_hex(3)}",
+        "target_type": target[0],
+        "target_id": target[1],
+        "decision": decision,
+        "label": DECISIONS[decision],
+        "note": _clean(payload.get("note"), MAX_NOTE, "note", required=False),
+        "reviewer_id": reviewer["id"],
+        "reviewer_name": _clean(reviewer.get("name"), MAX_REVIEWER, "reviewer name", required=True),
+        "session": reviewer.get("session"),
+        "at": now(),
+    }
+    store.put_decision(deal_id, event)
+    return event
+
+
+def reset_decisions(deal_id: str, session: str | None, store: Storage | None = None) -> dict:
+    """Start this browser's review of a sample deal over. Earlier events stay stored; a marker hides them."""
+    store = store or get_store()
+    deal = store.get_deal(deal_id)
+    if not deal or not is_sample(deal):
+        raise DecisionError("Only a sample deal's review can be reset.")
+    if not session:
+        raise DecisionError("This browser has no demo session to reset.")
+    event = {"id": f"{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')}-{secrets.token_hex(3)}",
+             "kind": "reset", "session": session, "at": now()}
+    store.put_decision(deal_id, event)
+    return event
+
+
+def _normalize(event: dict) -> dict:
+    """Events saved before the identity seam had a plain "reviewer" field."""
+    if "reviewer_name" not in event:
+        event = {**event, "reviewer_name": event.get("reviewer", ""), "reviewer_id": f"local:{event.get('reviewer', '').lower()}"}
+    return event
+
+
+def decision_view(review: dict, events: list[dict]) -> dict:
+    """The latest decision per item, the full log, progress, and the receipt stamp. One source for every view."""
+    targets = decision_targets(review)
+    resets = [e["id"] for e in events if e.get("kind") == "reset"]
+    since = max(resets) if resets else ""
+    log = sorted((_normalize(e) for e in events if e.get("kind") != "reset" and e["id"] > since
+                  and (e.get("target_type"), e.get("target_id")) in targets), key=lambda e: e["id"])
+    latest = {}
+    for event in log:
+        latest[f"{event['target_type']}:{event['target_id']}"] = event
+    claims_done = sum(1 for c in review["claims"] if f"claim:{c['id']}" in latest)
+    flagged = [q["key"] for q in review["questions"]]
+    flagged_done = sum(1 for key in flagged if f"question:{key}" in latest)
+    complete = bool(flagged) and flagged_done == len(flagged)
+    stamp = {"state": "flagged", "text": "Flagged for human review"}
+    if complete:
+        last = max((latest[f"question:{key}"] for key in flagged), key=lambda e: e["id"])
+        stamp = {"state": "reviewed", "reviewer_name": last["reviewer_name"], "date": last["at"][:10],
+                 "text": f"Reviewed · {last['reviewer_name']} · {last['at'][:10]}"}
+    elif not flagged and review["claims"] and claims_done == len(review["claims"]):
+        stamp = {"state": "reviewed", "text": "Reviewed"}
+    return {
+        "latest": latest,
+        "log": list(reversed(log)),
+        "progress": {"claims_reviewed": claims_done, "claims_total": len(review["claims"]),
+                     "flagged_reviewed": flagged_done, "flagged_total": len(flagged),
+                     "reviewed": claims_done + flagged_done, "total": len(review["claims"]) + len(flagged),
+                     "complete": complete},
+        "stamp": stamp,
+        "labels": DECISIONS,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -448,7 +579,37 @@ def all_reminders(store: Storage | None = None, today: date | None = None) -> li
 # ---------------------------------------------------------------------------
 # Export
 
-CLAIM_COLUMNS = ["Term", "Quote", "Document", "Date", "Page", "Stage", "Wording differs", "Verified"]
+CLAIM_COLUMNS = ["Term", "Quote", "Document", "Date", "Page", "Stage", "Wording differs", "Verified",
+                 "Decision", "Reviewer", "Decided", "Note"]
+QUESTION_COLUMNS = ["Open question", "Flag", "Decision", "Reviewer", "Decided", "Note"]
+LOG_COLUMNS = ["When", "Reviewer", "Item", "Decision", "Note"]
+
+
+def _decided(review: dict, key: str) -> list:
+    event = (review.get("decisions") or {}).get("latest", {}).get(key)
+    if not event:
+        return ["Not reviewed", "", "", ""]
+    return [event["label"], event["reviewer_name"], event["at"].replace("T", " ").replace("+00:00", " UTC"), event["note"]]
+
+
+def question_rows(review: dict) -> list[list]:
+    flags = {"differs": "Wording differs", "not_located": "Not located"}
+    return [[q["text"], flags.get(q.get("tag"), q.get("tag") or ""), *_decided(review, f"question:{q['key']}")]
+            for q in review.get("questions", [])]
+
+
+def log_rows(review: dict) -> list[list]:
+    claims = {c.get("id"): c for c in review["claims"]}
+    questions = {q["key"]: q for q in review.get("questions", [])}
+
+    def item(e):
+        if e["target_type"] == "claim" and e["target_id"] in claims:
+            c = claims[e["target_id"]]
+            return f"Claim: {ledger.TOPICS.get(c['topic'], c['topic'])}, {c['document_type']} p. {c['page']}"
+        q = questions.get(e["target_id"])
+        return f"Open question: {q['text'][:80]}" if q else e["target_id"]
+    return [[e["at"].replace("T", " ").replace("+00:00", " UTC"), e["reviewer_name"], item(e), e["label"], e["note"]]
+            for e in (review.get("decisions") or {}).get("log", [])]
 TERM_COLUMNS = ["Term", "Result", "Furthest stage", "Wording differs", "Values", "Signed record"]
 
 
@@ -457,7 +618,7 @@ def claim_rows(review: dict) -> list[list]:
     differs = {t["key"] for t in review["terms"] if t["wording_differs"]}
     return [[ledger.TOPICS.get(c["topic"], c["topic"]), c["quote"], titles.get(c["document"]) or c["document_type"],
              c["date"], c["page"], ledger.STAGE_LABELS[c["status"]], "Yes" if c["topic"] in differs else "No",
-             "Yes" if c.get("quote_checked") else "No"] for c in review["claims"]]
+             "Yes" if c.get("quote_checked") else "No", *_decided(review, f"claim:{c.get('id')}")] for c in review["claims"]]
 
 
 def term_rows(review: dict) -> list[list]:
@@ -477,9 +638,13 @@ def export_sheets(review: dict) -> list[dict]:
     """The sheets every export is built from. The xlsx has all of them; the csv is the Claims sheet."""
     return [
         {"name": "Claims", "columns": CLAIM_COLUMNS, "rows": [[_cell(v) for v in row] for row in claim_rows(review)],
-         "widths": [18, 70, 40, 12, 6, 12, 10, 10]},
+         "widths": [18, 70, 40, 12, 6, 12, 10, 10, 16, 20, 20, 40]},
         {"name": "Terms", "columns": TERM_COLUMNS, "rows": [[_cell(v) for v in row] for row in term_rows(review)],
          "widths": [18, 14, 14, 10, 50, 12]},
+        {"name": "Open questions", "columns": QUESTION_COLUMNS, "rows": [[_cell(v) for v in row] for row in question_rows(review)],
+         "widths": [70, 16, 16, 20, 20, 40]},
+        {"name": "Review log", "columns": LOG_COLUMNS, "rows": [[_cell(v) for v in row] for row in log_rows(review)],
+         "widths": [22, 20, 50, 16, 50]},
     ]
 
 
@@ -518,7 +683,7 @@ def export_xlsx(review: dict) -> bytes:
             cell.font = Font(bold=True)
         for row in sheet["rows"]:
             ws.append(row)
-        for col, width in zip("ABCDEFGH", sheet["widths"]):
+        for col, width in zip("ABCDEFGHIJKL", sheet["widths"]):
             ws.column_dimensions[col].width = width
         for row in ws.iter_rows(min_row=2):
             for cell in row:
@@ -535,10 +700,10 @@ def export_xlsx(review: dict) -> bytes:
 # ---------------------------------------------------------------------------
 # Share links
 
-def create_share(deal_id: str, store: Storage | None = None) -> str:
+def create_share(deal_id: str, store: Storage | None = None, session: str | None = None) -> str:
     store = store or get_store()
     token = secrets.token_urlsafe(16)
-    store.put_share(token, deal_id)
+    store.put_share(token, deal_id, session=session)
     return token
 
 
@@ -546,8 +711,9 @@ def shared_review(token: str, store: Storage | None = None) -> dict | None:
     store = store or get_store()
     if not re.fullmatch(r"[A-Za-z0-9_-]{16,64}", token or ""):
         return None
-    deal_id = store.get_share(token)
-    review = deal_review(deal_id, store) if deal_id else None
+    record = store.get_share_record(token)
+    deal_id = record["deal_id"] if record else None
+    review = deal_review(deal_id, store, session=record.get("session")) if deal_id else None
     if review is None:
         return None
     return {**review, "read_only": True, "share_token": token}

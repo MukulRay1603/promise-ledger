@@ -28,7 +28,10 @@ class Storage(Protocol):
     def list_documents(self, deal_id: str) -> list[dict]: ...
     def get_document(self, deal_id: str, doc_id: str) -> dict | None: ...
     def put_document(self, deal_id: str, doc: dict) -> None: ...
-    def put_share(self, token: str, deal_id: str) -> None: ...
+    def put_share(self, token: str, deal_id: str, session: str | None = None) -> None: ...
+    def get_share_record(self, token: str) -> dict | None: ...
+    def list_decisions(self, deal_id: str) -> list[dict]: ...
+    def put_decision(self, deal_id: str, event: dict) -> None: ...
     def get_share(self, token: str) -> str | None: ...
     def put_blob(self, key: str, data: bytes, content_type: str) -> None: ...
     def get_blob(self, key: str) -> bytes | None: ...
@@ -101,11 +104,24 @@ class LocalStorage:
     def put_document(self, deal_id: str, doc: dict) -> None:
         self._write(self._deal_dir(deal_id) / "documents" / f"{_safe(doc['id'])}.json", doc)
 
-    def put_share(self, token: str, deal_id: str) -> None:
-        self._write(self.root / "shares" / f"{_safe(token)}.json", {"token": token, "deal_id": deal_id})
+    def put_share(self, token: str, deal_id: str, session: str | None = None) -> None:
+        self._write(self.root / "shares" / f"{_safe(token)}.json", {"token": token, "deal_id": deal_id, "session": session})
+
+    def get_share_record(self, token: str) -> dict | None:
+        return self._read(self.root / "shares" / f"{_safe(token)}.json")
+
+    def list_decisions(self, deal_id: str) -> list[dict]:
+        base = self._deal_dir(deal_id) / "decisions"
+        if not base.exists():
+            return []
+        events = [self._read(p) for p in base.glob("*.json")]
+        return [e for e in events if e]
+
+    def put_decision(self, deal_id: str, event: dict) -> None:
+        self._write(self._deal_dir(deal_id) / "decisions" / f"{_safe(event['id'])}.json", event)
 
     def get_share(self, token: str) -> str | None:
-        record = self._read(self.root / "shares" / f"{_safe(token)}.json")
+        record = self.get_share_record(token)
         return record["deal_id"] if record else None
 
     def _blob_path(self, key: str) -> Path:
@@ -203,8 +219,21 @@ class GcpStorage:
     def put_document(self, deal_id: str, doc: dict) -> None:
         self._docs(deal_id).document(_safe(doc["id"])).set(doc)
 
-    def put_share(self, token: str, deal_id: str) -> None:
-        self.db.collection("shares").document(_safe(token)).set({"token": token, "deal_id": deal_id})
+    def put_share(self, token: str, deal_id: str, session: str | None = None) -> None:
+        self.db.collection("shares").document(_safe(token)).set({"token": token, "deal_id": deal_id, "session": session})
+
+    def get_share_record(self, token: str) -> dict | None:
+        snap = self.db.collection("shares").document(_safe(token)).get()
+        return snap.to_dict() if snap.exists else None
+
+    def _decisions(self, deal_id: str):
+        return self._deals().document(_safe(deal_id)).collection("decisions")
+
+    def list_decisions(self, deal_id: str) -> list[dict]:
+        return [snap.to_dict() for snap in self._decisions(deal_id).stream()]
+
+    def put_decision(self, deal_id: str, event: dict) -> None:
+        self._decisions(deal_id).document(_safe(event["id"])).set(event)
 
     def get_share(self, token: str) -> str | None:
         snap = self.db.collection("shares").document(_safe(token)).get()
@@ -222,6 +251,8 @@ class GcpStorage:
     def delete_deal(self, deal_id: str) -> None:
         """Remove the deal, its documents (claims live on them) and its files under deals/{id}/."""
         for snap in self._docs(deal_id).stream():
+            snap.reference.delete()
+        for snap in self._decisions(deal_id).stream():
             snap.reference.delete()
         self._deals().document(_safe(deal_id)).delete()
         for blob in self.bucket.list_blobs(prefix=f"deals/{_safe(deal_id)}/"):

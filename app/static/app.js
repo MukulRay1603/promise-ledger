@@ -118,17 +118,30 @@ async function detectMode() {
   return "mock";
 }
 
-async function api(path, { method = "GET", body = null, onProgress = null } = {}) {
+// A random id this browser keeps. On sample deals the server keeps each browser's review apart with it.
+let memorySession = null;
+function demoSession() {
+  const make = () => (crypto.randomUUID ? crypto.randomUUID().replace(/-/g, "") : Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join(""));
+  try {
+    let id = localStorage.getItem("pl-demo-session");
+    if (!/^[A-Za-z0-9_-]{16,64}$/.test(id || "")) { id = make(); localStorage.setItem("pl-demo-session", id); }
+    return id;
+  } catch (err) {
+    memorySession ||= make();
+    return memorySession;
+  }
+}
+
+async function api(path, { method = "GET", body = null, onProgress = null, reviewer = null } = {}) {
   await ready;
   if (mock) {
-    try { return await mock.handle(method, path, body, { onProgress }); } catch (err) { throw new ApiError(err.status || 500, err.message); }
+    try { return await mock.handle(method, path, body, { onProgress, reviewer, session: demoSession() }); } catch (err) { throw new ApiError(err.status || 500, err.message); }
   }
   if (body instanceof FormData) return uploadWithProgress(path, body, onProgress);
-  const res = await fetch(path, {
-    method,
-    headers: body ? { "Content-Type": "application/json", Accept: "application/json" } : { Accept: "application/json" },
-    body: body ? JSON.stringify(body) : null,
-  });
+  const headers = { Accept: "application/json", "X-Demo-Session": demoSession() };
+  if (body) headers["Content-Type"] = "application/json";
+  if (reviewer) headers["X-Reviewer-Name"] = encodeURIComponent(reviewer); // Read by current_reviewer() on the server.
+  const res = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : null });
   const type = res.headers.get("content-type") || "";
   if (!res.ok) {
     let message = `The server returned ${res.status}.`;
@@ -142,6 +155,7 @@ function uploadWithProgress(path, form, onProgress) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", path);
+    xhr.setRequestHeader("X-Demo-Session", demoSession());
     xhr.responseType = "json";
     xhr.upload.addEventListener("progress", (event) => { if (event.lengthComputable) onProgress?.(event.loaded / event.total); });
     xhr.addEventListener("load", () => {
@@ -214,6 +228,7 @@ function parseRoute() {
   const parts = hash.split("/").filter(Boolean);
   if (parts[0] === "deals" && parts.length === 1) return { view: "deals" };
   if (parts[0] === "deals" && parts[1] && parts[2] === "source" && parts[3]) return { view: "deal", id: parts[1], tab: "claims", source: parts[3] };
+  if (parts[0] === "deals" && parts[1] && parts[2] === "tour") return { view: "deal", id: parts[1], tab: "claims", tour: true };
   if (parts[0] === "deals" && parts[1]) return { view: "deal", id: parts[1], tab: TAB_IDS.includes(parts[2]) ? parts[2] : null };
   if (parts[0] === "r" && parts[1]) return { view: "shared", token: parts[1] };
   return { view: "missing" };
@@ -235,6 +250,7 @@ async function route({ initial = false } = {}) {
   if (sameDeal) {
     activateTab(next.tab || "claims", { focus: false });
     if (next.source) { openSourceFromLink(next.source); return; }
+    if (next.tour) { history.replaceState(null, "", `#/deals/${encodeURIComponent(next.id)}`); startTour(); return; }
     if (next.tab) byId("tablist").scrollIntoView({ block: "start", behavior: reducedMotion.matches ? "auto" : "smooth" });
     current = next;
     return;
@@ -249,7 +265,7 @@ async function route({ initial = false } = {}) {
   }
   if (next.view === "home") { document.title = "Promise Ledger"; setupVideos(); if (!hero.running && hero.loops < HERO_LOOPS) heroPlay(); return; }
   if (next.view === "deals") return renderDeals();
-  if (next.view === "deal") return renderDeal(next.id, next.tab, next.source);
+  if (next.view === "deal") return renderDeal(next.id, next.tab, next.source, next.tour);
   if (next.view === "shared") return renderShared(next.token);
   document.title = "Page not found · Promise Ledger";
 }
@@ -426,6 +442,7 @@ function rememberSample(deals) {
   if (!sample) return;
   sampleId = sample.id;
   document.querySelectorAll(".js-sample").forEach((link) => { link.href = `#/deals/${encodeURIComponent(sample.id)}`; });
+  document.querySelectorAll(".js-sample-tour").forEach((link) => { link.href = `#/deals/${encodeURIComponent(sample.id)}/tour`; });
 }
 
 // ---------- New deal dialog ----------
@@ -480,6 +497,7 @@ const DEAL_TEMPLATE = `
       <ul class="kpis" id="kpis" aria-label="Key figures"></ul>
     </section>
     <div class="stepper-wrap"><h2 class="stepper-heading" id="stepper-heading">Deal <span id="stage-term">stages</span></h2><ol class="stepper" id="stepper" aria-labelledby="stepper-heading"></ol></div>
+    <section class="card review-panel" id="review-panel" aria-labelledby="review-title"></section>
   </div>
   <section class="card docs-card" id="docs-card" aria-labelledby="docs-title" style="margin-top:1rem">
     <div class="card-head"><h2 id="docs-title">Documents</h2><p class="hint" id="docs-count"></p></div>
@@ -507,7 +525,7 @@ const DEAL_TEMPLATE = `
       <div class="panel-head"><h2>Claims</h2><p class="panel-note" id="check-line"></p></div>
       <table class="data-table claims-table stack">
         <caption class="visually-hidden">Every reviewed claim, grouped by term, with its exact quote, source and stage.</caption>
-        <thead><tr><th scope="col">Term</th><th scope="col">Exact quote</th><th scope="col">Source</th><th scope="col">Stage</th><th scope="col">Wording</th></tr></thead>
+        <thead><tr><th scope="col">Term</th><th scope="col">Exact quote</th><th scope="col">Source</th><th scope="col">Stage</th><th scope="col">Wording</th><th scope="col">Review</th></tr></thead>
         <tbody id="claim-rows"></tbody>
       </table>
     </div>
@@ -540,14 +558,14 @@ const DEAL_TEMPLATE = `
     </div>
   </section>`;
 
-async function renderDeal(id, tab, sourceClaim = null) {
+async function renderDeal(id, tab, sourceClaim = null, withTour = false) {
   dealState = null;
   const view = byId("view-deal");
   view.innerHTML = DEAL_TEMPLATE; // Static markup only. Data is added below as text nodes.
   byId("glance-list").replaceChildren(...[1, 2, 3].map(() => el("li", {}, el("span", { class: "skeleton sk-line", style: "width:80%" }))));
   byId("kpis").replaceChildren(...[1, 2, 3, 4].map(() => el("li", { class: "kpi" }, el("span", { class: "skeleton sk-line", style: "width:60%" }), el("span", { class: "skeleton", style: "height:2.2rem;width:3rem" }))));
   byId("details").hidden = true;
-  renderActions(id, { name: id }); // Drawn now so the header does not move when the data arrives.
+  renderActions(id, { name: id, documents: [true] }); // Drawn now so the header does not move when the data arrives.
   setupDropzone(id);
 
   let deal;
@@ -572,6 +590,11 @@ async function renderDeal(id, tab, sourceClaim = null) {
   renderDocs();
   renderReview({ tab: sourceClaim ? null : tab });
   if (sourceClaim) openSourceFromLink(sourceClaim);
+  if (withTour) {
+    history.replaceState(null, "", `#/deals/${encodeURIComponent(id)}`);
+    current = { view: "deal", id, tab: null };
+    setTimeout(() => startTour(), reducedMotion.matches ? 0 : 400);
+  }
   pollIfBusy();
 }
 
@@ -591,11 +614,12 @@ function renderActions(id, deal) {
     type: "button", class: "btn btn-secondary", "data-export": ext, "aria-haspopup": "dialog",
     onclick: (event) => openExport(id, ext, event.currentTarget),
   }, icon(ext === "xlsx" ? "sheet" : "file"), label);
-  byId("deal-actions").replaceChildren(
+  byId("deal-actions").replaceChildren(...[
+    deal.documents?.length || deal.claim_count ? tourButton() : null,
     exportButton("xlsx", "Excel"),
     exportButton("csv", "CSV"),
     el("button", { type: "button", class: "btn btn-primary", id: "share-btn", onclick: (event) => shareLink(id, event.currentTarget) }, icon("link"), "Share read-only link"),
-  );
+  ].filter(Boolean));
 }
 
 async function mockDownload(path, filename, ext) {
@@ -637,6 +661,7 @@ function renderReview({ tab = null, keepTab = false } = {}) {
 
   byId("stage-term").replaceChildren(termButton("stages", "stages"));
   renderSummary();
+  renderReviewPanel();
   // Draw the open tab now and the rest when the browser is idle, so the first paint is not held up.
   const selected = keepTab ? document.querySelector('[role="tab"][aria-selected="true"]')?.id.replace("tab-", "") : null;
   const open = selected || tab || "claims";
@@ -677,7 +702,7 @@ function countUp(node, value) {
   node.textContent = String(value);
   if (typeof value !== "number" || reducedMotion.matches || value === 0) return;
   const start = performance.now();
-  const duration = 240;
+  const duration = 650;
   const step = (now) => {
     const t = Math.min(1, (now - start) / duration);
     node.textContent = String(Math.round(value * (1 - (1 - t) ** 3)));
@@ -692,11 +717,11 @@ function renderSummary() {
   const s = review.summary;
   const lead = claimsById.get(s.homes_claim_id);
   byId("glance-list").replaceChildren(...s.sentences.map((sentence) => el("li", {}, withTerm(sentence, "not located", "not_located"))));
-  byId("glance-foot").replaceChildren(
+  byId("glance-foot").replaceChildren(...[
     lead ? el("span", {}, `Home count from: ${sourceShort(lead)}`) : null,
     lead ? viewSourceButton(lead) : null,
     el("span", {}, `Quotes checked: ${review.checks.passed} of ${review.checks.total} found word for word on their cited pages.`),
-  );
+  ].filter(Boolean));
 
   const stageIndex = STAGES.indexOf(s.furthest_status) + 1;
   // Each figure gets a small picture of itself: a share bar, stage segments, or one dot per term. All decorative.
@@ -722,12 +747,13 @@ function renderSummary() {
       ? svg("0 0 28 28", [["circle", { cx: 14, cy: 14, r: 13, class: "ico-located" }], ["path", { d: "M8.5 14.5l3.5 3.5 7.5-8", class: "ico-located-check" }]])
       : svg("0 0 28 28", [["circle", { cx: 14, cy: 14, r: 12, class: "ico-missing" }]]);
     const nextLocated = review.stages[index + 1]?.claim_ids.length > 0;
-    return el("li", { class: `step${located && nextLocated ? " done" : ""}`, "aria-current": stage.status === s.furthest_status ? "step" : null },
+    return el("li", { class: `step${located && nextLocated ? " done" : ""}`, style: `--i:${index}`, "aria-current": stage.status === s.furthest_status ? "step" : null },
       el("span", { class: "step-dot" }, iconNode),
       el("span", { class: "step-text" },
         el("span", { class: "step-name" }, stage.label),
         el("span", { class: "step-detail" }, located ? `Located · ${plural(stage.claim_ids.length, "claim")}` : "Not located")));
   }));
+  byId("stepper").classList.toggle("draw", animate);
 }
 
 // Tabs: ARIA tabs with arrow keys, Home and End. The hash names the open tab.
@@ -742,6 +768,7 @@ function activateTab(id, { focus = false, updateHash = false } = {}) {
     byId(tabId).hidden = !on;
   }
   if (focus) byId(`tab-${id}`).focus();
+  moveTabInk(byId(`tab-${id}`));
   if (id === "receipt" && dealState && printed !== dealState.id) {
     printed = dealState.id;
     requestAnimationFrame(() => printOut(byId("receipt-body")));
@@ -751,6 +778,24 @@ function activateTab(id, { focus = false, updateHash = false } = {}) {
     if (location.hash !== hash) { history.replaceState(null, "", hash); current.tab = id; }
   }
 }
+
+function moveTabInk(tab) {
+  const list = byId("tablist");
+  if (!list || !tab) return;
+  let ink = list.querySelector(".tab-ink");
+  if (!ink) {
+    ink = el("span", { class: "tab-ink", "aria-hidden": "true" });
+    list.prepend(ink);
+    list.classList.add("has-ink");
+  }
+  const box = list.getBoundingClientRect();
+  const at = tab.getBoundingClientRect();
+  ink.style.width = `${at.width}px`;
+  ink.style.transform = `translateX(${at.left - box.left - list.clientLeft + list.scrollLeft}px)`;
+}
+const realignInk = () => { const tab = document.querySelector('#tablist [aria-selected="true"]'); if (tab) moveTabInk(tab); };
+window.addEventListener("resize", realignInk);
+document.fonts?.addEventListener?.("loadingdone", realignInk); // Web fonts change tab widths.
 
 function setupTabs() {
   const tabs = TAB_IDS.map((id) => byId(`tab-${id}`));
@@ -780,6 +825,7 @@ function termLabel(key) {
   return label;
 }
 
+const staggered = new Set(); // Deals whose claim rows have already played their entrance.
 function renderClaims() {
   const { review, termsByKey } = dealState;
   const { passed, total, problems } = review.checks;
@@ -790,7 +836,10 @@ function renderClaims() {
 
   const order = Object.keys(review.topics);
   const claims = [...review.claims].sort((a, b) => order.indexOf(a.topic) - order.indexOf(b.topic) || a.date.localeCompare(b.date));
-  byId("claim-rows").replaceChildren(...claims.map((claim) => {
+  const stagger = !staggered.has(dealState.id);
+  staggered.add(dealState.id);
+  byId("claim-rows").classList.toggle("enter", stagger);
+  byId("claim-rows").replaceChildren(...claims.map((claim, index) => {
     const term = termsByKey.get(claim.topic);
     let wording = el("span", { class: "cell-muted" }, "Not compared");
     if (term) {
@@ -798,13 +847,14 @@ function renderClaims() {
         ? tag("differs")
         : el("span", { class: "cell-muted" }, term.claim_ids.length > 1 ? "Same in every record" : "One record");
     }
-    return el("tr", {},
+    return el("tr", { style: index < 12 ? `--i:${index}` : null },
       el("th", { scope: "row", "data-label": "Term" }, termLabel(claim.topic)),
       el("td", { "data-label": "Exact quote" }, el("span", { class: "quote" }, `“${claim.quote}”`)),
       el("td", { "data-label": "Source" }, el("span", { class: "source-cell" },
         el("span", { class: "source-line" }, `${claim.document_type} · ${formatDate(claim.date)}`), quoteBadge(claim), viewSourceButton(claim))),
       el("td", { "data-label": "Stage" }, tag(claim.status)),
-      el("td", { "data-label": "Wording" }, wording));
+      el("td", { "data-label": "Wording" }, wording),
+      el("td", { "data-label": "Review" }, decisionCell("claim", claim.id, `${review.topics[claim.topic] || claim.topic}, ${claim.document_type} page ${claim.page}`)));
   }));
 }
 
@@ -875,11 +925,24 @@ function renderChanges() {
 function renderQuestions() {
   const { questions } = dealState.review;
   byId("count-questions").textContent = String(questions.length);
-  byId("question-note").textContent = `${plural(questions.length, "question")} from terms that are not located or differ across records. Ticks are not saved.`;
-  byId("question-list").replaceChildren(...questions.map((question, index) => el("li", { class: "task" },
-    el("input", { type: "checkbox", id: `q-${index}` }),
-    el("label", { for: `q-${index}` }, question.text),
-    tag(question.tag))));
+  byId("question-note").textContent = `${plural(questions.length, "question")} from terms that are not located or differ across records. Each needs a decision before the receipt is stamped as reviewed.`;
+  byId("question-list").replaceChildren(...questions.map((question) => el("li", { class: "task task-decide" },
+    el("p", { class: "task-text" }, question.text),
+    tag(question.tag),
+    decisionCell("question", question.key, question.text.length > 120 ? `${question.text.slice(0, 117)}…` : question.text))));
+}
+
+// All parts of one highlighted quote (it can span several lines of the text layer).
+const layerMarks = (first) => [...(first.closest(".textLayer")?.querySelectorAll("mark.hl") || [first])];
+
+// The stamp reads "Flagged for human review" until every open question has a decision.
+function receiptStamp(review) {
+  const stamp = review.decisions?.stamp;
+  if (stamp?.state === "reviewed") {
+    const text = stamp.reviewer_name ? `Reviewed · ${stamp.reviewer_name} · ${formatDate(stamp.date)}` : "Reviewed";
+    return el("span", { class: "receipt-stamp reviewed", "aria-hidden": "true" }, text);
+  }
+  return el("span", { class: "receipt-stamp", "aria-hidden": "true" }, "Flagged for human review");
 }
 
 // Receipt: black on white, the same on screen, in a shared link and in print.
@@ -900,7 +963,7 @@ function renderReceipt(target, review, { titleTag = "p" } = {}) {
   const support = review.claims.filter((claim) => claim.topic === "public_support");
   const { passed, total } = review.checks;
 
-  target.replaceChildren(
+  target.replaceChildren(...[
     el("header", { class: "receipt-head" },
       el(titleTag, { class: "receipt-title" }, `Promise Receipt: ${review.project}, ${review.city}`),
       el("p", { class: "receipt-notice" }, review.notice)),
@@ -918,12 +981,19 @@ function renderReceipt(target, review, { titleTag = "p" } = {}) {
         el("tbody", {}, ...rows))),
     el("div", { class: "receipt-flags" },
       el("h3", {}, "Open questions, flagged for human review"),
-      review.questions.length ? el("ul", {}, ...review.questions.map((question) => el("li", {}, question.text))) : el("p", {}, "None."),
-      review.questions.length ? el("span", { class: "receipt-stamp", "aria-hidden": "true" }, "Flagged for human review") : null),
+      review.questions.length ? el("ul", {}, ...review.questions.map((question) => {
+        const event = review.decisions?.latest?.[`question:${question.key}`];
+        return el("li", {}, question.text, event
+          ? el("span", { class: "receipt-decision" }, `${event.label} by ${event.reviewer_name}, ${formatDate(event.at.slice(0, 10))}${event.note ? `: “${event.note}”` : "."}`)
+          : el("span", { class: "receipt-decision pending" }, "Not reviewed yet."));
+      })) : el("p", {}, "None."),
+      review.questions.length ? receiptStamp(review) : null),
+    review.decisions?.progress ? el("p", { class: "receipt-foot" },
+      `Review: ${review.decisions.progress.claims_reviewed} of ${review.decisions.progress.claims_total} claims and ${review.decisions.progress.flagged_reviewed} of ${review.decisions.progress.flagged_total} open questions have a reviewer decision. Decisions do not change any stage.`) : null,
     el("p", { class: "receipt-foot" }, `Quote check: ${passed} of ${total} quotes found on their cited pages.`),
     el("div", { class: "sign-off" }, el("p", {}, "Reviewed by: ______________________"), el("p", {}, "Date: ______________")),
-    el("p", { class: "receipt-foot" }, "This receipt is a review aid. It makes no legal findings."),
-  );
+    el("p", { class: "receipt-foot" }, "This receipt is a review aid. It makes no legal findings.")
+  ].filter(Boolean));
 }
 
 // Read new text: live extraction. Every result is machine-extracted and flagged for review.
@@ -983,6 +1053,7 @@ function docItem({ title, sub, phase, progress = null, error = null }) {
     status,
     busy || phase === "failed" ? progressSteps(phase) : null,
     phase === "uploading" && progress !== null ? el("span", { class: "bar", "aria-hidden": "true" }, el("span", { style: `width:${Math.round(progress * 100)}%` })) : null,
+    phase === "reading" || phase === "checking" ? el("span", { class: `bar working ${phase}`, "aria-hidden": "true" }, el("span")) : null,
     error ? el("p", { class: "doc-error" }, error) : null);
 }
 
@@ -1117,7 +1188,7 @@ async function pageParagraphs(doc, pageNumber) {
   return String(data.text || "").split(/\n\s*\n/).filter(Boolean);
 }
 
-function openSource(claim, opener) {
+function openSource(claim, opener, { modal = true } = {}) {
   const doc = dealState.documentsById.get(claim.document) || { id: claim.document, title: claim.document_type, type: claim.document_type, date: claim.date, pages: [] };
   const pageCount = Array.isArray(doc.pages) ? doc.pages.length : (doc.page_count ?? doc.pages);
   sourceOpener = opener;
@@ -1126,7 +1197,7 @@ function openSource(claim, opener) {
   const stage = el("div", { class: "pdf-stage" }, el("span", { class: "skeleton" }));
   const fallback = el("div", { class: "fallback", hidden: true });
   const pager = el("div", { class: "sp-pager" });
-  byId("source-body").replaceChildren(
+  byId("source-body").replaceChildren(...[
     el("blockquote", { class: "sp-quote", style: "margin:0" }, `“${claim.quote}”`),
     el("div", { class: "sp-status" }, quoteBadge(claim), tag(claim.status)),
     pager, stage, status, fallback,
@@ -1134,9 +1205,10 @@ function openSource(claim, opener) {
       el("dt", {}, "Document"), el("dd", {}, `${doc.type} · ${formatDate(doc.date)}`),
       el("dt", {}, "Quote check"), el("dd", {}, claim.quote_checked ? "Found word for word on this page" : "Flagged for human review"),
       el("dt", {}, "Signed by"), el("dd", {}, doc.signed_by?.length ? doc.signed_by.join(", ") : "Not a signed record")),
-    claim.review_note ? el("p", { class: "note-box" }, el("strong", {}, "Reviewer note: "), claim.review_note) : null,
-  );
-  byId("source-dialog").showModal();
+    claim.review_note ? el("p", { class: "note-box" }, el("strong", {}, "Reviewer note: "), claim.review_note) : null
+  ].filter(Boolean));
+  // The tour opens it without a backdrop so its caption stays usable on top.
+  if (modal) byId("source-dialog").showModal(); else byId("source-dialog").show();
   showSourcePage(claim, doc, claim.page, pageCount, { stage, status, fallback, pager });
 }
 
@@ -1181,6 +1253,7 @@ async function showSourcePage(claim, doc, pageNumber, pageCount, parts) {
       status.replaceChildren(el("span", { class: "badge badge-ok" }, svg("0 0 16 16", ICONS.ok), "Highlighted"), "The quote is highlighted on the PDF page.",
         el("button", { type: "button", class: "btn-link", onclick: (event) => { event.currentTarget.remove(); showFallback("Page text, with the quote marked:"); } }, "Show page text"));
       result.mark.scrollIntoView({ block: "center", behavior: reducedMotion.matches ? "auto" : "smooth" });
+      layerMarks(result.mark).forEach((mark) => mark.classList.add("pulse"));
     } else {
       status.replaceChildren(el("span", { class: "badge badge-warn" }, svg("0 0 16 16", ICONS.not_located), "Not matched"), "The quote could not be matched on this page image.");
       showFallback("Page text, with the quote marked:");
@@ -1429,6 +1502,7 @@ async function commandList() {
     const buttons = [...document.querySelectorAll("#deal-actions [data-export]")];
     buttons.forEach((button) => list.push({ group: "Actions", label: `Preview ${button.textContent.trim()} export`, icon: "file", run: () => button.click() }));
     list.push({ group: "Actions", label: "Share read-only link", icon: "link", run: () => byId("share-btn")?.click() });
+    list.push({ group: "Actions", label: "Take the 60-second tour", icon: "go", run: () => startTour(byId("tour-start")) });
   }
   list.push({ group: "Actions", label: "New deal", icon: "plus", run: () => document.querySelector(".view:not([hidden]) [data-new-deal], [data-new-deal]")?.click() });
   list.push({ group: "Display", label: `Switch to ${byId("theme-toggle").dataset.dark === "true" ? "light" : "dark"} mode`, icon: "theme", run: () => byId("theme-toggle").click() });
@@ -1530,6 +1604,12 @@ function exportCell(column, value, row = {}) {
   if (column === "Signed record") return text === "Yes" ? tag("signed", "Yes") : el("span", { class: "cell-muted" }, text || "No");
   if ((column === "Stage" || column === "Furthest stage") && STAGES.includes(text.toLowerCase())) return tag(text.toLowerCase(), text);
   if (column === "Quote") return el("span", { class: "quote" }, text);
+  if (column === "Decided" || column === "When") return el("span", { class: "mono nowrap" }, text);
+  if (column === "Note") return el("span", { class: "xp-note-cell" }, text);
+  if (column === "Decision") {
+    const key = Object.keys(DECISION_LABEL).find((k) => DECISION_LABEL[k] === text);
+    return key ? decisionTag({ decision: key, label: text }) : el("span", { class: "cell-muted" }, text);
+  }
   return text;
 }
 
@@ -1598,7 +1678,7 @@ async function openExport(dealId, format, opener) {
   const base = `/api/deals/${encodeURIComponent(dealId)}`;
   for (const ext of ["xlsx", "csv"]) {
     const link = byId(`xp-dl-${ext}`);
-    link.href = `${base}/export.${ext}`;
+    link.href = `${base}/export.${ext}?session=${encodeURIComponent(demoSession())}`;
     link.download = xp.data.files[ext];
     link.onclick = (event) => {
       if (mock) { event.preventDefault(); mockDownload(`${base}/export.${ext}`, xp.data.files[ext].replace(/\.xlsx$/, ".csv"), ext); return; }
@@ -1631,6 +1711,381 @@ function setupExportDialog() {
   });
 }
 
+// ---------- Reviewer decisions: people decide ----------
+// Each claim and each open question can be marked Confirmed, Needs follow-up or Disputed, with a note.
+// Decisions sit beside the record. They never change a claim's stage.
+const DECISION_ORDER = ["confirmed", "follow_up", "disputed"];
+const DECISION_TEXT = { confirmed: "Confirm", follow_up: "Needs follow-up", disputed: "Disputed" };
+const DECISION_LABEL = { confirmed: "Confirmed", follow_up: "Needs follow-up", disputed: "Disputed" };
+const DECISION_ICON = {
+  confirmed: [["path", { d: "M3.5 8.5l3 3 6-7" }]],
+  follow_up: [["circle", { cx: 8, cy: 8, r: 6 }], ["path", { d: "M8 4.8V8l2.2 1.4" }]],
+  disputed: [["path", { d: "M3.5 13.5V2.8M3.5 3h8l-1.6 2.6L11.5 8h-8" }]],
+};
+const MAX_NOTE = 500;
+const decisionsOf = (review) => review?.decisions || { latest: {}, log: [], progress: null, stamp: null };
+
+function reviewerName() { try { return localStorage.getItem("pl-reviewer") || ""; } catch (err) { return ""; } }
+function rememberReviewer(name) { try { localStorage.setItem("pl-reviewer", name); } catch (err) { /* This visit only. */ } }
+
+function formatWhen(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+}
+
+function decisionTag(event) {
+  return el("span", { class: `tag tag-decision tag-${event.decision}` }, svg("0 0 16 16", DECISION_ICON[event.decision]), event.label || DECISION_LABEL[event.decision]);
+}
+
+// The review cell: the current decision (if any) and a button to record or change it.
+function decisionCell(type, id, describe) {
+  const event = decisionsOf(dealState?.review).latest[`${type}:${id}`];
+  const button = el("button", {
+    type: "button", class: `btn btn-small ${event ? "btn-ghost" : "btn-secondary"} decide-btn`, "aria-haspopup": "dialog",
+    "aria-label": `${event ? "Change review" : "Review"}: ${describe}`,
+    onclick: (e) => openDecision(type, id, describe, e.currentTarget),
+  }, event ? "Change" : "Review");
+  return el("span", { class: "decision-cell", "data-decision": `${type}:${id}` },
+    event ? [decisionTag(event), el("span", { class: "decision-by" }, `${event.reviewer_name} · ${formatDate(event.at.slice(0, 10))}`),
+      event.note ? el("span", { class: "decision-note" }, `“${event.note}”`) : null] : el("span", { class: "cell-muted" }, "Not reviewed"),
+    button);
+}
+
+let decisionTarget = null;
+
+function openDecision(type, id, describe, opener) {
+  const dialog = byId("decision-dialog");
+  const current = decisionsOf(dealState.review).latest[`${type}:${id}`];
+  decisionTarget = { type, id, opener, openedAt: performance.now() };
+  byId("dd-item").textContent = describe;
+  byId("dd-error").textContent = "";
+  for (const input of dialog.querySelectorAll('input[name="decision"]')) input.checked = current ? input.value === current.decision : false;
+  byId("dd-note").value = current?.note || "";
+  updateNoteCount();
+  const name = reviewerName();
+  byId("dd-name-row").hidden = Boolean(name);
+  byId("dd-as").hidden = !name;
+  byId("dd-as-name").textContent = name;
+  byId("dd-name").value = name;
+  dialog.showModal();
+  (current ? dialog.querySelector(`input[value="${current.decision}"]`) : dialog.querySelector('input[name="decision"]')).focus();
+}
+
+function updateNoteCount() {
+  const left = MAX_NOTE - byId("dd-note").value.length;
+  byId("dd-count").textContent = `${left} characters left`;
+}
+
+async function saveDecision(event) {
+  event.preventDefault();
+  // The Enter key that opened the dialog can reach the first option and submit the form at once. Ignore that.
+  if (performance.now() - (decisionTarget?.openedAt || 0) < 400) return;
+  const form = event.currentTarget;
+  const choice = form.querySelector('input[name="decision"]:checked');
+  const name = byId("dd-name").value.trim() || reviewerName();
+  if (!choice) { byId("dd-error").textContent = "Choose Confirm, Needs follow-up or Disputed."; form.querySelector('input[name="decision"]').focus(); return; }
+  if (!name) { byId("dd-name-row").hidden = false; byId("dd-error").textContent = "Enter your name so the record shows who decided."; byId("dd-name").focus(); return; }
+  const save = form.querySelector('[type="submit"]');
+  save.disabled = true;
+  const wasComplete = decisionsOf(dealState.review).progress?.complete;
+  try {
+    const data = await api(`/api/deals/${encodeURIComponent(dealState.id)}/decisions`, {
+      method: "POST",
+      body: { target_type: decisionTarget.type, target_id: decisionTarget.id, decision: choice.value, note: byId("dd-note").value.trim() },
+      reviewer: name,
+    });
+    rememberReviewer(name);
+    const { event: saved, ...view } = data;
+    dealState.review.decisions = view;
+    byId("decision-dialog").close();
+    refreshDecisions({ justCompleted: !wasComplete && view.progress.complete, changed: `${saved.target_type}:${saved.target_id}` });
+    toast(`${saved.label}. Saved with your name and the time.`);
+  } catch (err) {
+    byId("dd-error").textContent = err.message;
+  } finally {
+    save.disabled = false;
+  }
+}
+
+function setupDecisionDialog() {
+  const dialog = byId("decision-dialog");
+  byId("decision-form").addEventListener("submit", saveDecision);
+  byId("dd-cancel").addEventListener("click", () => dialog.close());
+  byId("dd-note").addEventListener("input", updateNoteCount);
+  byId("dd-change-name").addEventListener("click", () => { byId("dd-name-row").hidden = false; byId("dd-as").hidden = true; byId("dd-name").focus(); });
+  dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+  dialog.addEventListener("close", () => {
+    const opener = decisionTarget?.opener;
+    // The opener may have been redrawn; focus its replacement.
+    const again = decisionTarget && document.querySelector(`[data-decision="${decisionTarget.type}:${CSS.escape(decisionTarget.id)}"] .decide-btn`);
+    (again || opener)?.focus();
+  });
+}
+
+// Progress meter and review log.
+function renderReviewPanel() {
+  const panel = byId("review-panel");
+  if (!panel || !dealState) return;
+  const d = decisionsOf(dealState.review);
+  const p = d.progress || { claims_reviewed: 0, claims_total: dealState.review.claims.length, flagged_reviewed: 0, flagged_total: dealState.review.questions.length, complete: false };
+  const bar = (done, total, label) => el("div", { class: "meter" },
+    el("p", { class: "meter-label" }, el("span", { class: "meter-num" }, `${done} of ${total}`), ` ${label}`),
+    el("div", { class: "meter-track", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(total), "aria-valuenow": String(done), "aria-label": label },
+      el("span", { class: "meter-fill", style: `--f:${total ? done / total : 0}` })));
+  const claimsById = dealState.claimsById;
+  const questions = new Map(dealState.review.questions.map((q) => [q.key, q]));
+  const what = (e) => {
+    if (e.target_type === "claim" && claimsById.get(e.target_id)) {
+      const c = claimsById.get(e.target_id);
+      return `${dealState.review.topics[c.topic] || c.topic} claim, ${c.document_type} p. ${c.page}`;
+    }
+    const q = questions.get(e.target_id);
+    return q ? `open question: ${q.text.split(":")[0]}` : e.target_id;
+  };
+  const shown = panel.dataset.all === "true" ? d.log : d.log.slice(0, 5);
+  const name = reviewerName();
+  panel.replaceChildren(...[
+    el("div", { class: "card-head" },
+      el("h2", { id: "review-title" }, "Your review"),
+      el("p", { class: "hint" }, name ? ["Reviewing as ", el("strong", {}, name)] : "People decide. Each decision is saved with a name and time.")),
+    el("div", { class: "card-body review-body" },
+      el("div", { class: "meters" },
+        bar(p.claims_reviewed, p.claims_total, "claims reviewed"),
+        bar(p.flagged_reviewed, p.flagged_total, "open questions decided"),
+        el("p", { class: `review-state ${p.complete ? "done" : ""}` }, p.complete
+          ? [svg("0 0 16 16", ICONS.ok), d.stamp.text.replace(/\d{4}-\d{2}-\d{2}$/, (m) => formatDate(m))]
+          : `The receipt stays “Flagged for human review” until every open question has a decision.`)),
+      el("div", { class: "review-log" },
+        el("h3", {}, "Review log"),
+        d.log.length
+          ? el("ol", { class: "timeline" }, shown.map((e) => el("li", {},
+            el("span", { class: "avatar", "aria-hidden": "true" }, (e.reviewer_name.trim()[0] || "?").toUpperCase()),
+            el("div", {},
+              el("p", {}, el("strong", {}, e.reviewer_name), " marked ", what(e), " as ", decisionTag(e)),
+              e.note ? el("p", { class: "decision-note" }, `“${e.note}”`) : null,
+              el("p", { class: "decision-by" }, el("time", { datetime: e.at }, formatWhen(e.at)))))))
+          : el("p", { class: "cell-muted" }, "No decisions yet. Use Review on a claim or an open question."),
+        d.log.length > 5 ? el("button", { type: "button", class: "btn-link", onclick: () => { panel.dataset.all = panel.dataset.all === "true" ? "false" : "true"; renderReviewPanel(); } },
+          panel.dataset.all === "true" ? "Show fewer" : `Show all ${d.log.length}`) : null)),
+    d.sandboxed ? el("div", { class: "card-foot sandbox-note" },
+      el("p", {}, svg("0 0 16 16", [["rect", { x: 3, y: 7, width: 10, height: 7, rx: 1.5 }], ["path", { d: "M5.5 7V5a2.5 2.5 0 0 1 5 0v2" }]]),
+        "This is a sample deal. Your review is kept for this browser only, and no one else sees it."),
+      d.log.length ? resetControl() : null) : null
+  ].filter(Boolean));
+}
+
+// "Reset my review" on sample deals, with an inline confirm.
+function resetControl() {
+  const wrap = el("span", { class: "reset-control" });
+  const ask = () => wrap.replaceChildren(
+    el("span", { class: "hint" }, "Clear your decisions on this sample?"),
+    el("button", { type: "button", class: "btn btn-secondary btn-small", id: "reset-yes", onclick: doReset }, "Reset"),
+    el("button", { type: "button", class: "btn btn-ghost btn-small", onclick: () => { idle(); byId("reset-review")?.focus(); } }, "Keep"));
+  const idle = () => wrap.replaceChildren(el("button", { type: "button", class: "btn btn-ghost btn-small", id: "reset-review", onclick: () => { ask(); byId("reset-yes").focus(); } }, "Reset my review"));
+  async function doReset() {
+    try {
+      dealState.review.decisions = await api(`/api/deals/${encodeURIComponent(dealState.id)}/decisions`, { method: "DELETE" });
+      refreshDecisions();
+      toast("Your review of this sample was reset.");
+      byId("review-title")?.focus?.();
+    } catch (err) {
+      toast(`The review was not reset. ${err.message}`, { kind: "warn" });
+    }
+  }
+  idle();
+  return wrap;
+}
+
+// Redraw everything that shows decisions, after a save.
+function refreshDecisions({ justCompleted = false, changed = null } = {}) {
+  renderReviewPanel();
+  renderClaims();
+  renderQuestions();
+  renderReceipt(byId("receipt-body"), dealState.review);
+  if (changed) {
+    const cell = document.querySelector(`[data-decision="${CSS.escape(changed)}"]`);
+    cell?.classList.add("just-decided");
+  }
+  if (justCompleted) {
+    toast("Every open question has a decision. The receipt is stamped as reviewed.");
+    const stamp = byId("receipt-body").querySelector(".receipt-stamp");
+    if (stamp) landStamp(stamp, 200);
+  } else {
+    byId("receipt-body").querySelector(".receipt-stamp")?.classList.add("landed");
+  }
+}
+
+// ---------- Guided tour: six steps with a spotlight ----------
+// For the live demo and for anyone exploring alone. Keyboard: Enter or the arrow keys move, Escape ends.
+// The spotlight and caption are top-layer popovers, so they sit above the source panel when it is open.
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+async function waitFor(find, timeout = 3500) {
+  const start = performance.now();
+  while (performance.now() - start < timeout) {
+    const node = find();
+    if (node) return node;
+    await sleep(80);
+  }
+  return null;
+}
+
+const TOUR = [
+  {
+    title: "Upload",
+    text: "Drag in the deal's PDFs. AI reads each page, and code checks every quote it finds.",
+    run: async () => { byId("source-dialog").open && byId("source-dialog").close(); return byId("dropzone"); },
+  },
+  {
+    title: "Claims",
+    text: "Every promise appears with its exact quote, document, date and page, and a stage of its own.",
+    run: async () => { activateTab("claims"); return byId("claim-rows")?.querySelector("tr"); },
+  },
+  {
+    title: "View source",
+    text: "View source opens the real PDF page with the quote highlighted, so anyone can check it.",
+    run: async () => {
+      activateTab("claims");
+      const button = byId("claim-rows")?.querySelector(".source-cell .btn");
+      const claim = button && dealState.claimsById.get(button.closest("tr")?.querySelector("[data-decision]")?.dataset.decision.split(":")[1]);
+      if (!button || !claim) return null;
+      if (!byId("source-dialog").open) openSource(claim, button, { modal: false });
+      byId("tour-next").focus(); // Opening the panel moves focus; keep it on the caption.
+      const mark = await waitFor(() => document.querySelector("#source-body mark.hl, #source-body .page-sheet mark"));
+      return mark || document.querySelector("#source-body .pdf-stage") || byId("source-body");
+    },
+  },
+  {
+    title: "What changed",
+    text: "Wording that drifts between records is marked: words removed are struck through, words added are underlined.",
+    run: async () => {
+      if (byId("source-dialog").open) byId("source-dialog").close();
+      activateTab("changes");
+      return byId("change-list")?.querySelector(".change-term");
+    },
+  },
+  {
+    title: "People decide",
+    text: "Each flag needs a person: confirm it, ask for follow-up or mark it disputed. Every decision keeps a name and time.",
+    run: async () => { activateTab("questions"); return byId("question-list")?.querySelector(".task"); },
+  },
+  {
+    title: "Receipt and share",
+    text: "The receipt gathers it all. When every flag has a decision, it is stamped as reviewed. Print it or share a read-only link.",
+    run: async () => { activateTab("receipt"); return byId("receipt-body")?.closest(".printer") || byId("receipt-body"); },
+  },
+];
+
+const tour = { step: -1, target: null, opener: null, layer: null, spot: null, card: null, busy: false };
+const usePopover = typeof HTMLElement !== "undefined" && "popover" in HTMLElement.prototype;
+
+function tourLayer() {
+  if (tour.layer) return;
+  tour.spot = el("div", { class: "tour-spot", "aria-hidden": "true" });
+  tour.layer = el("div", { class: "tour-layer", popover: usePopover ? "manual" : null, onclick: (event) => { if (event.target === tour.layer) endTour(); } }, tour.spot);
+  tour.card = el("div", { class: "tour-card", role: "dialog", "aria-modal": "false", "aria-labelledby": "tour-title", "aria-describedby": "tour-text", popover: usePopover ? "manual" : null, tabindex: "-1" },
+    el("p", { class: "tour-count", id: "tour-count" }),
+    el("h2", { id: "tour-title" }),
+    el("p", { id: "tour-text", "aria-live": "polite" }),
+    el("div", { class: "tour-dots", "aria-hidden": "true" }, TOUR.map(() => el("span"))),
+    el("div", { class: "tour-actions" },
+      el("button", { type: "button", class: "btn btn-ghost btn-small", id: "tour-skip", onclick: () => endTour() }, "Skip tour"),
+      el("button", { type: "button", class: "btn btn-secondary btn-small", id: "tour-back", onclick: () => goTour(tour.step - 1) }, "Back"),
+      el("button", { type: "button", class: "btn btn-primary btn-small", id: "tour-next", onclick: () => goTour(tour.step + 1) }, "Next")));
+  document.addEventListener("keydown", (event) => {
+    if (tour.step < 0) return;
+    if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); endTour(); }
+    else if (event.key === "ArrowRight") { event.preventDefault(); goTour(tour.step + 1); }
+    else if (event.key === "ArrowLeft") { event.preventDefault(); goTour(tour.step - 1); }
+    else if (event.key === "Tab") {
+      // Keep focus in the caption while the tour runs, wherever it was.
+      const items = [...tour.card.querySelectorAll("button:not([disabled])")];
+      const at = items.indexOf(document.activeElement);
+      event.preventDefault();
+      items[at < 0 ? items.length - 1 : (at + (event.shiftKey ? -1 : 1) + items.length) % items.length].focus();
+    }
+  }, true);
+  document.body.append(tour.layer, tour.card);
+}
+
+// Show the layer and caption on top of anything already in the top layer (such as the source panel).
+function raiseTour() {
+  if (!usePopover) { tour.layer.hidden = false; tour.card.hidden = false; return; }
+  for (const node of [tour.layer, tour.card]) {
+    if (node.matches(":popover-open")) node.hidePopover();
+    node.showPopover();
+  }
+}
+
+function placeTour() {
+  if (!tour.target || tour.step < 0) return;
+  const pad = 8;
+  const r = tour.target.getBoundingClientRect();
+  const spot = { top: Math.max(4, r.top - pad), left: Math.max(4, r.left - pad), width: Math.min(innerWidth - 8, r.width + pad * 2), height: Math.min(innerHeight - 8, r.height + pad * 2) };
+  Object.assign(tour.spot.style, { top: `${spot.top}px`, left: `${spot.left}px`, width: `${spot.width}px`, height: `${spot.height}px` });
+  const card = tour.card.getBoundingClientRect();
+  if (innerWidth < 640) { Object.assign(tour.card.style, { left: "", top: "", right: "", bottom: "" }); tour.card.classList.add("sheet"); return; }
+  tour.card.classList.remove("sheet");
+  const below = spot.top + spot.height + 12;
+  const top = below + card.height < innerHeight - 8 ? below : Math.max(8, spot.top - card.height - 12);
+  const left = Math.min(Math.max(8, spot.left), innerWidth - card.width - 8);
+  Object.assign(tour.card.style, { top: `${top}px`, left: `${left}px`, right: "auto", bottom: "auto" });
+}
+
+async function goTour(step) {
+  if (tour.busy || step < 0) return;
+  if (step >= TOUR.length) { endTour(); return; }
+  tour.busy = true;
+  tour.step = step;
+  const item = TOUR[step];
+  byId("tour-count").textContent = `Step ${step + 1} of ${TOUR.length}`;
+  byId("tour-title").textContent = item.title;
+  byId("tour-text").textContent = item.text;
+  tour.card.querySelectorAll(".tour-dots span").forEach((dot, i) => dot.classList.toggle("on", i <= step));
+  byId("tour-back").disabled = step === 0;
+  byId("tour-next").textContent = step === TOUR.length - 1 ? "Finish" : "Next";
+  let target = null;
+  try { target = await item.run(); } catch (err) { target = null; }
+  tour.target = target || byId("deal-title");
+  tour.target.scrollIntoView({ block: "center", behavior: reducedMotion.matches ? "auto" : "smooth" });
+  await sleep(reducedMotion.matches ? 0 : 320);
+  raiseTour();
+  placeTour();
+  byId("tour-next").focus();
+  tour.busy = false;
+}
+
+async function startTour(opener = null) {
+  if (current.view !== "deal" || !dealState || byId("details").hidden) return;
+  tourLayer();
+  tour.opener = opener || document.activeElement;
+  document.documentElement.classList.add("touring");
+  window.addEventListener("resize", placeTour);
+  window.addEventListener("scroll", placeTour, { passive: true });
+  await goTour(0);
+}
+
+function endTour() {
+  if (tour.step < 0) return;
+  tour.step = -1;
+  tour.target = null;
+  window.removeEventListener("resize", placeTour);
+  window.removeEventListener("scroll", placeTour);
+  document.documentElement.classList.remove("touring");
+  for (const node of [tour.layer, tour.card]) {
+    if (usePopover) { if (node.matches(":popover-open")) node.hidePopover(); } else node.hidden = true;
+  }
+  if (byId("source-dialog").open) byId("source-dialog").close();
+  activateTab("claims");
+  const back = tour.opener?.isConnected && tour.opener.matches?.("button, a") ? tour.opener : byId("tour-start");
+  back?.focus();
+}
+
+// The tour starts from the button on a sample deal, from #/deals/{id}/tour, or from the command menu.
+function tourButton() {
+  return el("button", { type: "button", class: "btn btn-ghost tour-start", id: "tour-start", onclick: (event) => startTour(event.currentTarget) },
+    svg("0 0 24 24", [["circle", { cx: 12, cy: 12, r: 9 }], ["path", { d: "M10 8.5v7l5.5-3.5z" }]]), "Take the 60-second tour");
+}
+
 // ---------- Start ----------
 // Web fonts load after the first paint. Metric-matched fallbacks in style.css keep text from moving when they arrive.
 const FONTS = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap";
@@ -1643,6 +2098,7 @@ setupSourceDialog();
 setupPageDrop();
 setupCommands();
 setupExportDialog();
+setupDecisionDialog();
 setupReveal();
 setupHeroMotion();
 ready = detectMode();

@@ -37,6 +37,8 @@ Pages (hash routes):
 - **Home `#/`:** a short landing: hero with a receipt that assembles itself, the problem in three pictures, how it works, proof figures from the sample-data evals, the explainer videos, who it is for, and a call to open a sample deal. Press Ctrl+K (Cmd+K on a Mac) anywhere for the command menu.
 - **Deals `#/deals`:** every deal with its documents, furthest stage, flags and next reminder, plus a reminders panel and a New deal dialog.
 - **Deal `#/deals/{id}`:** at a glance, key figures, stages, documents with drag-and-drop PDF upload, and tabs for Claims, What changed, Open questions, Receipt, Read new text and Glossary. "View source" opens the real PDF page with the quote highlighted. If the quote cannot be matched on the page, the page text is shown with the quote marked. Export to Excel or CSV, or share a read-only link.
+- **People decide:** every claim and every open question can be marked Confirmed, Needs follow-up or Disputed, with an optional note. The reviewer's name is asked once per browser, and each decision keeps a name and time. The deal page shows progress and a review log. The receipt stays "Flagged for human review" until every open question has a decision, then reads "Reviewed · name · date". Decisions never change a stage. API: `GET/POST /api/deals/{id}/decisions`.
+- **Guided tour:** "Take the 60-second tour" on a deal (or `#/deals/{id}/tour`) walks through upload, claims, the PDF highlight, what changed, decisions and the receipt. Escape ends it.
 - **Shared receipt `#/r/{token}`:** a read-only receipt that prints cleanly.
 
 Notes for the interface (`app/static/`):

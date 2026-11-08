@@ -69,6 +69,7 @@
               <a class="btn btn-primary btn-lg js-sample" id="open-sample" href="#/deals/harbor-walk">Open a sample deal<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
               <button type="button" class="btn btn-secondary btn-lg" data-new-deal>Start a new deal</button>
             </div>
+            <p class="hero-tour"><a class="js-sample-tour" href="#/deals/harbor-walk/tour"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z"/></svg>Take the 60-second tour</a></p>
             <p class="hero-motto"><span>AI reads</span><span>Code checks</span><span>People decide</span></p>
           </div>
 
@@ -282,6 +283,33 @@
   </dialog>
 
   <div id="glossary-popovers"></div>
+  <dialog class="modal decision" id="decision-dialog" aria-labelledby="dd-title" aria-describedby="dd-item">
+    <form id="decision-form" class="modal-form" novalidate>
+      <h2 id="dd-title">Your review</h2>
+      <p class="dd-item" id="dd-item"></p>
+      <fieldset class="dd-choices">
+        <legend>Decision</legend>
+        <label class="dd-choice"><input type="radio" name="decision" value="confirmed"><span class="dd-mark dd-confirmed" aria-hidden="true"></span><span><strong>Confirm</strong><span class="dd-help">The record supports this.</span></span></label>
+        <label class="dd-choice"><input type="radio" name="decision" value="follow_up"><span class="dd-mark dd-follow_up" aria-hidden="true"></span><span><strong>Needs follow-up</strong><span class="dd-help">Ask staff or the owner before deciding.</span></span></label>
+        <label class="dd-choice"><input type="radio" name="decision" value="disputed"><span class="dd-mark dd-disputed" aria-hidden="true"></span><span><strong>Disputed</strong><span class="dd-help">The record does not settle this.</span></span></label>
+      </fieldset>
+      <label for="dd-note">Note <span class="hint">(optional)</span></label>
+      <textarea id="dd-note" name="note" rows="3" maxlength="500" aria-describedby="dd-count"></textarea>
+      <p class="hint" id="dd-count" aria-live="polite"></p>
+      <p class="dd-as" id="dd-as">Saving as <strong id="dd-as-name"></strong>. <button type="button" class="btn-link" id="dd-change-name">Change</button></p>
+      <div id="dd-name-row" class="dd-name-row">
+        <label for="dd-name">Your name</label>
+        <p class="hint">Asked once and kept in this browser. Every decision shows who made it and when.</p>
+        <input id="dd-name" name="reviewer" maxlength="80" autocomplete="name">
+      </div>
+      <p class="form-error" id="dd-error" role="alert"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="dd-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save decision</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog class="xport" id="export-dialog" aria-labelledby="xp-title" aria-describedby="xp-meta">
     <div class="xp-head">
       <span class="xp-file" id="xp-icon" aria-hidden="true">XLSX</span>

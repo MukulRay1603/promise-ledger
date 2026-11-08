@@ -135,7 +135,7 @@ class DealApi(unittest.TestCase):
         r = self.client.get(f"/api/deals/{deal_id}/export.xlsx")
         self.assertIn("spreadsheetml", r.headers["content-type"])
         wb = load_workbook(io.BytesIO(r.content))
-        self.assertEqual(wb.sheetnames, ["Claims", "Terms", "About"])
+        self.assertEqual(wb.sheetnames, ["Claims", "Terms", "Open questions", "Review log", "About"])
         rows = list(wb["Claims"].values)
         self.assertEqual(list(rows[0]), deals.CLAIM_COLUMNS)
         self.assertEqual(rows[1][0], "Units")
@@ -159,14 +159,15 @@ class DealApi(unittest.TestCase):
         self.assertEqual(preview["csv_sheet"], "Claims")
         wb = load_workbook(io.BytesIO(self.client.get(f"/api/deals/{deal_id}/export.xlsx").content))
         self.assertEqual([sheet["name"] for sheet in preview["sheets"]], wb.sheetnames)
-        for sheet in preview["sheets"][:2]:  # About carries the export time, so only its shape is compared.
+        for sheet in preview["sheets"][:-1]:  # About carries the export time, so only its shape is compared.
             file_rows = [["" if v is None else v for v in row] for row in wb[sheet["name"]].values]  # Empty cells read back as None.
             self.assertEqual(file_rows[0], sheet["columns"])
             self.assertEqual(file_rows[1:], sheet["rows"])
         text = self.client.get(f"/api/deals/{deal_id}/export.csv").content.decode("utf-8-sig")
         claims = preview["sheets"][0]
         self.assertEqual(list(csv.reader(io.StringIO(text))), [claims["columns"]] + [[str(v) for v in row] for row in claims["rows"]])
-        self.assertEqual(len(preview["sheets"][2]["rows"]), wb["About"].max_row)
+        about = next(sheet for sheet in preview["sheets"] if sheet["name"] == "About")
+        self.assertEqual(len(about["rows"]), wb["About"].max_row)
 
     def test_export_preview_needs_a_deal(self):
         self.assertEqual(self.client.get("/api/deals/nope/export.json").status_code, 404)

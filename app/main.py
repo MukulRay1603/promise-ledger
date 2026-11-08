@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 
 load_dotenv()
 
-from app import ai, deals, ledger, pipeline  # noqa: E402  (needs env loaded first)
+from app import ai, deals, identity, ledger, pipeline  # noqa: E402  (needs env loaded first)
 from app.storage import get_store  # noqa: E402
 
 STATIC = Path(__file__).parent / "static"
@@ -158,30 +158,74 @@ def document_page(deal_id: str, doc_id: str, n: int):
 
 
 @app.get("/api/deals/{deal_id}/review")
-def deal_review(deal_id: str):
+def deal_review(deal_id: str, request: Request):
     _deal_or_404(deal_id)
-    return deals.deal_review(deal_id)
+    return deals.deal_review(deal_id, session=identity.demo_session(request))
 
 
 @app.get("/api/deals/{deal_id}/export.xlsx")
-def export_xlsx(deal_id: str):
+def export_xlsx(deal_id: str, request: Request):
     _deal_or_404(deal_id)
-    data = deals.export_xlsx(deals.deal_review(deal_id))
+    data = deals.export_xlsx(deals.deal_review(deal_id, session=identity.demo_session(request)))
     return Response(data, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     headers={"Content-Disposition": f'attachment; filename="{deal_id}-promise-ledger.xlsx"'})
 
 
+@app.get("/api/deals/{deal_id}/decisions")
+def get_decisions(deal_id: str, request: Request):
+    _deal_or_404(deal_id)
+    return deals.deal_review(deal_id, session=identity.demo_session(request))["decisions"]
+
+
+class DecisionIn(BaseModel):
+    target_type: str = Field(max_length=20)
+    target_id: str = Field(min_length=1, max_length=120)
+    decision: str = Field(max_length=20)
+    note: str | None = Field(default=None, max_length=deals.MAX_NOTE + 200)
+
+
+def _rate_limited(request: Request) -> None:
+    key = identity.demo_session(request) or (request.client.host if request.client else "unknown")
+    if not identity.decision_limit.allow(key):
+        raise HTTPException(429, "That is a lot of decisions in one minute. Wait a moment and try again.")
+
+
+@app.post("/api/deals/{deal_id}/decisions", status_code=201)
+def post_decision(deal_id: str, body: DecisionIn, request: Request):
+    _deal_or_404(deal_id)
+    _rate_limited(request)
+    try:
+        reviewer = identity.current_reviewer(request)
+        event = deals.add_decision(deal_id, body.model_dump(), reviewer)
+    except (deals.DecisionError, identity.IdentityError) as err:
+        raise HTTPException(422, str(err)) from err
+    return {"event": event, **deals.deal_review(deal_id, session=reviewer["session"])["decisions"]}
+
+
+@app.delete("/api/deals/{deal_id}/decisions")
+def reset_decisions(deal_id: str, request: Request):
+    """Reset this browser's review of a sample deal. Shared deals cannot be reset from here."""
+    _deal_or_404(deal_id)
+    _rate_limited(request)
+    session = identity.demo_session(request)
+    try:
+        deals.reset_decisions(deal_id, session)
+    except deals.DecisionError as err:
+        raise HTTPException(409, str(err)) from err
+    return deals.deal_review(deal_id, session=session)["decisions"]
+
+
 @app.get("/api/deals/{deal_id}/export.json")
-def export_preview(deal_id: str):
+def export_preview(deal_id: str, request: Request):
     """The rows the Excel and CSV downloads hold, for the in-app preview."""
     _deal_or_404(deal_id)
-    return deals.export_preview(deals.deal_review(deal_id), deal_id)
+    return deals.export_preview(deals.deal_review(deal_id, session=identity.demo_session(request)), deal_id)
 
 
 @app.get("/api/deals/{deal_id}/export.csv")
-def export_csv(deal_id: str):
+def export_csv(deal_id: str, request: Request):
     _deal_or_404(deal_id)
-    text = deals.export_csv(deals.deal_review(deal_id))
+    text = deals.export_csv(deals.deal_review(deal_id, session=identity.demo_session(request)))
     return Response("﻿" + text, media_type="text/csv; charset=utf-8",
                     headers={"Content-Disposition": f'attachment; filename="{deal_id}-promise-ledger.csv"'})
 
@@ -189,7 +233,7 @@ def export_csv(deal_id: str):
 @app.post("/api/deals/{deal_id}/share")
 def share(deal_id: str, request: Request):
     _deal_or_404(deal_id)
-    token = deals.create_share(deal_id)
+    token = deals.create_share(deal_id, session=identity.demo_session(request))
     base = os.getenv("PUBLIC_BASE_URL") or str(request.base_url).rstrip("/")
     return {"url": f"{base}/r/{token}", "token": token}
 
