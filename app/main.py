@@ -138,7 +138,23 @@ def upload_document(deal_id: str, request: Request, file: UploadFile = File(...)
         doc = deals.add_document(deal_id, file.filename or "document.pdf", data, type, date_ or None, title)
     except pipeline.PdfError as err:
         raise HTTPException(422, str(err))
-    return deals.public_doc(get_store().get_document(deal_id, doc["id"]) or doc)
+    out = deals.public_doc(get_store().get_document(deal_id, doc["id"]) or doc)
+    if doc.get("duplicate"):  # The same file is already in this deal; its claims are not added twice (L11).
+        out["duplicate"] = True
+    return out
+
+
+@app.post("/api/deals/{deal_id}/documents/{doc_id}/retry", status_code=202)
+def retry_document(deal_id: str, doc_id: str, request: Request):
+    """Read a failed or stuck document again (L12)."""
+    deal = _deal_or_404(deal_id, request)
+    _doc_or_404(deal_id, doc_id, request)
+    if guard.enabled() and deals.is_sample(deal):
+        raise HTTPException(403, SAMPLE_READ_ONLY)
+    try:
+        return deals.public_doc(deals.retry_document(deal_id, doc_id))
+    except deals.RetryError as err:
+        raise HTTPException(409, str(err)) from err
 
 
 @app.get("/api/deals/{deal_id}/documents/{doc_id}")

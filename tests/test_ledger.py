@@ -174,7 +174,9 @@ class Summary(unittest.TestCase):
         self.assertEqual(self.summary()["sentences"][1], "No signed record located.")
 
     def test_open_questions_cover_missing_and_differing_terms(self):
-        tags = {(q["key"], q["tag"]) for q in self.questions()}
+        tags = {(q.get("term", q["key"]), q["tag"]) for q in self.questions()}
+        keys = [q["key"] for q in self.questions()]
+        self.assertEqual(len(keys), len(set(keys)))  # One key per question, even for a term both unsigned and differing (L9).
         for key in ("rent_limits", "remedies", "reporting", "city_signature", "delivery"):
             self.assertIn((key, "not_located"), tags)
         for key in ("units", "income_basis", "term"):

@@ -176,6 +176,27 @@ def locate(quote: str, pages: list[str], stated: int) -> int | None:
 # Values, numbers and dates, checked by code
 
 _NUM = r"(\d[\d,]*)"
+_UNITS = r"(?:homes?|units?|apartments?)"
+
+_ONES = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
+         "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"]
+_TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+_WORD_NUMBER = re.compile(r"\b(?:(" + "|".join(_TENS[2:]) + r")(?:[- ](" + "|".join(_ONES[1:10]) + r"))?|("
+                          + "|".join(_ONES) + r")|(one hundred|a hundred))\b", re.I)
+
+
+def numeric(text: str) -> str:
+    """Normalized text with number words as digits ("thirty years" -> "30 years"), for code comparisons (L7).
+
+    Only values read by code use this. Stored and shown quotes keep the record's exact words.
+    """
+    def word(m: re.Match) -> str:
+        if m.group(4):
+            return "100"
+        if m.group(3):
+            return str(_ONES.index(m.group(3).lower()))
+        return str(_TENS.index(m.group(1).lower()) * 10 + (_ONES.index(m.group(2).lower()) if m.group(2) else 0))
+    return _WORD_NUMBER.sub(word, normalize(text))
 
 
 def _int(s: str) -> int:
@@ -187,20 +208,49 @@ def numbers(topic: str, quote: str) -> dict:
     out: dict = {}
     if topic != "units":
         return out
-    m = re.search(rf"\b{_NUM} of (?:the |all |its )?{_NUM}\b(?: (?:new |total )?(?:homes|units|apartments))?", quote)
-    if m and _int(m.group(1)) < _int(m.group(2)):
+    quote = numeric(quote)
+    # "N of the M homes": a homes word must follow, so "Section 4 of the 2024 agreement" is not a count (L6).
+    of_homes = r"(?:\s+[A-Za-z-]+){0,3}?\s+" + _UNITS + r"\b"
+    m = re.search(rf"\b{_NUM} of (?:the |all |its )?{_NUM}\b{of_homes}", quote, re.I)
+    if m and _int(m.group(1)) < _int(m.group(2)):  # "9 of the 9" is a delivery count, not a commitment.
         out["homes"] = {"count": _int(m.group(1)), "of": _int(m.group(2))}
         return out
-    m = re.search(rf"\b{_NUM} (?:percent|%) of (?:the |all |its )?{_NUM}\b", quote)
+    m = re.search(rf"\b{_NUM}\s*(?:percent|%) of (?:the |all |its )?{_NUM}\b{of_homes}", quote, re.I)
     if m:
         pct, total = _int(m.group(1)), _int(m.group(2))
         if pct * total % 100 == 0:
             out["math"] = {"percent": pct, "of": total, "equals": pct * total // 100}
         return out
-    m = re.search(rf"\b{_NUM} (?:affordable |income-restricted |workforce |reduced-rent )?(?:homes|units|apartments)\b", quote)
+    m = re.search(rf"\b{_NUM} (?:affordable |income-restricted |workforce |reduced-rent )?{_UNITS}\b", quote, re.I)
     if m:
         out["homes"] = {"count": _int(m.group(1))}
     return out
+
+
+_YEARS = re.compile(r"\b(\d+)[\s-]*years?\b", re.I)
+# Words that put a number of years on the restrictions themselves, and words that make it some other span.
+_TERM_LEAD = re.compile(r"(?:\bfor|\blasts?|\bremain[a-z]*(?: in effect)?(?: for)?|\bterm of|\bperiod of|\ba|\ban)\s*$", re.I)
+_OTHER_SPAN = re.compile(r"(?:\bwithin|\bafter|\bbefore|\bevery|\bonce|\bby)\s*$", re.I)
+_INCOME_PCT = re.compile(r"\b(\d+)\s*(?:percent|%)\s+(?:of\s+)?(?:the\s+)?(?:area median income|AMI|median income)", re.I)
+
+
+def term_years(text: str) -> int | None:
+    """The length of the restrictions in years: the number led by "for", "remain" or "term of", not by "within" (L8)."""
+    q = numeric(text)
+    found = [(m, q[max(0, m.start() - 30):m.start()]) for m in _YEARS.finditer(q)]
+    if not found:
+        return None
+    lead = [m for m, before in found if _TERM_LEAD.search(before)]
+    plain = [m for m, before in found if not _OTHER_SPAN.search(before)]
+    best = (lead or plain or [m for m, _ in found])[0]
+    return int(best.group(1))
+
+
+def income_percents(text: str) -> list[str]:
+    """Percents tied to area median income first ("80% of AMI, averaging 60%" reads 80), else every percent (L8)."""
+    q = numeric(text)
+    tied = _INCOME_PCT.findall(q)
+    return tied or re.findall(r"\b(\d+)\s*(?:percent|%)", q)
 
 
 def canonical_value(topic: str, quote: str, model_value: str) -> str:
@@ -215,13 +265,13 @@ def canonical_value(topic: str, quote: str, model_value: str) -> str:
         if "math" in n:
             return f"{n['math']['equals']} homes"
     if topic == "term":
-        m = re.search(r"\b(\d+)[- ]years?\b", q)
-        if m:
-            return f"{m.group(1)} years"
+        years = term_years(quote)
+        if years:
+            return f"{years} years"
     if topic in ("income_basis", "rent_limits"):
-        m = re.search(r"\b(\d+)\s*(?:percent|%)", q)
-        if m:
-            return f"{m.group(1)} percent of area median income" if topic == "income_basis" else f"{m.group(1)} percent"
+        found = income_percents(quote) if topic == "income_basis" else re.findall(r"\b(\d+)\s*(?:percent|%)", numeric(q))
+        if found:
+            return f"{found[0]} percent of area median income" if topic == "income_basis" else f"{found[0]} percent"
     # The model's own wording is kept only if it is short and every number in it is in the quote (S10).
     value = normalize(model_value or "").strip().rstrip(".")
     if value and len(value) <= 80 and set(re.findall(r"\d+", value)) <= set(re.findall(r"\d+", normalize(quote))):
@@ -241,7 +291,7 @@ def compare_key(topic: str, quote: str) -> str | None:
     None means the quote states no comparable value (a total home count, a duty with no date, a party),
     so it never makes a term differ. The model's own wording of the value is shown but never compared.
     """
-    q = normalize(quote)
+    q = numeric(quote)
     if topic == "units":
         # The count and the form of the commitment: "up to 12" is a cap and "10 percent of 120" is a share,
         # so both differ from a flat "12 homes", as in the hand-reviewed demo. "12 of the 120" is a flat 12.
@@ -260,9 +310,12 @@ def compare_key(topic: str, quote: str) -> str | None:
         m = _END_DATE.search(q)
         if m:
             return f"ends {m.group(1).lower()} {int(m.group(2))} {m.group(3)}"
-        m = re.search(r"\b(\d+)[\s-]*years?\b", q, re.I)
-        return f"{m.group(1)} years" if m else None
-    if topic in ("income_basis", "rent_limits"):
+        years = term_years(q)
+        return f"{years} years" if years else None
+    if topic == "income_basis":
+        found = income_percents(q)
+        return " of ".join(found) + " percent" if found else None
+    if topic == "rent_limits":  # "30 percent of 50 percent" is one limit, so every percent is kept in order.
         found = re.findall(r"\b(\d+)\s*(?:percent|%)", q)
         return " of ".join(found) + " percent" if found else None
     if topic == "reporting":
@@ -310,23 +363,44 @@ TYPE_LABELS = {
     "other": "Other record",
 }
 _TYPE_WORDS = [
-    ("certificate", r"certif|occupancy|compliance report|lease-?up|rent roll"),
-    ("agreement", r"agreement|contract|covenant|deed|regulatory"),
+    ("agreement", r"agreement|contract|covenant|\bdeed\b|regulatory"),
+    ("certificate", r"\bcertificate\b|lease-?up report|rent roll"),
     ("resolution", r"resolution|ordinance"),
     ("minutes", r"minutes|meeting record"),
     ("slides", r"slide|presentation|deck"),
     ("staff_report", r"staff|memo|report|summary"),
     ("letter", r"letter|correspondence|commitment"),
 ]
-_SUPPORT_EVIDENCE = re.compile(r"\b(vote[ds]?|voting|adopt(ed|s)?|approv(ed|es|al)|resolved|motion (passed|carried)|ayes?)\b", re.I)
-_DELIVERY_EVIDENCE = re.compile(r"certificate of occupancy|occupan(cy|t|ts)|certif(y|ies|ied|icate)|leased|placed in service|compliance", re.I)
+# A recorded Council action that passed (L5). Each sentence is checked on its own, after the negation guard.
+_SUPPORT_ACTED = re.compile(r"\bpassed and adopted\b|\bmotion (?:passed|carried)\b|\b(?:was|were|is) (?:approved|adopted)\b|"
+                            r"\bthe (?:city )?council (?:approves|approved|adopts|adopted|resolves|authorizes)\b|"
+                            r"\bbe it resolved\b|\bvoted (\d+) to (\d+) to (?:support|approve|adopt|grant)\b", re.I)
+_SUPPORT_NOT = re.compile(r"\b(?:fail(?:ed|s)?|denied|denies|rejected|tabled|withdrawn|did not pass|not (?:adopt|approv|support)\w*|"
+                          r"continued (?:to|until)|postponed|no action)\b|\bapproval of the (?:minutes|agenda)\b|"
+                          r"\b(?:minutes|agenda) (?:was|were) approved\b|\bapproved as posted\b|\bapproved by the council on\b", re.I)
+# A certificate states what was delivered: homes leased, occupied or certified (L4).
+_DELIVERY_EVIDENCE = re.compile(r"\bcertificate of occupancy\b|\b(?:were|was|are|is|has been|have been) (?:leased|occupied|"
+                                r"rented|placed in service)\b|\bleased to\b|\bcertif(?:y|ies) that\b", re.I)
+# The type the model reads is used only if the record names it, so the model alone never sets a stage (L4).
+_KIND_IN_TEXT = {
+    "agreement": re.compile(r"\bagreement\b|\bcovenant\b|\bdeed\b|\bcontract\b", re.I),
+    "letter": re.compile(r"\bdear\b|\bsincerely\b|\bletter\b", re.I),
+    "minutes": re.compile(r"\bminutes\b", re.I),
+    "resolution": re.compile(r"\bresolution\b|\bordinance\b", re.I),
+    "certificate": re.compile(r"\bcertificate\b", re.I),
+}
 _DRAFT_UPPER = re.compile(r"\bDRAFT\b|\bNOT SIGNED\b|\bUNSIGNED\b")
-_SIGNED_MARK = re.compile(r"/s/|\bsigned\b|\bsignature\b|\bexecuted\b|\bby:\s*\S", re.I)
+# A completed signature: "/s/ Name", "[signature on file]", "[signed]" or a digital-signature stamp (L3).
+# A blank "Signature:", a typed "By: Name" or "executed in counterparts" is not a signature.
+_SIGNED_MARK = re.compile(r"/s/\s*\S|\[\s*signature on file\s*\]|\[\s*signed\s*\]|\b(?:digitally|electronically) signed by\b", re.I)
 _BLANK_LINE = re.compile(r"_{3,}")
 
 
 def type_key(label: str | None) -> str | None:
-    """Map a staff-entered type such as "Executed agreement" to a rule key."""
+    """Map a staff-entered type such as "Executed agreement" to a rule key, from the label's words only (L4).
+
+    "Certified copy of the agreement" is an agreement and "Annual compliance report" a report, not a certificate.
+    """
     if not label:
         return None
     low = label.strip().lower().replace(" ", "_")
@@ -346,6 +420,26 @@ def is_draft(pages: list[str], model_says_draft: bool) -> bool:
 
 
 SIGNATURE_WINDOW = 3  # Lines after a party's name that count as its signature block.
+# A party that is only a job title ("City Clerk", "Managing Member") names no one who is bound (L1).
+_TITLE_ONLY = re.compile(r"^(?:the\s+)?(?:(?:city|county|town|village|assistant|deputy|managing|general|authorized|"
+                         r"executive|housing|program|compliance)\s+)*(?:clerk|manager|attorney|mayor|director|officer|member|"
+                         r"partner|analyst|secretary|treasurer|president|chair(?:person)?|witness|notary(?: public)?|"
+                         r"engineer|planner|staff|representative|signatory|owner)s?$", re.I)
+# Lines that start another signature block or an attestation.
+_BLOCK_END = re.compile(r"^(?:attest|approved as to form|witness|notary|acknowledg)", re.I)
+
+
+def _starts_block(line: str) -> bool:
+    """Another party's heading (a name in capitals) or an attestation label."""
+    text = line.strip()
+    if _BLOCK_END.search(text):
+        return True
+    letters = [ch for ch in text if ch.isalpha()]
+    return len(text.split()) >= 2 and len(letters) >= 6 and all(ch.isupper() for ch in letters) and not _SIGNED_MARK.search(text)
+
+
+def is_title_only(party: str) -> bool:
+    return bool(_TITLE_ONLY.match(normalize(party).strip().rstrip(":.")))
 _UNSIGNED = re.compile(r"unsigned|not signed|signature pending|to be signed", re.I)
 
 
@@ -367,6 +461,8 @@ def signature_block(party: str, page_text: str) -> str | None:
             for nxt in lines[i + 1:i + 1 + SIGNATURE_WINDOW]:
                 if _signed_line(nxt):
                     return nxt
+                if _starts_block(nxt):  # The next party's block: this party's signature was not found (L1).
+                    break
     return None
 
 
@@ -379,7 +475,7 @@ def checked_signatures(signatures: list[dict], pages: list[str]) -> list[dict]:
     kept = []
     for sig in signatures:
         party = (sig.get("party") or "").strip()
-        if len(party) < 3:
+        if len(party) < 3 or is_title_only(party):
             continue
         stated = int(sig.get("page") or 0)
         order = ([stated] if 1 <= stated <= len(pages) else []) + [n for n in range(1, len(pages) + 1) if n != stated]
@@ -391,23 +487,56 @@ def checked_signatures(signatures: list[dict], pages: list[str]) -> list[dict]:
     return kept
 
 
+def _sentences(text: str) -> list[str]:
+    return [s for s in re.split(r"(?<=[.;:])\s+|\n", normalize(text)) if s.strip()]
+
+
+def support_actions(text: str) -> list[int]:
+    """Character offsets of recorded actions that passed: adopted, carried, or a vote with more ayes (L5)."""
+    found, at = [], 0
+    norm = normalize(text)
+    for sentence in _sentences(text):
+        at = norm.find(sentence, at)
+        if _SUPPORT_NOT.search(sentence):
+            continue
+        for m in _SUPPORT_ACTED.finditer(sentence):
+            if m.group(1) and int(m.group(1)) <= int(m.group(2)):
+                continue  # "voted 2 to 5 to approve" did not pass.
+            found.append(max(at, 0) + m.start())
+    return found
+
+
+def record_kind(staff_type: str | None, model_type: str | None, pages: list[str]) -> tuple[str, bool]:
+    """(kind, from_staff). With no staff type, the model's type counts only if the record names it (L4)."""
+    kind = type_key(staff_type)
+    if kind:
+        return kind, True
+    guess = type_key(model_type) or "other"
+    first = "\n".join(pages[:1])
+    if guess in _KIND_IN_TEXT and _KIND_IN_TEXT[guess].search(first):
+        return guess, False
+    return "other", False
+
+
 def decide_stage(kind: str, pages: list[str], signatures: list[dict], draft: bool) -> tuple[str, list[str], str]:
     """Return (stage, signed_by, reason). The furthest a record can reach is set by its type."""
     text = "\n".join(pages)
     signers = list(dict.fromkeys(s["party"] for s in signatures))
     if kind == "certificate":
+        if draft:
+            return "proposed", signers, "Marked as a draft."
         if _DELIVERY_EVIDENCE.search(text):
-            return "delivered", signers, "Certificate or occupancy record."
-        return "proposed", signers, "Marked as a certificate, but no occupancy or certification wording was located."
+            return "delivered", signers, "Certificate or occupancy record, as stated in the record."
+        return "proposed", signers, "Marked as a certificate, but no statement that homes were leased, occupied or certified was located."
     if kind in ("agreement", "letter"):
         if signers and not draft:
             return "signed", signers, f"Signed by {', '.join(signers)}."
         why = "Marked as a draft or unsigned." if draft else "No completed signature was located."
         return "proposed", [], why
     if kind in ("minutes", "resolution"):
-        if _SUPPORT_EVIDENCE.search(text):
-            return "supported", [], "Council minutes or resolution with a recorded action."
-        return "proposed", [], "Minutes or resolution, but no vote or approval wording was located."
+        if support_actions(text):
+            return "supported", [], "Council minutes or resolution with a recorded action that passed."
+        return "proposed", [], "Minutes or resolution, but no adopted or carried action was located."
     return "proposed", [], "Staff reports, letters and slides describe proposals."
 
 
@@ -466,12 +595,23 @@ _ABSENT = re.compile(r"\b(?:not|never) (?:yet )?(?:been )?(?:described|included|
                      r"defined|set out|provided|attached|located)\b|\bto be (?:set|decided|determined) later\b", re.I)
 
 _RECOMMENDS = re.compile(r"\brecommend(s|ed)?\b", re.I)
+_NOT_RECOMMENDS = re.compile(r"\b(?:not|n't|never|no longer)\s+recommend|\brecommend(?:s|ed)?\s+(?:against|denial|that the council (?:deny|reject|not))", re.I)
+NEAR_ACTION = 2000  # Characters: in minutes, a claim is supported only within this distance of an action that passed (L5).
 
 
-def claim_stage(doc_stage: str, kind: str, quote: str) -> str:
-    """A staff recommendation is support, even inside a report. Nothing else moves a claim past its record."""
-    if doc_stage == "proposed" and kind in ("staff_report", "other") and _RECOMMENDS.search(quote):
+def claim_stage(doc_stage: str, kind: str, quote: str, pages: list[str] | None = None) -> str:
+    """A staff recommendation is support, even inside a report. Nothing else moves a claim past its record.
+
+    In minutes, one item's vote does not support another item: the claim must sit near an action that passed (L5).
+    """
+    if doc_stage == "proposed" and kind in ("staff_report", "other") and _RECOMMENDS.search(quote) \
+            and not _NOT_RECOMMENDS.search(quote):
         return "supported"
+    if doc_stage == "supported" and kind == "minutes" and pages is not None:
+        text = normalize("\n".join(pages))
+        at = text.find(normalize(quote))
+        if at >= 0 and not any(abs(at - action) <= NEAR_ACTION for action in support_actions("\n".join(pages))):
+            return "proposed"
     return doc_stage
 
 
@@ -515,8 +655,11 @@ _TAX_SPAN = re.compile(r"\btax|payment in lieu|\bPILOT\b|abate", re.I)
 
 
 def term_fits(topic: str, quote: str) -> bool:
-    """True if the sentence states the kind of term it is filed under. Applied to every model candidate."""
-    q = normalize(quote)
+    """True if the sentence states the kind of term it is filed under. Applied to every model candidate.
+
+    Number words count as numbers here ("Twelve affordable homes", "thirty years") (L7).
+    """
+    q = numeric(quote)
     if topic == "units":
         return bool(_NUMBER_HOMES.search(q) and _UNITS_WORDS.search(q))
     if topic == "term":
@@ -564,7 +707,7 @@ def is_boilerplate(quote: str, chrome: set[str]) -> bool:
 
 def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_parties: list[str] | None = None) -> dict:
     """Check the model's reading against the page text. Returns the fields to save on the document."""
-    kind = type_key(doc.get("type")) or reading.document_type
+    kind, _from_staff = record_kind(doc.get("type"), reading.document_type, pages)
     draft = is_draft(pages, reading.draft)
     signatures = checked_signatures([s.model_dump() for s in reading.signatures], pages)
     for sig in signatures:
@@ -627,7 +770,7 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
             "stated_page": cand.page,
             "page_corrected": corrected,
             "topic": cand.topic,
-            "status": claim_stage(stage, kind, cand.quote),
+            "status": claim_stage(stage, kind, cand.quote, pages),
             "wording": wording,
             "value": canonical_value(cand.topic, cand.quote, cand.value),
             "compare": compare_key(cand.topic, cand.quote),

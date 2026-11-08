@@ -12,7 +12,12 @@ from fastapi.testclient import TestClient
 from app import ai, deals, ledger, pipeline, storage
 from app.main import app
 
-SIGNED = ledger.load_packet()["documents"][-1]  # The developer's signed letter in the demo packet.
+# The developer's signed letter in the demo packet, with a completed signature block: a typed "Signed by ..."
+# sentence is not a signature (L3), so the fixture ends with the party's name and a "/s/" line.
+_PACKET_LETTER = ledger.load_packet()["documents"][-1]
+SIGNED = {**_PACKET_LETTER, "pages": [{**page, "paragraphs": [p for p in page["paragraphs"] if not p.startswith("Signed by")]
+                                       + ["Harbor Walk Partners", "/s/ Managing Member (fictional signature)"]}
+                                      for page in _PACKET_LETTER["pages"]]}
 
 
 def letter_pdf() -> bytes:
@@ -27,7 +32,7 @@ def stub_reading(pages):
     candidates = [ai.PdfCandidate(topic="units", quote=units, page=1, wording="will", value="12 homes"),
                   ai.PdfCandidate(topic="remedies", quote="All 500 homes were delivered.", page=1, wording="were",
                                   value="500 homes")]
-    line = next(q for q in quotes if q.startswith("Signed by"))
+    line = next(q for q in quotes if q.startswith("/s/"))
     sigs = [ai.Signature(party=name, quote=line, page=1) for name in SIGNED.get("signed_by", []) if name in text]
     reading = ai.PdfReading(document_type="letter", title="Letter", date=SIGNED["date"], draft=False,
                             signatures=sigs, candidates=candidates)
@@ -84,10 +89,14 @@ class DealApi(unittest.TestCase):
     def test_same_file_twice_uses_the_cached_reading(self):
         deal_id = self.new_deal()
         data = letter_pdf()
-        self.upload(deal_id, data)
+        first = self.upload(deal_id, data).json()
         second = self.upload(deal_id, data).json()
         self.assertEqual(self.reader.call_count, 1)
-        self.assertTrue(second["from_cache"])
+        # The same file in the same deal is not added again, so its claims never double (L11).
+        self.assertEqual((second["id"], second["duplicate"]), (first["id"], True))
+        self.assertEqual(len(storage.get_store().list_documents(deal_id)), 1)
+        other = self.new_deal()
+        self.assertTrue(self.upload(other, data).json()["from_cache"])  # Another deal reuses the cached reading.
 
     def test_file_and_page_text(self):
         deal_id = self.new_deal()
@@ -138,7 +147,7 @@ class DealApi(unittest.TestCase):
         self.assertEqual(wb.sheetnames, ["Claims", "Terms", "Open questions", "Review log", "About"])
         rows = list(wb["Claims"].values)
         self.assertEqual(list(rows[0]), deals.CLAIM_COLUMNS)
-        self.assertEqual(rows[1][0], "Units")
+        self.assertEqual(rows[1][0], "Homes")
         self.assertEqual(rows[1][5], "Signed")
         self.assertEqual(len(list(wb["Terms"].values)), len(ledger.TERMS) + 1)
         text = self.client.get(f"/api/deals/{deal_id}/export.csv").content.decode("utf-8-sig")

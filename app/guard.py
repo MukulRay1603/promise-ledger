@@ -130,6 +130,8 @@ RULES = [
     ("deal", "POST", re.compile(r"^/api/deals/?$"), "RATE_LIMIT_DEALS_PER_HOUR", 3, "new deals"),
     ("share", "POST", re.compile(r"^/api/deals/[^/]+/share/?$"), "RATE_LIMIT_SHARES_PER_HOUR", 20, "share links"),
     ("extract", "POST", re.compile(r"^/api/extract/?$"), "RATE_LIMIT_EXTRACTS_PER_HOUR", 30, "text readings"),
+    ("retry", "POST", re.compile(r"^/api/deals/[^/]+/documents/[^/]+/retry/?$"), "RATE_LIMIT_RETRIES_PER_HOUR", 10,
+     "retries"),
     ("export", "GET", re.compile(r"^/api/deals/[^/]+/export\.(xlsx|csv|json)$"), "RATE_LIMIT_EXPORTS_PER_HOUR", 120,
      "exports"),
 ]

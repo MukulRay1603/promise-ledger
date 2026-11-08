@@ -21,8 +21,8 @@ STAGE_LABELS = {
     "delivered": "Delivered",
 }
 TERMS = {
-    "units": "Units",
-    "income_basis": "Income basis",
+    "units": "Homes",
+    "income_basis": "Income limit",
     "rent_limits": "Rent limits",
     "term": "Term",
     "responsible_party": "Responsible party",
@@ -185,7 +185,9 @@ def build_summary(claims: list[dict], terms: list[dict], stages: list[dict], pac
     signers = sorted({name for d in signed_docs for name in d.get("signed_by", [])})
     city = packet["city"]
     developer = packet.get("developer")
-    city_signed = any("City" in name or city in name for name in signers)
+    # Exact match on "City of {city}": a "City Clerk" attestation or a "City Manager" title is not the City (L1).
+    city_party = f"city of {city}".lower()
+    city_signed = any(name.strip().lower() == city_party for name in signers)
 
     differ = [t for t in terms if t["wording_differs"]]
     missing = [t for t in terms if not t["located"]]
@@ -231,19 +233,20 @@ def build_questions(claims: list[dict], terms: list[dict], stages: list[dict], s
     questions = []
     for term in terms:
         label, lower = term["label"], term["label"].lower()
+        # Keys carry the tag, so a term that is both unsigned and differs has two questions, decided apart (L9).
         if not term["located"]:
-            questions.append({"key": term["key"], "tag": "not_located",
+            questions.append({"key": f"{term['key']}:not_located", "term": term["key"], "tag": "not_located",
                               "text": f"{label}: not located. Ask staff for the agreement section on {lower}."})
         elif not term["signed_claim_id"]:
-            questions.append({"key": term["key"], "tag": "not_located",
+            questions.append({"key": f"{term['key']}:not_signed", "term": term["key"], "tag": "not_located",
                               "text": f"{label}: not located in a signed record. "
-                                      f"Ask staff whether a signed agreement covers {lower}."})
+                                      f"Ask staff whether an agreement covers {lower}."})
         if term["wording_differs"]:
             found = [by_id[i] for i in term["claim_ids"]]
-            questions.append({"key": term["key"], "tag": "differs",
+            questions.append({"key": f"{term['key']}:differs", "term": term["key"], "tag": "differs",
                               "text": f"{label}: wording differs across {len(found)} records "
                                       f"(\u201c{found[0]['value']}\u201d to \u201c{found[-1]['value']}\u201d). "
-                                      "Confirm which wording is in the signed agreement."})
+                                      "Ask staff which wording, if any, is in a signed agreement."})
     if summary["signers"] and not summary["city_signed"]:
         questions.append({"key": "city_signature", "tag": "not_located",
                           "text": "City signature: an agreement signed by the City was not located. "

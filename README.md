@@ -178,6 +178,7 @@ Uploads are read on a background thread, hence `--no-cpu-throttling`. The servic
 | `RATE_LIMIT_SHARES_PER_HOUR` | `20` | Share links per IP per hour. |
 | `RATE_LIMIT_EXTRACTS_PER_HOUR` | `30` | Pasted-text readings per IP per hour. |
 | `RATE_LIMIT_EXPORTS_PER_HOUR` | `120` | Excel, CSV and preview exports per IP per hour. |
+| `RATE_LIMIT_RETRIES_PER_HOUR` | `10` | Document retries per IP per hour. |
 | `PDF_SANDBOX` | `1` | Parse each PDF in a separate process with a 15-second limit. `0` parses in-process. |
 | `MAX_RECORD_CHARS` | `200000` | Most characters of one record sent to the model. |
 | `READINGS_WRITE_DIR` | see note | Where new live readings are saved: `data/readings/` locally, the runtime folder on Cloud Run (newest 200 kept). |
@@ -193,13 +194,14 @@ Exports open in a preview first, built from the same rows as the files:
 |---|---|
 | `GET/POST /api/deals` | List deals, or create one `{name, city}` |
 | `GET /api/deals/{id}` | Deal and its documents with status |
-| `POST /api/deals/{id}/documents` | Upload a PDF (multipart, 202); poll the deal until done |
+| `POST /api/deals/{id}/documents` | Upload a PDF (multipart, 202); poll the deal until done. The same file twice in one deal returns the first copy with `duplicate: true` |
+| `POST /api/deals/{id}/documents/{doc}/retry` | Read a failed or stuck document again (202; 409 if it is still reading) |
 | `GET /api/deals/{id}/review` | Claims, stages, terms, open questions, decisions |
 | `GET …/documents/{doc}/file`, `…/pages/{n}` | The PDF, and the text of one page |
 | `GET/POST/DELETE /api/deals/{id}/decisions` | Read, record or reset reviewer decisions (`X-Reviewer-Name` header) |
 | `GET /api/deals/{id}/export.xlsx`, `.csv`, `.json` | Excel and CSV exports, and the JSON behind the in-app preview |
 | `POST /api/deals/{id}/share` | Read-only link `/r/{token}`; JSON at `/api/share/{token}` |
-| `GET /api/reminders` | Term end dates and yearly certificates due |
+| `GET /api/reminders` | Term end dates and yearly certificates due. `days` is positive until the date and negative after it, counted from the deal's `as_of` date when it has one |
 | `GET /api/review` | The reviewed Harbor Walk demo packet (also shipped inside the home page) |
 | `POST /api/extract` | Read pasted text `{text}` (up to 4,000 characters): candidate quotes, each checked word for word; nothing is stored |
 | `GET /api/media` | Which explainer videos are present, and where they are served from |

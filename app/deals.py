@@ -1,6 +1,7 @@
 """Deals and their documents: upload, background reading, per-deal review, reminders, export."""
 from __future__ import annotations
 
+import calendar
 import csv
 import io
 import hashlib
@@ -26,6 +27,15 @@ run_inline = False  # Tests set this to process uploads synchronously.
 
 def now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def display_date(value) -> str:
+    """Dates in display text read "Nov 8, 2026" (W20). ISO stays in data fields and data cells."""
+    d = date.fromisoformat(value[:10]) if isinstance(value, str) else value
+    return f"{d:%b} {d.day}, {d.year}"
+
+
+STALE_SECONDS = 300  # A document still reading after this long is treated as stuck (L12).
 
 
 def _slug(text: str) -> str:
@@ -131,8 +141,8 @@ def list_deals(store: Storage | None = None, session: str | None = None) -> list
             "furthest_status": summary["furthest_status"],
             "terms_differ": summary["terms_differ"],
             "terms_not_located": summary["terms_not_located"],
-            "next_reminder": {"date": nxt["date"], "due": nxt["date"], "text": nxt["text"], "kind": nxt["kind"],
-                              "claim_id": nxt["claim_id"]} if nxt else None,
+            "next_reminder": {"date": nxt["date"], "due": nxt["date"], "days": nxt["days"], "text": nxt["text"],
+                              "kind": nxt["kind"], "claim_id": nxt["claim_id"]} if nxt else None,
             "updated_at": deal.get("updated_at"),
         })
     return sorted(rows, key=lambda r: r["updated_at"] or "", reverse=True)
@@ -143,16 +153,23 @@ def list_deals(store: Storage | None = None, session: str | None = None) -> list
 
 def add_document(deal_id: str, filename: str, data: bytes, type_: str | None = None, date_: str | None = None,
                  title: str | None = None, store: Storage | None = None, process: bool = True,
-                 demo: bool | None = None) -> dict:
+                 demo: bool | None = None, doc_id: str | None = None) -> dict:
     """Check and store the file, then queue it for reading. Raises pipeline.PdfError for a bad file.
 
     Uploads made while DEMO_MODE is on are marked demo, so the sweep removes them even from sample deals.
+    The same file uploaded twice to one deal returns the first copy, marked "duplicate", so claims never double (L11).
+    `doc_id` fixes the id (sample deals), replacing any document stored under it.
     """
     store = store or get_store()
+    sha = pipeline.file_hash(data)
+    if doc_id is None:
+        same = next((d for d in store.list_documents(deal_id) if d.get("sha256") == sha), None)
+        if same:
+            return {**same, "duplicate": True}
     pages = pipeline.extract_pages(data)  # Size, type and page limits are checked here, before anything is stored.
     if date_:
         date.fromisoformat(date_)  # ValueError is turned into a 422 by the API.
-    doc_id = f"d{uuid.uuid4().hex[:8]}"
+    doc_id = doc_id or f"d{uuid.uuid4().hex[:8]}"
     stamp = now()
     file_key = f"deals/{deal_id}/{doc_id}.pdf"
     store.put_blob(file_key, data, "application/pdf")
@@ -161,7 +178,7 @@ def add_document(deal_id: str, filename: str, data: bytes, type_: str | None = N
         "id": doc_id, "filename": Path(filename or "document.pdf").name, "type": (type_ or "").strip() or None,
         "date": date_ or None, "title": (title or "").strip() or None, "pages": len(pages),
         "scanned_pages": pipeline.scanned_pages(pages), "status": "queued", "error": None,
-        "file_key": file_key, "sha256": pipeline.file_hash(data), "claims": [],
+        "file_key": file_key, "sha256": sha, "claims": [],
         "created_at": stamp, "updated_at": stamp,
     }
     if (guard.enabled() if demo is None else demo):
@@ -203,7 +220,7 @@ def process_document(deal_id: str, doc_id: str, store: Storage | None = None, re
         if not any(len(p.strip()) >= pipeline.MIN_PAGE_CHARS for p in pages):
             return _set(store, deal_id, doc, status="failed",
                         error="No text layer was found. The pages look scanned; run OCR and upload again.")
-        _set(store, deal_id, doc, status="reading", error=None)
+        _set(store, deal_id, doc, status="reading", error=None, started_at=now())
         result, from_cache = pipeline.read_with_cache(doc["sha256"], pages, reader=reader, use_cache=use_cache)
         if result.mode != "live" or result.reading is None:
             return _set(store, deal_id, doc, status="failed", error=result.notice)
@@ -217,19 +234,52 @@ def process_document(deal_id: str, doc_id: str, store: Storage | None = None, re
         return doc
     except Exception as err:  # Record text is never logged.
         print(f"Processing {deal_id}/{doc_id} failed: {type(err).__name__}")
-        return _set(store, deal_id, doc, status="failed", error=f"Processing failed ({type(err).__name__}).")
+        try:
+            return _set(store, deal_id, doc, status="failed", error=f"Processing failed ({type(err).__name__}).")
+        except Exception as save_err:  # The store itself failed; resume_pending or a retry picks the document up (L12).
+            print(f"Could not record the failure for {deal_id}/{doc_id}: {type(save_err).__name__}")
+            return None
 
 
-def resume_pending(store: Storage | None = None) -> int:
-    """After a restart, queue documents that never finished."""
+def is_stale(doc: dict, now_at: datetime | None = None) -> bool:
+    """Still queued, reading or checking, with no progress for STALE_SECONDS (another instance may have died)."""
+    if doc.get("status") not in ("queued", "reading", "checking"):
+        return False
+    try:
+        last = datetime.fromisoformat(doc.get("updated_at") or doc.get("started_at") or doc.get("created_at") or "")
+    except ValueError:
+        return True
+    last = last if last.tzinfo else last.replace(tzinfo=timezone.utc)
+    return ((now_at or datetime.now(timezone.utc)) - last).total_seconds() > STALE_SECONDS
+
+
+def resume_pending(store: Storage | None = None, now_at: datetime | None = None) -> int:
+    """After a restart, queue documents that stopped. Only stale ones: another instance may be reading the rest (L12)."""
     store = store or get_store()
     count = 0
     for deal in store.list_deals():
         for doc in store.list_documents(deal["id"]):
-            if doc.get("status") in ("queued", "reading", "checking"):
+            if is_stale(doc, now_at):
                 submit(deal["id"], doc["id"], store)
                 count += 1
     return count
+
+
+class RetryError(ValueError):
+    """The document cannot be read again now. The message is safe to show."""
+
+
+def retry_document(deal_id: str, doc_id: str, store: Storage | None = None) -> dict:
+    """Read a failed or stuck document again (L12). The UI's Retry button calls this."""
+    store = store or get_store()
+    doc = store.get_document(deal_id, doc_id)
+    if not doc:
+        raise RetryError("Document not found.")
+    if doc.get("status") != "failed" and not is_stale(doc):
+        raise RetryError("This document is not stuck or failed. Wait for it to finish.")
+    doc = _set(store, deal_id, doc, status="queued", error=None)
+    submit(deal_id, doc_id, store)
+    return store.get_document(deal_id, doc_id) or doc
 
 
 # ---------------------------------------------------------------------------
@@ -243,7 +293,7 @@ def _stage_notes(claims: list[dict], docs: list[dict]) -> dict:
         "supported": "Recommended by staff or backed by a recorded Council action. Support is not a signed term."
                      if by["supported"] else "No minutes or resolution with a recorded action located.",
         "signed": f"Signed by {', '.join(signers)}." if signers else "No signed record located.",
-        "delivered": "Certificate or occupancy records located." if by["delivered"]
+        "delivered": "Certificate or occupancy record located (as stated in the record)." if by["delivered"]
                      else "No record located that homes were built, leased or checked.",
     }
 
@@ -291,16 +341,20 @@ def build_deal_review(deal: dict, docs: list[dict], store: Storage | None = None
     questions = ledger.build_questions(claims, terms, stages, summary)
     keyed = {t["key"]: t for t in terms if t.get("differs_claim_ids")}
     for q in questions:
-        if q["tag"] == "differs" and q["key"] in keyed:
-            t = keyed[q["key"]]
+        if q["tag"] == "differs" and q.get("term") in keyed:
+            t = keyed[q["term"]]
             q["text"] = (f"{t['label']}: wording differs across {len(t['differs_claim_ids'])} records "
                          f"(“{t['values'][0]}” to “{t['values'][-1]}”). "
-                         "Confirm which wording is in the signed agreement.")
+                         "Ask staff which wording, if any, is in a signed agreement.")
     for d in docs:
-        if d.get("scanned_pages"):
+        # A failed document already has its own question; a scanned one that was read gets one (L13).
+        if d.get("scanned_pages") and d.get("status") != "failed":
+            pages_list = d["scanned_pages"]
+            which = (f"page {pages_list[0]} has" if len(pages_list) == 1
+                     else f"pages {', '.join(map(str, pages_list[:-1]))} and {pages_list[-1]} have")
             questions.append({"key": f"scanned-{d['id']}", "tag": "not_located",
-                              "text": f"{d.get('title') or d.get('filename')}: pages {', '.join(map(str, d['scanned_pages']))} "
-                                      "have no text layer and were not read. Ask for a text copy or run OCR."})
+                              "text": f"{d.get('title') or d.get('filename')}: {which} no text layer and "
+                                      f"{'was' if len(pages_list) == 1 else 'were'} not read. Ask for a text copy or run OCR."})
         if d.get("status") == "failed":
             questions.append({"key": f"failed-{d['id']}", "tag": "not_located",
                               "text": f"{d.get('filename')}: not read. {d.get('error') or ''}".strip()})
@@ -320,7 +374,7 @@ def build_deal_review(deal: dict, docs: list[dict], store: Storage | None = None
         for t in terms if t["wording_differs"]
     ]
     return {
-        "notice": "Every quote below was checked against the page text by code. Flagged for human review.",
+        "notice": "Code checked each quote against its cited page. People make every decision.",
         "deal_id": deal["id"],
         "city": deal["city"],
         "project": deal["name"],
@@ -499,13 +553,6 @@ def decision_view(review: dict, events: list[dict]) -> dict:
     flagged = [q["key"] for q in review["questions"]]
     flagged_done = sum(1 for key in flagged if f"question:{key}" in latest)
     complete = bool(flagged) and flagged_done == len(flagged)
-    stamp = {"state": "flagged", "text": "Flagged for human review"}
-    if complete:
-        last = max((latest[f"question:{key}"] for key in flagged), key=lambda e: e["id"])
-        stamp = {"state": "reviewed", "reviewer_name": last["reviewer_name"], "date": last["at"][:10],
-                 "text": f"Reviewed · {last['reviewer_name']} · {last['at'][:10]}"}
-    elif not flagged and review["claims"] and claims_done == len(review["claims"]):
-        stamp = {"state": "reviewed", "text": "Reviewed"}
     return {
         "latest": latest,
         "log": list(reversed(log)),
@@ -513,9 +560,46 @@ def decision_view(review: dict, events: list[dict]) -> dict:
                      "flagged_reviewed": flagged_done, "flagged_total": len(flagged),
                      "reviewed": claims_done + flagged_done, "total": len(review["claims"]) + len(flagged),
                      "complete": complete},
-        "stamp": stamp,
+        "stamp": review_stamp(review, latest),
+        "footer": REVIEW_FOOTER,
         "labels": DECISIONS,
     }
+
+
+REVIEW_FOOTER = "A review records people's decisions. It is not a legal finding."
+STAMP_STATES = ("flagged", "in_progress", "complete_confirmed", "complete_follow_up", "complete_disputed")
+
+
+def _count_text(n: int, one: str, many: str) -> str:
+    return f"{n} {one if n == 1 else many}"
+
+
+def review_stamp(review: dict, latest: dict) -> dict:
+    """The receipt stamp, from the decisions on the open questions (or on the claims when there are none) (W1).
+
+    The text states the outcome; the last reviewer and date are separate fields for the line under the stamp.
+    """
+    keys = [f"question:{q['key']}" for q in review["questions"]] or [f"claim:{c['id']}" for c in review["claims"]]
+    decided = [latest[key] for key in keys if key in latest]
+    stamp = {"state": "flagged", "text": "Flagged for human review", "reviewer": None, "date": None,
+             "decided": len(decided), "total": len(keys)}
+    if not decided:
+        return stamp
+    last = max(decided, key=lambda e: e["id"])
+    stamp.update(reviewer=last["reviewer_name"], date=last["at"][:10])
+    if len(decided) < len(keys):
+        return {**stamp, "state": "in_progress", "text": f"Review in progress · {len(decided)} of {len(keys)} decided"}
+    disputed = sum(e["decision"] == "disputed" for e in decided)
+    follow_up = sum(e["decision"] == "follow_up" for e in decided)
+    if disputed:
+        text = f"Review complete · {disputed} disputed"
+        if follow_up:
+            text += f" · {follow_up} need{'s' if follow_up == 1 else ''} follow-up"
+        return {**stamp, "state": "complete_disputed", "text": text}
+    if follow_up:
+        return {**stamp, "state": "complete_follow_up",
+                "text": f"Review complete · {follow_up} need{'s' if follow_up == 1 else ''} follow-up"}
+    return {**stamp, "state": "complete_confirmed", "text": "Review complete · all confirmed"}
 
 
 # ---------------------------------------------------------------------------
@@ -592,17 +676,19 @@ def deal_reminders(deal: dict, docs: list[dict], today: date | None = None) -> l
 
     def add(kind: str, when: date, text: str, source: str | None):
         # kind: term_end, missing_record (a yearly check that is past due and not on file) or other.
+        # days: positive until the date, negative after it, counted from the deal's as_of date when it has one (L2).
         out.append({"deal_id": deal["id"], "deal_name": deal["name"], "city": deal["city"], "kind": kind,
                     "check": "term" if kind == "term_end" else "yearly", "date": when.isoformat(),
-                    "due": when.isoformat(), "overdue": when < today, "text": text, "claim_id": source})
+                    "due": when.isoformat(), "days": (when - today).days, "as_of": today.isoformat(),
+                    "overdue": when < today, "text": text, "claim_id": source})
 
     end = term_end(claims, done)
     if end and end["date"]:
         claim = end["claim"]
         how = ("as stated in the" if end["how"] == "stated"
-               else f"{end['years']} years from the") + f" {claim['document_type'].lower()} dated {claim['date']}"
+               else f"{end['years']} years from the") + f" {claim['document_type'].lower()} dated {display_date(claim['date'])}"
         verb = "ended" if end["date"] < today else "ends"
-        add("term_end", end["date"], f"Affordability term {verb} {end['date'].isoformat()}, {how}.", claim["id"])
+        add("term_end", end["date"], f"Affordability term {verb} {display_date(end['date'])}, {how}.", claim["id"])
 
     signed_ids = {d["id"] for d in done if d.get("stage") == "signed"}
     reporting = [c for c in claims if c["topic"] == "reporting" and c["document"] in signed_ids]
@@ -611,24 +697,43 @@ def deal_reminders(deal: dict, docs: list[dict], today: date | None = None) -> l
         due = _DUE_RE.search(rule["quote"])
         start = date.fromisoformat(rule["date"]) if rule["date"] else today
         month, day = (_MONTHS[due.group(1).lower()], int(due.group(2))) if due else (start.month, start.day)
-        received = {date.fromisoformat(d["date"]).year for d in done
-                    if d.get("type_key") == "certificate" and d.get("stage") == "delivered" and d.get("date")}
+        received = {due_year for d in done if (due_year := _certificate_due_year(d)) is not None}
         last_year = end["date"].year + 1 if end and end["date"] else today.year + 1
         # Only the recent past is listed, so an old deal does not bury the queue.
         for year in range(max(start.year + 1, today.year - 1), min(today.year + 1, last_year) + 1):
-            when = date(year, month, min(day, 28) if month == 2 else day)
+            # "April 31" or "February 29" in a quote is clamped to the month's last day, never a 500 (L14).
+            when = date(year, month, min(day, calendar.monthrange(year, month)[1]))
             if year in received:
                 continue
             first = not received and year == start.year + 1
             name = "First yearly certificate" if first else "Yearly certificate"
             if when < today:
-                add("missing_record", when, f"{name} due {when.isoformat()}: not in the file yet. "
+                add("missing_record", when, f"{name} due {display_date(when)}: not in the file yet. "
                                           "Ask the owner or staff for it.", rule["id"])
             else:
-                add("other", when, f"{name} due {when.isoformat()}" + ("; not in the file yet." if first else "."),
+                add("other", when, f"{name} due {display_date(when)}" + ("; not in the file yet." if first else "."),
                     rule["id"])
                 break
     return out
+
+
+_REPORTING_YEAR = re.compile(r"\breporting year\s+(\d{4})\b|\b(?:calendar|fiscal) year\s+(\d{4})\b|"
+                             r"\bfor (?:the year|year)\s+(\d{4})\b", re.I)
+
+
+def _certificate_due_year(doc: dict) -> int | None:
+    """The year whose yearly due date a delivered certificate meets (L15).
+
+    A certificate for reporting year 2024 meets the 2025 due date, whenever it is dated. Without a stated
+    reporting year, the certificate's own date is used.
+    """
+    if doc.get("type_key") != "certificate" or doc.get("stage") != "delivered":
+        return None
+    text = " ".join([doc.get("title") or ""] + [c.get("quote", "") for c in doc.get("claims") or []])
+    m = _REPORTING_YEAR.search(text)
+    if m:
+        return int(next(g for g in m.groups() if g)) + 1
+    return date.fromisoformat(doc["date"]).year if doc.get("date") else None
 
 
 def all_reminders(store: Storage | None = None, today: date | None = None, session: str | None = None) -> list[dict]:
@@ -643,7 +748,7 @@ def all_reminders(store: Storage | None = None, today: date | None = None, sessi
 # ---------------------------------------------------------------------------
 # Export
 
-CLAIM_COLUMNS = ["Term", "Quote", "Document", "Date", "Page", "Stage", "Wording differs", "Verified",
+CLAIM_COLUMNS = ["Term", "Quote", "Document", "Date", "Page", "Stage", "Wording differs", "Quote found on page",
                  "Decision", "Reviewer", "Decided", "Note"]
 QUESTION_COLUMNS = ["Open question", "Flag", "Decision", "Reviewer", "Decided", "Note"]
 LOG_COLUMNS = ["When", "Reviewer", "Item", "Decision", "Note"]
@@ -674,7 +779,7 @@ def log_rows(review: dict) -> list[list]:
         return f"Open question: {q['text'][:80]}" if q else e["target_id"]
     return [[e["at"].replace("T", " ").replace("+00:00", " UTC"), e["reviewer_name"], item(e), e["label"], e["note"]]
             for e in (review.get("decisions") or {}).get("log", [])]
-TERM_COLUMNS = ["Term", "Result", "Furthest stage", "Wording differs", "Values", "Signed record"]
+TERM_COLUMNS = ["Term", "Result", "Furthest stage (any term)", "Wording differs", "Values", "Signed record"]
 
 
 def claim_rows(review: dict) -> list[list]:
@@ -682,7 +787,8 @@ def claim_rows(review: dict) -> list[list]:
     differs = {t["key"] for t in review["terms"] if t["wording_differs"]}
     return [[ledger.TOPICS.get(c["topic"], c["topic"]), c["quote"], titles.get(c["document"]) or c["document_type"],
              c["date"], c["page"], ledger.STAGE_LABELS[c["status"]], "Yes" if c["topic"] in differs else "No",
-             "Yes" if c.get("quote_checked") else "No", *_decided(review, f"claim:{c.get('id')}")] for c in review["claims"]]
+             "Found" if c.get("quote_checked") else "Flagged for human review", *_decided(review, f"claim:{c.get('id')}")]
+            for c in review["claims"]]
 
 
 def term_rows(review: dict) -> list[list]:
@@ -713,7 +819,14 @@ def export_sheets(review: dict) -> list[dict]:
 
 
 def export_about(review: dict, exported: str) -> list[list]:
-    return [[_cell(f"{review['project']}, {review['city']}")], [_cell(review["notice"])], [f"Exported {exported}"]]
+    stamp = ((review.get("decisions") or {}).get("stamp") or {})
+    rows = [[_cell(f"{review['project']}, {review['city']}")], [_cell(review["notice"])]]
+    if stamp.get("text"):
+        rows.append([_cell(stamp["text"] + (f" (last decision {display_date(stamp['date'])} by {stamp['reviewer']})"
+                                            if stamp.get("date") and stamp.get("reviewer") else ""))])
+    rows.append([REVIEW_FOOTER])
+    rows.append([f"Exported {display_date(exported)}"])
+    return rows
 
 
 def export_preview(review: dict, deal_id: str) -> dict:
@@ -873,8 +986,7 @@ def refresh_samples(store: Storage | None = None, samples_dir: Path = SAMPLES_DI
         refreshed = []
         for path, version in stale_samples(store, manifests):  # Checked again under the lock.
             slug = sample_slug(_manifest(path) or {}, path.parent)
-            if store.get_deal(slug):
-                store.delete_deal(slug)
+            # Upsert in place: the deal never disappears, document ids stay fixed, decisions are kept (L10).
             if seed_sample(path, store, version=version):
                 refreshed.append(slug)
         return refreshed
@@ -903,18 +1015,24 @@ def seed_sample(manifest_path: Path, store: Storage, version: str | None = None)
         return None
     folder = manifest_path.parent
     slug = sample_slug(manifest, folder)
+    existing = store.get_deal(slug)
     deal = create_deal(manifest.get("deal") or manifest.get("name") or manifest.get("project") or folder.name,
                        manifest.get("city") or "", manifest.get("owner") or manifest.get("developer"),
                        deal_id=slug, store=store, as_of=manifest.get("as_of"))
+    if existing and existing.get("created_at"):
+        deal["created_at"] = existing["created_at"]
     deal.update(sample_slug=slug, sample_version=version or sample_version(manifest_path))
     store.put_deal(deal)
+    keep = set()
     for entry in manifest.get("documents") or []:
         path = folder / (entry.get("file") or entry.get("filename") or "")
         if not path.is_file():
             continue
+        doc_id = sample_doc_id(slug, entry, path)
+        keep.add(doc_id)
         try:
             doc = add_document(deal["id"], path.name, path.read_bytes(), entry.get("type"), entry.get("date"),
-                               entry.get("title"), store=store, process=False, demo=False)
+                               entry.get("title"), store=store, process=False, demo=False, doc_id=doc_id)
         except (pipeline.PdfError, ValueError) as err:
             print(f"Seed skipped {path.name}: {err}")
             continue
@@ -922,7 +1040,18 @@ def seed_sample(manifest_path: Path, store: Storage, version: str | None = None)
             process_document(deal["id"], doc["id"], store)
         else:
             submit(deal["id"], doc["id"], store)
+    for doc in store.list_documents(deal["id"]):  # Records no longer in the manifest. Visitor uploads go via the sweep.
+        if doc["id"] not in keep and not doc.get("demo"):
+            store.delete_document(deal["id"], doc["id"])
     return deal["id"]
+
+
+def sample_doc_id(slug: str, entry: dict, path: Path) -> str:
+    """A fixed id per sample record (the manifest's "id", else a hash of deal and file name), so claim ids and
+    decisions survive a refresh (L10)."""
+    if entry.get("id") and re.fullmatch(r"[A-Za-z0-9_-]{1,40}", str(entry["id"])):
+        return str(entry["id"])
+    return "d" + hashlib.sha256(f"{slug}/{path.name}".encode()).hexdigest()[:8]
 
 
 def demo_pdf(document: dict) -> bytes:

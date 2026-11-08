@@ -63,7 +63,8 @@ class Decisions(Base):
         self.assertEqual((data["latest"], data["log"]), ({}, []))
         self.assertEqual(data["progress"]["claims_reviewed"], 0)
         self.assertEqual(data["progress"]["claims_total"], len(self.review["claims"]))
-        self.assertEqual(data["stamp"], {"state": "flagged", "text": "Flagged for human review"})
+        self.assertEqual((data["stamp"]["state"], data["stamp"]["text"]), ("flagged", "Flagged for human review"))
+        self.assertEqual(data["footer"], "A review records people's decisions. It is not a legal finding.")
         self.assertTrue(data["sandboxed"])
 
     def test_record_a_decision(self):
@@ -124,16 +125,27 @@ class Decisions(Base):
         for key in ("claims", "stages", "terms", "summary", "questions", "checks"):
             self.assertEqual(after[key], before[key], key)
 
-    def test_stamp_turns_reviewed_when_every_flag_has_a_decision(self):
+    def test_stamp_states_follow_the_outcome(self):
         questions = self.review["questions"]
-        self.assertTrue(questions)
-        for question in questions[:-1]:
-            self.post(target_type="question", target_id=question["key"], decision="follow_up")
-        self.assertEqual(self.view()["stamp"]["state"], "flagged")
-        last = self.post(target_type="question", target_id=questions[-1]["key"], name="Lee Park").json()
+        n = len(questions)
+        self.assertGreaterEqual(n, 3)
+        self.post(target_type="question", target_id=questions[0]["key"])
+        stamp = self.view()["stamp"]
+        self.assertEqual((stamp["state"], stamp["text"]), ("in_progress", f"Review in progress · 1 of {n} decided"))
+        for question in questions[1:]:
+            self.post(target_type="question", target_id=question["key"])
+        self.assertEqual(self.view()["stamp"]["text"], "Review complete · all confirmed")
+        self.post(target_type="question", target_id=questions[1]["key"], decision="follow_up")
+        self.post(target_type="question", target_id=questions[2]["key"], decision="follow_up")
+        stamp = self.view()["stamp"]
+        self.assertEqual((stamp["state"], stamp["text"]), ("complete_follow_up", "Review complete · 2 need follow-up"))
+        last = self.post(target_type="question", target_id=questions[0]["key"], decision="disputed", name="Lee Park").json()
         self.assertTrue(last["progress"]["complete"])
-        self.assertEqual(last["stamp"]["text"], f"Reviewed · Lee Park · {last['event']['at'][:10]}")
-        self.assertEqual(last["stamp"]["reviewer_name"], "Lee Park")
+        stamp = last["stamp"]
+        self.assertEqual((stamp["state"], stamp["text"]), ("complete_disputed", "Review complete · 1 disputed · 2 need follow-up"))
+        # The name and date sit in their own fields, never in the stamp text.
+        self.assertEqual((stamp["reviewer"], stamp["date"]), ("Lee Park", last["event"]["at"][:10]))
+        self.assertNotIn("Lee Park", stamp["text"])
 
     def test_decisions_reach_share_and_export(self):
         claim = self.review["claims"][0]
@@ -182,12 +194,12 @@ class Sandbox(Base):
     def test_no_one_can_stamp_the_sample_for_everyone(self):
         for question in self.review["questions"]:
             self.post(session=SESSION_A, target_type="question", target_id=question["key"], name="Anything")
-        self.assertEqual(self.view(session=SESSION_A)["stamp"]["state"], "reviewed")
+        self.assertEqual(self.view(session=SESSION_A)["stamp"]["state"], "complete_confirmed")
         self.assertEqual(self.view(session=SESSION_B)["stamp"]["state"], "flagged")
         token_b = self.client.post(f"/api/deals/{self.deal}/share", headers=headers(SESSION_B, None)).json()["token"]
         self.assertEqual(self.client.get(f"/api/share/{token_b}").json()["decisions"]["stamp"]["state"], "flagged")
         token_a = self.client.post(f"/api/deals/{self.deal}/share", headers=headers(SESSION_A, None)).json()["token"]
-        self.assertEqual(self.client.get(f"/api/share/{token_a}").json()["decisions"]["stamp"]["state"], "reviewed")
+        self.assertEqual(self.client.get(f"/api/share/{token_a}").json()["decisions"]["stamp"]["state"], "complete_confirmed")
 
     def test_staff_deals_stay_shared(self):
         staff = self.staff_deal()
