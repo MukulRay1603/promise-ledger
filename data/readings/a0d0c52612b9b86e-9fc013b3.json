@@ -1,0 +1,56 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "certificate",
+  "title": "ANNUAL OWNER COMPLIANCE CERTIFICATE",
+  "date": "2025-03-18",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Mill Street Housing Associates LP",
+    "quote": "Authorized Officer",
+    "page": 1
+   },
+   {
+    "party": "City of Lantern Bay",
+    "quote": "Housing Compliance Analyst",
+    "page": 1
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Affordable Homes required (Section 4.1)",
+    "page": 1,
+    "wording": "Affordable Homes required",
+    "value": "9"
+   },
+   {
+    "topic": "units",
+    "quote": "As of December 31, 2024, 9 of the 9 required Affordable Homes were leased to income-qualified households.",
+    "page": 1,
+    "wording": "9 of the 9 required Affordable Homes",
+    "value": "9 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All 9 households in Affordable Homes had incomes at or below 50 percent of Area Median Income when last certified.",
+    "page": 1,
+    "wording": "at or below 50 percent of Area Median Income",
+    "value": "50 percent of AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "No Affordable Home was charged rent above the limit in Section 4.3 during the reporting year.",
+    "page": 1,
+    "wording": "charged rent above the limit in Section 4.3",
+    "value": "Section 4.3 limit"
+   }
+  ]
+ },
+ "tokens_in": 829,
+ "tokens_out": 447,
+ "cost_usd": 0.001366,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

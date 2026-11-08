@@ -6,6 +6,7 @@ Run the checks from the command line with: python -m app.ledger
 from __future__ import annotations
 
 import json
+import re
 import sys
 from functools import lru_cache
 from pathlib import Path
@@ -79,6 +80,11 @@ def check_claim(claim: dict, packet: dict) -> list[str]:
     math = claim.get("math")
     if math and math["percent"] * math["of"] != math["equals"] * 100:
         problems.append(f"{label}: {math['percent']} percent of {math['of']} is not {math['equals']}")
+    homes = claim.get("homes")
+    if homes:
+        for key in ("count", "of"):
+            if key in homes and not re.search(rf"\b{homes[key]}\b", quote):
+                problems.append(f"{label}: home {key} {homes[key]} is not in the quote")
     vote = claim.get("vote")
     if vote and vote["yes"] + vote["no"] != vote["present"]:
         problems.append(f"{label}: vote count does not add up to members present")
@@ -93,6 +99,18 @@ def check_all(claims: list[dict], packet: dict) -> list[str]:
             problems.append(f"{claim['id']}: duplicate id")
         seen.add(claim.get("id"))
         problems.extend(check_claim(claim, packet))
+    return problems
+
+
+def check_packet(packet: dict) -> list[str]:
+    """Signed records must say who signed them. Unsigned records must not list signers."""
+    problems = []
+    for document in packet["documents"]:
+        signers = document.get("signed_by", [])
+        if document["signed"] and not signers:
+            problems.append(f"{document['id']}: marked signed but no signer is listed")
+        if not document["signed"] and signers:
+            problems.append(f"{document['id']}: lists signers but is not marked signed")
     return problems
 
 
@@ -137,22 +155,129 @@ def build_stages(claims: list[dict], notes: dict) -> list[dict]:
     return stages
 
 
+def _count(n: int, one: str, many: str) -> str:
+    return f"{n} {one if n == 1 else many}"
+
+
+def _homes(claim: dict) -> tuple[int | None, int | None]:
+    """Home count and total from a claim's checked numbers, or (None, None)."""
+    if claim.get("homes"):
+        return claim["homes"].get("count"), claim["homes"].get("of")
+    if claim.get("math"):
+        return claim["math"]["equals"], claim["math"]["of"]
+    return None, None
+
+
+def build_summary(claims: list[dict], terms: list[dict], stages: list[dict], packet: dict) -> dict:
+    """The at-a-glance numbers and sentences. Every figure is counted from the records."""
+    units = _ordered([c for c in claims if c["topic"] == "units"])
+    counted = [c for c in units if _homes(c)[0] is not None]
+    # The home count comes from the furthest-along record that states one; the latest wins a tie.
+    lead = max(counted, key=lambda c: (STATUSES.index(c["status"]), c["date"]), default=None)
+    totals = [_homes(c)[1] for c in units if _homes(c)[1] is not None]
+    homes = _homes(lead)[0] if lead else None
+    total = max(totals) if totals else None
+
+    furthest = max((STATUSES.index(c["status"]) for c in claims), default=None)
+    furthest_status = STATUSES[furthest] if furthest is not None else None
+
+    signed_docs = [d for d in packet["documents"] if d["signed"]]
+    signers = sorted({name for d in signed_docs for name in d.get("signed_by", [])})
+    city = packet["city"]
+    developer = packet.get("developer")
+    city_signed = any("City" in name or city in name for name in signers)
+
+    differ = [t for t in terms if t["wording_differs"]]
+    missing = [t for t in terms if not t["located"]]
+    unsigned = [t for t in terms if t["located"] and not t["signed_claim_id"]]
+
+    sentences = []
+    if homes is not None:
+        sentences.append(f"{homes} of {total} homes described as affordable." if total
+                         else f"{homes} homes described as affordable.")
+    if not signers:
+        sentences.append("No signed record located.")
+    elif city_signed:
+        sentences.append(f"Signed by {', '.join(signers)}.")
+    elif signers == [developer]:
+        sentences.append(f"Signed by the developer ({developer}) only; no City-signed agreement located.")
+    else:
+        sentences.append(f"Signed by {', '.join(signers)} only; no City-signed agreement located.")
+    sentences.append(f"{_count(len(differ), 'term differs', 'terms differ')} across records · "
+                     f"{_count(len(missing), 'term', 'terms')} not located.")
+
+    return {
+        "homes_described": homes,
+        "homes_total": total,
+        "homes_claim_id": lead["id"] if lead else None,
+        "furthest_status": furthest_status,
+        "furthest_label": STAGE_LABELS[furthest_status] if furthest_status else NOT_LOCATED,
+        "stages_total": len(stages),
+        "terms_total": len(terms),
+        "terms_differ": len(differ),
+        "terms_not_located": len(missing),
+        "terms_not_in_signed_record": len(unsigned),
+        "signers": signers,
+        "developer": developer,
+        "signed_by_developer_only": bool(signers) and signers == [developer],
+        "city_signed": city_signed,
+        "sentences": sentences,
+    }
+
+
+def build_questions(claims: list[dict], terms: list[dict], stages: list[dict], summary: dict) -> list[dict]:
+    """Open questions for staff, from terms that are missing or differ. Plain tasks, no verdicts."""
+    by_id = {c["id"]: c for c in claims}
+    questions = []
+    for term in terms:
+        label, lower = term["label"], term["label"].lower()
+        if not term["located"]:
+            questions.append({"key": term["key"], "tag": "not_located",
+                              "text": f"{label}: not located. Ask staff for the agreement section on {lower}."})
+        elif not term["signed_claim_id"]:
+            questions.append({"key": term["key"], "tag": "not_located",
+                              "text": f"{label}: not located in a signed record. "
+                                      f"Ask staff whether a signed agreement covers {lower}."})
+        if term["wording_differs"]:
+            found = [by_id[i] for i in term["claim_ids"]]
+            questions.append({"key": term["key"], "tag": "differs",
+                              "text": f"{label}: wording differs across {len(found)} records "
+                                      f"(\u201c{found[0]['value']}\u201d to \u201c{found[-1]['value']}\u201d). "
+                                      "Confirm which wording is in the signed agreement."})
+    if summary["signers"] and not summary["city_signed"]:
+        questions.append({"key": "city_signature", "tag": "not_located",
+                          "text": "City signature: an agreement signed by the City was not located. "
+                                  "Ask staff for the City-signed agreement."})
+    delivered = next((s for s in stages if s["status"] == "delivered"), None)
+    if delivered and not delivered["claim_ids"]:
+        questions.append({"key": "delivery", "tag": "not_located",
+                          "text": f"Delivery: {delivered['note']} Ask staff for occupancy or compliance records."})
+    return questions
+
+
 def build_review() -> dict:
     packet = load_packet()
     reviewed = load_claims()
     claims = reviewed["claims"]
-    problems = check_all(claims, packet)
+    problems = check_all(claims, packet) + check_packet(packet)
     failed = {p.split(":")[0] for p in problems}
+    ordered = [{**c, "quote_checked": c["id"] not in failed} for c in _ordered(claims)]
+    stages = build_stages(claims, reviewed["stage_notes"])
+    terms = build_terms(claims)
+    summary = build_summary(claims, terms, stages, packet)
     return {
         "notice": packet["notice"],
         "city": packet["city"],
         "project": packet["project"],
         "documents": packet["documents"],
         "topics": TOPICS,
-        "claims": [{**c, "quote_checked": c["id"] not in failed} for c in _ordered(claims)],
-        "stages": build_stages(claims, reviewed["stage_notes"]),
-        "terms": build_terms(claims),
-        "checks": {"total": len(claims), "passed": len(claims) - len(failed), "problems": problems},
+        "developer": packet.get("developer"),
+        "claims": ordered,
+        "stages": stages,
+        "terms": terms,
+        "summary": summary,
+        "questions": build_questions(claims, terms, stages, summary),
+        "checks": {"total": len(claims), "passed": sum(c["quote_checked"] for c in ordered), "problems": problems},
     }
 
 

@@ -1,0 +1,73 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Beacon Point payment in lieu of taxes request",
+  "date": "2025-05-06",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "Staff recommends that the Council adopt the attached resolution approving a 15-year payment in lieu of taxes for Beacon Point.",
+    "page": 1,
+    "wording": "recommends",
+    "value": "15-year payment in lieu of taxes"
+   },
+   {
+    "topic": "units",
+    "quote": "The owner will reserve 16 of the 80 homes as affordable homes.",
+    "page": 1,
+    "wording": "will reserve",
+    "value": "16 of 80 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Each affordable home must be leased to a household with income at or below 60 percent of area median income.",
+    "page": 1,
+    "wording": "must be leased",
+    "value": "at or below 60 percent of area median income"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "Rents for the affordable homes may not exceed the 60 percent rent limit based on the HUD income limits published each year.",
+    "page": 2,
+    "wording": "may not exceed",
+    "value": "60 percent rent limit"
+   },
+   {
+    "topic": "term",
+    "quote": "The affordability requirements will last for 30 years from the date the first affordable home is leased.",
+    "page": 2,
+    "wording": "will last for",
+    "value": "30 years"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "The owner, and any later owner of the property, is responsible for meeting these requirements.",
+    "page": 2,
+    "wording": "is responsible for",
+    "value": "The owner, and any later owner"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The owner will file an annual compliance certificate with the City by March 1 of each year.",
+    "page": 2,
+    "wording": "will file",
+    "value": "annual compliance certificate by March 1"
+   },
+   {
+    "topic": "remedies",
+    "quote": "If a default is not cured within 60 days after written notice, the owner must repay all abated taxes with interest.",
+    "page": 2,
+    "wording": "must repay",
+    "value": "repay all abated taxes with interest"
+   }
+  ]
+ },
+ "tokens_in": 1141,
+ "tokens_out": 675,
+ "cost_usd": 0.00203,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

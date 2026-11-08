@@ -1,3 +1,4 @@
+import json
 import os
 import unittest
 from unittest import mock
@@ -5,9 +6,22 @@ from unittest import mock
 from fastapi.testclient import TestClient
 
 from app import ai
+from app import main
 from app.main import app
 
 SAMPLE = ai.load_sample()["text"]
+
+
+class Busy(Exception):
+    """Stands in for a google-genai APIError with an HTTP code."""
+
+    def __init__(self, code):
+        super().__init__(f"HTTP {code}")
+        self.code = code
+
+
+class ReadTimeout(Exception):
+    """Stands in for an httpx timeout."""
 
 
 class NoKey(unittest.TestCase):
@@ -17,14 +31,43 @@ class NoKey(unittest.TestCase):
         patcher.start()
         self.addCleanup(patcher.stop)
 
+    def test_default_models(self):
+        with mock.patch.dict(os.environ, {"GEMINI_MODEL": "", "GEMINI_FALLBACK_MODEL": ""}):
+            import importlib
+            fresh = importlib.reload(ai)
+            self.assertEqual(fresh.MODEL, "gemini-3.5-flash")
+            self.assertEqual(fresh.FALLBACK_MODEL, "gemini-flash-lite-latest")
+        importlib.reload(ai)
+
     def test_page_and_health(self):
         self.assertEqual(self.client.get("/").status_code, 200)
-        self.assertTrue(self.client.get("/healthz").json()["ok"])
+        health = self.client.get("/api/health").json()
+        self.assertTrue(health["ok"])
+        self.assertEqual(health, self.client.get("/healthz").json())
+
+    def test_page_ships_the_review_data(self):
+        html = self.client.get("/").text
+        start = html.index('id="review-data" type="application/json">') + len('id="review-data" type="application/json">')
+        raw = html[start:html.index("</script>", start)]
+        self.assertNotIn("<", raw)
+        embedded = json.loads(raw)
+        self.assertEqual(embedded["summary"], self.client.get("/api/review").json()["summary"])
+
+    def test_record_text_cannot_close_the_script_tag(self):
+        payload = {"notice": "</script><script>alert(1)</script>"}
+        with mock.patch.object(main, "review", return_value=payload):
+            html = self.client.get("/").text
+        self.assertNotIn("<script>alert(1)", html)
+        self.assertIn("\\u003c/script>", html)
 
     def test_review_data(self):
         data = self.client.get("/api/review").json()
         self.assertEqual(data["checks"]["passed"], data["checks"]["total"])
         self.assertEqual(data["checks"]["problems"], [])
+        summary = data["summary"]
+        self.assertEqual((summary["homes_described"], summary["homes_total"]), (12, 120))
+        self.assertEqual(summary["sentences"][0], "12 of 120 homes described as affordable.")
+        self.assertTrue(data["questions"])
 
     def test_sample_uses_saved_output(self):
         data = self.client.post("/api/extract", json={"text": SAMPLE}).json()
@@ -76,6 +119,36 @@ class WithKey(unittest.TestCase):
             result = ai.extract(SAMPLE)
         self.assertEqual(result.mode, "saved")
         self.assertIn("did not finish", result.notice)
+
+    def test_busy_model_retries_once_with_fallback(self):
+        quote = "Harbor Walk Partners will provide 12 affordable homes at Harbor Walk."
+        output = ai.Extraction(candidates=[self.candidate(quote)])
+        busy = Busy(503)
+        with mock.patch.object(ai, "_call_model", side_effect=[busy, output]) as call:
+            result = ai.extract(SAMPLE)
+        self.assertEqual([c.args[1] for c in call.call_args_list], [ai.MODEL, ai.FALLBACK_MODEL])
+        self.assertEqual(result.mode, "live")
+        self.assertIn(ai.FALLBACK_MODEL, result.notice)
+
+    def test_timeout_and_504_also_retry(self):
+        output = ai.Extraction(candidates=[])
+        for err in (Busy(504), TimeoutError(), ReadTimeout()):
+            with mock.patch.object(ai, "_call_model", side_effect=[err, output]) as call:
+                self.assertEqual(ai.extract(SAMPLE).mode, "live")
+            self.assertEqual(call.call_count, 2)
+
+    def test_fallback_failure_uses_saved_output(self):
+        with mock.patch.object(ai, "_call_model", side_effect=[Busy(503), Busy(503)]) as call:
+            result = ai.extract(SAMPLE)
+        self.assertEqual(call.call_count, 2)
+        self.assertEqual(result.mode, "saved")
+        self.assertIn("did not finish", result.notice)
+
+    def test_other_errors_do_not_retry(self):
+        with mock.patch.object(ai, "_call_model", side_effect=Busy(400)) as call:
+            result = ai.extract(SAMPLE)
+        self.assertEqual(call.call_count, 1)
+        self.assertEqual(result.mode, "saved")
 
     def test_live_calls_are_limited(self):
         output = ai.Extraction(candidates=[])

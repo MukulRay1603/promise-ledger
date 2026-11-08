@@ -3,118 +3,181 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Promise Ledger: Harbor Walk review</title>
-  <meta name="description" content="A source-linked review of a made-up housing deal.">
+  <title>Promise Ledger</title>
+  <meta name="description" content="One checked record of the affordable-housing promises made in exchange for public support. AI reads, code checks, people decide. Made-up demo data.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#0F766E">
+  <script>
+    // Apply saved display settings before first paint.
+    try {
+      const theme = localStorage.getItem("pl-theme");
+      if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
+      if (localStorage.getItem("pl-text") === "large") document.documentElement.classList.add("text-large");
+    } catch (err) { /* Storage can be blocked. Defaults still apply. */ }
+    // Shared links open the read-only view without drawing the home page first.
+    if (/^\/r\//.test(location.pathname) || /^#\/r\//.test(location.hash)) document.documentElement.classList.add("route-shared");
+    else if (/^#\/./.test(location.hash) || /^#[a-z]/.test(location.hash)) document.documentElement.classList.add("route-app");
+  </script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230F766E'/%3E%3Cpath d='M10 8h12v17l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5z' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linejoin='round'/%3E%3Cpath d='M13 13h6M13 17h4' stroke='%23fff' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/static/style.css">
+  <script id="review-data" type="application/json"></script>
+  <script type="module" src="/static/app.js"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to main content</a>
-  <p class="demo-banner" id="demo-banner" role="note">Made-up demo data.</p>
 
-  <header class="masthead">
-    <div class="wrap">
-      <p class="product">Promise Ledger</p>
-      <h1 id="page-title">Harbor Walk review</h1>
-      <p class="lede">The same homes are described in different words across five records. Check each quote against its source, then print the receipt.</p>
+  <p class="demo-banner" role="note"><strong>Demo:</strong> <span id="demo-banner">Made-up demo data. Every city, project, company, date, number and quote here is fictional.</span></p>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#/" aria-label="Promise Ledger home">
+        <svg class="logo" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+          <rect width="32" height="32" rx="7" class="logo-bg"/>
+          <path d="M10 8h12v17l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5z" class="logo-line"/>
+          <path d="M13 13h6M13 17h4" class="logo-line"/>
+        </svg>
+        <span class="brand-name">Promise Ledger</span>
+      </a>
+      <nav class="main-nav" aria-label="Main">
+        <a href="#/" data-nav="home">Home</a>
+        <a href="#/deals" data-nav="deals">Deals</a>
+      </nav>
+      <div class="header-tools">
+        <button type="button" class="btn btn-ghost btn-toggle" id="text-toggle">Larger text</button>
+        <button type="button" class="btn btn-ghost btn-toggle" id="theme-toggle">Dark mode</button>
+      </div>
     </div>
   </header>
 
-  <nav class="jump" aria-label="On this page">
-    <div class="wrap">
-      <ul>
-        <li><a href="#claims">Claims</a></li>
-        <li><a href="#approved">What was approved?</a></li>
-        <li><a href="#terms">Terms checklist</a></li>
-        <li><a href="#receipt">Promise Receipt</a></li>
-        <li><a href="#extract">Read new text</a></li>
-      </ul>
-    </div>
-  </nav>
+  <main id="main" tabindex="-1">
+    <!-- Home. Shipped as markup so it paints before any script runs. -->
+    <section class="view" id="view-home" data-view="home" aria-labelledby="home-title">
+      <div class="hero">
+        <div class="hero-mesh" aria-hidden="true"></div>
+        <div class="container hero-inner">
+          <div class="hero-copy">
+            <p class="eyebrow">For city housing staff</p>
+            <h1 id="home-title">Public support should come with a receipt.</h1>
+            <p class="lede">Promise Ledger keeps one checked record of the affordable homes a developer promised in return for a tax break, so staff can see what was said, what was signed and what is still open.</p>
+            <div class="hero-actions">
+              <a class="btn btn-primary btn-lg" id="open-sample" href="#/deals/harbor-walk">Open a sample deal</a>
+              <button type="button" class="btn btn-secondary btn-lg" data-new-deal>Start a new deal</button>
+            </div>
+            <ul class="hero-pillars" aria-label="How it works">
+              <li><span class="pillar-n">1</span> AI reads the records</li>
+              <li><span class="pillar-n">2</span> Code checks every quote</li>
+              <li><span class="pillar-n">3</span> People decide</li>
+            </ul>
+          </div>
 
-  <main id="main" class="wrap">
-    <p id="load-status" role="status">Loading the review.</p>
-
-    <section aria-labelledby="wording-heading">
-      <h2 id="wording-heading">How the wording changed</h2>
-      <p class="section-note">Each step is a quote about the same homes. Select one to open its source page.</p>
-      <ol class="wording" id="wording"></ol>
-    </section>
-
-    <section id="claims" aria-labelledby="claims-heading">
-      <h2 id="claims-heading">Claims</h2>
-      <p class="section-note" id="check-line"></p>
-      <div class="claims-layout">
-        <div>
-          <table class="stack claims-table" role="table">
-            <caption class="visually-hidden">Reviewed claims with exact quotes. Select a quote to open its source page.</caption>
-            <thead role="rowgroup">
-              <tr role="row">
-                <th role="columnheader" scope="col">Exact quote</th>
-                <th role="columnheader" scope="col">Source</th>
-                <th role="columnheader" scope="col">Topic</th>
-                <th role="columnheader" scope="col">Status</th>
-              </tr>
-            </thead>
-            <tbody id="claim-rows" role="rowgroup"></tbody>
-          </table>
+          <figure class="receipt-card" id="hero-receipt" aria-labelledby="hero-receipt-cap">
+            <div class="rc-head">
+              <p class="rc-kicker">Promise receipt</p>
+              <p class="rc-title" id="hero-receipt-title">Harbor Walk · Lantern Bay</p>
+            </div>
+            <ul class="rc-rows" id="hero-receipt-rows">
+              <li><span class="rc-term">Homes</span><span class="rc-val">12 affordable homes</span><span class="badge badge-ok"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>Quote verified · <span class="mono">p. 1</span></span></li>
+              <li><span class="rc-term">Income limit</span><span class="rc-val">80 percent of area median income</span><span class="badge badge-warn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h10M10.5 3.2 5.5 12.8"/></svg>Wording differs</span></li>
+              <li><span class="rc-term">Term</span><span class="rc-val">15 years</span><span class="badge badge-warn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h10M10.5 3.2 5.5 12.8"/></svg>Wording differs</span></li>
+              <li><span class="rc-term">Remedies</span><span class="rc-val rc-muted">No wording found</span><span class="badge badge-warn"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M6.4 6.3a1.7 1.7 0 1 1 2.3 1.6c-.5.2-.7.6-.7 1.1v.4M8 11.4v.1"/></svg>Not located</span></li>
+            </ul>
+            <figcaption class="rc-foot" id="hero-receipt-cap"><span class="mono" id="hero-receipt-checks">16 of 16</span> quotes found word for word on their cited pages.</figcaption>
+          </figure>
         </div>
-        <aside class="source" aria-labelledby="source-heading">
-          <h3 id="source-heading" tabindex="-1">Source page</h3>
-          <div id="source-body"><p>Select a quote to open its source page.</p></div>
-        </aside>
       </div>
+
+      <section class="container section videos" aria-labelledby="videos-title">
+        <div class="section-head">
+          <h2 id="videos-title">Learn in 60 seconds</h2>
+          <p class="section-note">Eight short explainers, with captions. Each loads only when you press play.</p>
+        </div>
+        <ol class="video-row" id="video-row">
+          <li class="video-card" data-video="01-why-homes-cost">
+            <div class="video-frame"><div class="video-ph"><span class="ph-n" aria-hidden="true">01</span><span class="ph-soon"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5V6l1.6 1"/></svg>Coming soon</span></div></div>
+            <p class="video-meta"><span class="video-n">01</span><span class="video-title" id="vt-01">Why new homes cost so much</span></p>
+          </li>
+          <li class="video-card" data-video="02-how-cities-help">
+            <div class="video-frame"><div class="video-ph"><span class="ph-n" aria-hidden="true">02</span><span class="ph-soon"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5V6l1.6 1"/></svg>Coming soon</span></div></div>
+            <p class="video-meta"><span class="video-n">02</span><span class="video-title" id="vt-02">How cities help</span></p>
+          </li>
+          <li class="video-card" data-video="03-the-deal">
+            <div class="video-frame"><div class="video-ph"><span class="ph-n" aria-hidden="true">03</span><span class="ph-soon"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5V6l1.6 1"/></svg>Coming soon</span></div></div>
+            <p class="video-meta"><span class="video-n">03</span><span class="video-title" id="vt-03">The deal</span></p>
+          </li>
+          <li class="video-card" data-video="04-what-ami-means">
+            <div class="video-frame"><div class="video-ph"><span class="ph-n" aria-hidden="true">04</span><span class="ph-soon"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5V6l1.6 1"/></svg>Coming soon</span></div></div>
+            <p class="video-meta"><span class="video-n">04</span><span class="video-title" id="vt-04">What 60% of AMI means</span></p>
+          </li>
+          <li class="video-card" data-video="05-why-promises-slip">
+            <div class="video-frame"><div class="video-ph"><span class="ph-n" aria-hidden="true">05</span><span class="ph-soon"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5V6l1.6 1"/></svg>Coming soon</span></div></div>
+            <p class="video-meta"><span class="video-n">05</span><span class="video-title" id="vt-05">Why promises slip</span></p>
+          </li>
+          <li class="video-card" data-video="06-meet-promise-ledger">
+            <div class="video-frame"><div class="video-ph"><span class="ph-n" aria-hidden="true">06</span><span class="ph-soon"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5V6l1.6 1"/></svg>Coming soon</span></div></div>
+            <p class="video-meta"><span class="video-n">06</span><span class="video-title" id="vt-06">Meet Promise Ledger</span></p>
+          </li>
+          <li class="video-card" data-video="07-how-it-works">
+            <div class="video-frame"><div class="video-ph"><span class="ph-n" aria-hidden="true">07</span><span class="ph-soon"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5V6l1.6 1"/></svg>Coming soon</span></div></div>
+            <p class="video-meta"><span class="video-n">07</span><span class="video-title" id="vt-07">How it works</span></p>
+          </li>
+          <li class="video-card" data-video="08-harbor-walk-walkthrough">
+            <div class="video-frame"><div class="video-ph"><span class="ph-n" aria-hidden="true">08</span><span class="ph-soon"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5V6l1.6 1"/></svg>Coming soon</span></div></div>
+            <p class="video-meta"><span class="video-n">08</span><span class="video-title" id="vt-08">Harbor Walk walkthrough</span></p>
+          </li>
+        </ol>
+      </section>
     </section>
 
-    <section id="approved" aria-labelledby="approved-heading">
-      <h2 id="approved-heading">What was approved?</h2>
-      <p class="section-note">Each stage is kept separate. A claim sits only where its own record puts it. Nothing moves forward on its own.</p>
-      <ol class="stages" id="stages"></ol>
-    </section>
-
-    <section id="terms" aria-labelledby="terms-heading">
-      <h2 id="terms-heading">Terms checklist</h2>
-      <p class="section-note">"Not located" means the term was not found in this packet. It may exist in a record that is not here.</p>
-      <table class="stack terms-table" role="table">
-        <caption class="visually-hidden">Seven deal terms, what the records say about each, and where.</caption>
-        <thead role="rowgroup">
-          <tr role="row">
-            <th role="columnheader" scope="col">Term</th>
-            <th role="columnheader" scope="col">Result</th>
-            <th role="columnheader" scope="col">What the records say</th>
-            <th role="columnheader" scope="col">Furthest stage</th>
-            <th role="columnheader" scope="col">Sources</th>
-          </tr>
-        </thead>
-        <tbody id="term-rows" role="rowgroup"></tbody>
-      </table>
-    </section>
-
-    <section id="receipt" aria-labelledby="receipt-heading">
-      <div class="receipt-tools">
-        <h2 id="receipt-heading">Promise Receipt</h2>
-        <button type="button" id="print-receipt">Print receipt</button>
+    <section class="view container" id="view-deals" data-view="deals" aria-labelledby="deals-title" hidden></section>
+    <section class="view container" id="view-deal" data-view="deal" aria-labelledby="deal-title" hidden></section>
+    <section class="view container" id="view-shared" data-view="shared" aria-labelledby="shared-title" hidden></section>
+    <section class="view container" id="view-missing" data-view="missing" aria-labelledby="missing-title" hidden>
+      <div class="empty">
+        <h1 id="missing-title">Page not found</h1>
+        <p>That address does not match a page here.</p>
+        <a class="btn btn-primary" href="#/deals">Go to deals</a>
       </div>
-      <article class="receipt" id="receipt-body"></article>
-    </section>
-
-    <section id="extract" aria-labelledby="extract-heading">
-      <h2 id="extract-heading">Read new text</h2>
-      <p class="section-note">The model finds candidate quotes. Code keeps only quotes that match your text word for word. A person sets every status.</p>
-      <form id="extract-form">
-        <label for="extract-text">Text from a record</label>
-        <textarea id="extract-text" name="text" rows="6" required minlength="20" aria-describedby="extract-hint"></textarea>
-        <p id="extract-hint" class="hint">Use public records only. Do not paste names, phone numbers or other personal details. Text is not saved.</p>
-        <button type="submit">Find quotes</button>
-      </form>
-      <div id="extract-status" role="status"></div>
-      <ul class="candidates" id="extract-results" aria-label="Candidate quotes"></ul>
     </section>
   </main>
 
-  <footer class="wrap site-footer">
-    <p>Promise Ledger is a review aid. It makes no legal findings. Staff decide what each record means.</p>
-  </footer>
+  <dialog class="modal" id="new-deal-dialog" aria-labelledby="new-deal-title">
+    <form method="dialog" id="new-deal-form" class="modal-form">
+      <h2 id="new-deal-title">New deal</h2>
+      <p class="hint">Name the project and the city. You can add documents next.</p>
+      <label for="nd-name">Project name</label>
+      <input id="nd-name" name="name" required maxlength="120" autocomplete="off">
+      <label for="nd-city">City</label>
+      <input id="nd-city" name="city" required maxlength="120" autocomplete="off">
+      <p class="form-error" id="nd-error" role="alert"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" value="cancel" id="nd-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" value="create">Create deal</button>
+      </div>
+    </form>
+  </dialog>
 
-  <script src="/static/app.js"></script>
+  <dialog class="source-panel" id="source-dialog" aria-labelledby="source-title">
+    <div class="sp-head">
+      <div class="sp-titles">
+        <p class="sp-kicker">Source page</p>
+        <h2 id="source-title">Source</h2>
+        <p class="sp-meta" id="source-meta"></p>
+      </div>
+      <button type="button" class="btn btn-secondary" id="source-close">Close</button>
+    </div>
+    <div class="sp-body" id="source-body"></div>
+  </dialog>
+
+  <div id="glossary-popovers"></div>
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>Promise Ledger is a review aid. It makes no legal findings. Staff decide what each record means.</p>
+      <p class="footer-motto">AI reads. Code checks. People decide.</p>
+    </div>
+  </footer>
 </body>
 </html>

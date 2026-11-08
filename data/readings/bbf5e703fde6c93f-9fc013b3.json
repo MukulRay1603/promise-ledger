@@ -1,0 +1,91 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "agreement",
+  "title": "REGULATORY AGREEMENT Mill Street Lofts",
+  "date": "2011-06-14",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "CITY OF LANTERN BAY",
+    "quote": "City Manager",
+    "page": 3
+   },
+   {
+    "party": "MILL STREET HOUSING ASSOCIATES LP",
+    "quote": "Authorized Officer",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "By Resolution No. 2011-18, the City approved a 15-year partial property tax exemption for the Project.",
+    "page": 1,
+    "wording": "approved a 15-year partial property tax exemption",
+    "value": "15-year partial property tax exemption"
+   },
+   {
+    "topic": "units",
+    "quote": "The Owner shall reserve 9 of the 60 homes in the Project as Affordable Homes.",
+    "page": 1,
+    "wording": "shall reserve 9 of the 60 homes",
+    "value": "9 of 60 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Each Affordable Home shall be leased to a household with income at or below 50 percent of Area Median Income.",
+    "page": 1,
+    "wording": "at or below 50 percent of Area Median Income",
+    "value": "50% AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "Monthly rent for each Affordable Home shall not exceed 30 percent of 50 percent of Area Median Income, adjusted for household size.",
+    "page": 2,
+    "wording": "shall not exceed 30 percent of 50 percent of Area Median Income",
+    "value": "30% of 50% AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "The Affordability Period begins on January 1, 2012 and ends on December 31, 2026.",
+    "page": 2,
+    "wording": "begins on January 1, 2012 and ends on December 31, 2026",
+    "value": "January 1, 2012 to December 31, 2026"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "The Owner is responsible for compliance with this Agreement, and this Agreement binds every later owner of the Project.",
+    "page": 2,
+    "wording": "The Owner is responsible",
+    "value": "Mill Street Housing Associates LP"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Owner shall deliver an annual compliance certificate to the City by March 31 of each year.",
+    "page": 2,
+    "wording": "shall deliver an annual compliance certificate",
+    "value": "Annual compliance certificate by March 31"
+   },
+   {
+    "topic": "remedies",
+    "quote": "If a default is not cured within 30 days after written notice from the City, the Owner shall repay the property taxes exempted during the period of default.",
+    "page": 3,
+    "wording": "shall repay the property taxes exempted",
+    "value": "Repay exempted property taxes"
+   },
+   {
+    "topic": "remedies",
+    "quote": "The City may also seek specific performance of this Agreement.",
+    "page": 3,
+    "wording": "seek specific performance",
+    "value": "Seek specific performance"
+   }
+  ]
+ },
+ "tokens_in": 1154,
+ "tokens_out": 913,
+ "cost_usd": 0.002629,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

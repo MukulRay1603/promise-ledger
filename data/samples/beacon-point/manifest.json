@@ -1,0 +1,41 @@
+{
+  "notice": "Fictional sample data for demonstration. Lantern Bay, Bayside County and every company, date, number and quote in these documents are made up.",
+  "deal": "Beacon Point",
+  "slug": "beacon-point",
+  "city": "Lantern Bay",
+  "county": "Bayside County",
+  "homes": 80,
+  "owner": "Beacon Point Housing LLC",
+  "documents": [
+    {
+      "file": "01-staff-report.pdf",
+      "id": "staff-report",
+      "type": "Staff report",
+      "date": "2025-05-06",
+      "title": "Staff report: Beacon Point payment in lieu of taxes request",
+      "pages": 3,
+      "signed_by": []
+    },
+    {
+      "file": "02-council-resolution.pdf",
+      "id": "resolution",
+      "type": "Council resolution",
+      "date": "2025-05-13",
+      "title": "Resolution No. 2025-41 concerning payments in lieu of taxes for the Beacon Point Apartments",
+      "pages": 2,
+      "signed_by": []
+    },
+    {
+      "file": "03-pilot-regulatory-agreement.pdf",
+      "id": "agreement",
+      "type": "PILOT and regulatory agreement",
+      "date": "2025-07-01",
+      "title": "Payment in Lieu of Taxes and Regulatory Agreement, Beacon Point Apartments",
+      "pages": 4,
+      "signed_by": [
+        "City of Lantern Bay",
+        "Beacon Point Housing LLC"
+      ]
+    }
+  ]
+}

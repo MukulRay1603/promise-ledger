@@ -1,0 +1,299 @@
+{
+  "notice": "Fictional sample data for demonstration. Lantern Bay, Bayside County and every company, date, number and quote in these documents are made up.",
+  "deal": "Beacon Point",
+  "terms": [
+    "units",
+    "income_basis",
+    "rent_limits",
+    "term",
+    "responsible_party",
+    "reporting",
+    "remedies"
+  ],
+  "stages": [
+    "proposed",
+    "supported",
+    "signed",
+    "delivered"
+  ],
+  "not_located": [],
+  "differs": [],
+  "story": "A complete deal. All seven terms appear in the staff report, the resolution and the agreement signed by both the City and the owner, and they match.",
+  "claims": [
+    {
+      "id": "b01",
+      "term": "public_support",
+      "quote": "Staff recommends that the Council adopt the attached resolution approving a 15-year payment in lieu of taxes for Beacon Point.",
+      "file": "01-staff-report.pdf",
+      "page": 1,
+      "stage": "supported",
+      "wording": "recommends",
+      "value": "15-year payment in lieu of taxes",
+      "review_note": "This is the public support being asked for."
+    },
+    {
+      "id": "b02",
+      "term": "units",
+      "quote": "The owner will reserve 16 of the 80 homes as affordable homes.",
+      "file": "01-staff-report.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "will reserve",
+      "value": "16 of 80 homes",
+      "review_note": ""
+    },
+    {
+      "id": "b03",
+      "term": "income_basis",
+      "quote": "Each affordable home must be leased to a household with income at or below 60 percent of area median income.",
+      "file": "01-staff-report.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "must be leased",
+      "value": "60 percent of area median income",
+      "review_note": ""
+    },
+    {
+      "id": "b04",
+      "term": "rent_limits",
+      "quote": "Rents for the affordable homes may not exceed the 60 percent rent limit based on the HUD income limits published each year.",
+      "file": "01-staff-report.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "may not exceed",
+      "value": "60 percent rent limit based on HUD income limits",
+      "review_note": "Rent limit is tied to HUD income limits that change each year."
+    },
+    {
+      "id": "b05",
+      "term": "term",
+      "quote": "The affordability requirements will last for 30 years from the date the first affordable home is leased.",
+      "file": "01-staff-report.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "will last",
+      "value": "30 years from first lease",
+      "review_note": ""
+    },
+    {
+      "id": "b06",
+      "term": "responsible_party",
+      "quote": "The owner, and any later owner of the property, is responsible for meeting these requirements.",
+      "file": "01-staff-report.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "is responsible",
+      "value": "Owner and any later owner",
+      "review_note": ""
+    },
+    {
+      "id": "b07",
+      "term": "reporting",
+      "quote": "The owner will file an annual compliance certificate with the City by March 1 of each year.",
+      "file": "01-staff-report.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "will file",
+      "value": "Annual certificate by March 1",
+      "review_note": ""
+    },
+    {
+      "id": "b08",
+      "term": "remedies",
+      "quote": "If a default is not cured within 60 days after written notice, the owner must repay all abated taxes with interest.",
+      "file": "01-staff-report.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "must repay",
+      "value": "Repay abated taxes with interest after 60-day cure period",
+      "review_note": ""
+    },
+    {
+      "id": "b09",
+      "term": "public_support",
+      "quote": "The City Council approves a payment in lieu of taxes for Beacon Point for a period of 15 years.",
+      "file": "02-council-resolution.pdf",
+      "page": 1,
+      "stage": "supported",
+      "wording": "approves",
+      "value": "15-year payment in lieu of taxes",
+      "review_note": ""
+    },
+    {
+      "id": "b10",
+      "term": "units",
+      "quote": "16 of the 80 homes are reserved as affordable homes",
+      "file": "02-council-resolution.pdf",
+      "page": 1,
+      "stage": "supported",
+      "wording": "are reserved",
+      "value": "16 of 80 homes",
+      "review_note": ""
+    },
+    {
+      "id": "b11",
+      "term": "income_basis",
+      "quote": "each affordable home is leased to a household with income at or below 60 percent of area median income",
+      "file": "02-council-resolution.pdf",
+      "page": 1,
+      "stage": "supported",
+      "wording": "is leased",
+      "value": "60 percent of area median income",
+      "review_note": ""
+    },
+    {
+      "id": "b12",
+      "term": "rent_limits",
+      "quote": "rents do not exceed the 60 percent rent limit based on the HUD income limits published each year",
+      "file": "02-council-resolution.pdf",
+      "page": 1,
+      "stage": "supported",
+      "wording": "do not exceed",
+      "value": "60 percent rent limit based on HUD income limits",
+      "review_note": ""
+    },
+    {
+      "id": "b13",
+      "term": "term",
+      "quote": "the requirements last for 30 years from the date the first affordable home is leased",
+      "file": "02-council-resolution.pdf",
+      "page": 1,
+      "stage": "supported",
+      "wording": "last",
+      "value": "30 years from first lease",
+      "review_note": ""
+    },
+    {
+      "id": "b14",
+      "term": "responsible_party",
+      "quote": "the owner and any later owner of the property are responsible for meeting the requirements",
+      "file": "02-council-resolution.pdf",
+      "page": 2,
+      "stage": "supported",
+      "wording": "are responsible",
+      "value": "Owner and any later owner",
+      "review_note": ""
+    },
+    {
+      "id": "b15",
+      "term": "reporting",
+      "quote": "the owner files an annual compliance certificate with the City by March 1 of each year",
+      "file": "02-council-resolution.pdf",
+      "page": 2,
+      "stage": "supported",
+      "wording": "files",
+      "value": "Annual certificate by March 1",
+      "review_note": ""
+    },
+    {
+      "id": "b16",
+      "term": "remedies",
+      "quote": "the owner repays all abated taxes with interest if a default is not cured within 60 days after written notice",
+      "file": "02-council-resolution.pdf",
+      "page": 2,
+      "stage": "supported",
+      "wording": "repays",
+      "value": "Repay abated taxes with interest after 60-day cure period",
+      "review_note": ""
+    },
+    {
+      "id": "b17",
+      "term": "public_support",
+      "quote": "The Owner shall pay the City an annual payment in lieu of taxes equal to 25 percent of the property taxes that would otherwise be due, for a period of 15 years.",
+      "file": "03-pilot-regulatory-agreement.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "shall pay",
+      "value": "15-year payment in lieu of taxes",
+      "review_note": ""
+    },
+    {
+      "id": "b18",
+      "term": "units",
+      "quote": "The Owner shall reserve 16 of the 80 homes in the Project as Affordable Homes.",
+      "file": "03-pilot-regulatory-agreement.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "shall reserve",
+      "value": "16 of 80 homes",
+      "review_note": ""
+    },
+    {
+      "id": "b19",
+      "term": "income_basis",
+      "quote": "Each Affordable Home shall be leased to a household with income at or below 60 percent of Area Median Income.",
+      "file": "03-pilot-regulatory-agreement.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "shall be leased",
+      "value": "60 percent of area median income",
+      "review_note": ""
+    },
+    {
+      "id": "b20",
+      "term": "rent_limits",
+      "quote": "Monthly rent for each Affordable Home, including a utility allowance, shall not exceed the 60 percent rent limit based on the HUD income limits published each year.",
+      "file": "03-pilot-regulatory-agreement.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "shall not exceed",
+      "value": "60 percent rent limit based on HUD income limits",
+      "review_note": ""
+    },
+    {
+      "id": "b21",
+      "term": "term",
+      "quote": "The requirements of this Article 3 shall remain in effect for 30 years from the date the first Affordable Home is leased.",
+      "file": "03-pilot-regulatory-agreement.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "shall remain in effect",
+      "value": "30 years from first lease",
+      "review_note": ""
+    },
+    {
+      "id": "b22",
+      "term": "responsible_party",
+      "quote": "The Owner is responsible for compliance with this Agreement, and this Agreement binds every later owner of the Project.",
+      "file": "03-pilot-regulatory-agreement.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "is responsible",
+      "value": "Owner and any later owner",
+      "review_note": ""
+    },
+    {
+      "id": "b23",
+      "term": "reporting",
+      "quote": "The Owner shall deliver an annual compliance certificate to the City by March 1 of each year.",
+      "file": "03-pilot-regulatory-agreement.pdf",
+      "page": 3,
+      "stage": "signed",
+      "wording": "shall deliver",
+      "value": "Annual certificate by March 1",
+      "review_note": ""
+    },
+    {
+      "id": "b24",
+      "term": "remedies",
+      "quote": "The City shall give the Owner written notice of any default under this Agreement.",
+      "file": "03-pilot-regulatory-agreement.pdf",
+      "page": 3,
+      "stage": "signed",
+      "wording": "shall give",
+      "value": "Written notice of default",
+      "review_note": "Default notice from the City."
+    },
+    {
+      "id": "b25",
+      "term": "remedies",
+      "quote": "If a default is not cured within 60 days after written notice, the Owner shall repay all abated taxes with interest.",
+      "file": "03-pilot-regulatory-agreement.pdf",
+      "page": 3,
+      "stage": "signed",
+      "wording": "shall repay",
+      "value": "Repay abated taxes with interest after 60-day cure period",
+      "review_note": ""
+    }
+  ]
+}

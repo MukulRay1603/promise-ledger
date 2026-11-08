@@ -1,0 +1,150 @@
+{
+ "mode": "live",
+ "model": "gemini-3.8-flash",
+ "reading": {
+  "document_type": "agreement",
+  "title": "PAYMENT IN LIEU OF TAXES AND REGULATORY AGREEMENT Beacon Point Apartments · 2200 Beacon Avenue, Lantern Bay",
+  "date": "2025-07-01",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "CITY OF LANTERN BAY",
+    "quote": "[signature on file]",
+    "page": 4
+   },
+   {
+    "party": "BEACON POINT HOUSING LLC",
+    "quote": "[signature on file]",
+    "page": 4
+   },
+   {
+    "party": "City Clerk",
+    "quote": "[signature on file]",
+    "page": 4
+   },
+   {
+    "party": "City Attorney",
+    "quote": "[signature on file]",
+    "page": 4
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner is building an 80-home rental project at 2200 Beacon Avenue (the \"Project\").",
+    "page": 1,
+    "wording": "is building",
+    "value": "80-home rental project"
+   },
+   {
+    "topic": "public_support",
+    "quote": "By Resolution No. 2025-41, adopted May 13, 2025, the City Council approved a payment in lieu of taxes for the Project, subject to this Agreement.",
+    "page": 1,
+    "wording": "approved",
+    "value": "payment in lieu of taxes"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Owner shall pay the City an annual payment in lieu of taxes equal to 25 percent of the property taxes that would otherwise be due, for a period of 15 years.",
+    "page": 1,
+    "wording": "shall pay",
+    "value": "payment in lieu of taxes equal to 25 percent of property taxes for 15 years"
+   },
+   {
+    "topic": "term",
+    "quote": "The Owner shall pay the City an annual payment in lieu of taxes equal to 25 percent of the property taxes that would otherwise be due, for a period of 15 years.",
+    "page": 1,
+    "wording": "for a period of",
+    "value": "15 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The Owner shall reserve 16 of the 80 homes in the Project as Affordable Homes.",
+    "page": 2,
+    "wording": "shall reserve",
+    "value": "16 of the 80 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Each Affordable Home shall be leased to a household with income at or below 60 percent of Area Median Income.",
+    "page": 2,
+    "wording": "shall be leased to",
+    "value": "at or below 60 percent of Area Median Income"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "Monthly rent for each Affordable Home, including a utility allowance, shall not exceed the 60 percent rent limit based on the HUD income limits published each year.",
+    "page": 2,
+    "wording": "shall not exceed",
+    "value": "60 percent rent limit based on HUD income limits published each year"
+   },
+   {
+    "topic": "term",
+    "quote": "The requirements of this Article 3 shall remain in effect for 30 years from the date the first Affordable Home is leased.",
+    "page": 2,
+    "wording": "shall remain in effect for",
+    "value": "30 years from the date the first Affordable Home is leased"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "The Owner is responsible for compliance with this Agreement, and this Agreement binds every later owner of the Project.",
+    "page": 2,
+    "wording": "is responsible",
+    "value": "Owner and every later owner of the Project"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "The Owner shall give the City 30 days' written notice before any sale of the Project.",
+    "page": 2,
+    "wording": "shall give",
+    "value": "30 days' written notice before any sale"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Owner shall deliver an annual compliance certificate to the City by March 1 of each year.",
+    "page": 3,
+    "wording": "shall deliver",
+    "value": "annual compliance certificate by March 1 of each year"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The certificate shall state counts only and shall not include household names or other personal information.",
+    "page": 3,
+    "wording": "shall state",
+    "value": "counts only without household names or personal information"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The City may inspect the Owner's leasing records for the Affordable Homes on 10 days' notice.",
+    "page": 3,
+    "wording": "may inspect",
+    "value": "leasing records on 10 days' notice"
+   },
+   {
+    "topic": "remedies",
+    "quote": "The City shall give the Owner written notice of any default under this Agreement.",
+    "page": 3,
+    "wording": "shall give",
+    "value": "written notice of any default"
+   },
+   {
+    "topic": "remedies",
+    "quote": "If a default is not cured within 60 days after written notice, the Owner shall repay all abated taxes with interest.",
+    "page": 3,
+    "wording": "shall repay",
+    "value": "repay all abated taxes with interest if default is not cured within 60 days"
+   },
+   {
+    "topic": "remedies",
+    "quote": "The City may also seek any other remedy available at law or in equity.",
+    "page": 3,
+    "wording": "may also seek",
+    "value": "any other remedy available at law or in equity"
+   }
+  ]
+ },
+ "tokens_in": 1452,
+ "tokens_out": 2584,
+ "cost_usd": 0.006896,
+ "notice": "Read by gemini-3.8-flash. Every quote is checked against the page text."
+}

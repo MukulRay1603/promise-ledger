@@ -1,0 +1,38 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "slides",
+  "title": "Harbor Walk: new homes on the Old Ferry lot.",
+  "date": "2025-03-04",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "We are considering 10 percent of the 120 homes as workforce homes.",
+    "page": 2,
+    "wording": "considering 10 percent",
+    "value": "12 of 120 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Workforce homes would be for households earning up to 80 percent of area median income.",
+    "page": 2,
+    "wording": "would be for",
+    "value": "up to 80 percent of AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "The length of the income limits is still being discussed, with 15 years as a starting point.",
+    "page": 3,
+    "wording": "with 15 years as a starting point",
+    "value": "15 years"
+   }
+  ]
+ },
+ "tokens_in": 668,
+ "tokens_out": 295,
+ "cost_usd": 0.000938,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

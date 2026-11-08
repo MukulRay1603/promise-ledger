@@ -1,0 +1,91 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "resolution",
+  "title": "RESOLUTION NO. 2025-41 A RESOLUTION OF THE CITY COUNCIL OF THE CITY OF LANTERN BAY CONCERNING PAYMENTS IN LIEU OF TAXES FOR THE BEACON POINT APARTMENTS",
+  "date": "2025-05-13",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Mayor",
+    "quote": "Mayor",
+    "page": 2
+   },
+   {
+    "party": "City Clerk",
+    "quote": "City Clerk",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "Section 1. The City Council approves a payment in lieu of taxes for Beacon Point for a period of 15 years.",
+    "page": 1,
+    "wording": "approves a payment in lieu of taxes",
+    "value": "payment in lieu of taxes for 15 years"
+   },
+   {
+    "topic": "term",
+    "quote": "Section 1. The City Council approves a payment in lieu of taxes for Beacon Point for a period of 15 years.",
+    "page": 1,
+    "wording": "for a period of 15 years",
+    "value": "15 years"
+   },
+   {
+    "topic": "units",
+    "quote": "(a) 16 of the 80 homes are reserved as affordable homes;",
+    "page": 1,
+    "wording": "16 of the 80 homes",
+    "value": "16 of 80 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "(b) each affordable home is leased to a household with income at or below 60 percent of area median income;",
+    "page": 1,
+    "wording": "at or below 60 percent of area median income",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "(c) rents do not exceed the 60 percent rent limit based on the HUD income limits published each year;",
+    "page": 1,
+    "wording": "do not exceed the 60 percent rent limit",
+    "value": "60 percent rent limit"
+   },
+   {
+    "topic": "term",
+    "quote": "(d) the requirements last for 30 years from the date the first affordable home is leased;",
+    "page": 1,
+    "wording": "last for 30 years",
+    "value": "30 years"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "(e) the owner and any later owner of the property are responsible for meeting the requirements;",
+    "page": 2,
+    "wording": "the owner and any later owner of the property are responsible",
+    "value": "owner and any later owner"
+   },
+   {
+    "topic": "reporting",
+    "quote": "(f) the owner files an annual compliance certificate with the City by March 1 of each year; and",
+    "page": 2,
+    "wording": "files an annual compliance certificate",
+    "value": "annual compliance certificate by March 1"
+   },
+   {
+    "topic": "remedies",
+    "quote": "(g) the owner repays all abated taxes with interest if a default is not cured within 60 days after written notice.",
+    "page": 2,
+    "wording": "repays all abated taxes with interest",
+    "value": "repay all abated taxes with interest"
+   }
+  ]
+ },
+ "tokens_in": 1000,
+ "tokens_out": 894,
+ "cost_usd": 0.002535,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

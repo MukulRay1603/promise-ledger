@@ -1,0 +1,58 @@
+{
+  "notice": "Fictional sample data for demonstration. Lantern Bay, Bayside County and every company, date, number and quote in these documents are made up.",
+  "deal": "Harbor Walk",
+  "slug": "harbor-walk",
+  "city": "Lantern Bay",
+  "county": "Bayside County",
+  "homes": 120,
+  "owner": "Harbor Walk Partners LLC",
+  "documents": [
+    {
+      "file": "01-staff-summary.pdf",
+      "id": "staff-summary",
+      "type": "Staff summary",
+      "date": "2025-02-03",
+      "title": "Staff summary: Harbor Walk tax request",
+      "pages": 2,
+      "signed_by": []
+    },
+    {
+      "file": "02-draft-letter.pdf",
+      "id": "draft-letter",
+      "type": "Draft letter",
+      "date": "2025-02-20",
+      "title": "Draft letter from Harbor Walk Partners to the City",
+      "pages": 1,
+      "signed_by": []
+    },
+    {
+      "file": "03-developer-slides.pdf",
+      "id": "developer-slides",
+      "type": "Developer slides",
+      "date": "2025-03-04",
+      "title": "Harbor Walk: presentation to the Council",
+      "pages": 3,
+      "signed_by": []
+    },
+    {
+      "file": "04-council-minutes.pdf",
+      "id": "minutes",
+      "type": "Minutes",
+      "date": "2025-03-11",
+      "title": "Lantern Bay City Council minutes",
+      "pages": 2,
+      "signed_by": []
+    },
+    {
+      "file": "05-developer-letter.pdf",
+      "id": "later-letter",
+      "type": "Later letter",
+      "date": "2025-09-15",
+      "title": "Letter from Harbor Walk Partners to the City",
+      "pages": 1,
+      "signed_by": [
+        "Harbor Walk Partners LLC"
+      ]
+    }
+  ]
+}

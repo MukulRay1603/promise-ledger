@@ -1,0 +1,45 @@
+{
+  "_note": "Set ready to true once NN-slug.mp4, .vtt and .jpg are in this folder.",
+  "videos": [
+    {
+      "slug": "01-why-homes-cost",
+      "title": "Why new homes cost so much",
+      "ready": false
+    },
+    {
+      "slug": "02-how-cities-help",
+      "title": "How cities help",
+      "ready": false
+    },
+    {
+      "slug": "03-the-deal",
+      "title": "The deal",
+      "ready": false
+    },
+    {
+      "slug": "04-what-ami-means",
+      "title": "What 60% of AMI means",
+      "ready": false
+    },
+    {
+      "slug": "05-why-promises-slip",
+      "title": "Why promises slip",
+      "ready": false
+    },
+    {
+      "slug": "06-meet-promise-ledger",
+      "title": "Meet Promise Ledger",
+      "ready": false
+    },
+    {
+      "slug": "07-how-it-works",
+      "title": "How it works",
+      "ready": false
+    },
+    {
+      "slug": "08-harbor-walk-walkthrough",
+      "title": "Harbor Walk walkthrough",
+      "ready": false
+    }
+  ]
+}

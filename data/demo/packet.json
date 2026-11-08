@@ -2,6 +2,7 @@
   "notice": "Made-up demo data. Lantern Bay, Harbor Walk, Harbor Walk Partners and every date, number and quote in this packet are fictional.",
   "city": "Lantern Bay",
   "project": "Harbor Walk",
+  "developer": "Harbor Walk Partners",
   "documents": [
     {
       "id": "staff-summary",
@@ -9,6 +10,7 @@
       "title": "Staff summary: Harbor Walk tax request",
       "date": "2025-02-03",
       "signed": false,
+      "signed_by": [],
       "pages": [
         {
           "page": 1,
@@ -36,6 +38,7 @@
       "title": "Draft letter from Harbor Walk Partners to the City",
       "date": "2025-02-20",
       "signed": false,
+      "signed_by": [],
       "pages": [
         {
           "page": 1,
@@ -56,6 +59,7 @@
       "title": "Harbor Walk: presentation to the Council",
       "date": "2025-03-04",
       "signed": false,
+      "signed_by": [],
       "pages": [
         {
           "page": 1,
@@ -90,6 +94,7 @@
       "title": "Lantern Bay City Council minutes",
       "date": "2025-03-11",
       "signed": false,
+      "signed_by": [],
       "pages": [
         {
           "page": 1,
@@ -117,6 +122,7 @@
       "title": "Letter from Harbor Walk Partners to the City",
       "date": "2025-09-15",
       "signed": true,
+      "signed_by": ["Harbor Walk Partners"],
       "pages": [
         {
           "page": 1,

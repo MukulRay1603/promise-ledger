@@ -18,6 +18,7 @@
       "status": "proposed",
       "wording": "has agreed",
       "value": "12 of 120 homes",
+      "homes": { "count": 12, "of": 120 },
       "review_note": "Staff wording. A signed document from this date was not located."
     },
     {
@@ -70,6 +71,7 @@
       "status": "proposed",
       "wording": "will explore",
       "value": "up to 12 homes",
+      "homes": { "count": 12, "up_to": true },
       "review_note": "Unsigned draft. It says \"reduced rents\" but gives no rent limit."
     },
     {
@@ -136,6 +138,7 @@
       "status": "supported",
       "wording": "understanding",
       "value": "12 homes",
+      "homes": { "count": 12 },
       "review_note": "Minutes do not state the income basis, rent limits or term for these homes."
     },
     {
@@ -176,6 +179,7 @@
       "status": "signed",
       "wording": "will provide",
       "value": "12 affordable homes",
+      "homes": { "count": 12 },
       "review_note": "Signed by the company. A City signature was not located."
     },
     {

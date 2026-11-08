@@ -105,5 +105,93 @@ class DemoRules(unittest.TestCase):
             self.assertIsNone(blocked.search(text), path.name)
 
 
+class Summary(unittest.TestCase):
+    """The at-a-glance numbers are counted from the records, so changing a record changes them."""
+
+    def setUp(self):
+        self.packet = copy.deepcopy(ledger.load_packet())
+        self.claims = copy.deepcopy(ledger.load_claims()["claims"])
+        self.notes = ledger.load_claims()["stage_notes"]
+
+    def summary(self):
+        terms = ledger.build_terms(self.claims)
+        stages = ledger.build_stages(self.claims, self.notes)
+        return ledger.build_summary(self.claims, terms, stages, self.packet)
+
+    def questions(self):
+        terms = ledger.build_terms(self.claims)
+        stages = ledger.build_stages(self.claims, self.notes)
+        return ledger.build_questions(self.claims, terms, stages, self.summary())
+
+    def claim(self, claim_id):
+        return next(c for c in self.claims if c["id"] == claim_id)
+
+    def test_demo_numbers(self):
+        s = self.summary()
+        self.assertEqual((s["homes_described"], s["homes_total"]), (12, 120))
+        self.assertEqual(s["homes_claim_id"], "c13")
+        self.assertEqual(s["furthest_status"], "signed")
+        self.assertEqual((s["terms_differ"], s["terms_not_located"], s["terms_total"]), (3, 2, 7))
+        self.assertEqual(s["signers"], ["Harbor Walk Partners"])
+        self.assertTrue(s["signed_by_developer_only"])
+        self.assertFalse(s["city_signed"])
+
+    def test_sentences_match_the_records(self):
+        self.assertEqual(self.summary()["sentences"], [
+            "12 of 120 homes described as affordable.",
+            "Signed by the developer (Harbor Walk Partners) only; no City-signed agreement located.",
+            "3 terms differ across records · 2 terms not located.",
+        ])
+
+    def test_counts_follow_the_terms(self):
+        rent = {**self.claim("c13"), "id": "c99", "topic": "rent_limits", "value": "Rent limit"}
+        self.claims.append(rent)
+        s = self.summary()
+        self.assertEqual(s["terms_not_located"], 1)
+        self.assertIn("1 term not located.", s["sentences"][-1])
+
+    def test_home_count_comes_from_the_furthest_record(self):
+        self.claim("c13")["homes"] = {"count": 10}
+        self.claim("c13")["value"] = "10 affordable homes"
+        self.assertEqual(self.summary()["homes_described"], 10)
+        self.claims = [c for c in self.claims if c["status"] != "signed"]
+        s = self.summary()
+        self.assertEqual((s["homes_described"], s["homes_claim_id"]), (12, "c10"))
+        self.assertEqual(s["furthest_status"], "supported")
+
+    def test_city_signature_is_read_from_the_packet(self):
+        later = next(d for d in self.packet["documents"] if d["id"] == "later-letter")
+        later["signed_by"] = ["City of Lantern Bay", "Harbor Walk Partners"]
+        s = self.summary()
+        self.assertTrue(s["city_signed"])
+        self.assertFalse(s["signed_by_developer_only"])
+        self.assertEqual(s["sentences"][1], "Signed by City of Lantern Bay, Harbor Walk Partners.")
+        self.assertNotIn("city_signature", [q["key"] for q in self.questions()])
+
+    def test_no_signed_record(self):
+        for document in self.packet["documents"]:
+            document["signed"], document["signed_by"] = False, []
+        self.assertEqual(self.summary()["sentences"][1], "No signed record located.")
+
+    def test_open_questions_cover_missing_and_differing_terms(self):
+        tags = {(q["key"], q["tag"]) for q in self.questions()}
+        for key in ("rent_limits", "remedies", "reporting", "city_signature", "delivery"):
+            self.assertIn((key, "not_located"), tags)
+        for key in ("units", "income_basis", "term"):
+            self.assertIn((key, "differs"), tags)
+        self.assertNotIn(("responsible_party", "differs"), tags)
+
+    def test_home_count_must_be_in_the_quote(self):
+        self.claim("c01")["homes"] = {"count": 13, "of": 120}
+        problems = ledger.check_claim(self.claim("c01"), self.packet)
+        self.assertTrue(any("home count 13" in p for p in problems))
+
+    def test_signed_record_needs_a_signer(self):
+        later = next(d for d in self.packet["documents"] if d["id"] == "later-letter")
+        later["signed_by"] = []
+        self.assertTrue(any("no signer" in p for p in ledger.check_packet(self.packet)))
+        self.assertEqual(ledger.check_packet(ledger.load_packet()), [])
+
+
 if __name__ == "__main__":
     unittest.main()

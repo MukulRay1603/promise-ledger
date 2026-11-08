@@ -1,0 +1,43 @@
+{
+  "notice": "Fictional sample data for demonstration. Lantern Bay, Bayside County and every company, date, number and quote in these documents are made up.",
+  "deal": "Mill Street",
+  "slug": "mill-street",
+  "city": "Lantern Bay",
+  "county": "Bayside County",
+  "homes": 60,
+  "owner": "Mill Street Housing Associates LP",
+  "documents": [
+    {
+      "file": "01-regulatory-agreement-2011.pdf",
+      "id": "agreement-2011",
+      "type": "Regulatory agreement (excerpt)",
+      "date": "2011-06-14",
+      "title": "Regulatory Agreement, Mill Street Lofts (excerpt)",
+      "pages": 3,
+      "signed_by": [
+        "City of Lantern Bay",
+        "Mill Street Housing Associates LP"
+      ]
+    },
+    {
+      "file": "02-compliance-certificate-2024.pdf",
+      "id": "certificate-2024",
+      "type": "Annual compliance certificate",
+      "date": "2025-03-20",
+      "title": "Annual owner compliance certificate, reporting year 2024",
+      "pages": 1,
+      "signed_by": [
+        "Mill Street Housing Associates LP"
+      ]
+    },
+    {
+      "file": "03-staff-memo-2026.pdf",
+      "id": "staff-memo-2026",
+      "type": "Staff memo",
+      "date": "2026-04-15",
+      "title": "Mill Street Lofts: annual certificates and end of the affordability period",
+      "pages": 2,
+      "signed_by": []
+    }
+  ]
+}

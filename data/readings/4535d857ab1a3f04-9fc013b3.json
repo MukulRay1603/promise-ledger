@@ -1,0 +1,59 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Harbor Walk tax request",
+  "date": "2025-02-03",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The developer has agreed to set aside 12 of the 120 homes as affordable homes.",
+    "page": 1,
+    "wording": "agreed to set aside",
+    "value": "12 of 120 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "These homes would serve households at or below 60 percent of area median income.",
+    "page": 1,
+    "wording": "would serve",
+    "value": "at or below 60 percent of AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "Rent levels for these homes were not described in the request.",
+    "page": 1,
+    "wording": "were not described",
+    "value": "not described"
+   },
+   {
+    "topic": "term",
+    "quote": "Staff understands that the income limits would last for 30 years.",
+    "page": 2,
+    "wording": "would last for",
+    "value": "30 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The request is for a 50 percent reduction in property taxes on the new building for 20 years.",
+    "page": 2,
+    "wording": "request is for",
+    "value": "50 percent property tax reduction for 20 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Staff recommends that the Council support the request for a 20-year property tax reduction.",
+    "page": 2,
+    "wording": "recommends that the Council support",
+    "value": "support for 20-year property tax reduction"
+   }
+  ]
+ },
+ "tokens_in": 889,
+ "tokens_out": 505,
+ "cost_usd": 0.001529,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

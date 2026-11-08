@@ -1,0 +1,191 @@
+{
+  "notice": "Fictional sample data for demonstration. Lantern Bay, Bayside County and every company, date, number and quote in these documents are made up.",
+  "deal": "Mill Street",
+  "terms": [
+    "units",
+    "income_basis",
+    "rent_limits",
+    "term",
+    "responsible_party",
+    "reporting",
+    "remedies"
+  ],
+  "stages": [
+    "proposed",
+    "supported",
+    "signed",
+    "delivered"
+  ],
+  "not_located": [],
+  "differs": [],
+  "observations": [
+    {
+      "id": "o01",
+      "kind": "report_not_received",
+      "term": "reporting",
+      "quote": "The certificate for reporting year 2025 was due on March 31, 2026 and is marked not received.",
+      "file": "03-staff-memo-2026.pdf",
+      "page": 1,
+      "value": "2025 certificate not received"
+    },
+    {
+      "id": "o02",
+      "kind": "reminder_sent",
+      "term": "reporting",
+      "quote": "A reminder notice was sent to the owner on April 2, 2026.",
+      "file": "03-staff-memo-2026.pdf",
+      "page": 1,
+      "value": "Reminder sent April 2, 2026"
+    },
+    {
+      "id": "o03",
+      "kind": "term_ending",
+      "term": "term",
+      "quote": "Under Section 5.1 of the agreement, the affordability period ends on December 31, 2026.",
+      "file": "03-staff-memo-2026.pdf",
+      "page": 1,
+      "value": "2026-12-31"
+    }
+  ],
+  "follow_up": {
+    "term_ends": "2026-12-31",
+    "reports_not_received": [
+      "2025"
+    ]
+  },
+  "story": "Signed in 2011 for 15 years. The 2024 yearly certificate shows 9 of 9 homes leased. The 2025 certificate is marked not received, and the affordability period ends on December 31, 2026.",
+  "claims": [
+    {
+      "id": "m01",
+      "term": "public_support",
+      "quote": "By Resolution No. 2011-18, the City approved a 15-year partial property tax exemption for the Project.",
+      "file": "01-regulatory-agreement-2011.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "approved",
+      "value": "15-year partial property tax exemption",
+      "review_note": ""
+    },
+    {
+      "id": "m02",
+      "term": "units",
+      "quote": "The Owner shall reserve 9 of the 60 homes in the Project as Affordable Homes.",
+      "file": "01-regulatory-agreement-2011.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "shall reserve",
+      "value": "9 of 60 homes",
+      "review_note": ""
+    },
+    {
+      "id": "m03",
+      "term": "income_basis",
+      "quote": "Each Affordable Home shall be leased to a household with income at or below 50 percent of Area Median Income.",
+      "file": "01-regulatory-agreement-2011.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "shall be leased",
+      "value": "50 percent of area median income",
+      "review_note": ""
+    },
+    {
+      "id": "m04",
+      "term": "rent_limits",
+      "quote": "Monthly rent for each Affordable Home shall not exceed 30 percent of 50 percent of Area Median Income, adjusted for household size.",
+      "file": "01-regulatory-agreement-2011.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "shall not exceed",
+      "value": "30 percent of 50 percent of area median income",
+      "review_note": ""
+    },
+    {
+      "id": "m05",
+      "term": "term",
+      "quote": "The Affordability Period begins on January 1, 2012 and ends on December 31, 2026.",
+      "file": "01-regulatory-agreement-2011.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "ends on",
+      "value": "15 years, January 1, 2012 to December 31, 2026",
+      "review_note": "The end date is less than two months after this sample was made."
+    },
+    {
+      "id": "m06",
+      "term": "responsible_party",
+      "quote": "The Owner is responsible for compliance with this Agreement, and this Agreement binds every later owner of the Project.",
+      "file": "01-regulatory-agreement-2011.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "is responsible",
+      "value": "Owner and any later owner",
+      "review_note": ""
+    },
+    {
+      "id": "m07",
+      "term": "reporting",
+      "quote": "The Owner shall deliver an annual compliance certificate to the City by March 31 of each year.",
+      "file": "01-regulatory-agreement-2011.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "shall deliver",
+      "value": "Annual certificate by March 31",
+      "review_note": ""
+    },
+    {
+      "id": "m08",
+      "term": "remedies",
+      "quote": "If a default is not cured within 30 days after written notice from the City, the Owner shall repay the property taxes exempted during the period of default.",
+      "file": "01-regulatory-agreement-2011.pdf",
+      "page": 3,
+      "stage": "signed",
+      "wording": "shall repay",
+      "value": "Repay exempted taxes after 30-day cure period",
+      "review_note": ""
+    },
+    {
+      "id": "m09",
+      "term": "reporting",
+      "quote": "This certificate is submitted under Section 7.1 of the Agreement for reporting year 2024.",
+      "file": "02-compliance-certificate-2024.pdf",
+      "page": 1,
+      "stage": "delivered",
+      "wording": "is submitted",
+      "value": "2024 certificate received March 20, 2025",
+      "review_note": "Owner-reported counts. Not independently checked."
+    },
+    {
+      "id": "m10",
+      "term": "units",
+      "quote": "As of December 31, 2024, 9 of the 9 required Affordable Homes were leased to income-qualified households.",
+      "file": "02-compliance-certificate-2024.pdf",
+      "page": 1,
+      "stage": "delivered",
+      "wording": "were leased",
+      "value": "9 of 9 affordable homes leased",
+      "review_note": "Owner-reported counts. Not independently checked."
+    },
+    {
+      "id": "m11",
+      "term": "income_basis",
+      "quote": "All 9 households in Affordable Homes had incomes at or below 50 percent of Area Median Income when last certified.",
+      "file": "02-compliance-certificate-2024.pdf",
+      "page": 1,
+      "stage": "delivered",
+      "wording": "had incomes",
+      "value": "At or below 50 percent of area median income",
+      "review_note": "Owner-reported counts. Not independently checked."
+    },
+    {
+      "id": "m12",
+      "term": "rent_limits",
+      "quote": "No Affordable Home was charged rent above the limit in Section 4.3 during the reporting year.",
+      "file": "02-compliance-certificate-2024.pdf",
+      "page": 1,
+      "stage": "delivered",
+      "wording": "was charged",
+      "value": "No rent above the Section 4.3 limit",
+      "review_note": "Owner-reported counts. Not independently checked."
+    }
+  ]
+}

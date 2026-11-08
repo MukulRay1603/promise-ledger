@@ -1,0 +1,234 @@
+{
+  "notice": "Fictional sample data for demonstration. Lantern Bay, Bayside County and every company, date, number and quote in these documents are made up.",
+  "deal": "Harbor Walk",
+  "terms": [
+    "units",
+    "income_basis",
+    "rent_limits",
+    "term",
+    "responsible_party",
+    "reporting",
+    "remedies"
+  ],
+  "stages": [
+    "proposed",
+    "supported",
+    "signed",
+    "delivered"
+  ],
+  "not_located": [
+    "rent_limits",
+    "remedies"
+  ],
+  "differs": [
+    {
+      "term": "income_basis",
+      "values": [
+        "60 percent of area median income",
+        "80 percent of area median income"
+      ],
+      "claims": [
+        "c02",
+        "c08",
+        "c14"
+      ]
+    },
+    {
+      "term": "term",
+      "values": [
+        "30 years",
+        "15 years"
+      ],
+      "claims": [
+        "c03",
+        "c09",
+        "c15"
+      ]
+    }
+  ],
+  "stage_notes": {
+    "proposed": "Described as an idea, a plan or an understanding. Nothing in these records is signed or voted on.",
+    "supported": "Recommended by staff or backed by a Council vote. Support is not a signed term.",
+    "signed": "Signed by Harbor Walk Partners only. An agreement signed by the City was not located.",
+    "delivered": "The packet has no record that homes were built, leased or checked."
+  },
+  "story": "The same 12 homes are described as \"has agreed\", \"will explore\", \"considering\", \"understanding\" and \"will provide\". Income basis and term differ between records. Rent limits and remedies are not located. Only the developer signed.",
+  "claims": [
+    {
+      "id": "c01",
+      "term": "units",
+      "quote": "The developer has agreed to set aside 12 of the 120 homes as affordable homes.",
+      "file": "01-staff-summary.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "has agreed",
+      "value": "12 of 120 homes",
+      "review_note": "Staff wording. A signed document from this date was not located."
+    },
+    {
+      "id": "c02",
+      "term": "income_basis",
+      "quote": "These homes would serve households at or below 60 percent of area median income.",
+      "file": "01-staff-summary.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "would serve",
+      "value": "60 percent of area median income",
+      "review_note": "Wording differs from the signed letter, which says 80 percent."
+    },
+    {
+      "id": "c03",
+      "term": "term",
+      "quote": "Staff understands that the income limits would last for 30 years.",
+      "file": "01-staff-summary.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "understands",
+      "value": "30 years",
+      "review_note": "Wording differs from the signed letter, which says 15 years."
+    },
+    {
+      "id": "c04",
+      "term": "public_support",
+      "quote": "Staff recommends that the Council support the request for a 20-year property tax reduction.",
+      "file": "01-staff-summary.pdf",
+      "page": 2,
+      "stage": "supported",
+      "wording": "recommends",
+      "value": "20-year property tax reduction",
+      "review_note": "This is the public support being asked for."
+    },
+    {
+      "id": "c05",
+      "term": "units",
+      "quote": "Harbor Walk Partners will explore setting aside up to 12 homes at reduced rents.",
+      "file": "02-draft-letter.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "will explore",
+      "value": "up to 12 homes",
+      "review_note": "Unsigned draft. It says \"reduced rents\" but gives no rent limit."
+    },
+    {
+      "id": "c06",
+      "term": "reporting",
+      "quote": "The company will explore sending the City a yearly report on these homes.",
+      "file": "02-draft-letter.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "will explore",
+      "value": "Yearly report, to be explored",
+      "review_note": "Unsigned draft. Reporting does not appear in the signed letter."
+    },
+    {
+      "id": "c07",
+      "term": "units",
+      "quote": "We are considering 10 percent of the 120 homes as workforce homes.",
+      "file": "03-developer-slides.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "considering",
+      "value": "10 percent of 120 homes",
+      "review_note": "Slides say \"workforce homes\". Other records say \"affordable homes\"."
+    },
+    {
+      "id": "c08",
+      "term": "income_basis",
+      "quote": "Workforce homes would be for households earning up to 80 percent of area median income.",
+      "file": "03-developer-slides.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "would be",
+      "value": "80 percent of area median income",
+      "review_note": "Wording differs from the staff summary, which says 60 percent."
+    },
+    {
+      "id": "c09",
+      "term": "term",
+      "quote": "The length of the income limits is still being discussed, with 15 years as a starting point.",
+      "file": "03-developer-slides.pdf",
+      "page": 3,
+      "stage": "proposed",
+      "wording": "still being discussed",
+      "value": "15 years",
+      "review_note": "Wording differs from the staff summary, which says 30 years."
+    },
+    {
+      "id": "c10",
+      "term": "units",
+      "quote": "Members stated their understanding that 12 homes would be affordable.",
+      "file": "04-council-minutes.pdf",
+      "page": 1,
+      "stage": "supported",
+      "wording": "understanding",
+      "value": "12 homes",
+      "review_note": "Minutes do not state the income basis, rent limits or term for these homes."
+    },
+    {
+      "id": "c11",
+      "term": "public_support",
+      "quote": "The Council voted 5 to 2 to support the tax request.",
+      "file": "04-council-minutes.pdf",
+      "page": 1,
+      "stage": "supported",
+      "wording": "voted",
+      "value": "Council vote, 5 to 2",
+      "review_note": "The vote count matches the 7 members recorded as present."
+    },
+    {
+      "id": "c12",
+      "term": "public_support",
+      "quote": "The Council asked staff to confirm the terms in writing before any agreement is signed.",
+      "file": "04-council-minutes.pdf",
+      "page": 2,
+      "stage": "supported",
+      "wording": "asked staff to confirm",
+      "value": "Written terms requested",
+      "review_note": "A staff confirmation of the terms was not located in this packet."
+    },
+    {
+      "id": "c13",
+      "term": "units",
+      "quote": "Harbor Walk Partners will provide 12 affordable homes at Harbor Walk.",
+      "file": "05-developer-letter.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "will provide",
+      "value": "12 affordable homes",
+      "review_note": "Signed by the company. A City signature was not located."
+    },
+    {
+      "id": "c14",
+      "term": "income_basis",
+      "quote": "These homes will be for households at or below 80 percent of area median income.",
+      "file": "05-developer-letter.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "will be",
+      "value": "80 percent of area median income",
+      "review_note": "Wording differs from the staff summary, which says 60 percent. Flagged for human review."
+    },
+    {
+      "id": "c15",
+      "term": "term",
+      "quote": "This commitment will last for 15 years from the first move-in date.",
+      "file": "05-developer-letter.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "will last",
+      "value": "15 years",
+      "review_note": "Wording differs from the staff summary, which says 30 years. Flagged for human review."
+    },
+    {
+      "id": "c16",
+      "term": "responsible_party",
+      "quote": "Harbor Walk Partners, as owner, is responsible for meeting this commitment.",
+      "file": "05-developer-letter.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "is responsible",
+      "value": "Harbor Walk Partners, as owner",
+      "review_note": "The letter does not say who takes over if the property is sold."
+    }
+  ]
+}

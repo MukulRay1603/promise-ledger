@@ -1,0 +1,51 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "letter",
+  "title": "Harbor Walk affordable homes",
+  "date": "2025-09-15",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "HARBOR WALK PARTNERS LLC",
+    "quote": "HARBOR WALK PARTNERS LLC",
+    "page": 1
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Harbor Walk Partners will provide 12 affordable homes at Harbor Walk.",
+    "page": 1,
+    "wording": "will provide 12 affordable homes",
+    "value": "12 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "These homes will be for households at or below 80 percent of area median income.",
+    "page": 1,
+    "wording": "at or below 80 percent of area median income",
+    "value": "80 percent of AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "This commitment will last for 15 years from the first move-in date.",
+    "page": 1,
+    "wording": "will last for 15 years",
+    "value": "15 years"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "Harbor Walk Partners, as owner, is responsible for meeting this commitment.",
+    "page": 1,
+    "wording": "is responsible for meeting this commitment",
+    "value": "Harbor Walk Partners"
+   }
+  ]
+ },
+ "tokens_in": 621,
+ "tokens_out": 393,
+ "cost_usd": 0.001169,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}
