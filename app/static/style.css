@@ -531,6 +531,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .doc-retry { grid-column: 2 / -1; justify-self: start; margin-top: .5rem; }
 .doc-retry svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .doc-error { grid-column: 1 / -1; font-size: .8125rem; color: var(--amber-ink); }
+.no-claims-note { margin: .75rem 0 0; font-size: .875rem; color: var(--ink-2); }
 
 .dropzone {
   display: grid; justify-items: center; gap: .5rem; padding: 1.5rem 1rem; text-align: center;

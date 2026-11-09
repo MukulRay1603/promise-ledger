@@ -831,6 +831,7 @@ function renderReview({ tab = null, keepTab = false } = {}) {
   byId("deal-dashboard").hidden = empty;
   byId("details").hidden = empty;
   byId("docs-card").classList.toggle("empty-deal", empty);
+  noClaimsNote();
   if (empty) return;
 
   byId("stage-term").replaceChildren(termButton("stages", "Stages"));
@@ -1274,6 +1275,20 @@ function renderDocs() {
   byId("doc-list").replaceChildren(...items);
   byId("doc-list").hidden = items.length === 0;
   byId("docs-count").textContent = items.length ? plural(items.length, "file") : "No files yet";
+  noClaimsNote();
+}
+
+// Every file was read and none states a housing commitment: say so, so the page does not look stuck.
+function noClaimsNote() {
+  const list = byId("doc-list");
+  if (!list || !dealState) return;
+  const docs = dealState.deal.documents || [];
+  const show = docs.length > 0 && docs.every((doc) => phaseOf(doc.status) === "done") && (dealState.review?.claims || []).length === 0;
+  byId("no-claims-note")?.remove();
+  if (!show) return;
+  const read = docs.length === 1 ? "This file was read, but it does not state" : "These files were read, but none of them states";
+  list.after(el("p", { id: "no-claims-note", class: "no-claims-note", role: "status" },
+    `${read} an affordable-housing commitment (homes, income limits, years or rent limits). Add the deal's staff report, letters or signed agreement to build its receipt.`));
 }
 
 function setupDropzone(dealId) {

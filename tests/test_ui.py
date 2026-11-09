@@ -186,6 +186,14 @@ class Rules(unittest.TestCase):
         for word in ("broke", "false claim", "misleading", "violat", "fraud"):
             self.assertNotIn(word, text)
 
+    def test_no_commitments_note(self):
+        # A deal whose files were all read but hold no commitment says so, instead of looking stuck.
+        js = self.js["app.js"]
+        self.assertIn('id: "no-claims-note"', js)
+        self.assertIn("does not state", js)
+        self.assertIn("none of them states", js)
+        self.assertGreaterEqual(js.count("noClaimsNote();"), 2)  # After the file list and after the review renders.
+
     def test_reduced_motion_and_print(self):
         self.assertIn("prefers-reduced-motion: reduce", self.css)
         self.assertGreaterEqual(self.css.count("prefers-reduced-motion: reduce"), 3)  # Base, landing and printer layers.
