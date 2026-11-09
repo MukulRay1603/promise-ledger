@@ -1364,7 +1364,7 @@ textarea { font-family: var(--serif); font-size: 1.0625rem; }
 .split b { color: var(--ink); }
 
 /* What's next */
-.rm-time { display: grid; grid-template-columns: 1.1fr 1.1fr .8fr; gap: 0; margin: 0; padding: 0; list-style: none; }
+.rm-time { display: grid; grid-template-columns: 1.35fr 1.1fr .85fr; gap: 0; margin: 0; padding: 0; list-style: none; }
 .rm-time > li { --tone: var(--primary); --tone-soft: var(--primary-soft); position: relative; padding: 2.75rem 1.5rem 0 0; }
 .rm-time > li::before { content: ""; position: absolute; top: .75rem; left: 0; right: 0; height: 3px; background: var(--tone); }
 .rm-time > li::after { content: ""; position: absolute; top: 0; left: 0; width: 1.625rem; height: 1.625rem; border: 3px solid var(--tone); border-radius: 50%; background: var(--surface); }
@@ -1404,3 +1404,7 @@ textarea { font-family: var(--serif); font-size: 1.0625rem; }
 @media (forced-colors: active) {
   .track li.is-done::before, .dot-yes, .rm-tabs [role="tab"][aria-selected="true"] { forced-color-adjust: none; background: CanvasText; color: Canvas; }
 }
+
+.rm-count { margin: -1rem 0 2rem; font-size: 1.0625rem; color: var(--muted); }
+.rm-count b { color: var(--primary-ink); font-variant-numeric: tabular-nums; }
+.rm-guide { color: var(--primary-ink); }

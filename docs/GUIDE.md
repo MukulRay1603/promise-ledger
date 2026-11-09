@@ -312,14 +312,24 @@ We avoid saying "first" or "only": our search was limited, and parts of this exi
 
 **Known limits today:** text-layer PDFs only (scans are flagged, not read); English only; the redactor misses names and addresses; reviewer identity is a typed name, not a sign-in; accuracy is measured on our own development set.
 
-| Today | By the Dec 2 final | After |
+| Live today | By the Dec 2 final | After |
 |---|---|---|
-| Quotes checked on their pages | Accuracy on records it was never tuned on | Ask and listen by voice |
-| Stages, changes and missing terms | At least one real public record, end to end | A help assistant for residents on shared receipts |
-| Signing, certificate and term-end flags | Reads scanned pages too | Drafts records requests and follow-up letters for staff to approve |
-| Reviewer decisions and receipt | An upload assistant that reviews records with you and names what is missing | Alerts before a term ends |
-| Share link, Excel, reminders | Ask a deal: answers only from checked quotes | Spanish and other languages |
-| | Input and a timed task with people who do this work | More cities, and a kit to run it in-house |
+| Reads every PDF in a deal’s packet | Upload assistant that reviews records with you and names what is missing | Drafts records requests and follow-up letters for staff to approve |
+| Quotes checked word for word on their pages | Ask a deal, for staff and for residents: answers only from checked quotes | Alerts before a term ends |
+| Pages corrected; unverifiable quotes dropped | Ask and listen by voice | Spanish and other languages |
+| Stages set by rules, from proposed to delivered | Reads scanned pages | Plain-language view for residents |
+| One-party signing flagged | Accuracy on records it was never tuned on | More cities, and a kit to run it in-house |
+| What changed, with word-level edits | A real public record, end to end |  |
+| Missing terms and certificates found | Feedback and a timed task with housing staff |  |
+| Reminders for term ends and certificates |  |  |
+| Reviewer decisions with name, note and time |  |  |
+| Printable receipt with a review stamp |  |  |
+| Read-only share links for residents |  |  |
+| Excel and CSV export with a preview |  |  |
+| Guided tour and 8 captioned explainers |  |  |
+| Redaction, injection guard, sandboxed PDFs |  |  |
+| Runs without a key; about $0.002 per PDF |  |  |
+| Keyboard, contrast, larger text, dark mode |  |  |
 
 **One rule for every assistant:** it answers only from checked quotes, shows the page, and a person approves anything it sends or saves.
 
