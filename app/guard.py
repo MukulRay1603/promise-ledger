@@ -318,6 +318,8 @@ def content_security_policy() -> str:
         f"media-src 'self' {media}",
         "connect-src 'self'",
         "worker-src 'self' blob:",
+        # The overview video plays in YouTube's privacy-enhanced player, loaded only when pressed.
+        "frame-src https://www.youtube-nocookie.com",
         "frame-ancestors 'none'",
         "object-src 'none'",
         "base-uri 'self'",

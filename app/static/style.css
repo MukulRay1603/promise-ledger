@@ -347,6 +347,26 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .cta-band .btn-primary:hover { background: var(--cta-btn-hover); }
 
 /* Videos */
+/* Overview video: a still with a play button; the YouTube player replaces it on press. */
+.overview { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 1.5rem 2.25rem; align-items: center; margin-bottom: 2.75rem; }
+.overview-frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 16px; border: 1px solid var(--border); background: #000; box-shadow: var(--shadow); }
+.overview-frame img, .overview-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; object-fit: cover; }
+.overview-frame img { transition: transform .35s var(--ease); }
+.overview-play { position: absolute; inset: 0; display: grid; place-items: center; width: 100%; padding: 0; border: 0; border-radius: inherit; background: rgb(2 6 23 / .18); cursor: pointer; color: #fff; }
+.overview-play:focus-visible { outline-offset: -4px; }
+.overview-btn { display: grid; place-items: center; width: 4.5rem; height: 4.5rem; border-radius: 50%; background: #0F766E; box-shadow: 0 10px 28px rgb(0 0 0 / .35); transition: transform .2s var(--ease); }
+.overview-btn svg { width: 1.75rem; height: 1.75rem; margin-left: .2rem; fill: currentColor; }
+.overview-play:hover .overview-btn, .overview-play:focus-visible .overview-btn { transform: scale(1.08); }
+.overview-frame:hover img, .overview-frame:has(.overview-play:focus-visible) img { transform: scale(1.025); }
+.overview-title { margin: .25rem 0 .625rem; font-size: 1.5rem; line-height: 1.25; }
+.overview-text p { color: var(--ink-2); }
+.overview-text .kicker { color: var(--primary-ink); counter-increment: none; }
+.overview-text .kicker::before { content: none; }
+.overview-text a { display: inline-flex; align-items: center; gap: .25rem; font-weight: 600; color: var(--primary-ink); }
+.overview-text a svg { width: .875rem; height: .875rem; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.overview-text .fine { color: var(--muted); }
+@media (max-width: 760px) { .overview { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .overview-frame img, .overview-btn { transition: none; } .overview-frame:hover img { transform: none; } }
 .video-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem 1rem; margin: 0; padding: 0; list-style: none; }
 .video-card { display: grid; gap: .625rem; }
 .video-frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 12px; border: 1px solid var(--border); background: var(--sunken); transition: transform .2s var(--ease), box-shadow .2s var(--ease), border-color .2s var(--ease); }

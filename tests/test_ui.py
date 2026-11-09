@@ -186,6 +186,13 @@ class Rules(unittest.TestCase):
         for word in ("broke", "false claim", "misleading", "violat", "fraud"):
             self.assertNotIn(word, text)
 
+    def test_overview_video(self):
+        # The overview loads from YouTube's privacy-enhanced domain only after a press.
+        js = self.js["app.js"]
+        self.assertIn("https://www.youtube-nocookie.com/embed/aD03n_4KfFc", js)
+        self.assertIn('play.addEventListener("click"', js)
+        self.assertTrue((STATIC / "media" / "overview.jpg").exists())
+
     def test_no_commitments_note(self):
         # A deal whose files were all read but hold no commitment says so, instead of looking stuck.
         js = self.js["app.js"]

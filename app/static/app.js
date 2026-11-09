@@ -311,7 +311,22 @@ async function route({ initial = false } = {}) {
 let videosSetUp = false;
 const viewer = { list: [], index: 0, root: "/static/media/", cross: false, opener: null };
 const clock = (secs) => secs ? `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}` : "";
+// The overview video: a still until pressed, so YouTube loads only on request (privacy-enhanced domain).
+const OVERVIEW_EMBED = "https://www.youtube-nocookie.com/embed/aD03n_4KfFc?autoplay=1&rel=0";
+function setupOverview() {
+  const play = byId("overview-play");
+  if (!play || play.dataset.ready) return;
+  play.dataset.ready = "1";
+  play.addEventListener("click", () => {
+    const frame = el("iframe", { src: OVERVIEW_EMBED, title: "Promise Ledger overview video", allow: "autoplay; encrypted-media; picture-in-picture; fullscreen",
+      allowfullscreen: true, referrerpolicy: "strict-origin-when-cross-origin" });
+    byId("overview-frame").replaceChildren(frame);
+    frame.focus();
+  });
+}
+
 async function setupVideos() {
+  setupOverview();
   if (videosSetUp) return;
   videosSetUp = true;
   let list = [];

@@ -248,6 +248,7 @@ class S7Headers(DemoApi):
                 csp = r.headers["content-security-policy"]
                 self.assertIn("script-src 'self';", csp)
                 self.assertIn("frame-ancestors 'none'", csp)
+                self.assertIn("frame-src https://www.youtube-nocookie.com;", csp)  # Only the overview player may be framed.
                 self.assertIn("media-src 'self' https://storage.googleapis.com", csp)
                 self.assertNotIn("cdn.jsdelivr.net", csp)
                 self.assertEqual(r.headers["x-content-type-options"], "nosniff")
