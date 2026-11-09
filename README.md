@@ -11,7 +11,7 @@
 
 **Full guide:** [docs/GUIDE.md](docs/GUIDE.md), covering the product, pipeline, AI, stack, evaluation, safety, deployment and API in one place.
 
-For city and county housing staff, compliance officers and council aides. Shared receipts are read-only, so residents can see them too. All data is made up, and nothing here makes legal findings. Built for GDG AI for Good 2026: Housing by Liyue Housing Association, a two-person student team (Mukul Rayana and Karthik Ramanathan).
+For city and county housing staff, compliance officers and council aides. Shared receipts are read-only, so residents can see them too. All data is made up, and nothing here makes legal findings. Built for GDG AI for Good 2026: Housing by Liyue Housing Association, a two-person student team.
 
 <table>
   <tr>
