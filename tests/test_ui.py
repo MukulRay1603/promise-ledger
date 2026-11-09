@@ -192,7 +192,9 @@ class Rules(unittest.TestCase):
         self.assertIn('id: "no-claims-note"', js)
         self.assertIn("does not state", js)
         self.assertIn("none of them states", js)
-        self.assertGreaterEqual(js.count("noClaimsNote();"), 2)  # After the file list and after the review renders.
+        # The file list may only hide it; only the review render shows it, so a stale review never shows it.
+        self.assertIn("noClaimsNote({ canShow: false });", js)
+        self.assertIn("noClaimsNote({ canShow: true });", js)
 
     def test_reduced_motion_and_print(self):
         self.assertIn("prefers-reduced-motion: reduce", self.css)
