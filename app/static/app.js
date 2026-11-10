@@ -847,6 +847,7 @@ function renderReview({ tab = null, keepTab = false } = {}) {
   byId("details").hidden = empty;
   byId("docs-card").classList.toggle("empty-deal", empty);
   noClaimsNote({ canShow: true });
+  renderNextRecords();
   if (empty) return;
 
   byId("stage-term").replaceChildren(termButton("stages", "Stages"));
@@ -1295,6 +1296,24 @@ function renderDocs() {
 
 // Every file was read and none states a housing commitment: say so, so the page does not look stuck.
 // Only the review render may show it: the file list can redraw before the fresh review arrives (L13).
+// Upload assistant: which records to ask for next, by rule from the review (no model is asked).
+function renderNextRecords() {
+  byId("next-records")?.remove();
+  const review = dealState?.review;
+  const list = byId("doc-list");
+  if (!list || !review?.claims?.length || !Array.isArray(review.next_records)) return;
+  const items = review.next_records;
+  const body = items.length
+    ? el("ul", { class: "next-records-list" }, ...items.map((item) => el("li", { "data-key": item.key },
+        el("p", { class: "next-records-name" }, el("strong", {}, item.record),
+          item.terms.length ? el("span", { class: "tag tag-not_located" }, `Would show: ${item.terms.join(", ")}`) : null),
+        el("p", { class: "next-records-why" }, item.why))))
+    : el("p", { class: "next-records-why" }, "Every term is located, and a record shows the homes were delivered. Nothing more to ask for.");
+  (byId("no-claims-note") || list).after(el("section", { id: "next-records", class: "next-records", "aria-labelledby": "next-records-title" },
+    el("h3", { id: "next-records-title" }, items.length ? "Records to ask for next" : "Records on file"),
+    body));
+}
+
 function noClaimsNote({ canShow }) {
   const list = byId("doc-list");
   if (!list || !dealState) return;

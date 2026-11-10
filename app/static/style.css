@@ -552,6 +552,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .doc-retry svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .doc-error { grid-column: 1 / -1; font-size: .8125rem; color: var(--amber-ink); }
 .no-claims-note { margin: .75rem 0 0; font-size: .875rem; color: var(--ink-2); }
+.next-records { margin: 0; align-self: start; padding: .875rem 1rem; border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--subtle); }
+.next-records h3 { margin: 0 0 .5rem; font-size: .9375rem; }
+.next-records-list { margin: 0; padding: 0; list-style: none; display: grid; gap: .625rem; }
+.next-records-name { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: .375rem .5rem; font-size: .875rem; }
+.next-records-why { margin: .125rem 0 0; font-size: .8125rem; color: var(--ink-2); }
 
 .dropzone {
   display: grid; justify-items: center; gap: .5rem; padding: 1.5rem 1rem; text-align: center;

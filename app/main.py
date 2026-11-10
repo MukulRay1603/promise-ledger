@@ -1,6 +1,7 @@
 import json
 import mimetypes
 import os
+import threading
 from contextlib import asynccontextmanager
 from datetime import date
 from pathlib import Path
@@ -22,17 +23,27 @@ mimetypes.add_type("text/javascript", ".mjs")  # pdf.js ships as ES modules; som
 SAMPLE_READ_ONLY = "Sample deals are read-only. Start a new deal to try your own PDFs."
 
 
+def _startup_seed() -> None:
+    # Seed sample deals on an empty store and pick up uploads a restart interrupted.
+    try:
+        seeded = deals.seed()
+        if seeded:
+            print(f"Seeded deals: {', '.join(seeded)}")
+        deals.resume_pending()
+    except Exception as err:  # A storage problem must not stop the demo page from serving.
+        print(f"Seeding skipped: {type(err).__name__}: {err}")
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    # Seed sample deals on an empty store and pick up uploads a restart interrupted.
-    if os.getenv("SEED", "1") != "0":
-        try:
-            seeded = deals.seed()
-            if seeded:
-                print(f"Seeded deals: {', '.join(seeded)}")
-            deals.resume_pending()
-        except Exception as err:  # A storage problem must not stop the demo page from serving.
-            print(f"Seeding skipped: {type(err).__name__}: {err}")
+    # SEED=0 skips it; SEED=sync waits for it (tests). By default the page serves at once and the
+    # check runs beside it, so a cold start does not wait on storage. Sample deals are upserted in
+    # place, so a visitor never sees one disappear while this runs.
+    mode = os.getenv("SEED", "1")
+    if mode == "sync":
+        _startup_seed()
+    elif mode != "0":
+        threading.Thread(target=_startup_seed, name="startup-seed", daemon=True).start()
     yield
 
 
