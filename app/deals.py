@@ -325,52 +325,6 @@ def _compare_term(term: dict, claims: list[dict]) -> dict:
             "differs_claim_ids": [c["id"] for c in keyed] if len(keys) > 1 else []}
 
 
-LEGAL_TERMS = ("term", "responsible_party", "reporting", "remedies")
-AFFORDABILITY_TERMS = ("units", "income_basis", "rent_limits")
-
-
-def next_records(claims: list[dict], terms: list[dict], docs: list[dict]) -> list[dict]:
-    """Which records to ask for next, by rule: the terms not located and the stages no record reaches.
-
-    No model is asked. Each item names a kind of record, why it helps, and the missing terms it usually holds.
-    """
-    if not claims:
-        return []  # The no-commitments note covers a deal with nothing located.
-    missing = {t["key"]: t["label"] for t in terms if not t["located"]}
-    stages = {c["status"] for c in claims}
-    kinds = {d.get("type_key") for d in docs}
-    labels = lambda keys: [missing[k] for k in keys if k in missing]  # noqa: E731
-    out = []
-    if not stages & {"signed", "delivered"}:
-        out.append({"key": "agreement", "record": "Signed agreement",
-                    "why": "The regulatory or development agreement, with its signature pages. "
-                           "Until one is on file, no commitment can count as Signed.",
-                    "terms": labels(LEGAL_TERMS)})
-    elif labels(LEGAL_TERMS):
-        out.append({"key": "agreement_full", "record": "The full signed agreement",
-                    "why": "A signed record is on file, but some terms were not located in it. "
-                           "Ask for every page and exhibit, including any recorded covenant.",
-                    "terms": labels(LEGAL_TERMS)})
-    if labels(AFFORDABILITY_TERMS):
-        if "staff_report" in kinds:
-            out.append({"key": "exhibit", "record": "Affordability exhibit or term sheet",
-                        "why": "The staff report on file does not state these. They are often in an exhibit to the agreement.",
-                        "terms": labels(AFFORDABILITY_TERMS)})
-        else:
-            out.append({"key": "staff_report", "record": "Staff report",
-                        "why": "The report to council usually states the homes, income limits and rent limits.",
-                        "terms": labels(AFFORDABILITY_TERMS)})
-    if not stages & {"supported", "signed", "delivered"} and not kinds & {"minutes", "resolution"}:
-        out.append({"key": "minutes", "record": "Council minutes or resolution",
-                    "why": "Shows whether officials voted to approve the deal. Without it, nothing can count as Supported.",
-                    "terms": []})
-    if stages & {"signed"} and "delivered" not in stages:
-        out.append({"key": "delivery", "record": "Certificate of occupancy or compliance report",
-                    "why": "Shows whether the homes were built and leased. Without it, nothing can count as Delivered.",
-                    "terms": []})
-    return out
-
-
 def build_deal_review(deal: dict, docs: list[dict], store: Storage | None = None, with_pages: bool = False) -> dict:
     """Rebuild the review from verified claims. Same keys as /api/review, plus a few aliases."""
     done = [d for d in _sort_docs(docs) if d.get("status") == "done"]
@@ -434,7 +388,6 @@ def build_deal_review(deal: dict, docs: list[dict], store: Storage | None = None
         "questions": questions,
         "open_questions": questions,
         "what_changed": what_changed,
-        "next_records": next_records(claims, terms, done),
         "kpis": {
             "documents": len(docs),
             "documents_done": len(done),

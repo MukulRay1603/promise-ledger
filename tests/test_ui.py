@@ -203,14 +203,6 @@ class Rules(unittest.TestCase):
         self.assertIn("noClaimsNote({ canShow: false });", js)
         self.assertIn("noClaimsNote({ canShow: true });", js)
 
-    def test_next_records_panel(self):
-        # The upload assistant draws the server's rule-based list under the files; no model is asked.
-        js = self.js["app.js"]
-        self.assertIn('id: "next-records"', js)
-        self.assertIn("Records to ask for next", js)
-        self.assertIn("renderNextRecords();", js)
-        self.assertIn(".next-records", self.css)
-
     def test_reduced_motion_and_print(self):
         self.assertIn("prefers-reduced-motion: reduce", self.css)
         self.assertGreaterEqual(self.css.count("prefers-reduced-motion: reduce"), 3)  # Base, landing and printer layers.
