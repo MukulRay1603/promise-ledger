@@ -1,0 +1,41 @@
+{
+  "notice": "Fictional held-out evaluation data. Alder Crossing, Port Wren, Stone Hollow and every company, date, number and quote in these documents are made up.",
+  "deal": "Larkspur Commons",
+  "slug": "larkspur-commons",
+  "city": "Stone Hollow",
+  "county": "Greer County",
+  "homes": 64,
+  "owner": "Larkspur Community Builders, Inc.",
+  "as_of": "2025-12-01",
+  "documents": [
+    {
+      "file": "01-community-meeting-slides.pdf",
+      "id": "meeting-slides",
+      "type": "",
+      "date": "2025-06-03",
+      "title": "Larkspur Commons community meeting slides",
+      "pages": 3,
+      "signed_by": []
+    },
+    {
+      "file": "02-village-board-resolution.pdf",
+      "id": "board-resolution",
+      "type": "",
+      "date": "2025-10-14",
+      "title": "Resolution R-2025-17, sales tax rebate for Larkspur Commons",
+      "pages": 2,
+      "signed_by": []
+    },
+    {
+      "file": "03-declaration-of-covenants.pdf",
+      "id": "declaration",
+      "type": "",
+      "date": "2025-12-01",
+      "title": "Declaration of Affordability Covenants, Larkspur Commons",
+      "pages": 2,
+      "signed_by": [
+        "Larkspur Community Builders, Inc."
+      ]
+    }
+  ]
+}

@@ -185,6 +185,9 @@ _WORD_NUMBER = re.compile(r"\b(?:(" + "|".join(_TENS[2:]) + r")(?:[- ](" + "|".j
                           + "|".join(_ONES) + r")|(one hundred|a hundred))\b", re.I)
 
 
+_DOUBLED = re.compile(r"\b(\d[\d,]*)(\s*percent)?\s*\(\s*\1\s*%?\s*\)", re.I)
+
+
 def numeric(text: str) -> str:
     """Normalized text with number words as digits ("thirty years" -> "30 years"), for code comparisons (L7).
 
@@ -196,7 +199,8 @@ def numeric(text: str) -> str:
         if m.group(3):
             return str(_ONES.index(m.group(3).lower()))
         return str(_TENS.index(m.group(1).lower()) * 10 + (_ONES.index(m.group(2).lower()) if m.group(2) else 0))
-    return _WORD_NUMBER.sub(word, normalize(text))
+    # Legal drafting repeats a number in brackets: "sixty percent (60%)", "eighteen (18)". Read it once.
+    return _DOUBLED.sub(r"\1\2", _WORD_NUMBER.sub(word, normalize(text)))
 
 
 def _int(s: str) -> int:
@@ -377,7 +381,8 @@ _SUPPORT_ACTED = re.compile(r"\bpassed and adopted\b|\bmotion (?:passed|carried)
                             r"\bbe it resolved\b|\bvoted (\d+) to (\d+) to (?:support|approve|adopt|grant)\b", re.I)
 _SUPPORT_NOT = re.compile(r"\b(?:fail(?:ed|s)?|denied|denies|rejected|tabled|withdrawn|did not pass|not (?:adopt|approv|support)\w*|"
                           r"continued (?:to|until)|postponed|no action)\b|\bapproval of the (?:minutes|agenda)\b|"
-                          r"\b(?:minutes|agenda) (?:was|were) approved\b|\bapproved as posted\b|\bapproved by the council on\b", re.I)
+                          r"\b(?:minutes|agenda|consent calendar)\b[^.;]{0,60}\b(?:was|were) approved\b|"
+                          r"\bapproved as (?:posted|presented|submitted)\b|\bapproved by the council on\b", re.I)
 # A certificate states what was delivered: homes leased, occupied or certified (L4).
 _DELIVERY_EVIDENCE = re.compile(r"\bcertificate of occupancy\b|\b(?:were|was|are|is|has been|have been) (?:leased|occupied|"
                                 r"rented|placed in service)\b|\bleased to\b|\bcertif(?:y|ies) that\b", re.I)
@@ -394,6 +399,8 @@ _DRAFT_UPPER = re.compile(r"\bDRAFT\b|\bNOT SIGNED\b|\bUNSIGNED\b")
 # A blank "Signature:", a typed "By: Name" or "executed in counterparts" is not a signature.
 _SIGNED_MARK = re.compile(r"/s/\s*\S|\[\s*signature on file\s*\]|\[\s*signed\s*\]|\b(?:digitally|electronically) signed by\b", re.I)
 _BLANK_LINE = re.compile(r"_{3,}")
+# "Electronically signed by <party> on <date>": the mark comes before the name, on the same line.
+_ESIGN_LEAD = re.compile(r"(?<!\bto be )(?<!\bwill be )(?<!\bnot )(?<!\bnot yet )\b(?:digitally|electronically) signed by\s*$", re.I)
 
 
 def type_key(label: str | None) -> str | None:
@@ -455,8 +462,8 @@ def signature_block(party: str, page_text: str) -> str | None:
     lines = [normalize(line) for line in page_text.split("\n")]
     for i, line in enumerate(lines):
         if want and want in line.lower():
-            same = line.lower().split(want, 1)[1]
-            if _signed_line(same):
+            lead, same = line.lower().split(want, 1)
+            if _signed_line(same) or (_ESIGN_LEAD.search(lead) and not _UNSIGNED.search(line)):
                 return line
             for nxt in lines[i + 1:i + 1 + SIGNATURE_WINDOW]:
                 if _signed_line(nxt):
@@ -607,6 +614,8 @@ def claim_stage(doc_stage: str, kind: str, quote: str, pages: list[str] | None =
     if doc_stage == "proposed" and kind in ("staff_report", "other") and _RECOMMENDS.search(quote) \
             and not _NOT_RECOMMENDS.search(quote):
         return "supported"
+    if doc_stage == "supported" and kind == "minutes" and _SUPPORT_NOT.search(normalize(quote)):
+        return "proposed"  # A sentence that records a failed, denied or tabled motion is not support.
     if doc_stage == "supported" and kind == "minutes" and pages is not None:
         text = normalize("\n".join(pages))
         at = text.find(normalize(quote))

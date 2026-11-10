@@ -124,6 +124,8 @@ def run_deal(folder: Path, budget: Budget, use_cache: bool) -> dict:
         "stage_ok": sum(p["status"] == g["stage"] for p, g in pairs),
         "term_ok": sum(p["topic"] == g["term"] for p, g in pairs),
         "false_signed_or_delivered": false_late,
+        "claims": [{"file": p["file"], "topic": p["topic"], "status": p["status"], "page": p["page"],
+                    "stated_page": p["stated_page"], "quote": p["quote"]} for p in preds],
         "terms_differ": {"expected": sorted(want_differs), "got": sorted(got_differs)},
         "terms_not_located": {"expected": sorted(want_missing), "got": sorted(got_missing)},
         "term_checks_ok": got_differs == want_differs and got_missing == want_missing,

@@ -1,0 +1,47 @@
+{
+  "notice": "Fictional held-out evaluation data. Alder Crossing, Port Wren, Stone Hollow and every company, date, number and quote in these documents are made up.",
+  "deal": "Cannery Flats",
+  "slug": "cannery-flats",
+  "city": "Port Wren",
+  "county": "Osprey County",
+  "homes": 140,
+  "owner": "Cannery Flats Housing Partners LLC",
+  "as_of": "2025-02-12",
+  "documents": [
+    {
+      "file": "01-affordability-covenant-2019.pdf",
+      "id": "covenant-2019",
+      "type": "Recorded affordability covenant",
+      "date": "2019-05-20",
+      "title": "Affordability Covenant, Cannery Flats",
+      "pages": 3,
+      "signed_by": [
+        "Cannery Flats Housing Partners LLC",
+        "Town of Port Wren"
+      ]
+    },
+    {
+      "file": "02-first-amendment-2023.pdf",
+      "id": "amendment-2023",
+      "type": "First amendment to covenant",
+      "date": "2023-11-06",
+      "title": "First Amendment to Affordability Covenant, Cannery Flats",
+      "pages": 1,
+      "signed_by": [
+        "Cannery Flats Housing Partners LLC",
+        "Town of Port Wren"
+      ]
+    },
+    {
+      "file": "03-certified-rent-roll-2024.pdf",
+      "id": "rent-roll-2024",
+      "type": "Certified rent roll",
+      "date": "2025-02-12",
+      "title": "Certified rent roll for 2024, Cannery Flats",
+      "pages": 1,
+      "signed_by": [
+        "Cannery Flats Housing Partners LLC"
+      ]
+    }
+  ]
+}

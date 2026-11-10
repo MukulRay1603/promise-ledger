@@ -1,0 +1,45 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "letter",
+  "title": "Re: Tollgate Yard",
+  "date": "2026-04-07",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Tollgate Yard Residences LLC shall provide 60 affordable homes for 99 years.",
+    "page": 1,
+    "wording": "shall provide",
+    "value": "60 affordable homes"
+   },
+   {
+    "topic": "term",
+    "quote": "Tollgate Yard Residences LLC shall provide 60 affordable homes for 99 years.",
+    "page": 1,
+    "wording": "shall provide",
+    "value": "99 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Tollgate Yard Residences LLC is considering setting aside up to 15 homes for moderate-income households.",
+    "page": 1,
+    "wording": "considering setting aside",
+    "value": "up to 15 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Tollgate Yard Residences LLC is considering setting aside up to 15 homes for moderate-income households.",
+    "page": 1,
+    "wording": "considering setting aside",
+    "value": "moderate-income households"
+   }
+  ]
+ },
+ "tokens_in": 718,
+ "tokens_out": 265,
+ "cost_usd": 0.000878,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

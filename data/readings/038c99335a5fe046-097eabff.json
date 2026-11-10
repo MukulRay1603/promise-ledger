@@ -1,0 +1,58 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "certificate",
+  "title": "CERTIFIED RENT ROLL · YEAR 2024",
+  "date": "2025-02-12",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "CANNERY FLATS HOUSING PARTNERS LLC",
+    "quote": "/s/ Managing Member",
+    "page": 1
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "reporting",
+    "quote": "Sent to the Town of Port Wren under Part 7 of the Affordability Covenant, as amended.",
+    "page": 1,
+    "wording": "Sent to the Town of Port Wren",
+    "value": "submitted under Part 7 of the Affordability Covenant"
+   },
+   {
+    "topic": "reporting",
+    "quote": "This certified rent roll for 2024 is submitted to the Town on February 12, 2025.",
+    "page": 1,
+    "wording": "is submitted",
+    "value": "submitted February 12, 2025"
+   },
+   {
+    "topic": "units",
+    "quote": "As of December 31, 2024, all 18 restricted apartments were leased to households that qualified at move-in.",
+    "page": 1,
+    "wording": "all 18 restricted apartments",
+    "value": "18 restricted apartments"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Every household in a restricted apartment had income at or below sixty percent of area median income when its lease began.",
+    "page": 1,
+    "wording": "at or below sixty percent of area median income",
+    "value": "60% of AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "No restricted apartment was charged more than the maximum rent published for 2024.",
+    "page": 1,
+    "wording": "no more than the maximum rent",
+    "value": "maximum rent published for 2024"
+   }
+  ]
+ },
+ "tokens_in": 757,
+ "tokens_out": 522,
+ "cost_usd": 0.001532,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

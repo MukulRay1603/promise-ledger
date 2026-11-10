@@ -1,0 +1,45 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "slides",
+  "title": "Larkspur Commons",
+  "date": "",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "We plan to offer 16 of the 64 homes at below-market rents.",
+    "page": 2,
+    "wording": "plan to offer",
+    "value": "16 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Those 16 homes would be for families earning up to half of the area median income.",
+    "page": 2,
+    "wording": "would be for",
+    "value": "up to half of area median income"
+   },
+   {
+    "topic": "public_support",
+    "quote": "We are asking the Village for a sales tax rebate on building materials.",
+    "page": 2,
+    "wording": "are asking",
+    "value": "sales tax rebate on building materials"
+   },
+   {
+    "topic": "term",
+    "quote": "The rent limits would stay in place for at least thirty years.",
+    "page": 3,
+    "wording": "would stay in place",
+    "value": "at least thirty years"
+   }
+  ]
+ },
+ "tokens_in": 731,
+ "tokens_out": 243,
+ "cost_usd": 0.000827,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

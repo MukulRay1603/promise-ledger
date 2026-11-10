@@ -1,0 +1,84 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash",
+ "reading": {
+  "document_type": "resolution",
+  "title": "RESOLUTION R-2025-17 Sales tax rebate for Larkspur Commons",
+  "date": "2025-10-14",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Village President",
+    "quote": "/s/ Village President",
+    "page": 1
+   },
+   {
+    "party": "Village Clerk",
+    "quote": "Attest: /s/ Village Clerk",
+    "page": 1
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "The Board finds that Larkspur Community Builders, Inc. proposes 64 homes on Orchard Road, and that the builder has asked for help with the cost of building materials.",
+    "page": 1,
+    "wording": "asked for help",
+    "value": "help with cost of building materials"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Village Board approves a rebate of the Village share of sales tax on building materials for Larkspur Commons, not to exceed $350,000.",
+    "page": 1,
+    "wording": "approves a rebate",
+    "value": "sales tax rebate up to $350,000"
+   },
+   {
+    "topic": "remedies",
+    "quote": "The rebate is paid only while each condition in Exhibit A is met.",
+    "page": 1,
+    "wording": "paid only while",
+    "value": "rebate paid only while conditions are met"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Village Administrator shall report to the Board each year on whether the conditions are met.",
+    "page": 1,
+    "wording": "shall report",
+    "value": "yearly report"
+   },
+   {
+    "topic": "units",
+    "quote": "Sixteen of the sixty-four homes are rented at restricted rents.",
+    "page": 2,
+    "wording": "are rented",
+    "value": "16 of 64 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Each of those homes is rented to a household at or below fifty percent of area median income.",
+    "page": 2,
+    "wording": "is rented to",
+    "value": "at or below 50% of area median income"
+   },
+   {
+    "topic": "term",
+    "quote": "The restrictions stay in place until at least January 1, 2066.",
+    "page": 2,
+    "wording": "stay in place until",
+    "value": "until at least January 1, 2066"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The builder gives the Village a yearly list of the restricted homes and the rents charged.",
+    "page": 2,
+    "wording": "gives",
+    "value": "yearly list of restricted homes and rents"
+   }
+  ]
+ },
+ "tokens_in": 873,
+ "tokens_out": 2542,
+ "cost_usd": 0.006617,
+ "notice": "Read by gemini-3.5-flash. Every quote is checked against the page text."
+}

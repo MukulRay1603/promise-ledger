@@ -1,0 +1,39 @@
+{
+  "notice": "Fictional held-out evaluation data. Alder Crossing, Port Wren, Stone Hollow and every company, date, number and quote in these documents are made up.",
+  "deal": "Quarry Row",
+  "slug": "quarry-row",
+  "city": "Alder Crossing",
+  "county": "Tamarack County",
+  "homes": 90,
+  "owner": "Quarry Row Homes LP",
+  "as_of": "2025-10-02",
+  "documents": [
+    {
+      "file": "01-term-sheet-memo.pdf",
+      "id": "term-sheet-memo",
+      "type": "Staff memo with term sheet",
+      "date": "2025-08-19",
+      "title": "Memorandum: Quarry Row assessment freeze request",
+      "pages": 2,
+      "signed_by": []
+    },
+    {
+      "file": "02-council-minutes.pdf",
+      "id": "council-minutes",
+      "type": "Council minutes",
+      "date": "2025-09-09",
+      "title": "Alder Crossing City Council minutes, September 9, 2025",
+      "pages": 2,
+      "signed_by": []
+    },
+    {
+      "file": "03-development-agreement-draft.pdf",
+      "id": "development-agreement-draft",
+      "type": "Development agreement",
+      "date": "2025-10-02",
+      "title": "Affordable Housing Development Agreement, Quarry Row",
+      "pages": 3,
+      "signed_by": []
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Tollgate Yard property tax reduction request",
+  "date": "2026-03-03",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Tollgate Yard is a proposed building of 150 homes on Tollgate Road.",
+    "page": 1,
+    "wording": "proposed building of 150 homes",
+    "value": "150 homes"
+   },
+   {
+    "topic": "units",
+    "quote": "The applicant would set aside 30 of the 150 homes as affordable homes.",
+    "page": 1,
+    "wording": "would set aside",
+    "value": "30 of 150 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Those homes would be for households at or below 70 percent of area median income.",
+    "page": 1,
+    "wording": "at or below",
+    "value": "70 percent of area median income"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Staff recommends that the Council approve a 12-year property tax reduction for Tollgate Yard.",
+    "page": 1,
+    "wording": "recommends",
+    "value": "12-year property tax reduction"
+   }
+  ]
+ },
+ "tokens_in": 716,
+ "tokens_out": 1914,
+ "cost_usd": 0.005,
+ "notice": "Read by gemini-3.5-flash. Every quote is checked against the page text."
+}

@@ -1,0 +1,42 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash",
+ "reading": {
+  "document_type": "agreement",
+  "title": "FIRST AMENDMENT TO AFFORDABILITY COVENANT",
+  "date": "2023-11-06",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Cannery Flats Housing Partners LLC",
+    "quote": "Electronically signed by Cannery Flats Housing Partners LLC, by its Managing Member, on November 2, 2023.",
+    "page": 1
+   },
+   {
+    "party": "TOWN OF PORT WREN",
+    "quote": "/s/ Town Administrator",
+    "page": 1
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner shall keep 18 of the 140 apartments in the building as restricted apartments.",
+    "page": 1,
+    "wording": "shall keep",
+    "value": "18 of 140 apartments"
+   },
+   {
+    "topic": "term",
+    "quote": "The end date in Section 5.1 of the Covenant is changed from June 30, 2049 to June 30, 2059.",
+    "page": 1,
+    "wording": "is changed from June 30, 2049 to June 30, 2059",
+    "value": "June 30, 2059"
+   }
+  ]
+ },
+ "tokens_in": 791,
+ "tokens_out": 1789,
+ "cost_usd": 0.00471,
+ "notice": "Read by gemini-3.5-flash. Every quote is checked against the page text."
+}

@@ -1,0 +1,202 @@
+{
+  "notice": "Fictional held-out evaluation data. Alder Crossing, Port Wren, Stone Hollow and every company, date, number and quote in these documents are made up.",
+  "deal": "Cannery Flats",
+  "terms": [
+    "units",
+    "income_basis",
+    "rent_limits",
+    "term",
+    "responsible_party",
+    "reporting",
+    "remedies"
+  ],
+  "stages": [
+    "proposed",
+    "supported",
+    "signed",
+    "delivered"
+  ],
+  "not_located": [],
+  "differs": [
+    {
+      "term": "units",
+      "values": [
+        "22 of 140 apartments",
+        "18 of 140 apartments"
+      ],
+      "claims": [
+        "f02",
+        "f09",
+        "f12"
+      ]
+    },
+    {
+      "term": "term",
+      "values": [
+        "Until June 30, 2049",
+        "June 30, 2059"
+      ],
+      "claims": [
+        "f05",
+        "f10"
+      ]
+    }
+  ],
+  "story": "Signed in 2019 for 22 apartments until 2049. A signed 2023 amendment cut the count to 18 and moved the end date to 2059. The 2024 rent roll shows 18 of 18 leased.",
+  "claims": [
+    {
+      "id": "f01",
+      "term": "public_support",
+      "quote": "The Town has paid the Owner a construction grant of $2,100,000 from the Port Wren Housing Fund.",
+      "file": "01-affordability-covenant-2019.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "has paid",
+      "value": "Construction grant of $2,100,000",
+      "review_note": ""
+    },
+    {
+      "id": "f02",
+      "term": "units",
+      "quote": "The Owner shall keep 22 of the 140 apartments in the building as restricted apartments, in the mix shown in Schedule 1.",
+      "file": "01-affordability-covenant-2019.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "shall keep",
+      "value": "22 of 140 apartments",
+      "review_note": "Changed to 18 by the 2023 amendment."
+    },
+    {
+      "id": "f03",
+      "term": "income_basis",
+      "quote": "A restricted apartment shall be leased only to a household with income not greater than sixty percent (60%) of area median income.",
+      "file": "01-affordability-covenant-2019.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "shall be leased only",
+      "value": "60 percent of area median income",
+      "review_note": ""
+    },
+    {
+      "id": "f04",
+      "term": "rent_limits",
+      "quote": "Rent for a restricted apartment shall not exceed the maximum rent published each year by the Osprey County Housing Office for the sixty percent income level.",
+      "file": "01-affordability-covenant-2019.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "shall not exceed",
+      "value": "Published maximum rent for the 60 percent level",
+      "review_note": ""
+    },
+    {
+      "id": "f05",
+      "term": "term",
+      "quote": "This Covenant shall remain in effect until June 30, 2049.",
+      "file": "01-affordability-covenant-2019.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "shall remain in effect",
+      "value": "Until June 30, 2049",
+      "review_note": "Changed to 2059 by the 2023 amendment."
+    },
+    {
+      "id": "f06",
+      "term": "responsible_party",
+      "quote": "This Covenant runs with the land and binds the Owner and every later owner of the building.",
+      "file": "01-affordability-covenant-2019.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "binds",
+      "value": "Owner and every later owner",
+      "review_note": ""
+    },
+    {
+      "id": "f07",
+      "term": "reporting",
+      "quote": "The Owner shall submit a certified rent roll to the Town each year no later than February 15.",
+      "file": "01-affordability-covenant-2019.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "shall submit",
+      "value": "Certified rent roll by February 15",
+      "review_note": ""
+    },
+    {
+      "id": "f08",
+      "term": "remedies",
+      "quote": "If the Owner fails to cure a default within 90 days after written notice, the Owner shall repay the Town the full amount of the construction grant.",
+      "file": "01-affordability-covenant-2019.pdf",
+      "page": 2,
+      "stage": "signed",
+      "wording": "shall repay",
+      "value": "Repay the grant after a 90-day cure period",
+      "review_note": ""
+    },
+    {
+      "id": "f09",
+      "term": "units",
+      "quote": "The Owner shall keep 18 of the 140 apartments in the building as restricted apartments.",
+      "file": "02-first-amendment-2023.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "shall keep",
+      "value": "18 of 140 apartments",
+      "review_note": "Signed amendment. The covenant said 22."
+    },
+    {
+      "id": "f10",
+      "term": "term",
+      "quote": "The end date in Section 5.1 of the Covenant is changed from June 30, 2049 to June 30, 2059.",
+      "file": "02-first-amendment-2023.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "is changed",
+      "value": "June 30, 2059",
+      "review_note": "Signed amendment. The covenant said 2049."
+    },
+    {
+      "id": "f11",
+      "term": "reporting",
+      "quote": "This certified rent roll for 2024 is submitted to the Town on February 12, 2025.",
+      "file": "03-certified-rent-roll-2024.pdf",
+      "page": 1,
+      "stage": "delivered",
+      "wording": "is submitted",
+      "value": "2024 rent roll sent February 12, 2025",
+      "review_note": "Owner-reported."
+    },
+    {
+      "id": "f12",
+      "term": "units",
+      "quote": "As of December 31, 2024, all 18 restricted apartments were leased to households that qualified at move-in.",
+      "file": "03-certified-rent-roll-2024.pdf",
+      "page": 1,
+      "stage": "delivered",
+      "wording": "were leased",
+      "value": "18 of 18 restricted apartments leased",
+      "review_note": "Owner-reported."
+    },
+    {
+      "id": "f13",
+      "term": "income_basis",
+      "quote": "Every household in a restricted apartment had income at or below sixty percent of area median income when its lease began.",
+      "file": "03-certified-rent-roll-2024.pdf",
+      "page": 1,
+      "stage": "delivered",
+      "wording": "had income",
+      "value": "At or below 60 percent of area median income",
+      "review_note": "Owner-reported."
+    },
+    {
+      "id": "f14",
+      "term": "rent_limits",
+      "quote": "No restricted apartment was charged more than the maximum rent published for 2024.",
+      "file": "03-certified-rent-roll-2024.pdf",
+      "page": 1,
+      "stage": "delivered",
+      "wording": "was charged",
+      "value": "No rent above the 2024 maximum",
+      "review_note": "Owner-reported."
+    }
+  ]
+}
