@@ -221,3 +221,27 @@ class ScannedPages(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ScannedSignatures(unittest.TestCase):
+    """Stage evidence counts only from pages with their own text layer."""
+    PAGES = ["LETTER AGREEMENT\nThe owner will provide 12 affordable homes.",
+             "HARBOR WALK PARTNERS\n/s/ Dana Reyes\nManaging Member"]
+
+    def reading(self):
+        from app import ai
+        return ai.PdfReading(
+            document_type="letter", title="Letter agreement", date="", draft=False,
+            signatures=[ai.Signature(party="Harbor Walk Partners", quote="/s/ Dana Reyes", page=2)],
+            candidates=[ai.PdfCandidate(topic="units", quote="The owner will provide 12 affordable homes.", page=1,
+                                        wording="will provide", value="12 homes")])
+
+    def test_typed_signature_signs(self):
+        out = pipeline.verify_reading(self.reading(), self.PAGES, {"id": "d", "type": "Letter"})
+        self.assertEqual(out["stage"], "signed")
+
+    def test_signature_only_on_a_scanned_page_does_not_sign(self):
+        out = pipeline.verify_reading(self.reading(), self.PAGES, {"id": "d", "type": "Letter", "transcribed_pages": [2]})
+        self.assertEqual(out["stage"], "proposed")
+        self.assertIn("must confirm it against the PDF", out["stage_reason"])
+        self.assertTrue(all(c["status"] == "proposed" for c in out["claims"]))

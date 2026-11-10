@@ -710,10 +710,18 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
     """Check the model's reading against the page text. Returns the fields to save on the document."""
     kind, _from_staff = record_kind(doc.get("type"), reading.document_type, pages)
     draft = is_draft(pages, reading.draft)
-    signatures = checked_signatures([s.model_dump() for s in reading.signatures], pages)
+    scans = set(doc.get("transcribed_pages") or [])
+    # Stage evidence (signatures, votes, delivery) counts only from pages with their own text layer. Text the
+    # model transcribed from a scan can hold claims, but it never moves a record past proposed by itself.
+    evidence = [("" if i in scans else text) for i, text in enumerate(pages, 1)]
+    signatures = checked_signatures([s.model_dump() for s in reading.signatures], evidence)
     for sig in signatures:
         sig["party"] = canonical_party(sig["party"], known_parties or [])
-    stage, signed_by, reason = decide_stage(kind, pages, signatures, draft)
+    stage, signed_by, reason = decide_stage(kind, evidence, signatures, draft)
+    if scans and stage == "proposed" and decide_stage(kind, pages, checked_signatures(
+            [s.model_dump() for s in reading.signatures], pages), draft)[0] != "proposed":
+        reason += (" A signature, vote or delivery statement appears only on a scanned page. "
+                   "A person must confirm it against the PDF before it counts.")
 
     # The model's title is kept only if it is printed in the record (S10); otherwise the filename shows.
     found = normalize(reading.title or "").lower().rstrip(".")
@@ -733,9 +741,6 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
                           "boilerplate": 0, "off_term": 0}
     chrome = repeated_lines(pages)
     seen = set()
-    scans = set(doc.get("transcribed_pages") or [])
-    if scans and stage != "proposed":
-        reason += " Some pages were scanned images transcribed by AI; check them against the PDF."
     label = doc.get("type") or TYPE_LABELS.get(kind, "Record")
     for cand in reading.candidates:
         if cand.topic not in ledger.TOPICS:
