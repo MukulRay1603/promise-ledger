@@ -3,7 +3,7 @@
 const byId = (id) => document.getElementById(id);
 const SVG_NS = "http://www.w3.org/2000/svg";
 const STAGES = ["proposed", "supported", "signed", "delivered"];
-const TAB_IDS = ["claims", "changes", "questions", "receipt", "extract", "glossary"];
+const TAB_IDS = ["claims", "ask", "changes", "questions", "receipt", "extract", "glossary"];
 const MAX_UPLOAD = 20 * 1024 * 1024;
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -682,6 +682,7 @@ const DEAL_TEMPLATE = `
   <section class="tabs-wrap" id="details" aria-label="Review details">
     <div class="tablist" role="tablist" aria-label="Review details" id="tablist">
       <button type="button" role="tab" id="tab-claims" aria-controls="claims">Claims<span class="tab-count" id="count-claims"></span></button>
+      <button type="button" role="tab" id="tab-ask" aria-controls="ask">Ask</button>
       <button type="button" role="tab" id="tab-changes" aria-controls="changes">What changed</button>
       <button type="button" role="tab" id="tab-questions" aria-controls="questions">Open questions<span class="tab-count" id="count-questions"></span></button>
       <button type="button" role="tab" id="tab-receipt" aria-controls="receipt">Receipt</button>
@@ -695,6 +696,27 @@ const DEAL_TEMPLATE = `
         <thead><tr><th scope="col">Term</th><th scope="col">Exact quote</th><th scope="col">Source</th><th scope="col">Stage</th><th scope="col">Wording</th><th scope="col">Review</th></tr></thead>
         <tbody id="claim-rows"></tbody>
       </table>
+    </div>
+    <div class="panel" role="tabpanel" id="ask" aria-labelledby="tab-ask" tabindex="0" hidden>
+      <div class="panel-head"><h2>Ask this deal</h2><p class="panel-note">Answers come only from this deal’s checked quotes, and each sentence links to its source. Code removes any sentence its quotes do not back. Nothing is saved.</p></div>
+      <form id="ask-form" class="extract-form ask-form">
+        <div class="ask-audience" role="group" aria-labelledby="ask-audience-label">
+          <span class="ask-audience-label" id="ask-audience-label">Answer for</span>
+          <button type="button" class="chip" data-audience="staff" aria-pressed="true">Housing staff</button>
+          <button type="button" class="chip" data-audience="resident" aria-pressed="false">Residents, in plain words</button>
+        </div>
+        <label for="ask-text">Your question</label>
+        <div class="ask-row">
+          <input id="ask-text" name="question" type="text" required minlength="3" maxlength="300" autocomplete="off" aria-describedby="ask-hint">
+          <button type="button" class="btn btn-secondary" id="ask-mic" hidden aria-pressed="false">Speak</button>
+          <button type="submit" class="btn btn-primary">Ask</button>
+        </div>
+        <p id="ask-hint" class="hint">Do not type names, phone numbers or other personal details. Questions are not saved.</p>
+        <div class="ask-suggest" id="ask-suggest" role="group" aria-label="Example questions"></div>
+      </form>
+      <div id="ask-status" class="extract-status" role="status"></div>
+      <ol class="candidates ask-answer" id="ask-answer" aria-label="Answer"></ol>
+      <button type="button" class="btn btn-secondary btn-small ask-speak" id="ask-speak" hidden>Read answer aloud</button>
     </div>
     <div class="panel" role="tabpanel" id="changes" aria-labelledby="tab-changes" tabindex="0" hidden>
       <div class="panel-head"><h2>What changed</h2><p class="panel-note">For each term, every record in date order. Words dropped since the previous record are struck through and labeled "Removed". New words are underlined and labeled "Added".</p></div>
@@ -857,7 +879,7 @@ function renderReview({ tab = null, keepTab = false } = {}) {
   const selected = keepTab ? document.querySelector('[role="tab"][aria-selected="true"]')?.id.replace("tab-", "") : null;
   const open = selected || tab || "claims";
   const panels = {
-    claims: renderClaims, changes: renderChanges, questions: renderQuestions,
+    claims: renderClaims, ask: renderAsk, changes: renderChanges, questions: renderQuestions,
     receipt: () => renderReceipt(byId("receipt-body"), review), glossary: renderGlossaryList, extract: () => {},
   };
   panels[open]?.();
@@ -1234,6 +1256,111 @@ async function submitExtraction(event) {
   } finally {
     button.disabled = false;
   }
+}
+
+// ---------- Ask a deal ----------
+const ASK_EXAMPLES = ["How many homes are affordable?", "What income do you need to qualify?", "How long do the limits last?", "Is any of this signed?", "Who checks that the promises are kept?"];
+let askAudience = "staff";
+
+function renderAsk() {
+  const form = byId("ask-form");
+  if (!form || form.dataset.ready === dealState.id) return;
+  form.dataset.ready = dealState.id;
+  byId("ask-status").replaceChildren();
+  byId("ask-answer").replaceChildren();
+  byId("ask-speak").hidden = true;
+  form.querySelectorAll("[data-audience]").forEach((chip) => {
+    chip.setAttribute("aria-pressed", String(chip.dataset.audience === askAudience));
+    chip.onclick = () => {
+      askAudience = chip.dataset.audience;
+      form.querySelectorAll("[data-audience]").forEach((c) => c.setAttribute("aria-pressed", String(c === chip)));
+    };
+  });
+  byId("ask-suggest").replaceChildren(...ASK_EXAMPLES.map((q) => el("button", {
+    type: "button", class: "chip", onclick: () => { form.question.value = q; form.requestSubmit(); },
+  }, q)));
+  form.onsubmit = submitAsk;
+  setupDictation(form);
+  setupReadAloud();
+}
+
+async function submitAsk(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector('button[type="submit"]');
+  const dealId = dealState.id;
+  stopSpeaking();
+  button.disabled = true;
+  byId("ask-status").textContent = "Looking through the checked quotes.";
+  byId("ask-answer").replaceChildren();
+  byId("ask-speak").hidden = true;
+  try {
+    let result;
+    try {
+      result = await rawApi(`/api/deals/${encodeURIComponent(dealId)}/ask`, { method: "POST", body: { question: form.question.value, audience: askAudience } });
+    } catch (err) {
+      if (err.status === 422) throw new Error("Enter a question between 3 and 300 characters.");
+      throw err;
+    }
+    if (dealState?.id !== dealId) return;
+    const notes = [el("p", { class: "extract-notice" }, result.notice)];
+    if (result.removed) notes.push(el("p", {}, result.removed === 1
+      ? "1 sentence was removed because its quotes did not back it."
+      : `${result.removed} sentences were removed because their quotes did not back them.`));
+    byId("ask-status").replaceChildren(...notes);
+    byId("ask-answer").replaceChildren(...result.sentences.map((s) => el("li", { class: s.quote ? "ask-quote" : null },
+      el("p", { class: s.quote ? "quote" : null }, s.text),
+      el("span", { class: "candidate-tags" }, ...s.claim_ids.map((id, i) => {
+        const claim = dealState.claimsById.get(id);
+        if (!claim) return id === "not-located" ? el("span", { class: "tag tag-not_located" }, "Not located in any record") : null;
+        return viewSourceButton(claim, s.claim_ids.length > 1 ? `Source ${i + 1}` : "Source");
+      })))));
+    byId("ask-speak").hidden = !("speechSynthesis" in window) || !result.sentences.length;
+  } catch (err) {
+    byId("ask-status").textContent = err.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+// Voice uses the browser's own speech services. Dictation shows only where the browser supports it.
+function setupDictation(form) {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const mic = byId("ask-mic");
+  if (!Recognition || !mic) return;
+  mic.hidden = false;
+  mic.title = "Uses your browser's speech service";
+  mic.onclick = () => {
+    const rec = new Recognition();
+    rec.lang = document.documentElement.lang || "en-US";
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+    mic.setAttribute("aria-pressed", "true");
+    mic.textContent = "Listening";
+    rec.onresult = (e) => { form.question.value = e.results[0][0].transcript; form.requestSubmit(); };
+    rec.onerror = () => { byId("ask-status").textContent = "Could not hear a question. Type it instead."; };
+    rec.onend = () => { mic.setAttribute("aria-pressed", "false"); mic.textContent = "Speak"; };
+    rec.start();
+  };
+}
+
+function stopSpeaking() {
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  const btn = byId("ask-speak");
+  if (btn) btn.textContent = "Read answer aloud";
+}
+
+function setupReadAloud() {
+  const btn = byId("ask-speak");
+  if (!btn || !("speechSynthesis" in window)) return;
+  btn.onclick = () => {
+    if (window.speechSynthesis.speaking) { stopSpeaking(); return; }
+    const text = [...byId("ask-answer").querySelectorAll("li > p")].map((p) => p.textContent).join(" ");
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.onend = stopSpeaking;
+    btn.textContent = "Stop reading";
+    window.speechSynthesis.speak(utter);
+  };
 }
 
 // ---------- Documents and upload ----------

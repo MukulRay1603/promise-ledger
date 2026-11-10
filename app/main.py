@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 
 load_dotenv()
 
-from app import ai, deals, guard, identity, ledger, pipeline  # noqa: E402  (needs env loaded first)
+from app import ai, ask, deals, guard, identity, ledger, pipeline  # noqa: E402  (needs env loaded first)
 from app.storage import get_store  # noqa: E402
 
 STATIC = Path(__file__).parent / "static"
@@ -198,6 +198,14 @@ def document_page(deal_id: str, doc_id: str, n: int, request: Request):
 def deal_review(deal_id: str, request: Request):
     _deal_or_404(deal_id, request)
     return deals.deal_review(deal_id, session=identity.demo_session(request))
+
+
+@app.post("/api/deals/{deal_id}/ask")
+def ask_deal(deal_id: str, body: ask.Question, request: Request):
+    """Answer from this deal's checked quotes only. Nothing is saved; the question is not logged."""
+    _deal_or_404(deal_id, request)
+    review = deals.deal_review(deal_id, session=identity.demo_session(request))
+    return ask.answer(review, body.question, body.audience)
 
 
 @app.get("/api/deals/{deal_id}/export.xlsx")

@@ -694,6 +694,17 @@ textarea { font-family: var(--serif); font-size: 1.0625rem; }
 .candidates { display: grid; gap: .5rem; max-width: 48rem; margin: 1rem 0 0; padding: 0; list-style: none; }
 .candidates li { display: grid; gap: .375rem; padding: .75rem 1rem; border: 1px dashed var(--border-strong); border-radius: var(--r); }
 .candidate-tags { display: flex; flex-wrap: wrap; gap: .5rem; }
+.ask-audience, .ask-suggest { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.ask-form .chip { padding: .375rem .875rem; box-shadow: none; font-weight: 500; font-size: .875rem; min-height: 2.25rem; color: var(--ink); }
+.ask-form .chip[aria-pressed="true"] { background: var(--primary-soft); color: var(--primary-ink); border-color: var(--primary-line); font-weight: 600; }
+.ask-audience-label { font-weight: 600; margin-right: .25rem; }
+.ask-row { display: flex; gap: .5rem; width: 100%; }
+.ask-row input { flex: 1; min-width: 0; }
+.ask-answer li { border-style: solid; }
+.ask-answer li.ask-quote { border-style: dashed; }
+.ask-answer p { margin: 0; }
+.ask-speak { margin-top: .75rem; }
+@media (max-width: 560px) { .ask-row { flex-wrap: wrap; } .ask-row .btn { flex: 1; } }
 
 /* Glossary */
 .glossary { display: grid; gap: 1rem; margin: 0; max-width: 70ch; }
