@@ -24,6 +24,7 @@ from app import ai, pipeline
 VISION_MAX_PAGES = int(os.getenv("VISION_MAX_PAGES") or 10)
 VISION_MAX_PDF_BYTES = 15 * 1024 * 1024  # The scanned pages go inline in one request.
 VISION_MAX_OUTPUT_TOKENS = 24_000
+MAX_SCAN_ATTEMPTS = 2  # One try, plus one retry after a server error.
 VISION_MAX_PAGE_CHARS = 20_000  # Text kept for one transcribed page.
 
 VISION_SYSTEM_PROMPT = """You transcribe scanned pages of subsidized housing deal records.
@@ -93,7 +94,8 @@ def subset_pdf(data: bytes, numbers: list[int]) -> bytes:
 
     done = subprocess.run([sys.executable, "-c", "from app.vision import _worker_main; _worker_main()",
                            *map(str, numbers)], input=data, capture_output=True,
-                          timeout=pipeline.PARSE_TIMEOUT_SECONDS, cwd=str(pipeline.ROOT))
+                          timeout=pipeline.PARSE_TIMEOUT_SECONDS, cwd=str(pipeline.ROOT),
+                          **pipeline.sandbox_options(pipeline.PARSE_TIMEOUT_SECONDS))
     if done.returncode != 0 or not done.stdout.startswith(b"%PDF"):
         raise ValueError("The scanned pages could not be split out.")
     return done.stdout
@@ -220,17 +222,22 @@ def transcribe(data: bytes, numbers: list[int], sha: str | None = None, call=Non
 def fill_scanned(doc: dict, pages: list[str], load_pdf, call=None, use_cache: bool = True) -> tuple[list[str], ScanResult]:
     """(pages with transcribed text filled in, result). Sets doc["transcribed_pages"] when any page was filled.
 
-    Only pages flagged as scanned at upload and still without text are sent, so a retry never pays twice.
-    `load_pdf` returns the stored PDF bytes; it is called only when there is something to transcribe.
+    Only pages flagged as scanned at upload and still without text are sent, only the first VISION_MAX_PAGES of
+    them ever, and at most MAX_SCAN_ATTEMPTS paid tries per document, so retries cannot keep paying for a scan
+    that comes back empty or fails. `load_pdf` returns the stored PDF bytes; it is called only when needed.
     """
-    todo = [n for n in doc.get("scanned_pages") or []
-            if 1 <= n <= len(pages) and len(pages[n - 1].strip()) < pipeline.MIN_PAGE_CHARS]
+    allowed = sorted(doc.get("scanned_pages") or [])[:VISION_MAX_PAGES]
+    todo = [n for n in allowed if 1 <= n <= len(pages) and len(pages[n - 1].strip()) < pipeline.MIN_PAGE_CHARS]
     if not todo or (call is None and not os.getenv("GEMINI_API_KEY")):
         return pages, ScanResult(mode="off")
+    if int(doc.get("scan_attempts") or 0) >= MAX_SCAN_ATTEMPTS:
+        return pages, ScanResult(mode="limited")
     data = load_pdf()
     if not data:
         return pages, ScanResult(mode="failed")
     result = transcribe(data, todo, doc.get("sha256"), call=call, use_cache=use_cache)
+    if result.mode not in ("cache", "off"):
+        doc["scan_attempts"] = int(doc.get("scan_attempts") or 0) + 1
     room = pipeline.MAX_TEXT_CHARS - sum(len(p) for p in pages)
     filled, done = list(pages), []
     for n in sorted(result.pages):

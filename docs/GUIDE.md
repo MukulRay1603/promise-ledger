@@ -145,8 +145,12 @@ Only step 3, and the transcription of scanned pages in step 1, use AI. Every oth
 
 **Ask a deal** uses the same models. The model sees one deal's checked quotes, each with an id, plus the terms that were not located. It writes short sentences and must cite the ids each one relies on. Code then removes any sentence that:
 - cites no real record;
-- states a number that is not in the quotes, dates or pages it cites;
-- says "signed", "delivered" or "approved" when no cited record reached that stage (a negated statement such as "was not signed" is allowed).
+- states a number (in digits or words, such as "fifteen") that is not in the quotes it cites, or a date or page that is not the cited record's;
+- uses a stage word ("signed", "executed", "binding", "delivered", "built", "occupied", "approved", "adopted" and others) when, for any term it cites, no cited record reached that stage. A negation that governs the word ("was not signed") is allowed;
+- judges anyone ("broke its promise", "violated", "illegal");
+- cites only "not located" but does not name a missing term, or adds a number or stage to it.
+
+Text is normalized first (compatibility characters, invisible characters and look-alike letters), so circled digits, a word split by an invisible character, or "sıgned" with a look-alike letter are all caught. These are checks on numbers, dates and stage words, not a proof that a sentence is true; each sentence links to its quote so a person can read it. Angle brackets in questions and quotes are neutralized, so neither can close the block it sits in.
 
 A sentence that says a term is in no record cites a special `not-located` id, which can back no number or stage. Questions off this deal's affordable-housing commitments are refused, and instructions inside a question or a record are ignored. The question is redacted, capped at 300 characters, and neither stored nor logged. With no key, at the rate limit or if the call fails, the matching checked quotes are returned word for word and labeled. An answer costs about as much as reading one sample PDF.
 
@@ -249,13 +253,17 @@ The app's samples remain fictional.
 **Fairness.** A wrong "differs" could embarrass a developer or a staff member in public. So labels stay neutral ("wording differs", "not located", "flagged for human review"), clean deals say so plainly, and a person decides every item.
 
 **Privacy**
-- Only redacted page text reaches the model. The redactor catches ID numbers, emails and phone numbers, not names or addresses, so the demo asks for made-up records only.
+- Only redacted page text reaches the model, with one exception: scanned pages are sent as images, which cannot be redacted. The redactor catches ID numbers, emails and phone numbers, not names or addresses, so the demo asks for made-up records only.
+- Ask dictation uses the browser's own speech service, which may send audio to the browser maker. Typing is always available.
 - Pasted text is not stored or logged. Visitor uploads are deleted after 24 hours.
 - A real deployment should use the paid Gemini API or Vertex AI, whose terms don't use prompts to train models.
 
 **Public demo guard**
 - Visitor deals belong to that browser's session; others get 404.
-- Rate limits per network: 5 uploads, 3 new deals, 20 share links, 30 pasted-text readings, 30 questions and 120 exports an hour.
+- Rate limits per network: 5 uploads, 3 new deals, 20 share links, 30 pasted-text readings, 30 questions and 120 exports an hour. JSON requests over 64 KB are refused before they are read, and validation errors never echo the request back.
+- A scanned document gets at most 2 paid transcription tries, however often it is retried.
+- The PDF reader's child process gets no API keys or other secrets in its environment, and on Linux a memory and CPU limit.
+- Strict-Transport-Security is set, and the API's auto-generated docs are not served.
 - Security headers: a Content Security Policy with scripts only from this site, `nosniff`, `Referrer-Policy`, no framing. The container runs as a non-root user with pinned dependencies.
 
 **Accessibility**

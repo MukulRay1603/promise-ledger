@@ -245,3 +245,31 @@ class ScannedSignatures(unittest.TestCase):
         self.assertEqual(out["stage"], "proposed")
         self.assertIn("must confirm it against the PDF", out["stage_reason"])
         self.assertTrue(all(c["status"] == "proposed" for c in out["claims"]))
+
+
+class ScanRetries(unittest.TestCase):
+    """A scan that comes back empty is not paid for again and again on retry (security review)."""
+    def test_attempts_are_capped(self):
+        calls = []
+
+        def empty(data):
+            calls.append(1)
+            return vision.Transcription(pages=[])
+        doc = {"scanned_pages": [1], "sha256": None}
+        with mock.patch.object(vision, "subset_pdf", return_value=b"%PDF"):
+            for _ in range(5):
+                vision.fill_scanned(doc, [""], lambda: b"%PDF-stub", call=empty, use_cache=False)
+        self.assertEqual(len(calls), vision.MAX_SCAN_ATTEMPTS)
+
+    def test_pages_past_the_cap_are_never_sent(self):
+        sent = []
+
+        def record(data):
+            sent.append(1)
+            return vision.Transcription(pages=[])
+        doc = {"scanned_pages": list(range(1, 13)), "sha256": None}
+        with mock.patch.object(vision, "VISION_MAX_PAGES", 10), \
+                mock.patch.object(vision, "subset_pdf", side_effect=lambda data, numbers: (sent.append(tuple(numbers)), b"%PDF")[1]):
+            pages = [""] * 12
+            vision.fill_scanned(doc, pages, lambda: b"%PDF-stub", call=record, use_cache=False)
+        self.assertTrue(all(max(x) <= 10 for x in sent if isinstance(x, tuple)))

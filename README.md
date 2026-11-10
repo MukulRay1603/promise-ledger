@@ -101,7 +101,7 @@ Readings are cached in `data/readings/` by file hash and prompt version, so seed
 
 ## Safety and accessibility
 
-- **Text in documents is data, never instructions to the model.** Obvious personal details are removed before any model call, and pasted text is not stored or logged.
+- **Text in documents is data, never instructions to the model.** Obvious personal details are removed from page text before any model call. Scanned pages are the exception: they are sent as images, which cannot be redacted, so the demo asks for made-up records only. Pasted text and Ask questions are not stored or logged.
 - **Neutral wording only:** "wording differs", "not located", "flagged for human review".
 - **Every claim shows its exact quote, document type, date and page.** Statuses stay separate: a later stage is never inferred.
 - **A review records people's decisions. It is not a legal finding.** That line closes every receipt.

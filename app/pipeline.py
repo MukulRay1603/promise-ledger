@@ -70,6 +70,23 @@ def _read_pages(data: bytes) -> list[str]:
         raise PdfError(f"The PDF could not be read ({type(err).__name__}).") from err
 
 
+_SECRET_ENV = re.compile(r"KEY|TOKEN|SECRET|CREDENTIAL|PASSWORD", re.I)
+
+
+def sandbox_options(timeout: float) -> dict:
+    """Options for the PDF child process: no secrets in its environment, and on Linux limits on memory and CPU."""
+    import os
+
+    options: dict = {"env": {k: v for k, v in os.environ.items() if not _SECRET_ENV.search(k)}}
+    if os.name == "posix":
+        def limit():
+            import resource
+            resource.setrlimit(resource.RLIMIT_AS, (2 * 1024 ** 3, 2 * 1024 ** 3))
+            resource.setrlimit(resource.RLIMIT_CPU, (int(timeout) + 5, int(timeout) + 5))
+        options["preexec_fn"] = limit
+    return options
+
+
 def _worker_main() -> None:
     """Child process entry: PDF bytes on stdin, {"pages": [...]} or {"error": "..."} as JSON on stdout."""
     import sys
@@ -94,7 +111,7 @@ def _read_pages_sandboxed(data: bytes, timeout: float) -> list[str]:
 
     try:
         done = subprocess.run([sys.executable, "-c", "from app.pipeline import _worker_main; _worker_main()"],
-                              input=data, capture_output=True, timeout=timeout, cwd=str(ROOT))
+                              input=data, capture_output=True, timeout=timeout, cwd=str(ROOT), **sandbox_options(timeout))
     except subprocess.TimeoutExpired:
         raise PdfError("The PDF took too long to read. Try a simpler or shorter file.") from None
     try:

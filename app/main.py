@@ -1,4 +1,6 @@
 import json
+import re
+from urllib.parse import quote
 import mimetypes
 import os
 import threading
@@ -8,6 +10,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
@@ -47,7 +50,19 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-app = FastAPI(title="Promise Ledger", lifespan=lifespan)
+app = FastAPI(title="Promise Ledger", lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
+
+
+@app.exception_handler(RequestValidationError)
+async def _invalid(_request: Request, err: RequestValidationError):
+    # Say which field is wrong, but never echo the request body back.
+    fields = sorted({".".join(str(p) for p in e.get("loc", ())[1:]) or "body" for e in err.errors()})
+    return JSONResponse({"detail": f"Check these fields: {', '.join(fields)}."}, status_code=422)
+
+
+@app.exception_handler(guard.BodyTooLarge)
+async def _too_large(_request: Request, _err: Exception):
+    return JSONResponse({"detail": "The request is too large."}, status_code=413)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 guard.install(app)  # Public demo: rate limits, expiry of visitor deals (DEMO_MODE).
 
@@ -89,8 +104,13 @@ def extract(pasted: PastedText):
 # ---------------------------------------------------------------------------
 # Deals
 
+_ID = re.compile(r"[A-Za-z0-9_-]{1,80}")
+
+
 def _deal_or_404(deal_id: str, request: Request) -> dict:
     """The deal, if this browser may see it. Another visitor's deal answers 404, the same as a missing one (S2)."""
+    if not _ID.fullmatch(deal_id):
+        raise HTTPException(404, "Deal not found.")
     try:
         deal = get_store().get_deal(deal_id)
     except ValueError:
@@ -102,6 +122,8 @@ def _deal_or_404(deal_id: str, request: Request) -> dict:
 
 def _doc_or_404(deal_id: str, doc_id: str, request: Request) -> dict:
     _deal_or_404(deal_id, request)
+    if not _ID.fullmatch(doc_id):
+        raise HTTPException(404, "Document not found.")
     try:
         doc = get_store().get_document(deal_id, doc_id)
     except ValueError:
@@ -180,8 +202,10 @@ def document_file(deal_id: str, doc_id: str, request: Request):
     if data is None:
         raise HTTPException(404, "File not found.")
     name = "".join(ch for ch in (doc.get("filename") or "document.pdf") if ch.isprintable() and ch not in '"\\')
+    plain = name.encode("ascii", "ignore").decode() or "document.pdf"  # Headers are Latin-1; the full name goes in filename*.
     return Response(data, media_type="application/pdf", headers={
-        "Content-Disposition": f'inline; filename="{name}"', "X-Content-Type-Options": "nosniff",
+        "Content-Disposition": f"inline; filename=\"{plain}\"; filename*=UTF-8''{quote(name)}",
+        "X-Content-Type-Options": "nosniff",
         "Cache-Control": "private, max-age=3600"})
 
 

@@ -339,6 +339,26 @@ def cache_control(path: str) -> str | None:
     return "no-cache"  # The ETag still lets the browser reuse an unchanged file with a 304.
 
 
+MAX_JSON_BODY = 64 * 1024  # Every JSON request is small; the largest is pasted text of 4,000 characters.
+
+
+class BodyTooLarge(Exception):
+    pass
+
+
+def _capped(receive, limit: int):
+    seen = 0
+
+    async def wrapped():
+        nonlocal seen
+        message = await receive()
+        seen += len(message.get("body", b""))
+        if seen > limit:
+            raise BodyTooLarge()
+        return message
+    return wrapped
+
+
 class SecurityHeaders:
     """Headers on every response, and an early 413 for uploads whose Content-Length is over the limit (S11)."""
 
@@ -348,12 +368,19 @@ class SecurityHeaders:
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
-        if scope["method"] == "POST" and UPLOAD_PATH.match(scope["path"]):
-            length = dict(scope.get("headers") or []).get(b"content-length", b"")
-            if length.isdigit() and int(length) > MAX_UPLOAD_BODY:
-                from fastapi.responses import JSONResponse
+        if scope["method"] in ("POST", "PUT", "PATCH", "DELETE") and scope["path"].startswith("/api/"):
+            from fastapi.responses import JSONResponse
 
-                return await JSONResponse({"detail": "The file is larger than 20 MB."}, status_code=413)(scope, receive, send)
+            headers = dict(scope.get("headers") or [])
+            length = headers.get(b"content-length", b"")
+            upload = UPLOAD_PATH.match(scope["path"])
+            limit = MAX_UPLOAD_BODY if upload else MAX_JSON_BODY
+            if length.isdigit() and int(length) > limit:
+                detail = "The file is larger than 20 MB." if upload else "The request is too large."
+                return await JSONResponse({"detail": detail}, status_code=413)(scope, receive, send)
+            if not upload and not length.isdigit() and b"chunked" in headers.get(b"transfer-encoding", b""):
+                # No length to check up front: count the bytes as they arrive and stop past the limit.
+                receive = _capped(receive, limit)
         csp = content_security_policy()
         cache = cache_control(scope["path"])
 
@@ -363,7 +390,8 @@ class SecurityHeaders:
                 present = {k.lower() for k, _v in headers}
                 extra = [(b"content-security-policy", csp.encode()), (b"x-content-type-options", b"nosniff"),
                          (b"referrer-policy", b"strict-origin-when-cross-origin"), (b"x-frame-options", b"DENY"),
-                         (b"permissions-policy", b"camera=(), microphone=(), geolocation=()")]
+                         (b"permissions-policy", b"camera=(), microphone=(self), geolocation=()"),
+                         (b"strict-transport-security", b"max-age=31536000; includeSubDomains")]
                 if cache:
                     extra.append((b"cache-control", cache.encode()))
                 message["headers"] = headers + [(k, v) for k, v in extra if k not in present]
