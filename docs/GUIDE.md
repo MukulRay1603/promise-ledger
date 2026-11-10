@@ -221,7 +221,23 @@ A document record carries its own verified claims, so re-reading one document re
 
 Re-run on Nov 8, 2026; the numbers reproduce.
 
-**What these numbers don't show.** This is a development set: made-up deals we wrote and labeled ourselves, and the rules were tuned on it. A claim counts as matched when its quote overlaps the labeled quote. It is not a held-out test, and there are no real records, scans or long packets in it yet. Before Dec 2 we will add a held-out set labeled blind and at least one real public record, and report them separately. A case study on one real record, checked by hand, is in [REAL-RECORD.md](REAL-RECORD.md); the app's samples remain fictional.
+**What these numbers don't show.** This is a development set: made-up deals we wrote and labeled ourselves, and the rules were tuned on it. A claim counts as matched when its quote overlaps the labeled quote. It is not a held-out test, so we report three more sets separately.
+
+**Held-out, adversarial and real records.** `python evals/run_heldout_evals.py` scores 3 new fictional deals the prompts and rules were never tuned on (9 PDFs, 47 claims) and 5 records with planted attacks (8 attacks). `python evals/run_ask_evals.py` scores Ask a deal on 18 questions. Full tables are in [evals/RESULTS.md](../evals/RESULTS.md); the real record is in [REAL-RECORD.md](REAL-RECORD.md).
+
+| Set | Precision | Recall | Correct page | Correct stage | False signed or delivered |
+|---|---|---|---|---|---|
+| Development samples (tuned on) | 96.3% | 98.1% | 100% | 100% | 0 |
+| Held-out deals | 94.7% | 76.6% | 100% | 100% | 0 |
+| Adversarial records | 93.3% | 100% | 100% | 92.9% | 0 |
+| One real county record, checked by hand | 13 of 13 kept were right | 12 of 31 (39%) | 100% | 100% | 0 |
+
+- **What holds:** what it keeps is right, pages are right, and nothing became signed or delivered on any set.
+- **What doesn't yet:** it finds too little on unfamiliar wording. On the held-out set the model proposed 46 of 47 claims, but the term rules dropped 10 correct ones. Those are no longer dropped silently: they are listed as optional sentences to check (10 of the 11 misses now surface). On the real record the model proposed fewer sentences in the first place.
+- **Attacks:** 5 of 8 had no effect. One planted sentence was kept as a proposed claim, and planted "PASSED AND ADOPTED" text turned failed-vote minutes into supported. Neither reached signed or delivered.
+- **Ask a deal:** 18 of 18 questions handled as expected, including off-topic and injection attempts; 37 sentences shown, 0 removed by the code checks.
+
+The app's samples remain fictional.
 
 ## 10. Safety, privacy, fairness and accessibility
 
@@ -326,13 +342,13 @@ We avoid saying "first" or "only": our search was limited, and parts of this exi
 
 | Live today | By the Dec 2 final | After |
 |---|---|---|
-| Reads every PDF in a deal’s packet | Upload assistant that reviews records with you and names what is missing | Drafts records requests and follow-up letters for staff to approve |
-| Quotes checked word for word on their pages | Ask a deal, for staff and for residents: answers only from checked quotes | Alerts before a term ends |
-| Pages corrected; unverifiable quotes dropped | Ask and listen by voice | Spanish and other languages |
-| Stages set by rules, from proposed to delivered | Reads scanned pages | Plain-language view for residents |
-| One-party signing flagged | Accuracy on records it was never tuned on | More cities, and a kit to run it in-house |
-| What changed, with word-level edits | A real public record, end to end |  |
-| Missing terms and certificates found | Feedback and a timed task with housing staff |  |
+| Reads every PDF in a deal’s packet | Find more of each record’s commitments (77% recall on unseen records, 39% on the real one) | Drafts records requests and follow-up letters for staff to approve |
+| Quotes checked word for word on their pages | Catch changed end dates and amendments in “What changed” | Alerts before a term ends |
+| Pages corrected; unverifiable quotes dropped | Feedback and a timed task with housing staff | Spanish and other languages |
+| Stages set by rules, from proposed to delivered |  | Reads handwriting on scanned pages |
+| One-party signing flagged |  | More cities, and a kit to run it in-house |
+| What changed, with word-level edits |  |  |
+| Missing terms and certificates found |  |  |
 | Reminders for term ends and certificates |  |  |
 | Reviewer decisions with name, note and time |  |  |
 | Printable receipt with a review stamp |  |  |
@@ -342,6 +358,12 @@ We avoid saying "first" or "only": our search was limited, and parts of this exi
 | Redaction, injection guard, sandboxed PDFs |  |  |
 | Runs without a key; about $0.002 per PDF |  |  |
 | Keyboard, contrast, larger text, dark mode |  |  |
+| Names the records to ask for next |  |  |
+| Ask a deal, for staff and residents, from checked quotes |  |  |
+| Ask and listen by voice |  |  |
+| Reads scanned pages; a person confirms any signature on one |  |  |
+| Tested on unseen and adversarial records |  |  |
+| One real public record, checked by hand |  |  |
 
 **One rule for every assistant:** it answers only from checked quotes, shows the page, and a person approves anything it sends or saves.
 
