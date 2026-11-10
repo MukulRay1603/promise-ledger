@@ -1202,10 +1202,10 @@ function renderReceipt(target, review, { titleTag = "p" } = {}) {
     const earlier = term.claim_ids.map((cid) => claimsById.get(cid)).filter((claim) => claim && claim.status !== "signed");
     return el("tr", {},
       el("th", { scope: "row" }, term.label),
-      el("td", {}, signed
+      el("td", { "data-label": "Signed wording" }, signed
         ? [el("span", { class: "q" }, `“${signed.quote}”`), el("span", { class: "receipt-source" }, sourceShort(signed))]
         : el("span", { class: "not-located" }, term.located ? "Not located in a signed record" : "Not located")),
-      el("td", {}, earlier.length
+      el("td", { "data-label": "Earlier wording" }, earlier.length
         ? el("ul", { class: "plain" }, ...earlier.map((claim) => el("li", {}, `${comparedValue(claim)} (${claim.document_type}, p. ${claim.page})`)))
         : "None"));
   });

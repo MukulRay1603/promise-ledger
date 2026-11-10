@@ -535,6 +535,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .doc-title { font-weight: 600; font-size: .9375rem; overflow-wrap: anywhere; }
 .doc-sub { grid-column: 2; font-size: .8125rem; color: var(--muted); }
 .doc-item > .tag, .doc-item > .badge { grid-row: 1 / span 2; grid-column: 3; }
+@media (max-width: 480px) {
+  /* Small phones: the status badge goes under the title so the title keeps the width and words stay whole. */
+  .doc-item > .tag, .doc-item > .badge { grid-row: auto; grid-column: 2; justify-self: start; margin-top: .25rem; }
+  .doc-title { overflow-wrap: break-word; }
+}
 .progress { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .25rem .5rem; margin: .375rem 0 0; padding: 0; list-style: none; font-size: .8125rem; }
 .progress li { display: inline-flex; align-items: center; gap: .3rem; color: var(--muted); }
 .progress li + li::before { content: ""; width: .75rem; height: 1px; background: var(--border-strong); margin-right: .25rem; }
@@ -679,6 +684,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .receipt-stages li { padding: .5rem; border: 1px solid #CBD5E1; border-radius: 4px; }
 .receipt-stages b { display: block; }
 .receipt-scroll { overflow-x: auto; }
+@media screen and (max-width: 560px) {
+  /* Small phones: each term becomes a block with labeled wording, instead of three crushed columns. */
+  .receipt-scroll table, .receipt-scroll tbody, .receipt-scroll tr, .receipt-scroll th, .receipt-scroll td { display: block; width: auto; }
+  .receipt-scroll thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .receipt-scroll tr { padding: .625rem 0; border-bottom: 1px solid currentColor; border-bottom-color: color-mix(in srgb, currentColor 25%, transparent); }
+  .receipt-scroll th, .receipt-scroll td { padding: .25rem 0; border: 0; }
+  .receipt-scroll td[data-label]::before { content: attr(data-label); display: block; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; opacity: .7; }
+}
 .receipt .not-located { font-weight: 700; }
 .sign-off { display: flex; flex-wrap: wrap; gap: .5rem 2rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 2px solid #0F172A; }
 .receipt-foot { margin-top: 1rem; font-size: .8125rem; color: #334155; }
@@ -756,16 +769,19 @@ textarea { font-family: var(--serif); font-size: 1.0625rem; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .docs-card .card-body { grid-template-columns: 1fr; }
 }
-/* Phones */
-@media (max-width: 720px) {
-  body { font-size: 1rem; }
-  .container { padding-left: 1rem; padding-right: 1rem; }
-  .demo-banner { padding: .375rem 1rem; text-align: left; font-size: .8125rem; }
+/* Tablets and phones: the header needs about 1000px on one row, so below that the nav and tools take a second row. */
+@media (max-width: 1000px) {
   .header-inner { flex-wrap: wrap; gap: 0 .25rem; padding-top: .25rem; padding-bottom: .25rem; }
   .brand { margin-right: auto; }
   .header-inner::after { content: ""; order: 2; flex-basis: 100%; }
   .main-nav { order: 3; }
   .header-tools { order: 4; }
+}
+/* Phones */
+@media (max-width: 720px) {
+  body { font-size: 1rem; }
+  .container { padding-left: 1rem; padding-right: 1rem; }
+  .demo-banner { padding: .375rem 1rem; text-align: left; font-size: .8125rem; }
   .main-nav a { padding: 0 .625rem; }
   .header-tools .btn { padding: .5rem .5rem; font-size: .8125rem; }
   .hero h1 { font-size: 2.125rem; }
@@ -1093,6 +1109,11 @@ textarea { font-family: var(--serif); font-size: 1.0625rem; }
 .task-decide > .tag { grid-column: 2; grid-row: 1; justify-self: end; }
 .task-decide .decision-cell { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: .375rem .75rem; padding-top: .5rem; border-top: 1px dashed var(--border); }
 .task-decide .decide-btn { margin-left: auto; }
+@media (max-width: 560px) {
+  /* Small phones: the tag takes its own line so the question keeps the full width. */
+  .task-decide, .possible .task { grid-template-columns: 1fr; }
+  .task-decide > .tag, .possible .task > .tag { grid-column: 1; grid-row: auto; justify-self: start; }
+}
 
 /* Progress and log */
 .review-panel .review-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 1.5rem; }
