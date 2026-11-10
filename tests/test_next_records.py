@@ -83,3 +83,24 @@ class StartupSeeding(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class EndDates(unittest.TestCase):
+    """The term's end date is read from the usual end words, and an amendment's new date wins."""
+    def test_end_dates(self):
+        from app import pipeline
+        cases = {
+            "This Covenant shall remain in effect until June 30, 2049.": "ends june 30 2049",
+            "The end date in Section 5.1 of the Covenant is changed from June 30, 2049 to June 30, 2059.": "ends june 30 2059",
+            "These covenants expire on January 1, 2066.": "ends january 1 2066",
+            "The restrictions would run through December 31, 2055.": "ends december 31 2055",
+            "The owner will keep the restrictions in place until the end of 2055.": "ends december 31 2055",
+            "The term begins January 1, 2020 and ends December 31, 2050.": "ends december 31 2050",
+            "The rent limits would stay in place for at least thirty years.": "30 years",
+        }
+        for quote, key in cases.items():
+            self.assertEqual(pipeline.compare_key("term", quote), key, quote)
+
+    def test_tax_term_is_not_compared(self):
+        from app import pipeline
+        self.assertIsNone(pipeline.compare_key("term", "The PILOT runs through December 31, 2040."))

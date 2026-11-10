@@ -337,7 +337,12 @@ def canonical_value(topic: str, quote: str, model_value: str) -> str:
 _AFFORD = re.compile(r"afford|income-restricted|workforce|reduced[- ]rent", re.I)
 _NOT_AFFORDABILITY = re.compile(r"\btax|payment in lieu|\bPILOT\b|abate", re.I)
 _DUE = re.compile(r"\bby\s+(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})", re.I)
-_END_DATE = re.compile(r"\bends?\b.*?\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2}),?\s+(\d{4})", re.I)
+
+
+_FULL_DATE = re.compile(r"\b(january|february|march|april|may|june|july|august|september|october|november|december)"
+                        r"\s+(\d{1,2}),?\s+(\d{4})\b", re.I)
+_END_WORDS = re.compile(r"\b(?:ends?|end date|until|through|thru|expires?|expiring|terminates?)\b", re.I)
+_END_OF_YEAR = re.compile(r"\bend of (\d{4})\b", re.I)
 
 
 def compare_key(topic: str, quote: str) -> str | None:
@@ -363,9 +368,17 @@ def compare_key(topic: str, quote: str) -> str | None:
     if topic == "term":
         if _NOT_AFFORDABILITY.search(q):
             return None
-        m = _END_DATE.search(q)
-        if m:
-            return f"ends {m.group(1).lower()} {int(m.group(2))} {m.group(3)}"
+        if _END_WORDS.search(q):
+            # "ends December 31, 2050", "until June 30, 2049", "expire on January 1, 2066". A start date comes
+            # first and an amendment ("changed from June 30, 2049 to June 30, 2059") states the old date first,
+            # so the last date in the sentence is the end date. "until the end of 2055" is December 31.
+            dates = _FULL_DATE.findall(q)
+            if dates:
+                month, day, year = dates[-1]
+                return f"ends {month.lower()} {int(day)} {year}"
+            m = _END_OF_YEAR.search(q)
+            if m:
+                return f"ends december 31 {m.group(1)}"
         years = term_years(q)
         return f"{years} years" if years else None
     if topic == "income_basis":

@@ -343,8 +343,8 @@ We avoid saying "first" or "only": our search was limited, and parts of this exi
 | Live today | By the Dec 2 final | After |
 |---|---|---|
 | Reads every PDF in a deal’s packet | Find more of each record’s commitments (77% recall on unseen records, 39% on the real one) | Drafts records requests and follow-up letters for staff to approve |
-| Quotes checked word for word on their pages | Catch changed end dates and amendments in “What changed” | Alerts before a term ends |
-| Pages corrected; unverifiable quotes dropped | Feedback and a timed task with housing staff | Spanish and other languages |
+| Quotes checked word for word on their pages | Feedback and a timed task with housing staff | Alerts before a term ends |
+| Pages corrected; unverifiable quotes dropped |  | Spanish and other languages |
 | Stages set by rules, from proposed to delivered |  | Reads handwriting on scanned pages |
 | One-party signing flagged |  | More cities, and a kit to run it in-house |
 | What changed, with word-level edits |  |  |
@@ -364,6 +364,7 @@ We avoid saying "first" or "only": our search was limited, and parts of this exi
 | Reads scanned pages; a person confirms any signature on one |  |  |
 | Tested on unseen and adversarial records |  |  |
 | One real public record, checked by hand |  |  |
+| Changed end dates and amendments caught |  |  |
 
 **One rule for every assistant:** it answers only from checked quotes, shows the page, and a person approves anything it sends or saves.
 

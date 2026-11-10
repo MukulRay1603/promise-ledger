@@ -23,12 +23,12 @@ Three fictional subsidized housing deals the prompts and rules were never tuned 
 - False signed or delivered: 0
 - Quotes not on the cited page after code checks: 0
 
-Changed and missing terms exact on 0 of 3 deals.
+Changed and missing terms exact on 2 of 3 deals.
 
 | Deal | Terms that differ: expected | got | Terms not located: expected | got |
 |---|---|---|---|---|
-| Cannery Flats | term, units | units | none | none |
-| Larkspur Commons | term | none | remedies | remedies |
+| Cannery Flats | term, units | term, units | none | none |
+| Larkspur Commons | term | term | remedies | remedies |
 | Quarry Row | none | rent_limits | none | remedies, reporting |
 
 <details><summary>Every miss, extra and stage error</summary>
