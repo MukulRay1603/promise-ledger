@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timezone
 from pathlib import Path
 
-from app import guard, ledger, pipeline
+from app import guard, ledger, pipeline, vision
 from app.storage import Storage, get_store
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -93,7 +93,7 @@ def touch(deal_id: str, store: Storage) -> None:
 
 
 PUBLIC_DOC_FIELDS = ("id", "filename", "type", "type_key", "date", "date_note", "title", "pages", "status", "error",
-                     "scanned_pages", "stage", "stage_reason", "signed", "signed_by", "counts", "model",
+                     "scanned_pages", "transcribed_pages", "stage", "stage_reason", "signed", "signed_by", "counts", "model",
                      "from_cache", "tokens_in", "tokens_out", "cost_usd", "created_at", "updated_at")
 
 
@@ -209,7 +209,7 @@ def page_texts(deal_id: str, doc_id: str, store: Storage) -> list[str]:
 
 
 def process_document(deal_id: str, doc_id: str, store: Storage | None = None, reader=None,
-                     use_cache: bool = True) -> dict | None:
+                     use_cache: bool = True, transcriber=None) -> dict | None:
     """Read, check and save one document. Never raises; failures are recorded on the document."""
     store = store or get_store()
     doc = store.get_document(deal_id, doc_id)
@@ -217,6 +217,13 @@ def process_document(deal_id: str, doc_id: str, store: Storage | None = None, re
         return None
     try:
         pages = page_texts(deal_id, doc_id, store)
+        # Scanned pages are transcribed first (app/vision.py); the text takes the page's place from here on.
+        filled, scan = vision.fill_scanned(doc, pages, lambda: store.get_blob(doc["file_key"]), call=transcriber,
+                                           use_cache=use_cache)
+        if filled != pages:
+            pages = filled
+            store.put_blob(f"deals/{deal_id}/{doc_id}.pages.json", json.dumps(pages, ensure_ascii=False).encode(),
+                           "application/json")
         if not any(len(p.strip()) >= pipeline.MIN_PAGE_CHARS for p in pages):
             return _set(store, deal_id, doc, status="failed",
                         error="No text layer was found. The pages look scanned; run OCR and upload again.")
@@ -225,7 +232,8 @@ def process_document(deal_id: str, doc_id: str, store: Storage | None = None, re
         if result.mode != "live" or result.reading is None:
             return _set(store, deal_id, doc, status="failed", error=result.notice)
         _set(store, deal_id, doc, status="checking", model=result.model, from_cache=from_cache,
-             tokens_in=result.tokens_in, tokens_out=result.tokens_out, cost_usd=result.cost_usd)
+             tokens_in=result.tokens_in + scan.tokens_in, tokens_out=result.tokens_out + scan.tokens_out,
+             cost_usd=round(result.cost_usd + scan.cost_usd, 6))
         deal = store.get_deal(deal_id) or {}
         known = [deal.get("developer") or "", f"City of {deal.get('city')}" if deal.get("city") else ""]
         checked = pipeline.verify_reading(result.reading, pages, doc, known)
@@ -395,12 +403,7 @@ def build_deal_review(deal: dict, docs: list[dict], store: Storage | None = None
     for d in docs:
         # A failed document already has its own question; a scanned one that was read gets one (L13).
         if d.get("scanned_pages") and d.get("status") != "failed":
-            pages_list = d["scanned_pages"]
-            which = (f"page {pages_list[0]} has" if len(pages_list) == 1
-                     else f"pages {', '.join(map(str, pages_list[:-1]))} and {pages_list[-1]} have")
-            questions.append({"key": f"scanned-{d['id']}", "tag": "not_located",
-                              "text": f"{d.get('title') or d.get('filename')}: {which} no text layer and "
-                                      f"{'was' if len(pages_list) == 1 else 'were'} not read. Ask for a text copy or run OCR."})
+            questions.extend(vision.scan_questions(d))
         if d.get("status") == "failed":
             questions.append({"key": f"failed-{d['id']}", "tag": "not_located",
                               "text": f"{d.get('filename')}: not read. {d.get('error') or ''}".strip()})

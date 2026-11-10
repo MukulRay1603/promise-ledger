@@ -59,7 +59,7 @@ flowchart TB
 Each uploaded PDF goes through `app/pipeline.py`:
 
 1. The file is stored. Limits: 20 MB, 60 pages, no password.
-2. pypdf extracts the text of each page. Pages with no text layer are flagged as scanned and listed as open questions.
+2. pypdf extracts the text of each page. Pages with no text layer are flagged as scanned. With an API key, the model transcribes up to 10 of them per record word for word; their claims are marked "From scan" and an open question asks a person to check those quotes against the PDF. Scanned pages that were not transcribed are listed as open questions.
 3. The model gets the redacted page text, tagged `<page n="1">…`, and returns candidate quotes with term, page, document type and named signers.
 4. Code checks every quote against the page text (whitespace, quote marks and dashes normalized). A quote found on another page gets its page corrected; a quote found nowhere is dropped. Counts are kept per document.
 5. Code rules set the stage, never the model alone:
@@ -187,6 +187,7 @@ Uploads are read on a background thread, hence `--no-cpu-throttling`. The servic
 | `RATE_LIMIT_RETRIES_PER_HOUR` | `10` | Document retries per IP per hour. |
 | `PDF_SANDBOX` | `1` | Parse each PDF in a separate process with a 15-second limit. `0` parses in-process. |
 | `MAX_RECORD_CHARS` | `200000` | Most characters of one record sent to the model. |
+| `VISION_MAX_PAGES` | `10` | Most scanned pages of one record sent to the model to be transcribed. `0` turns it off. |
 | `READINGS_WRITE_DIR` | see note | Where new live readings are saved: `data/readings/` locally, the runtime folder on Cloud Run (newest 200 kept). |
 | `SEED` | `1` | Seed or refresh the sample deals at start. |
 
