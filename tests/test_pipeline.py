@@ -31,6 +31,48 @@ class QuoteChecks(unittest.TestCase):
     def test_hyphenated_line_break(self):
         self.assertTrue(pipeline.quote_on_page("the affordable homes", "the afford-\nable homes"))
 
+    def test_compound_word_broken_at_its_hyphen(self):
+        page = "The County will restrict a number of units to income-\neligible households for 30 years."
+        self.assertTrue(pipeline.quote_on_page("units to income-eligible households for 30 years.", page))
+        self.assertFalse(pipeline.quote_on_page("units to income eligible households for 40 years.", page))
+
+    def test_margin_line_numbers_do_not_break_a_quote(self):
+        # Council bills number every line, so a sentence over two lines has a number inside it.
+        lines = ["WHEREAS, the Development will provide 95 affordable rental units, 50 in Building 1",
+                 "and 45 in Building 2, at three levels of affordability; and", "",
+                 "WHEREAS, the Company has asked the County to accept payments in lieu of", "County real property taxes; and",
+                 "", "NOW, THEREFORE, BE IT RESOLVED that the County shall abate the taxes."]
+        quote = "the Development will provide 95 affordable rental units, 50 in Building 1 and 45 in Building 2"
+        leading = "\n".join(f"{n} {line}".rstrip() for n, line in enumerate(lines, 1))
+        trailing = "2\n" + "\n".join(f"{line} {n} " for n, line in enumerate(lines, 1))
+        for page in (leading, trailing):
+            self.assertTrue(pipeline.quote_on_page(quote, page))
+            self.assertFalse(pipeline.quote_on_page(quote.replace("95", "96"), page))
+        self.assertEqual(pipeline.locate(quote, ["Cover page.", leading], 1), 2)
+
+    def test_numbers_that_are_not_line_numbers_stay(self):
+        page = "The owner will reserve\n12 homes for 30 years.\nRents are limited.\nReports are due yearly.\n9 homes are leased."
+        self.assertEqual(pipeline.strip_line_numbers(page), page)
+        table = "\n".join(f"{n} homes in phase {n}" for n in (4, 8, 15, 16, 23, 42))
+        self.assertEqual(pipeline.strip_line_numbers(table), table)
+        self.assertFalse(pipeline.quote_on_page("The owner will reserve homes for 30 years.", page))
+
+    def test_a_number_printed_twice_is_read_once(self):
+        self.assertEqual(pipeline.term_years("The covenants last for a period of not fewer than forty (40) years."), 40)
+        self.assertEqual(pipeline.compare_key("term", "The limits remain in effect for twenty (20) years."), "20 years")
+        self.assertTrue(pipeline.term_fits("term", "The limits remain in effect for twenty (20) years."))
+        self.assertEqual(pipeline.numbers("units", "Sixty-six (66) units will be rented as affordable units."),
+                         {"homes": {"count": 66}})
+        self.assertEqual(pipeline.numeric("Section 4 (2) applies for sixty (60) days"), "Section 4 (2) applies for 60 days")
+
+    def test_home_count_with_two_describing_words(self):
+        quote = "The development will provide 95 affordable rental units at multiple levels, 50 units in Building 1 and 45 in Building 2."
+        self.assertEqual(pipeline.numbers("units", quote), {"homes": {"count": 95}})
+        self.assertEqual(pipeline.compare_key("units", quote), "95 homes")
+        tiers = ("The development is offering 95 affordable rental units, 32 units for households earning up to 20% "
+                 "of the County's median income.")
+        self.assertEqual(pipeline.compare_key("units", tiers), "95 homes")  # "up to 20%" is not a cap on homes.
+
     def test_locate_corrects_the_page(self):
         quote = "Staff understands that the income limits would last for 30 years."
         self.assertEqual(pipeline.locate(quote, PAGES, 2), 2)

@@ -96,7 +96,7 @@ Readings are cached in `data/readings/` by file hash and prompt version, so seed
 | Changed and missing terms | exact on all 3 deals |
 | Model cost | about $0.026 for all 11 PDFs, cached by file hash |
 
-**What these numbers do and don't show.** This is our development set: 3 made-up deals we wrote (`tools/make_samples.py`) and labeled ourselves, and the code rules were tuned on the same set. It shows the pipeline works end to end and that code-checked stages don't drift. It is not yet a held-out test. The saved readings came from the fallback model (`gemini-flash-lite-latest`, 9 PDFs) and `gemini-3.8-flash` (2 PDFs), and a claim counts as matched when its quote overlaps the labeled quote. Before the Dec 2 final we'll add a held-out set labeled blind and at least one real public record, and report them separately.
+**What these numbers do and don't show.** This is our development set: 3 made-up deals we wrote (`tools/make_samples.py`) and labeled ourselves, and the code rules were tuned on the same set. It shows the pipeline works end to end and that code-checked stages don't drift. It is not yet a held-out test. The saved readings came from the fallback model (`gemini-flash-lite-latest`, 9 PDFs) and `gemini-3.8-flash` (2 PDFs), and a claim counts as matched when its quote overlaps the labeled quote. Before the Dec 2 final we'll add a held-out set labeled blind and at least one real public record, and report them separately. A case study on one real record, checked by hand, is in [docs/REAL-RECORD.md](docs/REAL-RECORD.md); the app's samples remain fictional.
 
 ## Safety and accessibility
 
