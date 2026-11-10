@@ -68,11 +68,12 @@ Promise Ledger reads a deal's PDFs and builds **one checked receipt**:
 
 **Deals.** A list of deals with their furthest stage, changed and missing terms, flags (one-party signing, missing certificate, term ending soon) and the next reminder.
 
-**A deal page** has key figures at the top, the documents on file, and six tabs:
+**A deal page** has key figures at the top, the documents on file with a list of **records to ask for next**, and seven tabs:
 
 | Tab | What it holds |
 |---|---|
 | **Claims** | Each promise: exact quote, document, date, page, stage, wording, and "Quote found · p. N". **View source** opens the real PDF page with the quote highlighted. |
+| **Ask** | Questions about this deal, answered for housing staff or for residents in plain words. Each sentence links to the checked quote it comes from. Speak a question or have the answer read aloud where the browser supports it. |
 | **What changed** | Each term across records in date order, with removed words struck through and added words underlined. |
 | **Open questions** | Every changed or missing term. Each needs a person to decide: **Confirm**, **Needs follow-up** or **Disputed**, with a note. |
 | **Receipt** | One printable page. A stamp states the outcome: "Flagged for human review", "Review in progress" or "Review complete", with the last reviewer and date. |
@@ -82,6 +83,8 @@ Promise Ledger reads a deal's PDFs and builds **one checked receipt**:
 <p align="center"><img src="images/source.png" width="380" alt="Source panel with the quote highlighted on the PDF page."> <img src="images/decisions.png" width="380" alt="Decision dialog with Confirm, Needs follow-up and Disputed."></p>
 
 **Also:** a 60-second guided tour, a read-only share link (`/r/{token}`), Excel and CSV export with a preview, reminders for term ends and yearly certificates, search (Ctrl K), dark mode, a larger-text mode, and About and Roadmap pages.
+
+**Records to ask for next.** Under the documents, a short list names the records that would fill the deal's gaps: a signed agreement when nothing is signed, the full agreement and exhibits when a signed record leaves terms out, a staff report or affordability exhibit for missing homes, income or rent limits, council minutes when nothing shows a vote, and a certificate of occupancy or compliance report when nothing shows the homes were delivered. Each item lists the terms it would usually show. The list is decided by rules from the review; no model is asked.
 
 **Starting a new deal:** name it, drop in PDFs, and watch each one move from *Reading* to *Checked*. On the public demo, sample deals are read-only and visitor uploads are deleted after 24 hours.
 
@@ -139,6 +142,13 @@ Only step 3, and the transcription of scanned pages in step 1, use AI. Every oth
 **What the prompt forbids:** judging whether anything was approved, signed or delivered beyond what is asked. Text inside the record is data, and any instructions in it are ignored. A test confirmed an injected instruction was ignored.
 
 **Why AI is needed:** promises are phrased in many ways ("set aside", "reserve", "workforce homes", "10 percent of the 120 homes"), across very different record types. Fixed patterns miss them. **Why AI is not trusted alone:** a model once attached a council vote to an unsigned draft letter, which made an offer look approved. Since then, the model only proposes and code decides.
+
+**Ask a deal** uses the same models. The model sees one deal's checked quotes, each with an id, plus the terms that were not located. It writes short sentences and must cite the ids each one relies on. Code then removes any sentence that:
+- cites no real record;
+- states a number that is not in the quotes, dates or pages it cites;
+- says "signed", "delivered" or "approved" when no cited record reached that stage (a negated statement such as "was not signed" is allowed).
+
+A sentence that says a term is in no record cites a special `not-located` id, which can back no number or stage. Questions off this deal's affordable-housing commitments are refused, and instructions inside a question or a record are ignored. The question is redacted, capped at 300 characters, and neither stored nor logged. With no key, at the rate limit or if the call fails, the matching checked quotes are returned word for word and labeled. An answer costs about as much as reading one sample PDF.
 
 **Cost:** about $0.002 per sample PDF; all 11 sample PDFs cost about $0.026. Sample PDFs are 1 to 4 pages, so longer packets cost more.
 
@@ -229,13 +239,14 @@ Re-run on Nov 8, 2026; the numbers reproduce.
 
 **Public demo guard**
 - Visitor deals belong to that browser's session; others get 404.
-- Rate limits per network: 5 uploads, 3 new deals, 20 share links, 30 pasted-text readings and 120 exports an hour.
+- Rate limits per network: 5 uploads, 3 new deals, 20 share links, 30 pasted-text readings, 30 questions and 120 exports an hour.
 - Security headers: a Content Security Policy with scripts only from this site, `nosniff`, `Referrer-Policy`, no framing. The container runs as a non-root user with pinned dependencies.
 
 **Accessibility**
 - Keyboard throughout, visible focus, skip link, native dialogs that return focus.
 - 4.5:1 contrast in light and dark, larger-text mode, reduced motion, forced colors, print styles.
 - Captions on every video. A full screen-reader pass is still to do.
+- Ask a deal can be typed, spoken (browser dictation, where supported) or read aloud, and has a plain-words mode for residents.
 
 ## 11. Running, deploying and operating it
 
@@ -277,6 +288,7 @@ Uploads are read on a background thread, hence `--no-cpu-throttling`. Health che
 | `GET /api/deals/{id}/export.xlsx`, `.csv`, `.json` | Exports |
 | `POST /api/deals/{id}/share` | Create a read-only link `/r/{token}` |
 | `GET /api/reminders` | Term ends and certificates due |
+| `POST /api/deals/{id}/ask` | Ask a question `{question, audience: "staff" or "resident"}`; answers cite checked quotes; nothing stored |
 | `POST /api/extract` | Read pasted text; nothing stored |
 | `GET /api/media` | Which explainer videos are present |
 | `GET /api/health` | Health check |

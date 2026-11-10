@@ -49,6 +49,7 @@ flowchart TB
   DECIDE --> S
   S --> R["Deal review"]
   R --> R1["Receipt"] & R2["Read-only share link"] & R3["Excel and CSV export"] & R4["Reminders"]
+  R --> R5["Ask a deal: answers cite<br/>checked quotes; code drops<br/>any sentence they do not back"]
 ```
 
 **AI reads · code checks · people decide.** The model only proposes quotes. Code keeps a quote only if it is on the cited page, word for word, and code rules (never the model alone) set each stage. People record the decisions, which sit beside the record and never change a claim, a term or a stage.
@@ -118,7 +119,7 @@ Readings are cached in `data/readings/` by file hash and prompt version, so seed
 `app/guard.py` is on unless `DEMO_MODE=0`.
 
 - **Your deals are yours.** A deal a visitor creates belongs to their browser's demo session. Other browsers get 404 for it, its files and its exports, and don't see it in their list or reminders. Sample deals are public and read-only: uploads to them get "Sample deals are read-only. Start a new deal to try your own PDFs." Session ids are never returned by the API or put on share pages, and are never read from the query string.
-- **Rate limits** per IP, in memory per instance: 5 uploads, 3 new deals, 20 share links, 30 pasted-text readings and 120 exports an hour. Over a limit, the API answers 429 with a plain message and `Retry-After`. Reviewer decisions allow 60 a minute per session and 300 a minute per network.
+- **Rate limits** per IP, in memory per instance: 5 uploads, 3 new deals, 20 share links, 30 pasted-text readings, 30 questions and 120 exports an hour. Over a limit, the API answers 429 with a plain message and `Retry-After`. Reviewer decisions allow 60 a minute per session and 300 a minute per network.
 - **Which IP.** The last `X-Forwarded-For` hop, which Cloud Run's front end appends, so a client can't spoof it. That holds only directly behind Cloud Run; behind another proxy or load balancer the client moves one hop left. IPv6 is counted per /64.
 - **Clean-up.** Deals and uploads made by visitors are marked `demo` and deleted, with their files, after `DEMO_TTL_HOURS` (24), along with each browser's decisions on sample deals. Sample deals are never deleted.
 - **Sample-deal reviews are kept per browser.** The browser sends a random session id, so one visitor's decisions, notes and stamp never appear for another visitor or on their share links. "Reset my review" starts over. Deals created by staff keep one shared review.
@@ -210,6 +211,7 @@ Exports open in a preview first, built from the same rows as the files:
 | `POST /api/deals/{id}/share` | Read-only link `/r/{token}`; JSON at `/api/share/{token}` |
 | `GET /api/reminders` | Term end dates and yearly certificates due. `days` is positive until the date and negative after it, counted from `as_of` (the deal's file date for samples, otherwise today). The app shows it as "in 243 days, as of Jul 1, 2025" |
 | `GET /api/review` | The reviewed Harbor Walk demo packet (also shipped inside the home page) |
+| `POST /api/deals/{id}/ask` | Ask a question `{question, audience}` (`staff` or `resident`, up to 300 characters). Each answer sentence cites checked quotes; code removes any sentence its quotes do not back. Nothing is stored |
 | `POST /api/extract` | Read pasted text `{text}` (up to 4,000 characters): candidate quotes, each checked word for word; nothing is stored |
 | `GET /api/media` | Which explainer videos are present, and where they are served from |
 | `GET /api/health` | Health check |
