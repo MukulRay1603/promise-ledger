@@ -221,7 +221,7 @@ A document record carries its own verified claims, so re-reading one document re
 
 Re-run on Nov 8, 2026; the numbers reproduce.
 
-**What these numbers don't show.** This is a development set: made-up deals we wrote and labeled ourselves, and the rules were tuned on it. A claim counts as matched when its quote overlaps the labeled quote. It is not a held-out test, and there are no real records, scans or long packets in it yet. Before Dec 2 we will add a held-out set labeled blind and at least one real public record, and report them separately.
+**What these numbers don't show.** This is a development set: made-up deals we wrote and labeled ourselves, and the rules were tuned on it. A claim counts as matched when its quote overlaps the labeled quote. It is not a held-out test, and there are no real records, scans or long packets in it yet. Before Dec 2 we will add a held-out set labeled blind and at least one real public record, and report them separately. A case study on one real record, checked by hand, is in [REAL-RECORD.md](REAL-RECORD.md); the app's samples remain fictional.
 
 ## 10. Safety, privacy, fairness and accessibility
 

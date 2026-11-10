@@ -18,6 +18,7 @@ import os
 import re
 import unicodedata
 from datetime import date
+from functools import lru_cache
 from pathlib import Path
 
 from app import ai, ledger
@@ -152,15 +153,62 @@ def _dehyphenate(text: str) -> str:
     return re.sub(r"(\w)-\s*\n\s*(\w)", r"\1\2", text)
 
 
+def _keep_hyphens(text: str) -> str:
+    """Join a compound that breaks at its own hyphen, as in "income-\neligible", keeping the hyphen."""
+    return re.sub(r"(\w)-\s*\n\s*(\w)", r"\1-\2", text)
+
+
+_LINE_NUMBERS = (re.compile(r"^\s*(\d{1,3})(?=\s|$)"), re.compile(r"(?<=\s)(\d{1,3})\s*$"))
+MIN_NUMBERED_LINES = 5
+
+
+def strip_line_numbers(text: str) -> str:
+    """Page text without the line numbers printed down the margin of bills and resolutions.
+
+    Council bills number every line ("1 WHEREAS, ...", "2 building near ..."), so a sentence that runs over
+    two lines has a number in the middle of it. The numbers are removed only when most lines carry one and
+    they count up by one, at the start or at the end of the line. Any other page is returned unchanged.
+    """
+    lines = text.split("\n")
+    filled = [i for i, line in enumerate(lines) if line.strip()]
+    for pattern in _LINE_NUMBERS:
+        hits = {i: m for i in filled if (m := pattern.search(lines[i]))}
+        if len(hits) < MIN_NUMBERED_LINES or len(hits) < 0.6 * len(filled):
+            continue
+        values = [int(m.group(1)) for m in hits.values()]
+        if sum(b - a == 1 for a, b in zip(values, values[1:])) < 0.8 * (len(values) - 1):
+            continue
+        return "\n".join(line[:hits[i].start()] + line[hits[i].end():] if i in hits else line
+                         for i, line in enumerate(lines))
+    return text
+
+
+@lru_cache(maxsize=512)
+def _page_forms(page_text: str) -> tuple[str, ...]:
+    """The normalized readings of one page that a quote may match: as printed, with words split across lines
+    joined (without and with the hyphen), and the same again without margin line numbers."""
+    texts = [page_text]
+    unnumbered = strip_line_numbers(page_text)
+    if unnumbered != page_text:
+        texts.append(unnumbered)
+    forms: list[str] = []
+    for text in texts:
+        for form in (normalize(text), normalize(_dehyphenate(text)), normalize(_keep_hyphens(text))):
+            if form not in forms:
+                forms.append(form)
+    return tuple(forms)
+
+
 def quote_on_page(quote: str, page_text: str) -> bool:
     q = normalize(quote)
     if len(q) < 8:
         return False
-    if q in normalize(page_text) or q in normalize(_dehyphenate(page_text)):
+    forms = _page_forms(page_text)
+    if any(q in form for form in forms):
         return True
     # Tolerate a trailing period the model added or dropped.
     q2 = q.rstrip(".")
-    return len(q2) >= 8 and q2 in normalize(page_text)
+    return len(q2) >= 8 and any(q2 in form for form in forms)
 
 
 def locate(quote: str, pages: list[str], stated: int) -> int | None:
@@ -226,7 +274,9 @@ def numbers(topic: str, quote: str) -> dict:
         if pct * total % 100 == 0:
             out["math"] = {"percent": pct, "of": total, "equals": pct * total // 100}
         return out
-    m = re.search(rf"\b{_NUM} (?:affordable |income-restricted |workforce |reduced-rent )?{_UNITS}\b", quote, re.I)
+    # "95 affordable rental units, 50 units in Building 1": the count is the 95, so a second describing word may follow.
+    m = re.search(rf"\b{_NUM} (?:affordable |income-restricted |workforce |reduced-rent )?"
+                  rf"(?:rental |dwelling |housing )?{_UNITS}\b", quote, re.I)
     if m:
         out["homes"] = {"count": _int(m.group(1))}
     return out
@@ -303,7 +353,8 @@ def compare_key(topic: str, quote: str) -> str | None:
         n = numbers(topic, quote)
         if "math" in n:
             return f"{n['math']['percent']} percent of {n['math']['of']} homes"
-        m = re.search(r"\bup to (\d[\d,]*)\b", q, re.I)
+        # A homes word must follow the number: "up to 20% of the median income" is an income limit, not a cap on homes.
+        m = re.search(rf"\bup to (\d[\d,]*)\b(?:\s+[A-Za-z-]+){{0,3}}?\s+{_UNITS}\b", q, re.I)
         if m and (_AFFORD.search(q) or _UNITS_WORDS.search(q)):
             return f"up to {_int(m.group(1))} homes"
         if "homes" in n and (_AFFORD.search(q) or "of" in n["homes"]):
