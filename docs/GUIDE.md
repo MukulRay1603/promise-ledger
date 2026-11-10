@@ -101,9 +101,9 @@ flowchart LR
   style H fill:#E8F5EC,stroke:#15803D
 ```
 
-Only step 3 uses AI. Every other step is plain code or a person.
+Only step 3, and the transcription of scanned pages in step 1, use AI. Every other step is plain code or a person.
 
-1. **Read pages.** pypdf extracts the text of each page in a separate process, stopped after 15 seconds. Pages with no text layer are flagged as scanned and become open questions. Limits: 20 MB, 60 pages, no password.
+1. **Read pages.** pypdf extracts the text of each page in a separate process, stopped after 15 seconds. Pages with no text layer are flagged as scanned. Gemini transcribes up to 10 of them per record, word for word and nothing else; that text is then read and checked like any other page, its claims are marked "From scan", and an open question asks a person to check them against the PDF. A scanned page is sent as an image, so it is not redacted first. Scanned pages that were not transcribed become open questions. Limits: 20 MB, 60 pages, no password.
 2. **Redact.** ID numbers, emails and phone numbers are removed before any text leaves the server.
 3. **Propose.** Gemini receives the page-tagged text (`<page n="1">…</page>`) and returns, in a fixed schema: the document type, title, date, whether it is a draft, each completed signature line, and candidate quotes with their term, page, wording and value.
 4. **Verify.** Code checks every quote against the page text, word for word (whitespace, quote marks and dashes normalized). A quote found on another page gets its page corrected. A quote found nowhere is dropped. Headers, footers, self-descriptions, "term is missing" sentences and duplicates are set aside, and each document's counts show why.

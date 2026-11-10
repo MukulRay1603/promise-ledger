@@ -1046,7 +1046,7 @@ function renderClaims() {
       el("th", { scope: "row", "data-label": "Term" }, termLabel(claim.topic)),
       el("td", { "data-label": "Exact quote" }, el("span", { class: "quote" }, `“${claim.quote}”`)),
       el("td", { "data-label": "Source" }, el("span", { class: "source-cell" },
-        el("span", { class: "source-line" }, docType(claim.document_type), ` · ${formatDate(claim.date)}`), quoteBadge(claim), viewSourceButton(claim))),
+        el("span", { class: "source-line" }, docType(claim.document_type), ` · ${formatDate(claim.date)}`), quoteBadge(claim), claim.from_scan ? tag("machine", "From scan") : null, viewSourceButton(claim))),
       el("td", { "data-label": "Stage" }, tag(claim.status)),
       el("td", { "data-label": "Wording" }, wording),
       el("td", { "data-label": "Review" }, decisionCell("claim", claim.id, `${review.topics[claim.topic] || claim.topic}, ${claim.document_type} page ${claim.page}`)));
@@ -1482,7 +1482,7 @@ function openSource(claim, opener, { modal = true } = {}) {
   const pager = el("div", { class: "sp-pager" });
   byId("source-body").replaceChildren(...[
     el("blockquote", { class: "sp-quote", style: "margin:0" }, `“${claim.quote}”`),
-    el("div", { class: "sp-status" }, quoteBadge(claim), tag(claim.status)),
+    el("div", { class: "sp-status" }, quoteBadge(claim), tag(claim.status), claim.from_scan ? tag("machine", "From scan") : null),
     pager, stage, status, fallback,
     el("dl", { class: "facts" },
       el("dt", {}, "Document"), el("dd", {}, `${doc.type} · ${formatDate(doc.date)}`),

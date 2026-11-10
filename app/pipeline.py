@@ -1,7 +1,8 @@
 """Read one deal PDF, check what the model proposed, and decide stages by rule.
 
 1. Store the file.                         (app/deals.py)
-2. Extract text per page with pypdf; flag pages with no text.
+2. Extract text per page with pypdf; flag pages with no text. Those are transcribed by the model
+   (app/vision.py) and marked, so their quotes are checked like any other.
 3. Ask the model for candidates            (app/ai.read_document)
 4. Verify in code: the quote must be on the stated page, else on another page
    (page corrected), else dropped.
@@ -732,6 +733,9 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
                           "boilerplate": 0, "off_term": 0}
     chrome = repeated_lines(pages)
     seen = set()
+    scans = set(doc.get("transcribed_pages") or [])
+    if scans and stage != "proposed":
+        reason += " Some pages were scanned images transcribed by AI; check them against the PDF."
     label = doc.get("type") or TYPE_LABELS.get(kind, "Record")
     for cand in reading.candidates:
         if cand.topic not in ledger.TOPICS:
@@ -778,6 +782,8 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
             "review_note": ai.REVIEW_LABEL,
             **numbers(cand.topic, cand.quote),
         }
+        if page in scans:  # The page was a scanned image; its text was transcribed by the model (app/vision.py).
+            claim["from_scan"] = True
         claims.append(claim)
     counts["kept"] = len(claims)
     return {
