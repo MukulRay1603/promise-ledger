@@ -1151,6 +1151,22 @@ function renderQuestions() {
     el("p", { class: "task-text" }, question.text),
     tag(question.tag),
     decisionCell("question", question.key, question.text.length > 120 ? `${question.text.slice(0, 117)}…` : question.text))));
+  renderPossible();
+}
+
+// Sentences found on their page that the term rules did not confirm. Optional; they count toward nothing.
+function renderPossible() {
+  byId("possible-list")?.remove();
+  const items = dealState.review.possible || [];
+  if (!items.length) return;
+  byId("question-list").after(el("details", { id: "possible-list", class: "possible" },
+    el("summary", {}, `${plural(items.length, "more sentence")} to check (optional)`),
+    el("p", { class: "panel-note" }, "The model filed these under a term and each quote is on its page, but the term rules did not confirm the sentence states that term. They are not counted in any stage, term or receipt."),
+    el("ul", { class: "task-list" }, ...items.map((item) => el("li", { class: "task" },
+      el("div", {},
+        el("p", { class: "task-text" }, el("strong", {}, `Possible ${item.label.toLowerCase()}: `), `“${item.quote}”`),
+        el("p", { class: "hint" }, `${item.document_title}, page ${item.page}`)),
+      tag("machine"))))));
 }
 
 // All parts of one highlighted quote (it can span several lines of the text layer).

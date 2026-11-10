@@ -664,6 +664,9 @@ _SELF_DESCRIPTION = re.compile(r"^(?:this|the) (?:memo|memorandum|report|letter|
 _TAX_SPAN = re.compile(r"\btax|payment in lieu|\bPILOT\b|abate", re.I)
 
 
+MAX_SET_ASIDE = 10
+
+
 def term_fits(topic: str, quote: str) -> bool:
     """True if the sentence states the kind of term it is filed under. Applied to every model candidate.
 
@@ -750,6 +753,7 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
                           "boilerplate": 0, "off_term": 0}
     chrome = repeated_lines(pages)
     seen = set()
+    set_aside: list[dict] = []  # Quotes found on the page whose wording the term rules did not confirm.
     label = doc.get("type") or TYPE_LABELS.get(kind, "Record")
     for cand in reading.candidates:
         if cand.topic not in ledger.TOPICS:
@@ -766,7 +770,11 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
             counts["boilerplate"] += 1
             continue
         if not term_fits(cand.topic, cand.quote):
+            # Not dropped silently: the quote is real, so a person checks it. It counts toward no term or stage.
             counts["off_term"] += 1
+            key = normalize(cand.quote).lower().rstrip(".")
+            if len(set_aside) < MAX_SET_ASIDE and all(normalize(x["quote"]).lower().rstrip(".") != key for x in set_aside):
+                set_aside.append({"topic": cand.topic, "quote": normalize(cand.quote), "page": page})
             continue
         # One sentence is one claim: the same quote filed under a second term is a duplicate.
         key = normalize(cand.quote).lower().rstrip(".")
@@ -800,7 +808,10 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
             claim["from_scan"] = True
         claims.append(claim)
     counts["kept"] = len(claims)
+    kept_quotes = {normalize(c["quote"]).lower().rstrip(".") for c in claims}
+    set_aside = [x for x in set_aside if normalize(x["quote"]).lower().rstrip(".") not in kept_quotes]
     return {
+        "set_aside": set_aside,
         "type": label,
         "type_key": kind,
         "title": title,

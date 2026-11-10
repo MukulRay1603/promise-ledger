@@ -438,6 +438,13 @@ def build_deal_review(deal: dict, docs: list[dict], store: Storage | None = None
         "open_questions": questions,
         "what_changed": what_changed,
         "next_records": next_records(claims, terms, done),
+        # Quotes found on their page that the term rules did not confirm. Optional to check; never counted.
+        "possible": [{"key": f"possible-{d['id']}-{i}", "topic": item["topic"],
+                      "label": ledger.TOPICS.get(item["topic"], item["topic"]), "quote": item["quote"],
+                      "page": item["page"], "document": d["id"],
+                      "document_title": d.get("title") or d.get("filename"), "document_type": d.get("type") or "Record",
+                      "date": d.get("date") or ""}
+                     for d in done for i, item in enumerate(d.get("set_aside") or [], 1)],
         "kpis": {
             "documents": len(docs),
             "documents_done": len(done),
