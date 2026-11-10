@@ -143,10 +143,11 @@ def _stage_ok(text: str, cited: list[dict]) -> bool:
                     lowered[max(0, match.start() - 2):match.start()] == "un":
                 continue
             # Repeating the record's own words is fine ("from the date the first home is leased"): the word and
-            # the words on both sides of it must appear together in a cited quote.
+            # the word with the two words before it, or with one word on each side, appears in a cited quote.
+            before = re.findall(r"[a-z0-9]+", lowered[:match.start()])
             after = re.findall(r"[a-z0-9]+", lowered[match.end():])[:1]
-            words = re.findall(r"[a-z0-9]+", lowered[:match.start()])[-(2 - len(after)):] + [match.group(0)] + after
-            if len(words) == 3 and f" {' '.join(words)} " in f" {quotes} ":
+            windows = [before[-2:] + [match.group(0)], before[-1:] + [match.group(0)] + after]
+            if any(len(w) == 3 and f" {' '.join(w)} " in f" {quotes} " for w in windows):
                 continue
             if not all(stages & allowed for stages in groups.values()):
                 return False
@@ -188,7 +189,7 @@ TOPIC_WORDS = {
     "responsible_party": ("who is responsible", "responsible", "manage", "owner", "who keeps", "in charge"),
     "reporting": ("report", "reports", "check", "monitor", "compliance", "audit", "annual"),
     "remedies": ("penalty", "penalties", "enforce", "fail", "break", "breaks", "remedy", "remedies", "default"),
-    "public_support": ("tax", "support", "subsidy", "abatement", "incentive", "vote", "council"),
+    "public_support": ("tax", "tax break", "subsidy", "abatement", "incentive", "pilot", "public support"),
 }
 
 
