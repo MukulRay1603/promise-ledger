@@ -1329,6 +1329,7 @@ function setupDictation(form) {
   const mic = byId("ask-mic");
   if (!Recognition || !mic) return;
   mic.hidden = false;
+  mic.setAttribute("aria-label", "Speak your question");
   mic.title = "Uses your browser's speech service";
   mic.onclick = () => {
     const rec = new Recognition();
