@@ -1,0 +1,65 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash",
+ "reading": {
+  "document_type": "agreement",
+  "title": "DECLARATION OF AFFORDABILITY COVENANTS",
+  "date": "2025-12-01",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "LARKSPUR COMMUNITY BUILDERS, INC.",
+    "quote": "By: /s/ President",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Declarant shall rent sixteen (16) of the sixty-four (64) homes at Larkspur Commons as restricted homes.",
+    "page": 1,
+    "wording": "shall rent",
+    "value": "16 of 64 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "A restricted home may be rented only to a household whose income does not exceed fifty percent of area median income.",
+    "page": 1,
+    "wording": "does not exceed",
+    "value": "50% of area median income"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "The total of rent and tenant-paid utilities for a restricted home may not exceed thirty percent of the income limit for that home.",
+    "page": 1,
+    "wording": "may not exceed",
+    "value": "30% of the income limit"
+   },
+   {
+    "topic": "term",
+    "quote": "These covenants expire on January 1, 2066.",
+    "page": 1,
+    "wording": "expire on",
+    "value": "January 1, 2066"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "These covenants bind Declarant and all later owners of the property.",
+    "page": 1,
+    "wording": "bind",
+    "value": "Declarant and all later owners"
+   },
+   {
+    "topic": "reporting",
+    "quote": "Declarant shall give the Village a list of the restricted homes, the household incomes and the rents charged by March 1 of every year.",
+    "page": 1,
+    "wording": "shall give",
+    "value": "yearly by March 1"
+   }
+  ]
+ },
+ "tokens_in": 849,
+ "tokens_out": 1454,
+ "cost_usd": 0.00389,
+ "notice": "Read by gemini-3.5-flash. Every quote is checked against the page text."
+}

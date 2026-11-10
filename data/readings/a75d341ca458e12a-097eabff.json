@@ -1,0 +1,63 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "agreement",
+  "title": "REGULATORY AGREEMENT Tollgate Yard · Tollgate Road, Fennick Landing",
+  "date": "",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "CITY OF FENNICK LANDING",
+    "quote": "[signature on file]",
+    "page": 2
+   },
+   {
+    "party": "TOLLGATE YARD RESIDENCES LLC",
+    "quote": "[signature on file]",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner shall reserve 30 of the 150 homes at Tollgate Yard as Affordable Homes.",
+    "page": 1,
+    "wording": "shall reserve",
+    "value": "30 of 150 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Each Affordable Home shall be leased to a household with income at or below 70 percent of area median income.",
+    "page": 1,
+    "wording": "shall be leased",
+    "value": "70 percent of area median income"
+   },
+   {
+    "topic": "term",
+    "quote": "The requirements of this Agreement shall remain in effect for 25 years from the date the first Affordable Home is leased.",
+    "page": 1,
+    "wording": "shall remain in effect",
+    "value": "25 years"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Owner shall deliver an annual compliance certificate to the City by April 1 of each year.",
+    "page": 1,
+    "wording": "shall deliver",
+    "value": "annual compliance certificate"
+   },
+   {
+    "topic": "remedies",
+    "quote": "If a default is not cured within 30 days after written notice, the Owner shall repay all reduced taxes with interest.",
+    "page": 1,
+    "wording": "shall repay",
+    "value": "repay all reduced taxes with interest"
+   }
+  ]
+ },
+ "tokens_in": 817,
+ "tokens_out": 391,
+ "cost_usd": 0.001223,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

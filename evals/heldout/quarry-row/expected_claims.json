@@ -1,0 +1,222 @@
+{
+  "notice": "Fictional held-out evaluation data. Alder Crossing, Port Wren, Stone Hollow and every company, date, number and quote in these documents are made up.",
+  "deal": "Quarry Row",
+  "terms": [
+    "units",
+    "income_basis",
+    "rent_limits",
+    "term",
+    "responsible_party",
+    "reporting",
+    "remedies"
+  ],
+  "stages": [
+    "proposed",
+    "supported",
+    "signed",
+    "delivered"
+  ],
+  "not_located": [],
+  "differs": [],
+  "story": "A term sheet, a Council vote that failed 3 to 4, and an agreement nobody signed. Every term stays at proposed except the staff recommendation. The same 18 apartments, sixty percent income limit and 2055 end date appear in every record, so no term differs.",
+  "claims": [
+    {
+      "id": "q01",
+      "term": "public_support",
+      "quote": "Quarry Row Homes LP has asked the City to freeze the taxable value of the former quarry parcel for ten years.",
+      "file": "01-term-sheet-memo.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "has asked",
+      "value": "Ten-year freeze on taxable value",
+      "review_note": "The request itself."
+    },
+    {
+      "id": "q02",
+      "term": "units",
+      "quote": "Eighteen of the ninety apartments would be reserved for lower-income renters.",
+      "file": "01-term-sheet-memo.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "would be reserved",
+      "value": "18 of 90 apartments",
+      "review_note": "Table row, numbers in words."
+    },
+    {
+      "id": "q03",
+      "term": "income_basis",
+      "quote": "Households earning no more than sixty percent of area median income would qualify.",
+      "file": "01-term-sheet-memo.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "would qualify",
+      "value": "60 percent of area median income",
+      "review_note": "Table row, percent in words."
+    },
+    {
+      "id": "q04",
+      "term": "rent_limits",
+      "quote": "Rent plus utilities would be capped at thirty percent of the qualifying income.",
+      "file": "01-term-sheet-memo.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "would be capped",
+      "value": "30 percent of the qualifying income",
+      "review_note": "Table row."
+    },
+    {
+      "id": "q05",
+      "term": "term",
+      "quote": "The restrictions would run through December 31, 2055.",
+      "file": "01-term-sheet-memo.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "would run",
+      "value": "Through December 31, 2055",
+      "review_note": "An end date, not a number of years."
+    },
+    {
+      "id": "q06",
+      "term": "public_support",
+      "quote": "Staff recommends that the Council grant the assessment freeze only if the set-aside is written into a recorded agreement.",
+      "file": "01-term-sheet-memo.pdf",
+      "page": 2,
+      "stage": "supported",
+      "wording": "recommends",
+      "value": "Freeze only with a recorded agreement",
+      "review_note": "A staff recommendation is support."
+    },
+    {
+      "id": "q07",
+      "term": "units",
+      "quote": "The Economic Development Director said the applicant offers eighteen income-restricted apartments out of ninety.",
+      "file": "02-council-minutes.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "offers",
+      "value": "18 of 90 apartments",
+      "review_note": "The vote on this item failed."
+    },
+    {
+      "id": "q08",
+      "term": "term",
+      "quote": "The applicant's representative stated that the company is willing to keep the restrictions in place until the end of 2055.",
+      "file": "02-council-minutes.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "is willing",
+      "value": "Until the end of 2055",
+      "review_note": "The vote on this item failed."
+    },
+    {
+      "id": "q09",
+      "term": "public_support",
+      "quote": "A motion to grant the ten-year assessment freeze failed on a vote of 3 to 4.",
+      "file": "02-council-minutes.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "failed",
+      "value": "Motion failed, 3 to 4",
+      "review_note": "A failed motion is not support."
+    },
+    {
+      "id": "q10",
+      "term": "public_support",
+      "quote": "The Council directed staff to return with a written agreement before the request is heard again.",
+      "file": "02-council-minutes.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "directed staff",
+      "value": "Written agreement requested",
+      "review_note": "The vote on this item failed."
+    },
+    {
+      "id": "q11",
+      "term": "units",
+      "quote": "Quarry Row Homes LP shall keep eighteen (18) of the ninety (90) apartments as income-restricted apartments.",
+      "file": "03-development-agreement-draft.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "shall keep",
+      "value": "18 of 90 apartments",
+      "review_note": "Signature blocks are blank."
+    },
+    {
+      "id": "q12",
+      "term": "income_basis",
+      "quote": "An income-restricted apartment may be rented only to a household whose income is at or below sixty percent of area median income.",
+      "file": "03-development-agreement-draft.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "may be rented only",
+      "value": "60 percent of area median income",
+      "review_note": "Signature blocks are blank."
+    },
+    {
+      "id": "q13",
+      "term": "rent_limits",
+      "quote": "The monthly rent for an income-restricted apartment, with utilities, may not be more than thirty percent of sixty percent of area median income for the household size.",
+      "file": "03-development-agreement-draft.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "may not be more than",
+      "value": "30 percent of 60 percent of area median income",
+      "review_note": "Signature blocks are blank."
+    },
+    {
+      "id": "q14",
+      "term": "term",
+      "quote": "Sections 2 through 4 stay in force through December 31, 2055.",
+      "file": "03-development-agreement-draft.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "stay in force",
+      "value": "Through December 31, 2055",
+      "review_note": "Signature blocks are blank."
+    },
+    {
+      "id": "q15",
+      "term": "responsible_party",
+      "quote": "Quarry Row Homes LP and each successor in title are bound by this Agreement.",
+      "file": "03-development-agreement-draft.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "are bound",
+      "value": "Quarry Row Homes LP and each successor",
+      "review_note": "Signature blocks are blank."
+    },
+    {
+      "id": "q16",
+      "term": "reporting",
+      "quote": "Every year by April 15, Quarry Row Homes LP shall send the City a rent roll showing the income and rent for each income-restricted apartment.",
+      "file": "03-development-agreement-draft.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "shall send",
+      "value": "Yearly rent roll by April 15",
+      "review_note": "Signature blocks are blank."
+    },
+    {
+      "id": "q17",
+      "term": "remedies",
+      "quote": "If a violation continues for more than 45 days after notice, the City may end the assessment freeze and bill the taxes that were not collected.",
+      "file": "03-development-agreement-draft.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "may end",
+      "value": "End the freeze after 45 days",
+      "review_note": "Signature blocks are blank."
+    },
+    {
+      "id": "q18",
+      "term": "public_support",
+      "quote": "The City shall hold the taxable value of the parcel at its 2025 level for ten years.",
+      "file": "03-development-agreement-draft.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "shall hold",
+      "value": "Taxable value held for ten years",
+      "review_note": "Signature blocks are blank."
+    }
+  ]
+}
