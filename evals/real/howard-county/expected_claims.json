@@ -1,0 +1,528 @@
+{
+  "notice": "Hand check of a real, public record: two files about one subsidized housing deal, posted by Howard County, Maryland. One reader listed every sentence that states a commitment or a term. No second reviewer or housing staff has repeated the check. The PDFs are not in this repository; see manifest.json.",
+  "deal": "Annapolis Junction (Howard County, Maryland)",
+  "terms": [
+    "units",
+    "income_basis",
+    "rent_limits",
+    "term",
+    "responsible_party",
+    "reporting",
+    "remedies"
+  ],
+  "stages": [
+    "proposed",
+    "supported",
+    "signed",
+    "delivered"
+  ],
+  "not_located": [
+    "rent_limits"
+  ],
+  "differs": [
+    {
+      "term": "term",
+      "why": "The testimony says the homes are restricted for 30 years. The agreement ties the restriction to a 20-year term."
+    }
+  ],
+  "story": "Staff testimony and a fiscal memo (proposed, with the Board's recommendation supported), then the resolution the Council adopted with the agreement attached (supported). The attached agreement is the approved form with blank signature blocks, so nothing is signed or delivered.",
+  "source": "docs/REAL-RECORD.md. That hand check counted 31 statements, 12 in the testimony and 19 in the resolution and agreement, but did not print the full list. This file writes the list out from the same reading of the pages, so a few entries may differ from the first count.",
+  "excluded_pages": [
+    {
+      "file": "45240.pdf",
+      "pages": [
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "score": "ignore",
+      "why": "These pages repeat the testimony (43929.pdf) as a scan. Claims kept from them are left out of every score."
+    },
+    {
+      "file": "45240.pdf",
+      "pages": [
+        20
+      ],
+      "score": "wrong",
+      "why": "An amendment marked \"Not introduced\" by hand. It has no labeled statement, so a claim kept from this page counts against precision."
+    }
+  ],
+  "also_right_note": "Other sentences that state a term of this deal correctly, mostly restatements of a labeled statement. They are not counted for recall. A kept claim that matches one is counted as right, not as an error. Written before the recall work was measured.",
+  "also_right": [
+    {
+      "file": "43929.pdf",
+      "term": "units",
+      "quote": "TOD zoning districts require 15% of the units to be rented or sold as"
+    },
+    {
+      "file": "43929.pdf",
+      "term": "units",
+      "quote": "The MIHU requirement for Annapolis Junction is 94 units."
+    },
+    {
+      "file": "43929.pdf",
+      "term": "units",
+      "quote": "Annapolis Junction is proposing to provide 95 affordable units at 3 different affordability levels."
+    },
+    {
+      "file": "43929.pdf",
+      "term": "public_support",
+      "quote": "for consideration by the County to permit the Development to make payments in lieu of County real property taxes"
+    },
+    {
+      "file": "43929.pdf",
+      "term": "public_support",
+      "quote": "supports approval of the terms and conditions of a Payment In Lieu Of Taxes Agreement (PILOT) by and between Howard County, Maryland and Midway 32, LLC"
+    },
+    {
+      "file": "43929.pdf",
+      "term": "public_support",
+      "quote": "The development will continue to pay State and County local taxes"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "units",
+      "quote": "each building of the Development will be built and financed as separate projects and will provide at least 15% of the units as affordable"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "units",
+      "quote": "the provision of 32 DIHUs, 32 LIHUs, and 31 MIHUs will increase the County's affordable housing inventory"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "public_support",
+      "quote": "the Company has requested that the County permit the Company to make payments in lieu of County real property taxes"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "public_support",
+      "quote": "it is in the interest of the County to accept a PILOT subject to the terms and conditions of the Payment in Lieu of Taxes Agreement"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "public_support",
+      "quote": "The County Executive is hereby authorized to execute and deliver the Agreement"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "public_support",
+      "quote": "The Company has received support for the PILOT from the Howard County Department of Housing and Community Development"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "public_support",
+      "quote": "The County has agreed to accept payments in lieu of County real property taxes for the Development"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "public_support",
+      "quote": "The County Council of Howard County, Maryland has approved this Agreement by resolution"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "public_support",
+      "quote": "Each Payment shall be made by May 1 of each year for the prior Tax Year."
+    },
+    {
+      "file": "45240.pdf",
+      "term": "public_support",
+      "quote": "the Company shall also pay the County Assessments for the Property for each Tax Year"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "public_support",
+      "quote": "The Company acknowledges and agrees that it shall pay all State real property taxes."
+    },
+    {
+      "file": "45240.pdf",
+      "term": "units",
+      "quote": "The number of Affordable Units may be apportioned among the Buildings in the Company's discretion"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "term",
+      "quote": "shall mean the original Term as extended by the Renewal Term(s)."
+    },
+    {
+      "file": "45240.pdf",
+      "term": "remedies",
+      "quote": "per month or part of a month for the first sixty (60) days following the due date"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "remedies",
+      "quote": "per month or part of a month after sixty (60) days following the due date"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "remedies",
+      "quote": "then this Agreement will terminate and all County real property taxes for the preceding Tax Year shall be immediately due and payable."
+    },
+    {
+      "file": "45240.pdf",
+      "term": "remedies",
+      "quote": "The occurrence of any of the following shall constitute an \"Event of Default\" under this Agreement"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "remedies",
+      "quote": "which is not cured within a reasonable period after notice, which period shall in all events be at least thirty (30) days"
+    },
+    {
+      "file": "45240.pdf",
+      "term": "responsible_party",
+      "quote": "the Company shall not, without the prior written consent of the County"
+    },
+    {
+      "file": "43929.pdf",
+      "term": "income_basis",
+      "quote": "31 units as MIHUs for households earning up to 60% HC MI"
+    }
+  ],
+  "claims": [
+    {
+      "id": "t01",
+      "term": "income_basis",
+      "quote": "The total development is offering 95 affordable rental units, 50 in Building 1 and 45 in Building 2, at 3 levels of affordability: 32 units as DIHUs affordable to households earning up to 20% of the County’s median income (HC MI); 32 units as LIHUs for households earning up to 40% of HC MI; and 31 units as MIHUs for households earning up to 60% HC MI.",
+      "file": "43929.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "",
+      "value": "95 homes at 20, 40 and 60 percent of the County's median income",
+      "review_note": "The sentence starts on page 1 and ends on page 2."
+    },
+    {
+      "id": "t02",
+      "term": "units",
+      "quote": "Each building will be built and financed as separate projects and provide at least 15% of the units as affordable.",
+      "file": "43929.pdf",
+      "page": 1,
+      "stage": "proposed",
+      "wording": "",
+      "value": "At least 15 percent of each building",
+      "review_note": ""
+    },
+    {
+      "id": "t03",
+      "term": "units",
+      "quote": "If the total number of units falls below 623, the number of affordable units may be adjusted proportionately if at least 5% MIHUs, 5% LIHUs and 5% DIHUs are provided to satisfy the 15% requirement in TOD zoning districts.",
+      "file": "43929.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "",
+      "value": "May be reduced in proportion, at least 5 percent at each level",
+      "review_note": ""
+    },
+    {
+      "id": "t04",
+      "term": "term",
+      "quote": "As a condition of the PILOT, the County will require Midway to restrict the occupancy of a certain number of units to income-eligible households for 30 years.",
+      "file": "43929.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "",
+      "value": "30 years",
+      "review_note": "The attached agreement ties the restriction to a 20-year term."
+    },
+    {
+      "id": "t05",
+      "term": "public_support",
+      "quote": "The Developer is offering a minimum PILOT payment of $ 200 per unit per year for 20 years",
+      "file": "43929.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "",
+      "value": "$200 per home per year for 20 years in place of County property taxes",
+      "review_note": "Start of a longer sentence."
+    },
+    {
+      "id": "t06",
+      "term": "public_support",
+      "quote": "At that meeting, the Board recommended approval of the PILOT request because the development will provide 95 units at below market rates",
+      "file": "43929.pdf",
+      "page": 3,
+      "stage": "supported",
+      "wording": "",
+      "value": "Board recommended approval",
+      "review_note": "Start of a longer sentence. A recommendation is support."
+    },
+    {
+      "id": "t07",
+      "term": "units",
+      "quote": "The development will provide 95 affordable rental units at multiple affordability levels, 50 units in Building 1 and 45 in Building 2.",
+      "file": "43929.pdf",
+      "page": 4,
+      "stage": "proposed",
+      "wording": "",
+      "value": "95 homes",
+      "review_note": "Fiscal memo."
+    },
+    {
+      "id": "t08",
+      "term": "income_basis",
+      "quote": "MIHU rental units are affordable for households earning up to 60% of the Howard County median income.",
+      "file": "43929.pdf",
+      "page": 4,
+      "stage": "proposed",
+      "wording": "",
+      "value": "60 percent of the County's median income",
+      "review_note": "Fiscal memo."
+    },
+    {
+      "id": "t09",
+      "term": "income_basis",
+      "quote": "LIHUs support households earning up to 40% HC MI and DIHUs are affordable for households earning up to 20% HC MI.",
+      "file": "43929.pdf",
+      "page": 4,
+      "stage": "proposed",
+      "wording": "",
+      "value": "40 and 20 percent of the County's median income",
+      "review_note": "Fiscal memo."
+    },
+    {
+      "id": "t10",
+      "term": "public_support",
+      "quote": "there is a tax revenue loss of $31.9 million over 20 years",
+      "file": "43929.pdf",
+      "page": 5,
+      "stage": "proposed",
+      "wording": "",
+      "value": "$31.9 million less tax revenue over 20 years",
+      "review_note": "Clause of a longer sentence."
+    },
+    {
+      "id": "t11",
+      "term": "units",
+      "quote": "The development will provide 95 units at below market rents, including LIHUs and DIHUs that will be offered at even lower rent levels to low- and very low income households.",
+      "file": "43929.pdf",
+      "page": 5,
+      "stage": "proposed",
+      "wording": "",
+      "value": "95 homes",
+      "review_note": "Bullet in the fiscal memo."
+    },
+    {
+      "id": "t12",
+      "term": "public_support",
+      "quote": "The development will pay $200 per unit (623 units) in PILOT payments for 20 years.",
+      "file": "43929.pdf",
+      "page": 5,
+      "stage": "proposed",
+      "wording": "",
+      "value": "$200 per home for 20 years",
+      "review_note": "Bullet in the fiscal memo."
+    },
+    {
+      "id": "r01",
+      "term": "units",
+      "quote": "the Development is to be located in a Transit Oriented Development (\"TOD\") Zoning District which requires 15% of the units to be rented or sold as moderate income housing units (\"MIHUs\")",
+      "file": "45240.pdf",
+      "page": 2,
+      "stage": "supported",
+      "wording": "",
+      "value": "15 percent of homes",
+      "review_note": "Recital. Line-numbered page."
+    },
+    {
+      "id": "r02",
+      "term": "units",
+      "quote": "the Development will provide 95 affordable rental units, 50 in Building 1 and 45 in Building 2, at three levels of affordability as follows:",
+      "file": "45240.pdf",
+      "page": 2,
+      "stage": "supported",
+      "wording": "",
+      "value": "95 homes",
+      "review_note": "Recital. Line-numbered page."
+    },
+    {
+      "id": "r03",
+      "term": "income_basis",
+      "quote": "32 units as Disability Income Housing Units (\"DIHUs\") affordable to households earning up to 20% of the County's median income (\"HC MI\")",
+      "file": "45240.pdf",
+      "page": 2,
+      "stage": "supported",
+      "wording": "",
+      "value": "32 homes at 20 percent of the County's median income",
+      "review_note": "List item."
+    },
+    {
+      "id": "r04",
+      "term": "income_basis",
+      "quote": "32 units as Low Income Housing Units (\"LIHUs\") for households earning up to 40% of HC MI",
+      "file": "45240.pdf",
+      "page": 2,
+      "stage": "supported",
+      "wording": "",
+      "value": "32 homes at 40 percent",
+      "review_note": "List item."
+    },
+    {
+      "id": "r05",
+      "term": "income_basis",
+      "quote": "31 units as Moderate Income Housing Units (\"MIHUs\") affordable to households earning up to 60% of HC MI",
+      "file": "45240.pdf",
+      "page": 3,
+      "stage": "supported",
+      "wording": "",
+      "value": "31 homes at 60 percent",
+      "review_note": "List item."
+    },
+    {
+      "id": "r06",
+      "term": "public_support",
+      "quote": "the County shall abate all County real property taxes for the Development subject to the terms and conditions of the Payment in Lieu of Taxes Agreement",
+      "file": "45240.pdf",
+      "page": 3,
+      "stage": "supported",
+      "wording": "",
+      "value": "County real property taxes abated",
+      "review_note": "The resolved clause."
+    },
+    {
+      "id": "r07",
+      "term": "term",
+      "quote": "\"Term\" means, for each Completed Building, that period of twenty (20) years, commencing with the First Tax Year and continuing for the consecutive nineteen (19) Tax Years thereafter.",
+      "file": "45240.pdf",
+      "page": 6,
+      "stage": "supported",
+      "wording": "",
+      "value": "20 years",
+      "review_note": "A definition that carries the value."
+    },
+    {
+      "id": "r08",
+      "term": "public_support",
+      "quote": "during the Term the Company shall make, and the County shall accept, annual payments (each, a \"Payment\" and collectively, the \"Payments\") in an amount equal to Two Hundred Dollars ($200.00) for each Unit in the Building.",
+      "file": "45240.pdf",
+      "page": 6,
+      "stage": "supported",
+      "wording": "",
+      "value": "$200 per home per year in place of County property taxes",
+      "review_note": "End of a longer sentence."
+    },
+    {
+      "id": "r09",
+      "term": "term",
+      "quote": "The Company shall have the right to request an extension to each Term for two (2) periods often (10) years each (each, a \"Renewal Term\") by submitting a written request to the County not later than six (6) months prior to the last day of the then current Term.",
+      "file": "45240.pdf",
+      "page": 7,
+      "stage": "supported",
+      "wording": "",
+      "value": "Two 10-year renewals",
+      "review_note": "OCR printed \"of ten\" as \"often\"."
+    },
+    {
+      "id": "r10",
+      "term": "units",
+      "quote": "require the Company and all subsequent owners of the Property to offer for rent at least thirty-two (32) Disability Income Housing Units, at least thirty-two (32) Low Income Housing Units and at least thirty-one (31) Moderate Income Housing Units during the Term.",
+      "file": "45240.pdf",
+      "page": 7,
+      "stage": "supported",
+      "wording": "",
+      "value": "At least 32, 32 and 31 affordable homes during the term",
+      "review_note": "The covenant. End of a long sentence."
+    },
+    {
+      "id": "r11",
+      "term": "units",
+      "quote": "If the finally approved site development plan for the Property contains fewer than six hundred twenty-three (623) Units, the number of Affordable Units required in the PILOT Covenants may be reduced proportionately",
+      "file": "45240.pdf",
+      "page": 7,
+      "stage": "supported",
+      "wording": "",
+      "value": "May be reduced in proportion",
+      "review_note": "Start of a longer sentence."
+    },
+    {
+      "id": "r12",
+      "term": "remedies",
+      "quote": "The Company shall be subject to the following penalties for a late Payment, which penalties shall not be imposed unless such Payment remains outstanding after five (5) days' written notice from the County to the Company:",
+      "file": "45240.pdf",
+      "page": 7,
+      "stage": "supported",
+      "wording": "",
+      "value": "Late-payment penalties",
+      "review_note": ""
+    },
+    {
+      "id": "r13",
+      "term": "remedies",
+      "quote": "At the option of the County, if any Payment is due and unpaid sixty (60) days after the due date, the County may terminate this Agreement upon ninety (90) days' prior written notice to the Company",
+      "file": "45240.pdf",
+      "page": 7,
+      "stage": "supported",
+      "wording": "",
+      "value": "County may end the agreement",
+      "review_note": "Start of a longer sentence."
+    },
+    {
+      "id": "r14",
+      "term": "remedies",
+      "quote": "if the Effective Date does not occur by December 31, 2031, this Agreement shall be null and void.",
+      "file": "45240.pdf",
+      "page": 8,
+      "stage": "supported",
+      "wording": "",
+      "value": "Void if not in effect by December 31, 2031",
+      "review_note": "End of a longer sentence."
+    },
+    {
+      "id": "r15",
+      "term": "reporting",
+      "quote": "The Company shall permit the County or any of its authorized agents, at all reasonable times and upon reasonable prior notice to the Company, to inspect the records of the Development in order to verify the Company's compliance with this Agreement.",
+      "file": "45240.pdf",
+      "page": 8,
+      "stage": "supported",
+      "wording": "",
+      "value": "Records open to inspection",
+      "review_note": ""
+    },
+    {
+      "id": "r16",
+      "term": "reporting",
+      "quote": "The Company shall submit such other reports as the County may reasonably require in order to verify the Company's compliance with this Agreement.",
+      "file": "45240.pdf",
+      "page": 8,
+      "stage": "supported",
+      "wording": "",
+      "value": "Reports the County may require",
+      "review_note": ""
+    },
+    {
+      "id": "r17",
+      "term": "remedies",
+      "quote": "Upon the occurrence and during the continuance of an Event of Default, the County may, at its option, terminate this Agreement, in which event all County real property taxes for the preceding Tax Year shall be immediately due and payable.",
+      "file": "45240.pdf",
+      "page": 8,
+      "stage": "supported",
+      "wording": "",
+      "value": "County may end the agreement; taxes due",
+      "review_note": ""
+    },
+    {
+      "id": "r18",
+      "term": "responsible_party",
+      "quote": "Any assignee shall agree to the terms of this Agreement and shall be bound by the PILOT Covenants, which shall run with the Property.",
+      "file": "45240.pdf",
+      "page": 9,
+      "stage": "supported",
+      "wording": "",
+      "value": "Later owners are bound; covenants run with the property",
+      "review_note": ""
+    },
+    {
+      "id": "r19",
+      "term": "responsible_party",
+      "quote": "This Agreement shall be binding upon, and shall inure to the benefit of, all successors and assigns of the Company.",
+      "file": "45240.pdf",
+      "page": 9,
+      "stage": "supported",
+      "wording": "",
+      "value": "Successors and assigns",
+      "review_note": ""
+    }
+  ]
+}
