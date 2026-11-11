@@ -144,7 +144,7 @@ class Runner(unittest.TestCase):
 
         self.assertEqual(bucket(self.MISSED), "a")
         self.assertEqual(bucket(self.MISSED, ("units", self.KEEP)), "a")
-        self.assertEqual(bucket(self.MISSED, ("term", "The restrictions remain in effect for thirty years.")), "b")
+        self.assertEqual(bucket(self.MISSED, ("term", "The restrictions shall remain in effect for 30 years.")), "b")
         inspect = "The City may inspect the leasing records on 10 days' notice."
         self.assertEqual(bucket(inspect, ("reporting", inspect)), "c")
         self.assertEqual(bucket(self.MISSED, ("term", self.MISSED)), "d")  # Proposed and it passes: lost as a duplicate.

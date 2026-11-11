@@ -232,7 +232,8 @@ def render_baseline(first: dict, results: dict) -> list[str]:
 
     out = ["## As found, and after small rule fixes", "",
            f"\"As found\" is the first run on {first['date']} with the prompts and rules as they were at commit "
-           f"`{first['commit']}`. \"Now\" is the same cached model output scored with the current rules. "
+           f"`{first['commit']}`. \"Now\" is the current prompt and rules (prompt {results['prompt_id']}). When the prompt "
+           f"changes, the files are read again, so \"Now\" can be a different reading from the first run. "
            f"{first.get('model_listed', '')}", "",
            "| Measure | Held-out, as found | Held-out, now | Adversarial, as found | Adversarial, now |", "|---|---|---|---|---|",
            row("Precision", frac("matched", "kept")), row("Recall", frac("matched", "gold")),
@@ -244,7 +245,10 @@ def render_baseline(first: dict, results: dict) -> list[str]:
            f"{i1.get('injected_claims', 'n/a')} of {i1.get('kept_claims', 'n/a')} |", ""]
     if first.get("fixes"):
         out += ["**Rule bugs fixed after the first run** (small and general; tests in `tests/test_heldout_evals.py`; the prompts "
-                "were not changed):", "", *[f"- {x}" for x in first["fixes"]], ""]
+                "were not changed for these):", "", *[f"- {x}" for x in first["fixes"]], ""]
+    if first.get("recall_work"):
+        out += ["**Recall work after that** (tests in `tests/test_recall_rules.py` and `tests/test_section_reading.py`):", "",
+                *[f"- {x}" for x in first["recall_work"]], ""]
     if first.get("open"):
         out += ["**Still open** (measured above, not fixed):", "", *[f"- {x}" for x in first["open"]], ""]
     if first.get("limits"):
@@ -257,7 +261,7 @@ def real_entry(deals: list[dict], results: dict) -> dict:
     t = totals(deals)
     docs = [doc for d in deals for doc in d["documents"]]
     return {"date": results["date"], "prompt_id": results["prompt_id"],
-            "models": sorted({doc["model"] or "none" for doc in docs}),
+            "models": sorted({m for doc in docs for m in (doc["model"] or "none").split(", ")}),
             "candidates": sum(doc.get("n_candidates", 0) for doc in docs),
             "set_aside": sum(doc.get("n_off_term", 0) for doc in docs),
             "ignored": sum(d.get("ignored", 0) for d in deals), **t,
@@ -278,7 +282,9 @@ def render_real(scores: dict) -> list[str]:
            "memo, and the resolution the Council adopted with the agreement attached (a scan). The labels are a hand check "
            "of every sentence that states a commitment or a term (`evals/real/howard-county/expected_claims.json`). The PDFs "
            "are not in the repository; `manifest.json` gives each URL and SHA-256. Two readings of the same file can differ, "
-           "so each run is shown.", "",
+           "so each run is shown. A kept claim is right when it matches a labeled statement or another sentence that states "
+           "a term of the deal correctly (the `also_right` list in the labels, mostly restatements). Labeled statements alone "
+           "are counted for recall.", "",
            "| Measure | " + " | ".join(names) + " |", "|---|" + "---|" * len(names)]
 
     def row(label, f):
@@ -388,13 +394,16 @@ def render(results: dict) -> str:
         out += render_real(json.loads(REAL_SCORES.read_text(encoding="utf-8")))
 
     out += ["## How to read these numbers", "",
-            "- The records are fictional and we wrote and labeled them ourselves (`tools/make_heldout.py`). The labels were "
-            "written from the term definitions before the pipeline was run on these files, and the prompts were not changed "
-            "afterwards. It is a small set: treat the percentages as a first measurement, not a guarantee.",
+            "- The held-out and adversarial records are fictional and we wrote and labeled them ourselves "
+            "(`tools/make_heldout.py`). The labels were written from the term definitions before the pipeline was run on "
+            "these files. It is a small set: treat the percentages as a first measurement, not a guarantee.",
+            "- **The held-out set is no longer unseen.** Its first-run scores are in the last table. After that run its misses "
+            "were read, and the prompt and term rules were then widened with general drafting vocabulary. The current "
+            "held-out scores show that the wider rules work on this wording. They are not a blind test.",
             "- A kept claim matches a labeled claim when one quote contains the other on the same file "
             "(same rule as `evals/run_pdf_evals.py`).",
             "- Readings are cached by file hash in `data/readings/`, so a re-run scores the same model output and makes "
-            "no live calls.", ""]
+            "no live calls. Two readings of the same file can differ, so a new reading can move a score by a claim or two.", ""]
     if BASELINE.exists():
         out += render_baseline(json.loads(BASELINE.read_text(encoding="utf-8")), results)
     return "\n".join(out)
@@ -428,7 +437,8 @@ def main_real(args, budget: base.Budget, results: dict) -> int:
         print(f"  terms differ {d['terms_differ']['got']} · not located {d['terms_not_located']['got']} · "
               f"ignored (excluded pages) {d.get('ignored', 0)}")
     u = usage(deals)
-    print(f"live calls this run: {budget.used} · tokens in {u['tokens_in']}, out {u['tokens_out']} · est. cost ${u['cost_usd']:.4f}")
+    print(f"records read live this run: {budget.used} (model calls with retries: {ai.pdf_calls}) · tokens in "
+          f"{u['tokens_in']}, out {u['tokens_out']} · est. cost ${u['cost_usd']:.4f}")
     (EVALS / "results-real.json").write_text(json.dumps(results, indent=1, ensure_ascii=False), encoding="utf-8")
     if args.label and not u["unread"]:
         scores = json.loads(REAL_SCORES.read_text(encoding="utf-8")) if REAL_SCORES.exists() else {"runs": {}}
@@ -480,7 +490,7 @@ def main() -> int:
     results["documents"] = sum(len(d["documents"]) for d in every)
     results["live_calls"] = sum(doc["mode"] == "live" and not doc["cached"] for d in every for doc in d["documents"])
     u = results["usage"]
-    print(f"live calls this run: {results['live_calls']} (attempts {budget.used}) · tokens in {u['tokens_in']}, out {u['tokens_out']} · est. cost ${u['cost_usd']:.4f}")
+    print(f"live calls this run: {results['live_calls']} (model calls with retries: {ai.pdf_calls}) · tokens in {u['tokens_in']}, out {u['tokens_out']} · est. cost ${u['cost_usd']:.4f}")
     (EVALS / "results-heldout.json").write_text(json.dumps(results, indent=1, ensure_ascii=False), encoding="utf-8")
     if args.set == "all":
         (EVALS / "RESULTS.md").write_text(render(results) + "\n", encoding="utf-8", newline="\n")

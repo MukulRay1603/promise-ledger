@@ -1,9 +1,9 @@
 {
  "mode": "live",
- "model": "gemini-3.8-flash",
+ "model": "gemini-flash-lite-latest",
  "reading": {
   "document_type": "letter",
-  "title": "Re: Harbor Walk affordable homes",
+  "title": "Harbor Walk affordable homes",
   "date": "2025-09-15",
   "draft": false,
   "signatures": [
@@ -18,34 +18,34 @@
     "topic": "units",
     "quote": "Harbor Walk Partners will provide 12 affordable homes at Harbor Walk.",
     "page": 1,
-    "wording": "will provide",
+    "wording": "will provide 12 affordable homes",
     "value": "12 affordable homes"
    },
    {
     "topic": "income_basis",
     "quote": "These homes will be for households at or below 80 percent of area median income.",
     "page": 1,
-    "wording": "will be for",
+    "wording": "households at or below 80 percent of area median income",
     "value": "at or below 80 percent of area median income"
    },
    {
     "topic": "term",
     "quote": "This commitment will last for 15 years from the first move-in date.",
     "page": 1,
-    "wording": "will last for",
-    "value": "15 years from the first move-in date"
+    "wording": "will last for 15 years",
+    "value": "15 years"
    },
    {
     "topic": "responsible_party",
     "quote": "Harbor Walk Partners, as owner, is responsible for meeting this commitment.",
     "page": 1,
-    "wording": "is responsible for",
-    "value": "Harbor Walk Partners, as owner"
+    "wording": "Harbor Walk Partners, as owner, is responsible",
+    "value": "Harbor Walk Partners"
    }
   ]
  },
- "tokens_in": 683,
- "tokens_out": 1025,
- "cost_usd": 0.002767,
- "notice": "Read by gemini-3.8-flash. Every quote is checked against the page text."
+ "tokens_in": 1118,
+ "tokens_out": 403,
+ "cost_usd": 0.001343,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

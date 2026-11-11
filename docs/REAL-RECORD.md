@@ -157,6 +157,93 @@ Whole exercise: 10 API attempts. 4 readings succeeded, 5 tries on the primary mo
 12. **Locked PDFs.** A related County file is encrypted with no password needed to open it. The app refused it ("could not be read"). Many government PDFs are saved this way. Try an empty password before refusing.
 13. **Not checked.** We did not test how the source panel highlights a quote on a line-numbered page in the browser.
 
+## After the recall work
+
+Run date: November 11, 2026. Code: branch `dec2-recall`.
+
+The case study above ended with one finding: what the app kept was right, and it kept too little. This section reports the work on that gap, measured on the same two files.
+
+### The hand check is now a labeled set
+
+The 31 statements are written out in `evals/real/howard-county/expected_claims.json`, each with its file, page, term and stage. `manifest.json` in the same folder gives each PDF's URL and SHA-256. The PDFs are still not in this repository. Anyone can download them and score the pipeline:
+
+```
+python evals/run_heldout_evals.py --set real --pdf-dir <folder with the two PDFs>
+python evals/diagnose_misses.py --pdf-dir <folder with the two PDFs>
+```
+
+Three things to know about the labels:
+
+- The hand check above counted 31 statements but did not print the list. The list was written out again from the same pages, so a few entries may differ from that count. For that reason the "before" numbers below were measured again with this list. They are not copied from the table above.
+- Pages 15 to 19 of Record 2 repeat Record 1 as a scan. Claims kept from them are left out of every score. Page 20, the amendment marked "Not introduced", has no labeled statement, so a claim kept from it would count as an error.
+- These records restate their terms many times. The labels also list 27 other sentences that state a term of the deal correctly (`also_right`), mostly restatements. A kept claim that matches one is counted as right. It is not counted for recall. Two of the 27 are pieces of labeled statement t01 and were added after a reading split that sentence.
+
+### What changed
+
+1. **Term rules.** The word lists now cover ordinary drafting vocabulary: "shall make annual payments", "shall abate", "run with the Property", "binding upon … successors and assigns", "null and void", "penalties for a late Payment", "shall submit such other reports". This was next step 1.
+2. **Definitions that carry a value** are kept: `"Term" means … twenty (20) years`. A definition with no value is still left out. This was next step 2.
+3. **A sentence that names the tax break can state the term** when it restricts the homes: "restrict the occupancy … for 30 years" is now a term claim. A span of years in a sentence that is about the tax break alone is kept under public support. This was next step 3.
+4. **Sentences that cross a page break** are matched across the break and cited to the page where they start. This was next step 6.
+5. **Opening-letter case.** "The Development will provide" now matches "WHEREAS, the Development will provide", and the stored quote is the record's wording. Spaces added by the text layer ("$ 200", "Tax -Property") no longer fail the check. This was next step 10.
+6. **The prompt** names covenants, recitals, definitions with values, list items and restated terms. This was next step 7.
+7. **Long records are read 4 pages at a time.** Given all 21 pages at once, the model skipped whole sections, a different section on each run. Given 4 pages, it reads them. The second half of next step 7.
+8. **One sentence, one claim.** A piece of a sentence already kept from the same page under the same term is not a second claim.
+
+Stage rules were not changed. The model still proposes and code still decides.
+
+### Numbers
+
+Each column is a fresh reading of both files. Run 1 was answered by the main model (`gemini-3.5-flash`; in the "after" run the fallback answered two of the eight sections). Run 2 was answered by the fallback model alone (`gemini-flash-lite-latest`), because the main model was out of quota.
+
+| | Before, run 1 | Before, run 2 | After, run 1 | After, run 2 |
+|---|---|---|---|---|
+| Model | main | fallback | main | fallback |
+| Candidates the model proposed | 49 | 29 | 72 | 66 |
+| Claims kept | 21 | 14 | 40 | 34 |
+| Kept claims that are right | 20 of 21 (95.2%) | 13 of 14 (92.9%) | 39 of 40 (97.5%) | 33 of 34 (97.1%) |
+| Kept claims that match one of the 31 | 15 of 21 | 11 of 14 | 29 of 40 | 23 of 34 |
+| Labeled statements found (recall) | 15 of 31 (48.4%) | 11 of 31 (35.5%) | 29 of 31 (93.5%) | 23 of 31 (74.2%) |
+| Cited page is right | 100% | 100% | 100% | 100% |
+| Stage is right | 100% | 100% | 100% | 100% |
+| Claims marked signed or delivered in error | 0 | 0 | 0 | 0 |
+| Quotes not on the cited page | 0 | 0 | 0 | 0 |
+| Terms not located | rent limits, reporting, responsible party, term | remedies, rent limits, reporting, responsible party, term | rent limits | remedies, rent limits, reporting |
+
+In between: the old readings scored with the new rules alone (no new prompt, no sections) found 23 of 31 on run 1 and 15 of 31 on run 2. So the rules gave about half of the gain on the main model's reading, and the prompt and sections gave the rest.
+
+"Rent limits: not located" is the right answer. Neither record states a rent limit.
+
+The receipt now shows the gap this deal was chosen for: the term is flagged "wording differs", 30 years in the testimony against 20 years in the agreement's definition of "Term".
+
+### Why statements were missed, before and after
+
+| Cause | Before, run 1 | Before, run 2 | After, run 1 | After, run 2 |
+|---|---|---|---|---|
+| The model never proposed the sentence | 6 | 14 | 0 | 7 |
+| The model proposed it, but the quote was not found on a page | 0 | 0 | 0 | 1 |
+| Found, then rejected by a term rule | 9 | 5 | 2 | 0 |
+| Found, then left out as a definition | 1 | 1 | 0 | 0 |
+| Total missed | 16 | 20 | 2 | 8 |
+
+### What it still misses
+
+- **After, run 1 (2 misses).** The right to inspect records (Agreement, p. 8): by rule an inspection right is not a reporting duty, so it is shown as a sentence to check. "95 units at below market rents" (Testimony, p. 5): the model filed it under rent limits, and "below market" is not a limit, so it too is a sentence to check.
+- **After, run 2 (8 misses).** The fallback model did not propose the late-payment penalties, the two termination clauses, the void-by-2031 clause or the two reporting sentences, all on pages 7 and 8 of the agreement, or the Board's recommendation. It added "and" to the end of one list item, so that quote was rejected. That is the quote check working, and one statement lost.
+- **One kept claim in each run is not a term of this deal:** a sentence about what the County's inventory will gain (run 1), and background on Council Bill 18-2025 filed under income limit (run 2).
+
+### Not fixed
+
+- **Run-to-run change is still large.** 29 against 23 on the same files. Which model answers matters more than anything in the rules. Reading twice and merging, or pinning the model, is still open (next step 11).
+- **Income levels still raise a false "wording differs"** (next step 4), and the label still says "area median income" (next step 5).
+- **A resolution template is still read as a vote** (next step 8). **Handwriting** is still not read (next step 9). **Locked PDFs** are still refused (next step 12).
+- **The rejected amendment on page 20.** Both runs proposed reporting duties from it again. Code dropped them because the OCR text did not match, not because it knows the amendment was not introduced. This risk is unchanged.
+- **Source panel.** We did not check in a browser how the panel highlights a quote that crosses a page break, or one on a line-numbered page (next step 13).
+- **Cost went up for long records.** Two calls became eight. The pair cost $0.058 on run 1 and $0.024 on run 2, against $0.012 to $0.041 before. Records of up to 4 pages are still one call.
+
+### Limits of this section
+
+The same limits as below, and one more: the rules and prompt were widened with this record's misses in view. The wording added is general drafting vocabulary, and each rule has tests written on other sentences (`tests/test_recall_rules.py`), but this record is no longer unseen. A second real record from another county is the next honest test.
+
 ## Limits of this case study
 
 One deal, two records, one county, and one pass of hand checking that no second reviewer or housing staff has repeated. The numbers above are not an accuracy score. They show where the pipeline stands on a record it was never tuned on, and what to fix next.

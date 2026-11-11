@@ -3,7 +3,7 @@
  "model": "gemini-flash-lite-latest",
  "reading": {
   "document_type": "agreement",
-  "title": "Affordable Housing Development Agreement",
+  "title": "AFFORDABLE HOUSING DEVELOPMENT AGREEMENT Quarry Row · Granite Way, Alder Crossing",
   "date": "2025-10-02",
   "draft": true,
   "signatures": [],
@@ -19,15 +19,15 @@
     "topic": "income_basis",
     "quote": "An income-restricted apartment may be rented only to a household whose income is at or below sixty percent of area median income.",
     "page": 1,
-    "wording": "may be rented only",
-    "value": "60% of area median income"
+    "wording": "may be rented only to",
+    "value": "at or below 60% of AMI"
    },
    {
     "topic": "rent_limits",
     "quote": "The monthly rent for an income-restricted apartment, with utilities, may not be more than thirty percent of sixty percent of area median income for the household size.",
     "page": 1,
     "wording": "may not be more than",
-    "value": "30% of 60% of area median income"
+    "value": "30% of 60% of AMI"
    },
    {
     "topic": "term",
@@ -40,34 +40,34 @@
     "topic": "responsible_party",
     "quote": "Quarry Row Homes LP and each successor in title are bound by this Agreement.",
     "page": 2,
-    "wording": "are bound",
-    "value": "Quarry Row Homes LP and successors"
+    "wording": "are bound by",
+    "value": "Quarry Row Homes LP and each successor in title"
    },
    {
     "topic": "reporting",
     "quote": "Every year by April 15, Quarry Row Homes LP shall send the City a rent roll showing the income and rent for each income-restricted apartment.",
     "page": 2,
     "wording": "shall send",
-    "value": "yearly by April 15"
+    "value": "Every year by April 15"
    },
    {
     "topic": "remedies",
     "quote": "If a violation continues for more than 45 days after notice, the City may end the assessment freeze and bill the taxes that were not collected.",
     "page": 2,
-    "wording": "may end",
-    "value": "end assessment freeze and bill taxes"
+    "wording": "the City may end",
+    "value": "end assessment freeze after 45 days"
    },
    {
     "topic": "public_support",
     "quote": "The City shall hold the taxable value of the parcel at its 2025 level for ten years.",
     "page": 2,
     "wording": "shall hold",
-    "value": "assessment freeze for 10 years"
+    "value": "taxable value held at 2025 level for 10 years"
    }
   ]
  },
- "tokens_in": 1086,
- "tokens_out": 707,
- "cost_usd": 0.002093,
+ "tokens_in": 1521,
+ "tokens_out": 737,
+ "cost_usd": 0.002299,
  "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

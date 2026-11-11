@@ -1,0 +1,73 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Beacon Point payment in lieu of taxes request",
+  "date": "2025-05-06",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "Staff recommends that the Council adopt the attached resolution approving a 15-year payment in lieu of taxes for Beacon Point.",
+    "page": 1,
+    "wording": "approving a 15-year payment in lieu of taxes",
+    "value": "15-year PILOT"
+   },
+   {
+    "topic": "units",
+    "quote": "3.1 Units. The owner will reserve 16 of the 80 homes as affordable homes.",
+    "page": 1,
+    "wording": "reserve 16 of the 80 homes as affordable homes",
+    "value": "16 of 80 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "3.2 Income basis. Each affordable home must be leased to a household with income at or below 60 percent of area median income.",
+    "page": 1,
+    "wording": "at or below 60 percent of area median income",
+    "value": "60 percent of AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "3.3 Rent limits. Rents for the affordable homes may not exceed the 60 percent rent limit based on the HUD income limits published each year.",
+    "page": 2,
+    "wording": "may not exceed the 60 percent rent limit",
+    "value": "60 percent HUD rent limit"
+   },
+   {
+    "topic": "term",
+    "quote": "3.4 Term. The affordability requirements will last for 30 years from the date the first affordable home is leased.",
+    "page": 2,
+    "wording": "last for 30 years",
+    "value": "30 years"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "3.5 Responsible party. The owner, and any later owner of the property, is responsible for meeting these requirements.",
+    "page": 2,
+    "wording": "The owner, and any later owner of the property, is responsible",
+    "value": "owner and later owners"
+   },
+   {
+    "topic": "reporting",
+    "quote": "3.6 Reporting. The owner will file an annual compliance certificate with the City by March 1 of each year.",
+    "page": 2,
+    "wording": "file an annual compliance certificate",
+    "value": "annual by March 1"
+   },
+   {
+    "topic": "remedies",
+    "quote": "3.7 Remedies. If a default is not cured within 60 days after written notice, the owner must repay all abated taxes with interest.",
+    "page": 2,
+    "wording": "repay all abated taxes with interest",
+    "value": "repay all abated taxes with interest after 60-day cure period"
+   }
+  ]
+ },
+ "tokens_in": 1638,
+ "tokens_out": 766,
+ "cost_usd": 0.002406,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

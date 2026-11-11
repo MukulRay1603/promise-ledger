@@ -1,0 +1,91 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "agreement",
+  "title": "PAYMENT IN LIEU OF TAXES AND REGULATORY AGREEMENT",
+  "date": "2025-07-01",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "CITY OF LANTERN BAY",
+    "quote": "[signature on file]",
+    "page": 4
+   },
+   {
+    "party": "BEACON POINT HOUSING LLC",
+    "quote": "[signature on file]",
+    "page": 4
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "The Owner shall pay the City an annual payment in lieu of taxes equal to 25 percent of the property taxes that would otherwise be due, for a period of 15 years.",
+    "page": 1,
+    "wording": "payment in lieu of taxes",
+    "value": "25 percent of property taxes for 15 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The Owner shall reserve 16 of the 80 homes in the Project as Affordable Homes.",
+    "page": 2,
+    "wording": "shall reserve",
+    "value": "16 of 80 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Each Affordable Home shall be leased to a household with income at or below 60 percent of Area Median Income.",
+    "page": 2,
+    "wording": "at or below",
+    "value": "60 percent of Area Median Income"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "Monthly rent for each Affordable Home, including a utility allowance, shall not exceed the 60 percent rent limit based on the HUD income limits published each year.",
+    "page": 2,
+    "wording": "shall not exceed",
+    "value": "60 percent rent limit"
+   },
+   {
+    "topic": "term",
+    "quote": "The requirements of this Article 3 shall remain in effect for 30 years from the date the first Affordable Home is leased.",
+    "page": 2,
+    "wording": "remain in effect for",
+    "value": "30 years"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "The Owner is responsible for compliance with this Agreement, and this Agreement binds every later owner of the Project.",
+    "page": 2,
+    "wording": "binds every later owner",
+    "value": "Owner and later owners"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Owner shall deliver an annual compliance certificate to the City by March 1 of each year.",
+    "page": 3,
+    "wording": "shall deliver",
+    "value": "Annual compliance certificate by March 1"
+   },
+   {
+    "topic": "remedies",
+    "quote": "If a default is not cured within 60 days after written notice, the Owner shall repay all abated taxes with interest.",
+    "page": 3,
+    "wording": "shall repay",
+    "value": "Repay all abated taxes with interest"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "This Agreement shall be recorded and runs with the land.",
+    "page": 3,
+    "wording": "runs with the land",
+    "value": "Runs with the land"
+   }
+  ]
+ },
+ "tokens_in": 1949,
+ "tokens_out": 848,
+ "cost_usd": 0.002705,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

@@ -14,6 +14,7 @@ Usage:
   python evals/run_pdf_evals.py              # uses cached readings, live calls only for new files
   python evals/run_pdf_evals.py --budget 30  # cap live model calls (default 30)
   python evals/run_pdf_evals.py --no-cache   # ignore cached readings (still capped)
+  python evals/run_pdf_evals.py --env path/.env   # read GEMINI_API_KEY / GEMINI_MODEL from another file
 Writes evals/results-pdf.json (gitignored).
 """
 from __future__ import annotations
@@ -28,7 +29,19 @@ sys.path.insert(0, str(ROOT))
 
 from dotenv import load_dotenv  # noqa: E402
 
-load_dotenv(ROOT / ".env")
+
+def _env_path(argv: list[str]) -> Path:
+    """--env has to be read before app.ai is imported, because the model name is fixed at import."""
+    for i, arg in enumerate(argv):
+        if arg == "--env" and i + 1 < len(argv):
+            return Path(argv[i + 1])
+        if arg.startswith("--env="):
+            return Path(arg.split("=", 1)[1])
+    return ROOT / ".env"
+
+
+if __name__ == "__main__":  # When another runner imports this module, that runner has loaded the key already.
+    load_dotenv(_env_path(sys.argv[1:]))
 
 from app import ai, deals, pipeline  # noqa: E402
 
@@ -139,7 +152,8 @@ def run_deal(folder: Path, budget: Budget, use_cache: bool, pdf_dir: Path | None
         "ignored": ignored,
         "matched": len(pairs),
         "also_right": len(also_right),
-        "page_ok": sum(p["page"] == g["page"] for p, g in pairs),
+        # A sentence that runs over a page break is cited to the page where it starts; the label may be on either.
+        "page_ok": sum(g["page"] in (p["page"], p.get("ends_on_page")) for p, g in pairs),
         "stage_ok": sum(p["status"] == g["stage"] for p, g in pairs),
         "term_ok": sum(p["topic"] == g["term"] for p, g in pairs),
         "false_signed_or_delivered": false_late,
@@ -164,6 +178,7 @@ def pct(a: int, b: int) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--env", default=str(ROOT / ".env"), help="file with GEMINI_API_KEY and GEMINI_MODEL")
     parser.add_argument("--budget", type=int, default=30, help="most live model calls to make")
     parser.add_argument("--no-cache", action="store_true", help="ignore cached readings")
     args = parser.parse_args()
@@ -206,7 +221,7 @@ def main() -> int:
                      if "stage" in doc else doc.get("error", ""))
             print(f"  {doc['file']:38} {src:6} {doc['model'] or '-':24} in={doc['tokens_in']:6} out={doc['tokens_out']:5} "
                   f"${doc['cost_usd']:.5f}  {extra}")
-    print(f"\nlive calls this run: {budget.used} · tokens in {tok_in}, out {tok_out} · est. cost ${cost:.4f} "
+    print(f"\nrecords read live this run: {budget.used} (model calls with retries: {ai.pdf_calls}) · tokens in {tok_in}, out {tok_out} · est. cost ${cost:.4f} "
           f"(at ${ai.PRICE_IN_PER_M}/M in, ${ai.PRICE_OUT_PER_M}/M out; cached rows show their original cost)")
 
     out = ROOT / "evals" / "results-pdf.json"

@@ -12,15 +12,15 @@
     "topic": "units",
     "quote": "We are considering 10 percent of the 120 homes as workforce homes.",
     "page": 2,
-    "wording": "are considering",
-    "value": "10 percent of the 120 homes"
+    "wording": "10 percent",
+    "value": "10 percent of 120 homes"
    },
    {
     "topic": "income_basis",
     "quote": "Workforce homes would be for households earning up to 80 percent of area median income.",
     "page": 2,
-    "wording": "would be for",
-    "value": "up to 80 percent of area median income"
+    "wording": "up to 80 percent of area median income",
+    "value": "80% of AMI"
    },
    {
     "topic": "term",
@@ -31,8 +31,8 @@
    }
   ]
  },
- "tokens_in": 730,
- "tokens_out": 282,
- "cost_usd": 0.000924,
+ "tokens_in": 1165,
+ "tokens_out": 284,
+ "cost_usd": 0.00106,
  "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

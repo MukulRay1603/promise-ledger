@@ -47,7 +47,7 @@ def about_same(candidate: str, gold: str) -> bool:
     if short in long_:
         return True
     blocks = difflib.SequenceMatcher(None, short, long_, autojunk=False).get_matching_blocks()
-    return sum(b.size for b in blocks) >= 0.85 * len(short)
+    return sum(b.size for b in blocks) >= 0.92 * len(short)
 
 
 def why_missed(gold: dict, reading: ai.PdfReading, pages: list[str]) -> tuple[str, str]:
@@ -63,7 +63,7 @@ def why_missed(gold: dict, reading: ai.PdfReading, pages: list[str]) -> tuple[st
              and not pipeline.is_boilerplate(c.quote, chrome)]
     if not alive:
         return "d", located[0].quote
-    if not any(pipeline.term_fits(c.topic, c.quote) for c in alive):
+    if not any(pipeline.filed_term(c.topic, c.quote) for c in alive):
         return "c", alive[0].quote
     return "d", alive[0].quote
 

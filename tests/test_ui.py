@@ -34,7 +34,7 @@ class Page(unittest.TestCase):
         for title in ("The problem", "How it works", "Proof", "Learn the basics", "Who it’s for", "See a deal checked"):
             self.assertIn(title, self.html)
         # Proof figures are from evals/run_pdf_evals.py on the sample deals, and say so.
-        for count in ('data-count="96"', 'data-count="98"', 'data-count="0"', 'data-count="3"'):
+        for count in ('data-count="94"', 'data-count="96"', 'data-count="0"', 'data-count="3"'):
             self.assertIn(count, self.html)
         self.assertIn("On sample data", self.html)
         self.assertIn("https://github.com/MukulRay1603/promise-ledger", self.html)

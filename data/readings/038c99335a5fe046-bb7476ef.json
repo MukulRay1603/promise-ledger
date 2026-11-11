@@ -9,31 +9,17 @@
   "signatures": [
    {
     "party": "CANNERY FLATS HOUSING PARTNERS LLC",
-    "quote": "/s/ Managing Member",
+    "quote": "By: /s/ Managing Member",
     "page": 1
    }
   ],
   "candidates": [
    {
-    "topic": "reporting",
-    "quote": "Sent to the Town of Port Wren under Part 7 of the Affordability Covenant, as amended.",
-    "page": 1,
-    "wording": "Sent to the Town of Port Wren",
-    "value": "submitted under Part 7 of the Affordability Covenant"
-   },
-   {
-    "topic": "reporting",
-    "quote": "This certified rent roll for 2024 is submitted to the Town on February 12, 2025.",
-    "page": 1,
-    "wording": "is submitted",
-    "value": "submitted February 12, 2025"
-   },
-   {
     "topic": "units",
     "quote": "As of December 31, 2024, all 18 restricted apartments were leased to households that qualified at move-in.",
     "page": 1,
     "wording": "all 18 restricted apartments",
-    "value": "18 restricted apartments"
+    "value": "18 units"
    },
    {
     "topic": "income_basis",
@@ -46,13 +32,20 @@
     "topic": "rent_limits",
     "quote": "No restricted apartment was charged more than the maximum rent published for 2024.",
     "page": 1,
-    "wording": "no more than the maximum rent",
-    "value": "maximum rent published for 2024"
+    "wording": "no restricted apartment was charged more than the maximum rent",
+    "value": "maximum published rent for 2024"
+   },
+   {
+    "topic": "reporting",
+    "quote": "This certified rent roll for 2024 is submitted to the Town on February 12, 2025.",
+    "page": 1,
+    "wording": "certified rent roll for 2024 is submitted",
+    "value": "submitted February 12, 2025"
    }
   ]
  },
- "tokens_in": 757,
- "tokens_out": 522,
- "cost_usd": 0.001532,
+ "tokens_in": 1192,
+ "tokens_out": 455,
+ "cost_usd": 0.001495,
  "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

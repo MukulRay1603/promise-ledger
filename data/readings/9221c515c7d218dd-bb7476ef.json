@@ -9,51 +9,44 @@
   "signatures": [],
   "candidates": [
    {
+    "topic": "public_support",
+    "quote": "Quarry Row Homes LP has asked the City to freeze the taxable value of the former quarry parcel for ten years.",
+    "page": 1,
+    "wording": "freeze the taxable value",
+    "value": "ten years"
+   },
+   {
     "topic": "units",
     "quote": "Eighteen of the ninety apartments would be reserved for lower-income renters.",
     "page": 1,
-    "wording": "would be reserved",
+    "wording": "reserved",
     "value": "18 of 90 apartments"
    },
    {
     "topic": "income_basis",
     "quote": "Households earning no more than sixty percent of area median income would qualify.",
     "page": 1,
-    "wording": "would qualify",
+    "wording": "earning no more than sixty percent of area median income",
     "value": "60% of AMI"
    },
    {
     "topic": "rent_limits",
     "quote": "Rent plus utilities would be capped at thirty percent of the qualifying income.",
     "page": 1,
-    "wording": "would be capped",
+    "wording": "capped at thirty percent of the qualifying income",
     "value": "30% of qualifying income"
    },
    {
     "topic": "term",
     "quote": "The restrictions would run through December 31, 2055.",
     "page": 1,
-    "wording": "would run through",
-    "value": "Through December 31, 2055"
-   },
-   {
-    "topic": "public_support",
-    "quote": "Quarry Row Homes LP has asked the City to freeze the taxable value of the former quarry parcel for ten years.",
-    "page": 1,
-    "wording": "has asked",
-    "value": "10-year assessment freeze"
-   },
-   {
-    "topic": "public_support",
-    "quote": "Staff recommends that the Council grant the assessment freeze only if the set-aside is written into a recorded agreement.",
-    "page": 2,
-    "wording": "Staff recommends",
-    "value": "Grant assessment freeze conditioned on recorded agreement"
+    "wording": "run through",
+    "value": "December 31, 2055"
    }
   ]
  },
- "tokens_in": 918,
- "tokens_out": 495,
- "cost_usd": 0.001513,
+ "tokens_in": 1353,
+ "tokens_out": 427,
+ "cost_usd": 0.001473,
  "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

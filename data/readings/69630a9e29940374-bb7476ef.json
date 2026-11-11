@@ -12,27 +12,27 @@
     "topic": "income_basis",
     "quote": "Affordable homes would be limited to households at or below 70 percent of area median income.",
     "page": 2,
-    "wording": "limited to households at or below 70 percent of area median income",
+    "wording": "limited to",
     "value": "70 percent of area median income"
    },
    {
     "topic": "units",
     "quote": "The developer would set aside 30 of the 150 homes as affordable homes.",
     "page": 3,
-    "wording": "set aside 30 of the 150 homes",
+    "wording": "set aside",
     "value": "30 of 150 homes"
    },
    {
     "topic": "term",
     "quote": "The income limits would last for 25 years from first occupancy.",
     "page": 3,
-    "wording": "last for 25 years",
+    "wording": "last for",
     "value": "25 years"
    }
   ]
  },
- "tokens_in": 860,
- "tokens_out": 303,
- "cost_usd": 0.001015,
+ "tokens_in": 1295,
+ "tokens_out": 277,
+ "cost_usd": 0.001081,
  "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

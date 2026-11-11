@@ -1,0 +1,37 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "minutes",
+  "title": "Fennick Landing City Council Regular Meeting Minutes",
+  "date": "2026-05-12",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "City of Fennick Landing",
+    "quote": "City of Fennick Landing [signature on file]",
+    "page": 1
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Housing Manager said the applicant offers 30 affordable homes out of 150.",
+    "page": 1,
+    "wording": "offers",
+    "value": "30 of 150 homes"
+   },
+   {
+    "topic": "term",
+    "quote": "A motion to approve the 12-year property tax reduction for Tollgate Yard failed on a vote of 2 to 5.",
+    "page": 1,
+    "wording": "12-year",
+    "value": "12 years"
+   }
+  ]
+ },
+ "tokens_in": 1132,
+ "tokens_out": 261,
+ "cost_usd": 0.000992,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

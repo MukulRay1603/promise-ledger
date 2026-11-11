@@ -49,7 +49,7 @@
       "why": "An amendment marked \"Not introduced\" by hand. It has no labeled statement, so a claim kept from this page counts against precision."
     }
   ],
-  "also_right_note": "Other sentences that state a term of this deal correctly, mostly restatements of a labeled statement. They are not counted for recall. A kept claim that matches one is counted as right, not as an error. Written before the recall work was measured.",
+  "also_right_note": "Other sentences that state a term of this deal correctly, mostly restatements of a labeled statement. They are not counted for recall. A kept claim that matches one is counted as right, not as an error. Most were written before the recall work was measured; the two pieces of statement t01 were added when a reading split that sentence.",
   "also_right": [
     {
       "file": "43929.pdf",
@@ -180,6 +180,11 @@
       "file": "43929.pdf",
       "term": "income_basis",
       "quote": "31 units as MIHUs for households earning up to 60% HC MI"
+    },
+    {
+      "file": "43929.pdf",
+      "term": "income_basis",
+      "quote": "32 units as DIHUs affordable to households earning up to 20% of the County’s median income (HC MI)"
     }
   ],
   "claims": [

@@ -16,23 +16,30 @@
     "value": "18 of 90 apartments"
    },
    {
+    "topic": "responsible_party",
+    "quote": "A Council Member asked whether the restrictions would bind a buyer if the building is sold.",
+    "page": 1,
+    "wording": "bind a buyer",
+    "value": "bind a buyer"
+   },
+   {
     "topic": "term",
     "quote": "The applicant's representative stated that the company is willing to keep the restrictions in place until the end of 2055.",
     "page": 1,
-    "wording": "is willing to keep",
+    "wording": "willing to keep",
     "value": "until the end of 2055"
    },
    {
     "topic": "public_support",
     "quote": "A motion to grant the ten-year assessment freeze failed on a vote of 3 to 4.",
     "page": 2,
-    "wording": "failed",
+    "wording": "grant",
     "value": "ten-year assessment freeze"
    }
   ]
  },
- "tokens_in": 949,
- "tokens_out": 297,
- "cost_usd": 0.001027,
+ "tokens_in": 1384,
+ "tokens_out": 364,
+ "cost_usd": 0.001325,
  "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

@@ -1,6 +1,6 @@
 {
  "mode": "live",
- "model": "gemini-3.5-flash",
+ "model": "gemini-flash-lite-latest",
  "reading": {
   "document_type": "staff_report",
   "title": "Tollgate Yard property tax reduction request",
@@ -8,13 +8,6 @@
   "draft": false,
   "signatures": [],
   "candidates": [
-   {
-    "topic": "units",
-    "quote": "Tollgate Yard is a proposed building of 150 homes on Tollgate Road.",
-    "page": 1,
-    "wording": "proposed building of 150 homes",
-    "value": "150 homes"
-   },
    {
     "topic": "units",
     "quote": "The applicant would set aside 30 of the 150 homes as affordable homes.",
@@ -26,20 +19,20 @@
     "topic": "income_basis",
     "quote": "Those homes would be for households at or below 70 percent of area median income.",
     "page": 1,
-    "wording": "at or below",
+    "wording": "would be for",
     "value": "70 percent of area median income"
    },
    {
     "topic": "public_support",
     "quote": "Staff recommends that the Council approve a 12-year property tax reduction for Tollgate Yard.",
     "page": 1,
-    "wording": "recommends",
+    "wording": "approve a 12-year property tax reduction",
     "value": "12-year property tax reduction"
    }
   ]
  },
- "tokens_in": 716,
- "tokens_out": 1914,
- "cost_usd": 0.005,
- "notice": "Read by gemini-3.5-flash. Every quote is checked against the page text."
+ "tokens_in": 1151,
+ "tokens_out": 297,
+ "cost_usd": 0.001088,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

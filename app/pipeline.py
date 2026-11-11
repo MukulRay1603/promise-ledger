@@ -481,11 +481,14 @@ def compare_key(topic: str, quote: str) -> str | None:
         m = _DUE.search(q)
         return f"due {m.group(1).lower()} {int(m.group(2))}" if m else None
     if topic == "remedies":
-        m = re.search(r"\b(\d+)\s*days\b", q, re.I)
+        # Only a cure period is compared. An agreement states other spans of days in its remedies (a late charge
+        # after 5 days, termination on 90 days' notice), and those are different remedies, not a changed one.
+        m = re.search(r"\b(\d+)\s*days\b", q, re.I) if _CURE.search(q) else None
         return f"{m.group(1)} days to cure" if m else None
     return None
 
 
+_CURE = re.compile(r"\bcur(?:e|ed|ing)\b|\bcorrect|\bremed(?:y|ied)\b", re.I)
 _MONTHS = ["january", "february", "march", "april", "may", "june", "july",
            "august", "september", "october", "november", "december"]
 
@@ -810,9 +813,12 @@ _TERM_DEFINITION = re.compile(r'^(?:\(?[a-z0-9]{1,3}[.)]\s*)?"[^"]{0,40}\b(?:ter
 _SUPPORT_WORDS = re.compile(r"\btax|payment in lieu|\bPILOT\b|abate|exemption|subsid|loan|grant|incentive|support|"
                             r"rebate|\bwaive|\bfreeze|\bassessment", re.I)
 _SUPPORT_ACTION = re.compile(r"recommend|approv|adopt|vote|support|award|grant|shall pay|asked staff|confirm|"
-                             r"\brequest|\bask(?:s|ed|ing)?\b|\boffer|\bfreeze|\bholds?\b|"
-                             r"\b(?:shall|will|agrees? to) (?:make|pay|abate|accept|waive|rebate|exempt|reduce)\b|"
+                             r"\boffer|\bfreeze|\bholds?\b|"
+                             r"\b(?:shall|will|agree[sd]? to) (?:make|pay|abate|accept|waive|rebate|exempt|reduce)\b|"
                              r"\brevenue loss\b|\bforgone\b|\bforegone\b", re.I)
+# A request counts when it says how much or how long ("asked for a 50 percent reduction for 20 years").
+# "Asked the City for help with property taxes" states no term.
+_SUPPORT_REQUEST = re.compile(r"\brequest|\bask(?:s|ed|ing)?\b", re.I)
 _MOTION = re.compile(r"\bmoved to\b|\bseconded\b", re.I)
 # A condition the Council puts on its support, such as asking for the terms in writing.
 _SUPPORT_CONDITION = re.compile(r"\bCouncil\b.*\b(?:asked|directed|required) (?:the )?(?:staff|owner|developer)\b|"
@@ -840,6 +846,9 @@ _SELF_DESCRIPTION = re.compile(r"^(?:this|the) (?:memo|memorandum|report|letter|
 _TAX_SPAN = re.compile(r"\btax|payment in lieu|\bPILOT\b|abate", re.I)
 
 
+# A question raised in a meeting states no term ("a member asked whether the limits would bind a buyer").
+_QUESTION = re.compile(r"\basked (?:whether|if|about|how|why)\b|\?\s*$", re.I)
+
 MAX_SET_ASIDE = 10
 MIN_PIECE_CHARS = 20  # A shorter quote is not treated as a piece of a longer one.
 
@@ -850,6 +859,8 @@ def term_fits(topic: str, quote: str) -> bool:
     Number words count as numbers here ("Twelve affordable homes", "thirty years") (L7).
     """
     q = numeric(quote)
+    if _QUESTION.search(q):
+        return False
     if topic == "units":
         return bool(_NUMBER_HOMES.search(q) and _UNITS_WORDS.search(q))
     if topic == "term":
@@ -861,7 +872,8 @@ def term_fits(topic: str, quote: str) -> bool:
     if topic == "public_support":
         if _MOTION.search(q):
             return False
-        return bool(_SUPPORT_WORDS.search(q) and _SUPPORT_ACTION.search(q)) or bool(_SUPPORT_CONDITION.search(q))
+        acts = _SUPPORT_ACTION.search(q) or (_SUPPORT_REQUEST.search(q) and re.search(r"\d", q))
+        return bool(_SUPPORT_WORDS.search(q) and acts) or bool(_SUPPORT_CONDITION.search(q))
     if topic == "reporting":
         if _STATUS_NOTE.search(q) or not _REPORT_WORDS.search(q):
             return False
@@ -871,10 +883,25 @@ def term_fits(topic: str, quote: str) -> bool:
     if topic == "responsible_party":
         return bool(_PARTY_WORDS.search(q))
     if topic == "rent_limits":
-        return bool(_RENT_WORDS.search(q) and _RENT_LIMIT.search(q))
+        # "At below-market rents" describes the homes. It is not a limit on rent.
+        return bool(_RENT_WORDS.search(q) and _RENT_LIMIT.search(re.sub(r"below[- ]market", "", q, flags=re.I)))
     if topic == "income_basis":
         return bool(_INCOME_WORDS.search(q))
     return True
+
+
+def filed_term(topic: str, quote: str) -> str | None:
+    """The term a located sentence is kept under, or None if the rules do not confirm it.
+
+    It is the term the model filed it under, with one correction made by rule: a span of years in a sentence
+    about the tax break is filed by some readings under "term". It is the length of the public support, so it is
+    kept under public support when it passes that rule.
+    """
+    if term_fits(topic, quote):
+        return topic
+    if topic == "term" and _TAX_SPAN.search(numeric(quote)) and term_fits("public_support", quote):
+        return "public_support"
+    return None
 
 
 def repeated_lines(pages: list[str]) -> set[str]:
@@ -963,7 +990,8 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
         if is_boilerplate(cand.quote, chrome):
             counts["boilerplate"] += 1
             continue
-        if not term_fits(cand.topic, cand.quote):
+        topic = filed_term(cand.topic, cand.quote)
+        if topic is None:
             # Not dropped silently: the quote is real, so a person checks it. It counts toward no term or stage.
             counts["off_term"] += 1
             key = normalize(cand.quote).lower().rstrip(".")
@@ -977,16 +1005,16 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
             continue
         seen.add(key)
         # A piece of a sentence already kept from the same page under the same term is the same claim, not a second one.
-        if any((t, n) == (cand.topic, page) and len(key) >= MIN_PIECE_CHARS and key in k for t, k, n in kept_keys):
+        if any((t, n) == (topic, page) and len(key) >= MIN_PIECE_CHARS and key in k for t, k, n in kept_keys):
             counts["duplicates"] += 1
             continue
         # The other way round, the whole sentence replaces the pieces kept before it.
         pieces = [i for i, (t, k, n) in enumerate(kept_keys)
-                  if (t, n) == (cand.topic, page) and len(k) >= MIN_PIECE_CHARS and k in key]
+                  if (t, n) == (topic, page) and len(k) >= MIN_PIECE_CHARS and k in key]
         for i in reversed(pieces):
             del claims[i], kept_keys[i]
             counts["duplicates"] += 1
-        kept_keys.append((cand.topic, key, page))
+        kept_keys.append((topic, key, page))
         corrected = page != cand.page
         counts["page_corrected"] += corrected
         wording = cand.wording if normalize(cand.wording).lower() in normalize(cand.quote).lower() else ""
@@ -1000,14 +1028,14 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
             "page": page,
             "stated_page": cand.page,
             "page_corrected": corrected,
-            "topic": cand.topic,
+            "topic": topic,
             "status": claim_stage(stage, kind, cand.quote, pages),
             "wording": wording,
-            "value": canonical_value(cand.topic, cand.quote, cand.value),
-            "compare": compare_key(cand.topic, cand.quote),
+            "value": canonical_value(topic, cand.quote, cand.value),
+            "compare": compare_key(topic, cand.quote),
             "verified": True,
             "review_note": ai.REVIEW_LABEL,
-            **numbers(cand.topic, cand.quote),
+            **numbers(topic, cand.quote),
         }
         if not quote_on_page(cand.quote, pages[page - 1]):  # The sentence runs over the page break.
             claim["ends_on_page"] = page + 1

@@ -120,7 +120,7 @@ class TermVocabulary(unittest.TestCase):
     def test_public_support(self):
         for quote in ["The developer has asked the City to freeze the taxable value of the site for eight years.",
                       "The City shall hold the assessment at its 2024 level for eight years.",
-                      "The applicant requests a rebate of sales tax on building materials.",
+                      "The applicant requests a rebate of 50 percent of the sales tax on building materials.",
                       "The County shall abate all County real property taxes for the project.",
                       "The Owner shall make annual payments of $300 for each home in place of property taxes.",
                       "The developer is offering a payment in lieu of taxes of $300 per home per year.",
@@ -128,6 +128,8 @@ class TermVocabulary(unittest.TestCase):
                       "The City agrees to waive the permit fees and to exempt the project from the school tax."]:
             self.assertTrue(self.fits("public_support", quote), quote)
         for quote in ["Payments are due each year on the date property taxes would otherwise be due.",
+                      "The owner has asked the City for help with property taxes.",
+                      "The applicant requests a rebate of sales tax on building materials.",
                       "State law provides incentives, such as waivers and payments in lieu of taxes, for projects near transit.",
                       "The financial statements show that a tax abatement is necessary to make the project feasible.",
                       "Council Member Ortiz moved to freeze the taxable value of the site."]:
@@ -156,6 +158,31 @@ class TermVocabulary(unittest.TestCase):
                       "The rebate is paid only while each condition in Exhibit A is met.",
                       "The Owner shall avoid delays in leasing the homes."]:
             self.assertFalse(self.fits("remedies", quote), quote)
+
+    def test_rent_limits_and_cure_periods(self):
+        self.assertFalse(self.fits("rent_limits", "The project will offer 40 homes at below-market rents."))
+        self.assertTrue(self.fits("rent_limits", "Rents shall be below 30 percent of the income limit."))
+        self.assertEqual(pipeline.compare_key("remedies", "If a default is not cured within 60 days, the Owner shall repay the taxes."),
+                         "60 days to cure")
+        # Other spans of days in a remedy are not a cure period, so two of them never read as a changed term.
+        self.assertIsNone(pipeline.compare_key("remedies", "A late charge applies after five (5) days' written notice."))
+        self.assertIsNone(pipeline.compare_key("remedies", "The County may terminate this Agreement upon 90 days' notice."))
+
+    def test_a_tax_period_filed_as_term_is_kept_as_public_support(self):
+        quote = "The City Council approves a payment in lieu of taxes for 15 years."
+        self.assertEqual(pipeline.filed_term("term", quote), "public_support")
+        self.assertEqual(pipeline.filed_term("public_support", quote), "public_support")
+        out = pipeline.verify_reading(reading(("term", quote, 1)), [quote], {"id": "d", "type": "Staff report"})
+        self.assertEqual([(c["topic"], c["compare"]) for c in out["claims"]], [("public_support", None)])
+        # Nothing else is moved between terms, and a sentence that fits neither is still set aside.
+        self.assertIsNone(pipeline.filed_term("units", quote))
+        self.assertIsNone(pipeline.filed_term("term", "The financial statements show that a tax abatement is necessary."))
+        self.assertEqual(pipeline.filed_term("term", "The limits remain in effect for 30 years."), "term")
+
+    def test_a_question_states_no_term(self):
+        self.assertFalse(self.fits("responsible_party", "A Council Member asked whether the restrictions would bind a buyer."))
+        self.assertFalse(self.fits("term", "Would the limits last for 30 years?"))
+        self.assertTrue(self.fits("public_support", "The Council asked staff to confirm the terms in writing."))
 
     def test_responsible_party(self):
         for quote in ["This Agreement shall be binding upon all successors and assigns of the Owner.",

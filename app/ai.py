@@ -153,6 +153,13 @@ def _is_busy(err: Exception) -> bool:
     return isinstance(err, TimeoutError) or "timeout" in type(err).__name__.lower()
 
 
+def _unreadable_answer(err: Exception) -> bool:
+    """True when the model answered but the answer is not the JSON asked for (cut off, or empty)."""
+    from pydantic import ValidationError
+
+    return isinstance(err, (ValidationError, json.JSONDecodeError))
+
+
 def _call_model(text: str, model: str = MODEL) -> Extraction:
     from google.genai import types
 
@@ -204,17 +211,25 @@ def extract(text: str) -> ExtractResult:
 # The model proposes candidates and describes the document. Code in app/pipeline.py
 # checks every quote against the page text and decides the stage by rule.
 
-PDF_MAX_OUTPUT_TOKENS = 8192
+# The answer and the model's own reasoning share this budget. A long agreement with 40 or more quotes ran out at
+# 8192 and came back as cut-off JSON, which reads as a failed document.
+PDF_MAX_OUTPUT_TOKENS = int(os.getenv("PDF_MAX_OUTPUT_TOKENS") or 16384)
 PDF_TIMEOUT_MS = 120_000
-MAX_PDF_CANDIDATES = 40
+MAX_PDF_CANDIDATES = 60
+# A long record is read a few pages at a time. Given 20 pages at once, a model lists the first terms it meets and
+# skips whole sections; given 4, it reads each one. Short records (up to this many pages) are still one call.
+PDF_SECTION_PAGES = max(1, int(os.getenv("PDF_SECTION_PAGES") or 4))
+SECTION_WAIT_SECONDS = 65  # A later section waits this long for the per-minute call limit before giving up.
+SECTION_RETRY_SECONDS = 3  # Pause before one more try when both models were busy for a section.
 # Rough USD per million tokens for the cost log. Override when the price list changes.
 PRICE_IN_PER_M = float(os.getenv("GEMINI_PRICE_IN_PER_M") or 0.30)
 PRICE_OUT_PER_M = float(os.getenv("GEMINI_PRICE_OUT_PER_M") or 2.50)
 
-PDF_SYSTEM_PROMPT = f"""You read public housing deal records and list statements about affordable-housing terms.
+PDF_SYSTEM_PROMPT = f"""You read the records of subsidized housing deals and list every sentence that states an
+affordable-housing commitment or one of its terms.
 
-The record is given page by page inside <page n="N"> tags. Page 1 is the first page of the file.
-Report page numbers using that N, never a number printed on the page itself.
+The record, or one section of a longer record, is given page by page inside <page n="N"> tags.
+N counts from the first page of the file. Report page numbers using that N, never a number printed on the page itself.
 
 Return:
 - document_type: one of staff_report, letter, slides, minutes, resolution, agreement, certificate, other.
@@ -223,15 +238,36 @@ Return:
   the party (the organization or person that signed, as printed, not a job title) and the exact signature line
   copied word for word, with its page. Skip blank or unsigned lines.
 - draft: true if the record says it is a draft, unsigned, or for discussion.
-- candidates: at most {MAX_PDF_CANDIDATES} statements about these terms:
-  units, income_basis, rent_limits, term, responsible_party, reporting, remedies, public_support.
-  public_support covers the tax relief, payment or subsidy asked for or given, including staff
-  recommendations, Council votes, and conditions the Council attaches to its support.
-  reporting covers the duty to report and statements that a required report or certificate is submitted.
-  Include every statement of a term, even when the same term appears in several sentences.
-  Skip page headers and footers, sentences that only describe the record itself, and sentences
-  that say a term is missing. File each sentence under one term only.
-  "quote" is copied word for word from one page, one sentence, with no changes.
+- candidates: at most {MAX_PDF_CANDIDATES} sentences, each filed under one of these terms:
+  units: how many homes are affordable or income-restricted, as a count or a share of the project, any rule
+    that sets the required share, and how the count may change.
+  income_basis: who may live in those homes, such as households at or below a percent of median income.
+    Local names for kinds of homes and income levels count.
+  rent_limits: the limit on rent for those homes.
+  term: how long the restrictions last: a number of years, an end date, "until", "through", renewals and
+    extensions, and a definition that gives the length, such as '"Term" means twenty (20) years'.
+  responsible_party: who is bound: the owner, later owners, successors and assigns, and covenants that run
+    with the land.
+  reporting: the duty to report, certify or send a rent roll, and statements that a required report or
+    certificate is submitted.
+  remedies: what happens on a default or violation: notice and cure periods, penalties and late charges,
+    repayment, ending the tax break or the agreement, and conditions that make the agreement void.
+  public_support: tax breaks and other public support asked for or given: an abatement, exemption, payment
+    in lieu of taxes, freeze, rebate, loan, grant or waiver; what the owner pays instead and for how long; what
+    it costs the public; staff recommendations, Council votes, and conditions the Council attaches.
+
+  Read every page you are given to the last one, including exhibits and attachments.
+  A term can be stated anywhere. List it when it appears in a numbered section or covenant of an agreement, a
+  definition that carries a value, a recital ("WHEREAS, ..."), a resolved clause, a list item, a table row,
+  a bullet point, or a memo that restates the terms. List a term each time it is stated, even when several
+  sentences state the same term.
+  Skip page headers and footers, addresses, signature blocks, sentences that only describe the record itself,
+  background that states no term (such as the total size of the project), and sentences that say a term is
+  missing. File each sentence under one term only.
+  "quote" is one sentence copied word for word, with no changes: keep its first words as printed (such as
+    "WHEREAS,"), and leave out line numbers printed in the margin. When a sentence is very long, quote the
+    one clause that states the term, still word for word. A sentence that continues on the next page is
+    quoted whole and filed under the page where it starts.
   "wording" is the shortest phrase from the quote that shows how firm it is.
   "value" is a short plain summary of the term's value, such as "12 of 120 homes" or "15 years".
 
@@ -276,14 +312,15 @@ class ReadResult(BaseModel):
     notice: str = ""
 
 
-def pages_to_record(pages: list[str], limit: int | None = None) -> str:
+def pages_to_record(pages: list[str], limit: int | None = None, first: int = 1) -> str:
     """Redacted page-tagged text. Personal details never reach the model or the store.
 
     At most `limit` characters (MAX_RECORD_CHARS): later pages are left out, and the last one included is cut.
+    `first` is the file's page number of pages[0], for a section of a longer record.
     """
     limit = MAX_RECORD_CHARS if limit is None else limit
     parts, used = [], 0
-    for i, text in enumerate(pages, 1):
+    for i, text in enumerate(pages, first):
         page = f'<page n="{i}">\n{redact(text)}\n</page>'
         if used + len(page) > limit:
             room = limit - used - len(f'<page n="{i}">\n\n</page>')
@@ -295,8 +332,14 @@ def pages_to_record(pages: list[str], limit: int | None = None) -> str:
     return "\n".join(parts)
 
 
+pdf_calls = 0  # Model calls for document reading since start, counting retries. Evals report it.
+
+
 def _call_pdf_model(record: str, model: str) -> tuple[PdfReading, int, int]:
     from google.genai import types
+
+    global pdf_calls
+    pdf_calls += 1
 
     client = _client(os.environ["GEMINI_API_KEY"], PDF_TIMEOUT_MS)
     response = client.models.generate_content(
@@ -313,30 +356,98 @@ def _call_pdf_model(record: str, model: str) -> tuple[PdfReading, int, int]:
     usage = getattr(response, "usage_metadata", None)
     tokens_in = getattr(usage, "prompt_token_count", 0) or 0
     tokens_out = (getattr(usage, "candidates_token_count", 0) or 0) + (getattr(usage, "thoughts_token_count", 0) or 0)
-    return PdfReading.model_validate_json(response.text), tokens_in, tokens_out
+    return PdfReading.model_validate_json(response.text or ""), tokens_in, tokens_out
+
+
+def sections(page_count: int, size: int | None = None) -> list[tuple[int, int]]:
+    """(first, last) page numbers of each section, in order. Sections are as even as they can be: 5 pages are 3 + 2."""
+    size = size or PDF_SECTION_PAGES
+    if page_count <= size:
+        return [(1, page_count)] if page_count else []
+    count = -(-page_count // size)
+    base, extra = divmod(page_count, count)
+    out, first = [], 1
+    for i in range(count):
+        last = first + base + (1 if i < extra else 0) - 1
+        out.append((first, last))
+        first = last + 1
+    return out
+
+
+def merge_readings(parts: list[PdfReading]) -> PdfReading:
+    """One reading from the readings of each section, in page order.
+
+    The first section names the record: its type, title and date. Candidates and signature lines are joined.
+    Nothing here decides anything: code in app/pipeline.py checks every quote and signature against the page text.
+    """
+    head = parts[0]
+    return PdfReading(
+        document_type=head.document_type,
+        title=head.title or next((p.title for p in parts if p.title), ""),
+        date=head.date or next((p.date for p in parts if p.date), ""),
+        draft=any(p.draft for p in parts),
+        signatures=[sig for p in parts for sig in p.signatures],
+        candidates=[c for p in parts for c in p.candidates],
+    )
+
+
+def _wait_for_live_call(seconds: float) -> bool:
+    deadline = time.monotonic() + seconds
+    while not _allow_live_call():
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(1)
+    return True
+
+
+def _read_section(record: str) -> tuple[PdfReading, int, int, str]:
+    """One model call, with one retry on the fallback model. Raises if both fail."""
+    try:
+        return (*_call_pdf_model(record, MODEL), MODEL)
+    except Exception as err:
+        # A cut-off answer is retried on the other model too: it reads the same record with its own budget.
+        if not (_is_busy(err) or _unreadable_answer(err)) or FALLBACK_MODEL == MODEL:
+            raise
+        why = "was busy" if _is_busy(err) else "gave an answer that could not be read"
+        print(f"{MODEL} {why} ({type(err).__name__}). Retrying with {FALLBACK_MODEL}.")
+        return (*_call_pdf_model(record, FALLBACK_MODEL), FALLBACK_MODEL)
 
 
 def read_document(pages: list[str]) -> ReadResult:
-    """Ask the model for candidates from a whole document. Never raises."""
+    """Ask the model for candidates from a whole document, a few pages at a time. Never raises.
+
+    If any section cannot be read, the document is not read: a partial reading would look complete.
+    """
     if not os.getenv("GEMINI_API_KEY"):
         return ReadResult(mode="off", notice="Live reading is off because no API key is set.")
     if not _allow_live_call():
         return ReadResult(mode="limited", notice="The live reading limit was reached. Try again in a minute.")
-    record = pages_to_record(pages)
-    model = MODEL
+    parts, models, tokens_in, tokens_out, room = [], [], 0, 0, MAX_RECORD_CHARS
     try:
-        try:
-            reading, tokens_in, tokens_out = _call_pdf_model(record, model)
-        except Exception as err:
-            if not _is_busy(err) or FALLBACK_MODEL == MODEL:
-                raise
-            print(f"{MODEL} was busy ({type(err).__name__}). Retrying with {FALLBACK_MODEL}.")
-            model = FALLBACK_MODEL
-            reading, tokens_in, tokens_out = _call_pdf_model(record, model)
+        for number, (first, last) in enumerate(sections(len(pages)) or [(1, 0)]):
+            record = pages_to_record(pages[first - 1:last], limit=room, first=first)
+            if number and not record:
+                break  # The record is longer than MAX_RECORD_CHARS; later pages are left out, as before (S6).
+            if number and not _wait_for_live_call(SECTION_WAIT_SECONDS):
+                return ReadResult(mode="limited", notice="The live reading limit was reached. Try again in a minute.")
+            room -= len(record) + 1
+            try:
+                reading, used_in, used_out, model = _read_section(record)
+            except Exception as err:
+                # More sections mean more calls, and one busy answer would lose the whole record. Try once more.
+                if not _is_busy(err):
+                    raise
+                time.sleep(SECTION_RETRY_SECONDS)
+                reading, used_in, used_out, model = _read_section(record)
+            parts.append(reading)
+            tokens_in, tokens_out = tokens_in + used_in, tokens_out + used_out
+            if model not in models:
+                models.append(model)
     except Exception as err:  # The record text is never logged.
         print(f"Document reading failed: {type(err).__name__}")
         return ReadResult(mode="failed", notice=f"Live reading did not finish ({type(err).__name__}).")
+    model = ", ".join(models)
     cost = tokens_in / 1e6 * PRICE_IN_PER_M + tokens_out / 1e6 * PRICE_OUT_PER_M
-    return ReadResult(mode="live", model=model, reading=reading, tokens_in=tokens_in,
+    return ReadResult(mode="live", model=model, reading=merge_readings(parts), tokens_in=tokens_in,
                       tokens_out=tokens_out, cost_usd=round(cost, 6),
                       notice=f"Read by {model}. Every quote is checked against the page text.")

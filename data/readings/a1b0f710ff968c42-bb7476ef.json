@@ -1,0 +1,44 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "letter",
+  "title": "Tollgate Yard",
+  "date": "2026-04-07",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Tollgate Yard Residences LLC",
+    "quote": "Managing Member",
+    "page": 1
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "\"Tollgate Yard Residences LLC shall provide 60",
+    "page": 1,
+    "wording": "shall provide 60",
+    "value": "60 homes"
+   },
+   {
+    "topic": "term",
+    "quote": "affordable homes for 99 years.\"",
+    "page": 1,
+    "wording": "for 99 years",
+    "value": "99 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Tollgate Yard Residences LLC is considering setting aside up to 15 homes for moderate-income",
+    "page": 1,
+    "wording": "setting aside up to 15 homes",
+    "value": "up to 15 homes"
+   }
+  ]
+ },
+ "tokens_in": 1153,
+ "tokens_out": 302,
+ "cost_usd": 0.001101,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

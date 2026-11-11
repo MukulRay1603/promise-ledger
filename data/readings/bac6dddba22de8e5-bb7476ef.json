@@ -1,9 +1,9 @@
 {
  "mode": "live",
- "model": "gemini-3.5-flash",
+ "model": "gemini-flash-lite-latest",
  "reading": {
   "document_type": "agreement",
-  "title": "AFFORDABILITY COVENANT",
+  "title": "Affordability Covenant",
   "date": "2019-05-20",
   "draft": false,
   "signatures": [
@@ -23,69 +23,76 @@
     "topic": "public_support",
     "quote": "The Town has paid the Owner a construction grant of $2,100,000 from the Port Wren Housing Fund.",
     "page": 1,
-    "wording": "has paid",
-    "value": "$2,100,000 construction grant"
+    "wording": "construction grant of $2,100,000",
+    "value": "$2,100,000 grant"
    },
    {
     "topic": "units",
     "quote": "The Owner shall keep 22 of the 140 apartments in the building as restricted apartments, in the mix shown in Schedule 1.",
     "page": 1,
-    "wording": "shall keep",
+    "wording": "shall keep 22 of the 140 apartments",
     "value": "22 of 140 apartments"
    },
    {
     "topic": "income_basis",
     "quote": "A restricted apartment shall be leased only to a household with income not greater than sixty percent (60%) of area median income.",
     "page": 2,
-    "wording": "not greater than",
-    "value": "60% of area median income"
+    "wording": "income not greater than sixty percent (60%) of area median income",
+    "value": "60% of AMI"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Owner shall check each household's income before the lease is signed and keep the papers for five years.",
+    "page": 2,
+    "wording": "keep the papers for five years",
+    "value": "5 years"
    },
    {
     "topic": "rent_limits",
     "quote": "Rent for a restricted apartment shall not exceed the maximum rent published each year by the Osprey County Housing Office for the sixty percent income level.",
     "page": 2,
-    "wording": "shall not exceed",
-    "value": "60% income level maximum rent"
+    "wording": "shall not exceed the maximum rent published each year",
+    "value": "Osprey County Housing Office limit for 60% level"
    },
    {
     "topic": "term",
     "quote": "This Covenant shall remain in effect until June 30, 2049.",
     "page": 2,
-    "wording": "shall remain in effect until",
-    "value": "until June 30, 2049"
+    "wording": "remain in effect until June 30, 2049",
+    "value": "Until June 30, 2049"
    },
    {
     "topic": "responsible_party",
     "quote": "This Covenant runs with the land and binds the Owner and every later owner of the building.",
     "page": 2,
-    "wording": "binds",
-    "value": "Owner and every later owner"
+    "wording": "runs with the land and binds the Owner and every later owner",
+    "value": "Owner and later owners"
    },
    {
     "topic": "reporting",
     "quote": "The Owner shall submit a certified rent roll to the Town each year no later than February 15.",
     "page": 2,
-    "wording": "shall submit",
-    "value": "certified rent roll annually by February 15"
+    "wording": "shall submit a certified rent roll",
+    "value": "Yearly by February 15"
    },
    {
     "topic": "remedies",
     "quote": "The Town shall send the Owner written notice of a default.",
     "page": 2,
-    "wording": "shall send",
-    "value": "written notice of default"
+    "wording": "shall send the Owner written notice",
+    "value": "Written notice"
    },
    {
     "topic": "remedies",
     "quote": "If the Owner fails to cure a default within 90 days after written notice, the Owner shall repay the Town the full amount of the construction grant.",
     "page": 2,
-    "wording": "shall repay",
-    "value": "repay full construction grant if uncured after 90 days"
+    "wording": "repay the Town the full amount of the construction grant",
+    "value": "90 days to cure, then full grant repayment"
    }
   ]
  },
- "tokens_in": 1173,
- "tokens_out": 2338,
- "cost_usd": 0.006197,
- "notice": "Read by gemini-3.5-flash. Every quote is checked against the page text."
+ "tokens_in": 1608,
+ "tokens_out": 1001,
+ "cost_usd": 0.002985,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

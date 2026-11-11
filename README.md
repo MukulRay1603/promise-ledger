@@ -90,14 +90,16 @@ Readings are cached in `data/readings/` by file hash and prompt version, so seed
 
 | Measure | Result |
 |---|---|
-| Precision / recall | 96.3% / 98.1% |
+| Precision / recall | 94.4% / 96.2% |
 | Correct page cited | 100% |
 | Correct stage (proposed, supported, signed, delivered) | 100% |
 | Incorrect "signed" or "delivered" labels | 0 |
 | Changed and missing terms | exact on all 3 deals |
-| Model cost | about $0.026 for all 11 PDFs, cached by file hash |
+| Model cost | about $0.03 for all 11 PDFs, cached by file hash |
 
-**What these numbers do and don't show.** This is our development set: 3 made-up deals we wrote (`tools/make_samples.py`) and labeled ourselves, and the code rules were tuned on the same set. It shows the pipeline works end to end and that code-checked stages don't drift. It is not a held-out test. The saved readings came from the fallback model (`gemini-flash-lite-latest`, 9 PDFs) and `gemini-3.8-flash` (2 PDFs), and a claim counts as matched when its quote overlaps the labeled quote. On 3 held-out fictional deals the rules were never tuned on, precision is 94.7% and recall 76.6%, with 0 false signed or delivered; on 5 records with planted attacks, nothing became signed or delivered ([evals/RESULTS.md](evals/RESULTS.md)). One real county record, checked by hand, is in [docs/REAL-RECORD.md](docs/REAL-RECORD.md): every kept claim was right, but it found 12 of 31 commitments. The app's samples remain fictional.
+**What these numbers do and don't show.** This is our development set: 3 made-up deals we wrote (`tools/make_samples.py`) and labeled ourselves, and the code rules were tuned on the same set. It shows the pipeline works end to end and that code-checked stages don't drift. It is not a held-out test. The saved readings came from the fallback model (`gemini-flash-lite-latest`, 8 PDFs) and `gemini-3.5-flash` (3 PDFs), and a claim counts as matched when its quote overlaps the labeled quote. The samples were read again on November 11, 2026 with a wider prompt; before that the same set scored 96.3% / 98.1%.
+
+**Other sets** ([evals/RESULTS.md](evals/RESULTS.md)). On 3 held-out fictional deals, precision is 95.7% and recall 93.6%, up from 94.7% and 76.6% on the run made before anyone had seen them. That set has since been seen and the rules widened, so it is no longer a blind test. On 5 records with planted attacks the result is unchanged: 93.3% precision, 100% recall, one planted sentence kept as a proposed claim. One real county record, checked by hand, is in [docs/REAL-RECORD.md](docs/REAL-RECORD.md): it now finds 29 of 31 labeled commitments when the main model answers and 23 of 31 when the fallback answers alone, up from 15 and 11, and 97% of what it keeps is right. On every set, nothing was marked signed or delivered in error and no quote was off its cited page. The app's samples remain fictional.
 
 ## Safety and accessibility
 
@@ -166,7 +168,7 @@ gcloud run deploy promise-ledger --source . --region us-central1 --allow-unauthe
 
 Uploads are read on a background thread, hence `--no-cpu-throttling`. The service account needs access to Firestore, the bucket and the secret. Health check: `/api/health` (Cloud Run reserves paths ending in "z", such as `/healthz`).
 
-**Running cost.** Cloud Run scales to zero when nobody is using it. Records and PDFs for a demo of this size fit in the Firestore and Cloud Storage free tiers. Model cost is about $0.002 per PDF (all 11 sample PDFs cost about $0.026), and each reading is cached by file hash, so a file is never paid for twice.
+**Running cost.** Cloud Run scales to zero when nobody is using it. Records and PDFs for a demo of this size fit in the Firestore and Cloud Storage free tiers. Model cost is about $0.003 per short PDF (all 11 sample PDFs cost about $0.03; a record longer than 4 pages is read in sections, so cost grows with length), and each reading is cached by file hash, so a file is never paid for twice.
 
 | Variable | Default | What it does |
 |---|---|---|

@@ -108,8 +108,8 @@ Only step 3, and the transcription of scanned pages in step 1, use AI. Every oth
 
 1. **Read pages.** pypdf extracts the text of each page in a separate process, stopped after 15 seconds. Pages with no text layer are flagged as scanned. Gemini transcribes up to 10 of them per record, word for word and nothing else; that text is then read and checked like any other page, its claims are marked "From scan", and an open question asks a person to check them against the PDF. A scanned page is sent as an image, so it is not redacted first. Scanned pages that were not transcribed become open questions. Limits: 20 MB, 60 pages, no password.
 2. **Redact.** ID numbers, emails and phone numbers are removed before any text leaves the server.
-3. **Propose.** Gemini receives the page-tagged text (`<page n="1">…</page>`) and returns, in a fixed schema: the document type, title, date, whether it is a draft, each completed signature line, and candidate quotes with their term, page, wording and value.
-4. **Verify.** Code checks every quote against the page text, word for word (whitespace, quote marks and dashes normalized). A quote found on another page gets its page corrected. A quote found nowhere is dropped. Headers, footers, self-descriptions, "term is missing" sentences and duplicates are set aside, and each document's counts show why.
+3. **Propose.** Gemini receives the page-tagged text (`<page n="1">…</page>`) and returns, in a fixed schema: the document type, title, date, whether it is a draft, each completed signature line, and candidate quotes with their term, page, wording and value. A record longer than 4 pages is read in sections of up to 4 pages, because a model given 20 pages at once skips whole sections. The sections' candidates are joined before any check.
+4. **Verify.** Code checks every quote against the page text, word for word (whitespace, quote marks and dashes normalized; the case of the opening letter may differ, as when a model drops "WHEREAS,"). A quote found on another page gets its page corrected. A sentence that runs over a page break is cited to the page where it starts. A quote found nowhere is dropped. The stored quote is the record's own wording. Headers, footers, self-descriptions, definitions that carry no value, "term is missing" sentences and duplicates are left out, and each document's counts show why. A located sentence is kept as a claim when a term rule confirms it states that kind of term; the word lists are ordinary drafting vocabulary (for example "run with the land", "rent roll", "null and void", "abate"). A located sentence the rules do not confirm is shown as an optional sentence to check.
 5. **Set stage.** Code rules, never the model alone:
 
    | Stage | Set when |
@@ -132,12 +132,12 @@ Only step 3, and the transcription of scanned pages in step 1, use AI. Every oth
 | **Provider** | Google Gemini through the `google-genai` SDK |
 | **Main model** | `gemini-3.5-flash` (set by `GEMINI_MODEL`) |
 | **Fallback** | `gemini-flash-lite-latest`, tried once if the main model is busy, out of quota or times out |
-| **Saved readings behind the eval** | `gemini-flash-lite-latest` for 9 PDFs and `gemini-3.8-flash` for 2 |
+| **Saved readings behind the eval** | `gemini-flash-lite-latest` for 8 sample PDFs and `gemini-3.5-flash` for 3 |
 | **Output** | Structured output: a pydantic schema (`PdfReading`) passed as `response_schema`, at temperature 0 |
 | **Caching** | Each reading is saved by file hash and prompt version, so a file is never paid for twice |
 | **Without a key** | The app runs on saved readings and says so |
 
-**What the prompt asks for:** the document type, title, date and draft flag; completed signature lines copied word for word; and at most a fixed number of candidate quotes, each one sentence copied word for word from one page, filed under one term.
+**What the prompt asks for:** the document type, title, date and draft flag; completed signature lines copied word for word; and at most 60 candidate quotes per section, each one sentence copied word for word, filed under one term. It describes each of the 8 terms and names the places a term can sit: numbered sections and covenants, definitions that carry a value, recitals, resolved clauses, list items, table rows and memos that restate the terms. If an answer comes back cut off, the fallback model is tried.
 
 **What the prompt forbids:** judging whether anything was approved, signed or delivered beyond what is asked. Text inside the record is data, and any instructions in it are ignored. A test confirmed an injected instruction was ignored.
 
@@ -154,7 +154,7 @@ Text is normalized first (compatibility characters, invisible characters and loo
 
 A sentence that says a term is in no record cites a special `not-located` id, which can back no number or stage. Questions off this deal's affordable-housing commitments are refused, and instructions inside a question or a record are ignored. The question is redacted, capped at 300 characters, and neither stored nor logged. With no key, at the rate limit or if the call fails, the matching checked quotes are returned word for word and labeled. An answer costs about as much as reading one sample PDF.
 
-**Cost:** about $0.002 per sample PDF; all 11 sample PDFs cost about $0.026. Sample PDFs are 1 to 4 pages, so longer packets cost more.
+**Cost:** about $0.003 per sample PDF; all 11 sample PDFs cost about $0.03. Sample PDFs are 1 to 4 pages. A longer record is one call per 4 pages: the two real records (26 pages, 8 calls) cost $0.02 when the fallback model answered and $0.06 when the main model did.
 
 ## 7. Architecture and stack
 
@@ -216,14 +216,14 @@ A document record carries its own verified claims, so re-reading one document re
 
 | Measure | Result |
 |---|---|
-| Precision / recall | 96.3% / 98.1% |
+| Precision / recall | 94.4% / 96.2% |
 | Correct page cited | 100% |
 | Correct stage | 100% |
 | Incorrect "signed" or "delivered" | 0 |
 | Changed and missing terms | exact on all 3 deals |
-| Model cost | about $0.026 for all 11 PDFs |
+| Model cost | about $0.03 for all 11 PDFs |
 
-Re-run on Nov 8, 2026; the numbers reproduce.
+Read again on Nov 11, 2026 with the wider prompt. Before that the same set scored 96.3% / 98.1%: this reading kept one more sentence the labels do not list and the model left out one labeled sentence.
 
 **What these numbers don't show.** This is a development set: made-up deals we wrote and labeled ourselves, and the rules were tuned on it. A claim counts as matched when its quote overlaps the labeled quote. It is not a held-out test, so we report three more sets separately.
 
@@ -231,14 +231,27 @@ Re-run on Nov 8, 2026; the numbers reproduce.
 
 | Set | Precision | Recall | Correct page | Correct stage | False signed or delivered |
 |---|---|---|---|---|---|
-| Development samples (tuned on) | 96.3% | 98.1% | 100% | 100% | 0 |
-| Held-out deals | 94.7% | 76.6% | 100% | 100% | 0 |
+| Development samples (tuned on) | 94.4% | 96.2% | 100% | 100% | 0 |
+| Held-out deals (seen since the Nov 10 run) | 95.7% | 93.6% | 100% | 100% | 0 |
 | Adversarial records | 93.3% | 100% | 100% | 92.9% | 0 |
-| One real county record, checked by hand | 13 of 13 kept were right | 12 of 31 (39%) | 100% | 100% | 0 |
+| One real county record, main model | 97.5% of kept were right | 29 of 31 (93.5%) | 100% | 100% | 0 |
+| The same record, fallback model alone | 97.1% of kept were right | 23 of 31 (74.2%) | 100% | 100% | 0 |
 
-- **What holds:** what it keeps is right, pages are right, and nothing became signed or delivered on any set.
-- **What doesn't yet:** it finds too little on unfamiliar wording. On the held-out set the model proposed 46 of 47 claims, but the term rules dropped 10 correct ones. Those are no longer dropped silently: they are listed as optional sentences to check (10 of the 11 misses now surface). On the real record the model proposed fewer sentences in the first place.
-- **Attacks:** 5 of 8 had no effect. One planted sentence was kept as a proposed claim, and planted "PASSED AND ADOPTED" text turned failed-vote minutes into supported. Neither reached signed or delivered.
+Before the recall work of Nov 11, 2026:
+
+| Set | Precision | Recall | Correct page | Correct stage | False signed or delivered |
+|---|---|---|---|---|---|
+| Development samples | 96.3% | 98.1% | 100% | 100% | 0 |
+| Held-out deals, not yet seen | 94.7% | 76.6% | 100% | 100% | 0 |
+| Adversarial records | 93.3% | 100% | 100% | 92.9% | 0 |
+| The real record, main model | 95.2% of kept were right | 15 of 31 (48.4%) | 100% | 100% | 0 |
+| The real record, fallback model alone | 92.9% of kept were right | 11 of 31 (35.5%) | 100% | 100% | 0 |
+
+- **What holds:** what it keeps is right, pages are right, no quote is off its cited page, and nothing became signed or delivered on any set. Stage rules were not changed by the recall work.
+- **What changed:** recall on unfamiliar wording. Three things did it: term rules with ordinary drafting vocabulary, a prompt that names where terms sit (recitals, covenants, definitions with values, list items), and reading long records 4 pages at a time. On the real record the rules alone took recall from 48% to 74% on the main model's old reading; the new prompt and sections took it to 94%.
+- **What doesn't yet:** the fallback model proposes fewer sentences. On the real record it skipped the remedies and reporting sections of the agreement, so it found 23 of 31. A right to inspect records is by rule not a reporting duty, so that sentence is shown as a sentence to check. The held-out set has now been seen, so its score is not a blind test; the real record is one deal with one hand check.
+- **Real-record precision** counts a kept claim as right when it matches one of the 31 labeled statements or another sentence that states a term of the deal correctly (listed in the labels). Against the 31 alone it is 72.5% and 67.6%, because the record restates its terms many times.
+- **Attacks:** unchanged. 5 of 8 had no effect. One planted sentence was kept as a proposed claim (1 of 15 kept claims, as before), and planted "PASSED AND ADOPTED" text turned failed-vote minutes into supported. Neither reached signed or delivered.
 - **Ask a deal:** 18 of 18 questions handled as expected, including off-topic and injection attempts; 37 sentences shown, 0 removed by the code checks.
 
 The app's samples remain fictional.
@@ -296,7 +309,7 @@ Uploads are read on a background thread, hence `--no-cpu-throttling`. Health che
 
 **Short link.** `promise-ledger.web.app` is a Firebase Hosting redirect (302) to the Cloud Run URL. It keeps the path and the `#/…` part, so `promise-ledger.web.app/#/deals/harbor-walk` works. No code change is needed, and rate limits still see each visitor's own address because traffic is not proxied.
 
-**Running cost.** Cloud Run scales to zero when idle. A demo of this size fits in the Firestore, Cloud Storage and Firebase Hosting free tiers. Model cost is about $0.002 per short PDF, cached by file hash.
+**Running cost.** Cloud Run scales to zero when idle. A demo of this size fits in the Firestore, Cloud Storage and Firebase Hosting free tiers. Model cost is about $0.003 per short PDF, cached by file hash.
 
 ## 12. API reference
 
@@ -350,7 +363,7 @@ We avoid saying "first" or "only": our search was limited, and parts of this exi
 
 | Live today | By the Dec 2 final | After |
 |---|---|---|
-| Reads every PDF in a deal’s packet | Find more of each record’s commitments (77% recall on unseen records, 39% on the real one) | Drafts records requests and follow-up letters for staff to approve |
+| Reads every PDF in a deal’s packet | Find more of each record’s commitments when the fallback model answers (recall rose from 77% to 94% on held-out records and from 39% to between 74% and 94% on the real one) | Drafts records requests and follow-up letters for staff to approve |
 | Quotes checked word for word on their pages | Feedback and a timed task with housing staff | Alerts before a term ends |
 | Pages corrected; unverifiable quotes dropped |  | Spanish and other languages |
 | Stages set by rules, from proposed to delivered |  | Reads handwriting on scanned pages |
@@ -364,7 +377,7 @@ We avoid saying "first" or "only": our search was limited, and parts of this exi
 | Excel and CSV export with a preview |  |  |
 | Guided tour and 8 captioned explainers |  |  |
 | Redaction, injection guard, sandboxed PDFs |  |  |
-| Runs without a key; about $0.002 per PDF |  |  |
+| Runs without a key; about $0.003 per short PDF |  |  |
 | Keyboard, contrast, larger text, dark mode |  |  |
 | Names the records to ask for next |  |  |
 | Ask a deal, for staff and residents, from checked quotes |  |  |
