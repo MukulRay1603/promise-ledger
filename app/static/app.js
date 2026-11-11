@@ -721,6 +721,7 @@ const DEAL_TEMPLATE = `
     </div>
     <div class="panel" role="tabpanel" id="changes" aria-labelledby="tab-changes" tabindex="0" hidden>
       <div class="panel-head"><h2>What changed</h2><p class="panel-note">For each term, every record in date order. Words dropped since the previous record are struck through and labeled "Removed". New words are underlined and labeled "Added".</p></div>
+      <div id="paper-trail" class="trail-wrap" hidden></div>
       <div id="change-list" class="change-list"></div>
     </div>
     <div class="panel" role="tabpanel" id="questions" aria-labelledby="tab-questions" tabindex="0" hidden>
@@ -1259,6 +1260,7 @@ function changeStep(claim, previous) {
 }
 
 function renderChanges() {
+  renderTrail();
   const { review, claimsById } = dealState;
   const located = review.terms.filter((term) => term.located);
   const missing = review.terms.filter((term) => !term.located);
@@ -1276,6 +1278,65 @@ function renderChanges() {
       : null,
   );
 }
+
+// ---------- Paper trail ----------
+// Every record in date order, every term as a thread through them. A thread turns amber where the review says the
+// wording changed. The picture uses the server's own "wording differs" decision, so it cannot disagree with it.
+const normValue = (v) => String(v || "").toLowerCase().replace(/\s+/g, " ").trim();
+
+function renderTrail() {
+  const host = byId("paper-trail");
+  if (!host || !dealState) return;
+  const { review, claimsById } = dealState;
+  const located = review.terms.filter((t) => t.located);
+  const docIds = new Set(located.flatMap((t) => t.claim_ids.map((id) => claimsById.get(id)?.document)).filter(Boolean));
+  const docs = review.documents.filter((d) => docIds.has(d.id)).sort((a, b) => (a.date || "").localeCompare(b.date || "") || a.id.localeCompare(b.id));
+  if (docs.length < 2 || !located.length) { host.replaceChildren(); host.hidden = true; return; }
+  host.hidden = false;
+  const terms = [...located].sort((a, b) => Number(b.wording_differs) - Number(a.wording_differs));
+  const stageOf = (doc) => {
+    const ids = located.flatMap((t) => t.claim_ids).map((id) => claimsById.get(id)).filter((c) => c?.document === doc.id);
+    return ids.reduce((best, c) => (STAGES.indexOf(c.status) > STAGES.indexOf(best) ? c.status : best), "proposed");
+  };
+  const head = el("tr", {}, el("th", { scope: "col", class: "trail-corner" }, el("span", { class: "visually-hidden" }, "Term")),
+    ...docs.map((doc, i) => el("th", { scope: "col", class: "trail-doc", style: `--c:${i}` },
+      el("span", { class: "trail-sheet", "aria-hidden": "true" }, el("span"), el("span"), el("span")),
+      el("span", { class: "trail-doc-type" }, doc.type || "Record"),
+      el("span", { class: "trail-doc-date" }, doc.date ? formatDate(doc.date) : "Undated"),
+      tag(stageOf(doc)))));
+  const rows = terms.map((term) => {
+    let previous = null;
+    const cells = docs.map((doc, i) => {
+      const claim = term.claim_ids.map((id) => claimsById.get(id)).find((c) => c?.document === doc.id);
+      if (!claim) return el("td", { class: `trail-cell trail-gap${previous ? " trail-through" : ""}`, style: `--c:${i}` },
+        el("span", { class: "visually-hidden" }, "Not in this record"));
+      const value = comparedValue(claim);
+      const changed = Boolean(previous) && term.wording_differs && normValue(value) !== normValue(previous);
+      const kind = !previous ? "trail-first" : changed ? "trail-changed" : "trail-same";
+      previous = value;
+      return el("td", { class: `trail-cell ${kind}`, style: `--c:${i}` },
+        el("button", { type: "button", class: "trail-pill", onclick: (event) => openSource(claim, event.currentTarget),
+          "aria-label": `${term.label}: ${value}, ${doc.type || "record"} ${doc.date ? formatDate(doc.date) : ""}${changed ? ", changed from the previous record" : ""}. Open source.` },
+          changed ? el("span", { class: "trail-mark", "aria-hidden": "true" }, "Δ") : null, value));
+    });
+    return el("tr", { class: term.wording_differs ? "trail-row-differs" : null },
+      el("th", { scope: "row", class: "trail-term" }, term.label, term.wording_differs ? el("span", { class: "trail-flag" }, "changed") : null), ...cells);
+  });
+  const animate = !reducedMotion.matches && !trailSeen.has(dealState.id);
+  trailSeen.add(dealState.id);
+  host.className = `trail-wrap${animate ? " trail-animate" : ""}`;
+  host.replaceChildren(
+    el("div", { class: "trail-head" },
+      el("h3", {}, "Paper trail"),
+      el("ul", { class: "trail-legend", "aria-label": "Legend" },
+        el("li", { class: "lg-same" }, "Same wording"), el("li", { class: "lg-changed" }, "Wording changed"), el("li", { class: "lg-gap" }, "Not in this record")),
+      el("p", { class: "trail-swipe", "aria-hidden": "true" }, "Swipe for later records →")),
+    el("div", { class: "trail-scroll", tabindex: "0", role: "region", "aria-label": "Paper trail: each term across the records, in date order" },
+      el("table", { class: "trail" },
+        el("caption", { class: "visually-hidden" }, "Each term's wording in every record, oldest first. Select a value to open its source page."),
+        el("thead", {}, head), el("tbody", {}, ...rows))));
+}
+const trailSeen = new Set();
 
 function renderQuestions() {
   const { questions } = dealState.review;

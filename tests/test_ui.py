@@ -221,6 +221,15 @@ class Rules(unittest.TestCase):
         self.assertIn(".scene-animate .scene-lit { animation: none", self.css)
         self.assertIn(".promise-scene { display: none !important; }", self.css)
 
+    def test_paper_trail(self):
+        # The trail is a real table, uses the server's own "wording differs" decision, and links each value to its source.
+        js = self.js["app.js"]
+        self.assertIn('id="paper-trail"', js)
+        self.assertIn("term.wording_differs && normValue(value) !== normValue(previous)", js)
+        self.assertIn('el("table", { class: "trail" }', js)
+        self.assertIn("openSource(claim, event.currentTarget)", js)
+        self.assertIn(".trail-wrap { display: none !important; }", self.css)
+
     def test_reduced_motion_and_print(self):
         self.assertIn("prefers-reduced-motion: reduce", self.css)
         self.assertGreaterEqual(self.css.count("prefers-reduced-motion: reduce"), 3)  # Base, landing and printer layers.
