@@ -1,73 +1,91 @@
 {
  "mode": "live",
- "model": "gemini-flash-lite-latest",
+ "model": "gemini-3.5-flash",
  "reading": {
   "document_type": "resolution",
   "title": "A RESOLUTION OF THE CITY COUNCIL OF THE CITY OF LANTERN BAY CONCERNING PAYMENTS IN LIEU OF TAXES FOR THE BEACON POINT APARTMENTS",
   "date": "2025-05-13",
   "draft": false,
-  "signatures": [],
+  "signatures": [
+   {
+    "party": "City of Lantern Bay",
+    "quote": "[signature on file]",
+    "page": 2
+   },
+   {
+    "party": "City of Lantern Bay",
+    "quote": "[signature on file]",
+    "page": 2
+   }
+  ],
   "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "WHEREAS, the owner has asked the City to accept an annual payment in lieu of taxes;",
+    "page": 1,
+    "wording": "asked the City to accept an annual payment in lieu of taxes",
+    "value": "annual payment in lieu of taxes"
+   },
    {
     "topic": "public_support",
     "quote": "Section 1. The City Council approves a payment in lieu of taxes for Beacon Point for a period of 15 years.",
     "page": 1,
-    "wording": "approves",
-    "value": "15 years"
+    "wording": "approves a payment in lieu of taxes",
+    "value": "payment in lieu of taxes for 15 years"
    },
    {
     "topic": "units",
     "quote": "(a) 16 of the 80 homes are reserved as affordable homes;",
     "page": 1,
-    "wording": "are reserved",
+    "wording": "reserved as affordable homes",
     "value": "16 of 80 homes"
    },
    {
     "topic": "income_basis",
     "quote": "(b) each affordable home is leased to a household with income at or below 60 percent of area median income;",
     "page": 1,
-    "wording": "at or below",
-    "value": "60 percent of AMI"
+    "wording": "income at or below 60 percent of area median income",
+    "value": "at or below 60% of area median income"
    },
    {
     "topic": "rent_limits",
     "quote": "(c) rents do not exceed the 60 percent rent limit based on the HUD income limits published each year;",
     "page": 1,
-    "wording": "do not exceed",
-    "value": "60 percent rent limit"
+    "wording": "rents do not exceed the 60 percent rent limit",
+    "value": "60% rent limit"
    },
    {
     "topic": "term",
     "quote": "(d) the requirements last for 30 years from the date the first affordable home is leased;",
     "page": 1,
-    "wording": "last for",
-    "value": "30 years"
+    "wording": "last for 30 years",
+    "value": "30 years from the date the first affordable home is leased"
    },
    {
     "topic": "responsible_party",
     "quote": "(e) the owner and any later owner of the property are responsible for meeting the requirements;",
     "page": 2,
-    "wording": "are responsible",
+    "wording": "owner and any later owner of the property are responsible",
     "value": "owner and any later owner"
    },
    {
     "topic": "reporting",
     "quote": "(f) the owner files an annual compliance certificate with the City by March 1 of each year; and",
     "page": 2,
-    "wording": "files",
-    "value": "annual compliance certificate by March 1"
+    "wording": "files an annual compliance certificate",
+    "value": "annual compliance certificate by March 1 each year"
    },
    {
     "topic": "remedies",
     "quote": "(g) the owner repays all abated taxes with interest if a default is not cured within 60 days after written notice.",
     "page": 2,
-    "wording": "repays",
-    "value": "repay all abated taxes with interest"
+    "wording": "repays all abated taxes with interest",
+    "value": "repay all abated taxes with interest if default not cured within 60 days"
    }
   ]
  },
- "tokens_in": 1062,
- "tokens_out": 684,
- "cost_usd": 0.002029,
- "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+ "tokens_in": 1497,
+ "tokens_out": 2852,
+ "cost_usd": 0.007579,
+ "notice": "Read by gemini-3.5-flash. Every quote is checked against the page text."
 }

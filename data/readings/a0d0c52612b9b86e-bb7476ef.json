@@ -13,51 +13,51 @@
     "page": 1
    },
    {
-    "party": "City of Lantern Bay",
+    "party": "Housing Compliance Analyst",
     "quote": "Housing Compliance Analyst",
     "page": 1
    }
   ],
   "candidates": [
    {
-    "topic": "reporting",
-    "quote": "This certificate is submitted under Section 7.1 of the Agreement for reporting year 2024.",
-    "page": 1,
-    "wording": "submitted under",
-    "value": "reporting year 2024"
-   },
-   {
     "topic": "units",
     "quote": "Affordable Homes required (Section 4.1)",
     "page": 1,
-    "wording": "required",
+    "wording": "Affordable Homes required",
     "value": "9"
    },
    {
     "topic": "units",
     "quote": "As of December 31, 2024, 9 of the 9 required Affordable Homes were leased to income-qualified households.",
     "page": 1,
-    "wording": "required",
-    "value": "9 of 9 required"
+    "wording": "9 required Affordable Homes",
+    "value": "9"
    },
    {
     "topic": "income_basis",
     "quote": "All 9 households in Affordable Homes had incomes at or below 50 percent of Area Median Income when last certified.",
     "page": 1,
-    "wording": "at or below",
+    "wording": "at or below 50 percent of Area Median Income",
     "value": "50 percent of Area Median Income"
    },
    {
     "topic": "rent_limits",
     "quote": "No Affordable Home was charged rent above the limit in Section 4.3 during the reporting year.",
     "page": 1,
-    "wording": "above the limit",
+    "wording": "charged rent above the limit",
     "value": "Section 4.3 limit"
+   },
+   {
+    "topic": "reporting",
+    "quote": "This certificate is submitted under Section 7.1 of the Agreement for reporting year 2024.",
+    "page": 1,
+    "wording": "This certificate is submitted",
+    "value": "Section 7.1"
    }
   ]
  },
- "tokens_in": 891,
- "tokens_out": 502,
- "cost_usd": 0.001522,
+ "tokens_in": 1326,
+ "tokens_out": 513,
+ "cost_usd": 0.00168,
  "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

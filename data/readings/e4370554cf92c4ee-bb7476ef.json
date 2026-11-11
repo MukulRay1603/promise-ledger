@@ -1,6 +1,6 @@
 {
  "mode": "live",
- "model": "gemini-3.5-flash",
+ "model": "gemini-flash-lite-latest",
  "reading": {
   "document_type": "agreement",
   "title": "DECLARATION OF AFFORDABILITY COVENANTS",
@@ -9,7 +9,7 @@
   "signatures": [
    {
     "party": "LARKSPUR COMMUNITY BUILDERS, INC.",
-    "quote": "By: /s/ President",
+    "quote": "/s/ President",
     "page": 2
    }
   ],
@@ -33,7 +33,7 @@
     "quote": "The total of rent and tenant-paid utilities for a restricted home may not exceed thirty percent of the income limit for that home.",
     "page": 1,
     "wording": "may not exceed",
-    "value": "30% of the income limit"
+    "value": "30 percent of the income limit"
    },
    {
     "topic": "term",
@@ -54,12 +54,12 @@
     "quote": "Declarant shall give the Village a list of the restricted homes, the household incomes and the rents charged by March 1 of every year.",
     "page": 1,
     "wording": "shall give",
-    "value": "yearly by March 1"
+    "value": "by March 1 of every year"
    }
   ]
  },
- "tokens_in": 849,
- "tokens_out": 1454,
- "cost_usd": 0.00389,
- "notice": "Read by gemini-3.5-flash. Every quote is checked against the page text."
+ "tokens_in": 1284,
+ "tokens_out": 561,
+ "cost_usd": 0.001788,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

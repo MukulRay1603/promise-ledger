@@ -30,13 +30,13 @@
     "topic": "term",
     "quote": "The end date in Section 5.1 of the Covenant is changed from June 30, 2049 to June 30, 2059.",
     "page": 1,
-    "wording": "is changed from June 30, 2049 to June 30, 2059",
+    "wording": "changed from June 30, 2049 to June 30, 2059",
     "value": "June 30, 2059"
    }
   ]
  },
- "tokens_in": 791,
- "tokens_out": 1789,
- "cost_usd": 0.00471,
+ "tokens_in": 1226,
+ "tokens_out": 1454,
+ "cost_usd": 0.004003,
  "notice": "Read by gemini-3.5-flash. Every quote is checked against the page text."
 }

@@ -1,9 +1,9 @@
 {
  "mode": "live",
- "model": "gemini-flash-lite-latest",
+ "model": "gemini-3.5-flash",
  "reading": {
   "document_type": "letter",
-  "title": "Harbor Walk, Old Ferry lot",
+  "title": "Re: Harbor Walk, Old Ferry lot",
   "date": "2025-02-20",
   "draft": true,
   "signatures": [],
@@ -12,20 +12,20 @@
     "topic": "units",
     "quote": "Harbor Walk Partners will explore setting aside up to 12 homes at reduced rents.",
     "page": 1,
-    "wording": "will explore setting aside",
+    "wording": "setting aside up to 12 homes",
     "value": "up to 12 homes"
    },
    {
     "topic": "reporting",
     "quote": "The company will explore sending the City a yearly report on these homes.",
     "page": 1,
-    "wording": "will explore sending",
+    "wording": "sending the City a yearly report",
     "value": "yearly report"
    }
   ]
  },
- "tokens_in": 667,
- "tokens_out": 199,
- "cost_usd": 0.000698,
- "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+ "tokens_in": 1102,
+ "tokens_out": 801,
+ "cost_usd": 0.002333,
+ "notice": "Read by gemini-3.5-flash. Every quote is checked against the page text."
 }

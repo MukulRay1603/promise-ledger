@@ -216,26 +216,97 @@ def _page_forms(page_text: str) -> tuple[str, ...]:
     return tuple(forms)
 
 
-def quote_on_page(quote: str, page_text: str) -> bool:
+_SPACES = re.compile(r"\s+")
+
+
+def printed_wording(quote: str, page_text: str) -> str | None:
+    """The quote as the page prints it, or None if the page does not have it.
+
+    Three small differences are tolerated: a trailing period the model added or dropped, spacing, and the case of
+    the first letter. A model often drops the lead-in of a recital and starts the rest with a capital ("The Company shall"
+    for "WHEREAS, the Company shall"). Every other character must match, and the page's own wording is returned.
+    """
     q = normalize(quote)
     if len(q) < 8:
-        return False
+        return None
     forms = _page_forms(page_text)
-    if any(q in form for form in forms):
-        return True
-    # Tolerate a trailing period the model added or dropped.
-    q2 = q.rstrip(".")
-    return len(q2) >= 8 and any(q2 in form for form in forms)
+    for form in forms:
+        if q in form:
+            return q
+    for candidate in (q.rstrip("."), q[0].swapcase() + q[1:], (q[0].swapcase() + q[1:]).rstrip(".")):
+        if len(candidate) >= 8 and any(candidate in form for form in forms):
+            return candidate
+    # A PDF text layer can put spaces where the page shows none ("$ 200", "Tax -Property", "re -developed").
+    # The same characters in the same order, compared without spaces, are the same words.
+    tight = _SPACES.sub("", q).rstrip(".")
+    if len(tight) >= 8 and any(tight in _SPACES.sub("", form) for form in forms):
+        return q
+    return None
+
+
+def quote_on_page(quote: str, page_text: str) -> bool:
+    return printed_wording(quote, page_text) is not None
+
+
+# A line at the foot or head of a page that is not part of a sentence: blank, or only a page number.
+_PAGE_EDGE = re.compile(r"^\W*(?:page\s*)?\d{0,4}(?:\s*of\s*\d+)?\W*$", re.I)
+
+
+def _across_break(first: str, second: str, chrome: frozenset[str]) -> str:
+    """Two pages as one text, without the page numbers, headers and footers printed between them."""
+    def edge(line: str) -> bool:
+        return bool(_PAGE_EDGE.match(line)) or normalize(line).lower() in chrome
+
+    head, tail = first.split("\n"), second.split("\n")
+    while head and edge(head[-1]):
+        head.pop()
+    while tail and edge(tail[0]):
+        tail.pop(0)
+    return "\n".join(head + tail)
+
+
+def wording_across_pages(quote: str, pages: list[str], start: int) -> str | None:
+    """The quote as printed, if it starts on page `start` and ends on the next page. None otherwise.
+
+    A sentence can run over a page break. It is matched against the two pages joined, with page numbers and
+    repeated header or footer lines at the break left out. A quote that is whole on either page is not a
+    cross-page quote.
+    """
+    if not 1 <= start < len(pages):
+        return None
+    first, second = pages[start - 1], pages[start]
+    if quote_on_page(quote, first) or quote_on_page(quote, second):
+        return None
+    return printed_wording(quote, _across_break(first, second, frozenset(repeated_lines(pages))))
+
+
+def quote_at(quote: str, pages: list[str], page: int) -> bool:
+    """True if the quote is on this page, or starts on it and ends on the next."""
+    if not 1 <= page <= len(pages):
+        return False
+    return quote_on_page(quote, pages[page - 1]) or wording_across_pages(quote, pages, page) is not None
 
 
 def locate(quote: str, pages: list[str], stated: int) -> int | None:
-    """The page the quote is on: the stated page first, then any other. None if nowhere."""
+    """The page the quote is on: the stated page first, then any other. None if nowhere.
+
+    A quote that runs over a page break is cited to the page where it starts.
+    """
     if 1 <= stated <= len(pages) and quote_on_page(quote, pages[stated - 1]):
         return stated
     for number, text in enumerate(pages, 1):
         if number != stated and quote_on_page(quote, text):
             return number
+    # The model may cite the page where the sentence starts or the page where it ends.
+    for start in dict.fromkeys([stated, stated - 1, *range(1, len(pages))]):
+        if wording_across_pages(quote, pages, start) is not None:
+            return start
     return None
+
+
+def printed_quote(quote: str, pages: list[str], page: int) -> str:
+    """The located quote in the record's own words (see printed_wording)."""
+    return (printed_wording(quote, pages[page - 1]) or wording_across_pages(quote, pages, page) or normalize(quote))
 
 
 # ---------------------------------------------------------------------------
@@ -383,7 +454,9 @@ def compare_key(topic: str, quote: str) -> str | None:
             return f"{n['homes']['count']} homes"
         return None
     if topic == "term":
-        if _NOT_AFFORDABILITY.search(q):
+        # A tax period is not the affordability term, unless the sentence itself restricts the homes
+        # or defines the term ("restrict ... for 30 years", '"Term" means ... twenty (20) years').
+        if _NOT_AFFORDABILITY.search(q) and not (_RESTRICTS.search(q) or _TERM_DEFINITION.search(q)):
             return None
         if _END_WORDS.search(q):
             # "ends December 31, 2050", "until June 30, 2049", "expire on January 1, 2066". A start date comes
@@ -408,11 +481,14 @@ def compare_key(topic: str, quote: str) -> str | None:
         m = _DUE.search(q)
         return f"due {m.group(1).lower()} {int(m.group(2))}" if m else None
     if topic == "remedies":
-        m = re.search(r"\b(\d+)\s*days\b", q, re.I)
+        # Only a cure period is compared. An agreement states other spans of days in its remedies (a late charge
+        # after 5 days, termination on 90 days' notice), and those are different remedies, not a changed one.
+        m = re.search(r"\b(\d+)\s*days\b", q, re.I) if _CURE.search(q) else None
         return f"{m.group(1)} days to cure" if m else None
     return None
 
 
+_CURE = re.compile(r"\bcur(?:e|ed|ing)\b|\bcorrect|\bremed(?:y|ied)\b", re.I)
 _MONTHS = ["january", "february", "march", "april", "may", "june", "july",
            "august", "september", "october", "november", "december"]
 
@@ -721,31 +797,60 @@ def canonical_party(party: str, known: list[str]) -> str:
 # Term fit and boilerplate: code rules that keep only sentences that state the term they are filed under
 
 _NUMBER_HOMES = re.compile(r"\b\d[\d,]*\b(?:[^.]{0,40}?)\b(?:homes?|units?|apartments?)\b", re.I)
-_UNITS_WORDS = re.compile(r"afford|reserve|set(?:ting)? aside|set-aside|workforce|income|restricted|required|leased|"
-                          r"reduced rents?", re.I)
-_TERM_WORDS = re.compile(r"\b\d+[\s-]*years?\b|\bends?\b|\buntil\b|\bexpires?\b|\bperiod\b|\bremain in effect\b", re.I)
-_SUPPORT_WORDS = re.compile(r"\btax|payment in lieu|\bPILOT\b|abate|exemption|subsid|loan|grant|incentive|support", re.I)
-_SUPPORT_ACTION = re.compile(r"recommend|approv|adopt|vote|support|award|grant|shall pay|asked staff|confirm", re.I)
+# The word lists below are ordinary drafting vocabulary from agreements, covenants, resolutions and staff memos.
+# They decide only whether a sentence states the kind of term it is filed under. They never set a stage.
+_UNITS_WORDS = re.compile(r"afford|reserve|set(?:ting)? aside|set-aside|workforce|income|restricted|requir|leased|"
+                          r"reduced rents?|below[- ]market", re.I)
+_MONTH = r"(?:january|february|march|april|may|june|july|august|september|october|november|december)"
+_TERM_WORDS = re.compile(r"\b\d+[\s-]*years?\b|\(\d+\)\s*years?\b|\bends?\b|\buntil\b|\bexpir\w*|\bperiods?\b|"
+                         rf"\bthrough (?:and including )?(?:the end of |{_MONTH}\b|\d{{4}}\b)|"
+                         r"\b(?:remain\w*|stay\w*|continu\w*) in (?:full force and )?(?:effect|force)\b|"
+                         r"\bruns? with the (?:land|property)\b|\bperpetu\w+|\brenew\w*|\bexten(?:d|sion)\w*", re.I)
+# Words that make the sentence a restriction on the homes, even when it also names the tax break.
+_RESTRICTS = re.compile(r"\brestrict\w*|\bcovenant\w*|\bremain\w* affordable\b|\baffordability (?:period|term|restriction)", re.I)
+# A definition of the term itself: '"Term" means ... twenty (20) years', '"Affordability Period" means ...'.
+_TERM_DEFINITION = re.compile(r'^(?:\(?[a-z0-9]{1,3}[.)]\s*)?"[^"]{0,40}\b(?:term|period)"\s+(?:means|shall mean|refers to)\b', re.I)
+_SUPPORT_WORDS = re.compile(r"\btax|payment in lieu|\bPILOT\b|abate|exemption|subsid|loan|grant|incentive|support|"
+                            r"rebate|\bwaive|\bfreeze|\bassessment", re.I)
+_SUPPORT_ACTION = re.compile(r"recommend|approv|adopt|vote|support|award|grant|shall pay|asked staff|confirm|"
+                             r"\boffer|\bfreeze|\bholds?\b|"
+                             r"\b(?:shall|will|agree[sd]? to) (?:make|pay|abate|accept|waive|rebate|exempt|reduce)\b|"
+                             r"\brevenue loss\b|\bforgone\b|\bforegone\b", re.I)
+# A request counts when it says how much or how long ("asked for a 50 percent reduction for 20 years").
+# "Asked the City for help with property taxes" states no term.
+_SUPPORT_REQUEST = re.compile(r"\brequest|\bask(?:s|ed|ing)?\b", re.I)
 _MOTION = re.compile(r"\bmoved to\b|\bseconded\b", re.I)
 # A condition the Council puts on its support, such as asking for the terms in writing.
 _SUPPORT_CONDITION = re.compile(r"\bCouncil\b.*\b(?:asked|directed|required) (?:the )?(?:staff|owner|developer)\b|"
                                 r"\bsubject to\b|\bon (?:the )?condition\b", re.I)
 # Status notes ("marked not received") are observations about a duty, not the duty itself.
 _STATUS_NOTE = re.compile(r"\bnot received\b|\bis marked\b|\bwas received\b|\breminder notice\b", re.I)
-_REPORT_WORDS = re.compile(r"report|certif|records?|submit|file|deliver", re.I)
+_REPORT_WORDS = re.compile(r"report|certif|records?|submit|file|deliver|rent roll|\blist\b|\bstatement|\baudit", re.I)
 # A reporting duty has a cadence. A one-off deadline ("a second notice ... by May 15") is a follow-up, not the duty.
 _REPORT_WHEN = re.compile(r"annual|yearly|each year|every year|submitted|reporting year \d{4}", re.I)
-_REMEDY_WORDS = re.compile(r"default|cure|repay|recapture|penalt|terminat|liquidated|breach", re.I)
-_PARTY_WORDS = re.compile(r"responsib|\bbinds?\b|successor|later owner|obligat|liable", re.I)
+# Or it is a standing duty with no date: "shall submit such reports as the County may require".
+_REPORT_DUTY = re.compile(r"\b(?:shall|must|is required to|agrees to)\s+(?:submit|file|deliver|furnish|provide|give|send)\b"
+                          r".*\b(?:reports?|certificat\w+|rent rolls?|statements?)\b", re.I)
+_REMEDY_WORDS = re.compile(r"default|cure|repay|recapture|penalt|terminat|liquidated|breach|violat|\bvoid\b|forfeit|"
+                           r"\brevok|\brescind|claw ?back|\blate (?:charge|fee|payment)|\bdue and payable\b|"
+                           r"\b(?:end|cancel|suspend|withhold|stop)s? (?:the )?(?:[a-z-]+ ){0,2}"
+                           r"(?:abatement|exemption|freeze|rebate|PILOT|payments?|agreement)\b", re.I)
+_PARTY_WORDS = re.compile(r"responsib|\bbinds?\b|\bbound\b|\bbinding (?:up)?on\b|successor|\bassigns\b|\bassignee|"
+                          r"later owner|subsequent owner|obligat|liable", re.I)
 _RENT_WORDS = re.compile(r"\brents?\b|\brental charge", re.I)
 _RENT_LIMIT = re.compile(r"limit|exceed|above|below|percent|%|\bcap\b|maximum|\bHUD\b", re.I)
-_INCOME_WORDS = re.compile(r"income|\bAMI\b|median", re.I)
+_INCOME_WORDS = re.compile(r"income|\bAMI\b|median|\bhouseholds? earning\b", re.I)
 _SELF_DESCRIPTION = re.compile(r"^(?:this|the) (?:memo|memorandum|report|letter|presentation|summary|document)\b"
-                               r"[^.]{0,20}\b(?:reports|describes|summarizes|follows|provides|is)\b", re.I)
+                               r"[^.]{0,20}\b(?:reports|describes|summarizes|follows|provides|is)\b|"
+                               r"^this is (?:a|an|the) (?:request|report|memo|memorandum|summary|update|letter)\b", re.I)
 _TAX_SPAN = re.compile(r"\btax|payment in lieu|\bPILOT\b|abate", re.I)
 
 
+# A question raised in a meeting states no term ("a member asked whether the limits would bind a buyer").
+_QUESTION = re.compile(r"\basked (?:whether|if|about|how|why)\b|\?\s*$", re.I)
+
 MAX_SET_ASIDE = 10
+MIN_PIECE_CHARS = 20  # A shorter quote is not treated as a piece of a longer one.
 
 
 def term_fits(topic: str, quote: str) -> bool:
@@ -754,25 +859,49 @@ def term_fits(topic: str, quote: str) -> bool:
     Number words count as numbers here ("Twelve affordable homes", "thirty years") (L7).
     """
     q = numeric(quote)
+    if _QUESTION.search(q):
+        return False
     if topic == "units":
         return bool(_NUMBER_HOMES.search(q) and _UNITS_WORDS.search(q))
     if topic == "term":
-        return bool(_TERM_WORDS.search(q)) and not _TAX_SPAN.search(q)
+        if not _TERM_WORDS.search(q):
+            return False
+        # A span of years in a sentence about the tax break is the tax period, unless the sentence itself
+        # restricts the homes for that long or defines the term.
+        return not _TAX_SPAN.search(q) or bool(_RESTRICTS.search(q) or _TERM_DEFINITION.search(q))
     if topic == "public_support":
         if _MOTION.search(q):
             return False
-        return bool(_SUPPORT_WORDS.search(q) and _SUPPORT_ACTION.search(q)) or bool(_SUPPORT_CONDITION.search(q))
+        acts = _SUPPORT_ACTION.search(q) or (_SUPPORT_REQUEST.search(q) and re.search(r"\d", q))
+        return bool(_SUPPORT_WORDS.search(q) and acts) or bool(_SUPPORT_CONDITION.search(q))
     if topic == "reporting":
-        return bool(_REPORT_WORDS.search(q) and _REPORT_WHEN.search(q)) and not _STATUS_NOTE.search(q)
+        if _STATUS_NOTE.search(q) or not _REPORT_WORDS.search(q):
+            return False
+        return bool(_REPORT_WHEN.search(q) or _REPORT_DUTY.search(q))
     if topic == "remedies":
         return bool(_REMEDY_WORDS.search(q))
     if topic == "responsible_party":
         return bool(_PARTY_WORDS.search(q))
     if topic == "rent_limits":
-        return bool(_RENT_WORDS.search(q) and _RENT_LIMIT.search(q))
+        # "At below-market rents" describes the homes. It is not a limit on rent.
+        return bool(_RENT_WORDS.search(q) and _RENT_LIMIT.search(re.sub(r"below[- ]market", "", q, flags=re.I)))
     if topic == "income_basis":
         return bool(_INCOME_WORDS.search(q))
     return True
+
+
+def filed_term(topic: str, quote: str) -> str | None:
+    """The term a located sentence is kept under, or None if the rules do not confirm it.
+
+    It is the term the model filed it under, with one correction made by rule: a span of years in a sentence
+    about the tax break is filed by some readings under "term". It is the length of the public support, so it is
+    kept under public support when it passes that rule.
+    """
+    if term_fits(topic, quote):
+        return topic
+    if topic == "term" and _TAX_SPAN.search(numeric(quote)) and term_fits("public_support", quote):
+        return "public_support"
+    return None
 
 
 def repeated_lines(pages: list[str]) -> set[str]:
@@ -789,11 +918,21 @@ _FOOTER = re.compile(r"sample document|\bpage \d+ of \d+\b|made-up demo record",
 _DEFINITION = re.compile(r'^(?:\(?[a-z0-9]{1,3}[.)]\s*)?["“][^"”]{2,60}["”]\s+(?:means|shall mean|refers to)\b', re.I)
 
 
+# A definition that states the term itself: a number of years or months, a percent, an amount, a home count or a date.
+_DEFINED_VALUE = re.compile(r"\b\d+[\s-]*(?:years?|months?|percent)\b|\d\s*%|\$\s*\d|" + _NUMBER_HOMES.pattern + "|"
+                            + _FULL_DATE.pattern, re.I)
+
+
 def is_boilerplate(quote: str, chrome: set[str]) -> bool:
-    """Headers, footers, page numbers and a record describing itself are not terms."""
+    """Headers, footers, page numbers, a record describing itself and definitions that carry no value are not terms.
+
+    A definition that carries the value ('"Term" means ... twenty (20) years') is kept and goes on to the term rules.
+    """
     q = normalize(quote)
     low = q.lower()
-    if _FOOTER.search(q) or _SELF_DESCRIPTION.search(q) or _DEFINITION.search(q):
+    if _FOOTER.search(q) or _SELF_DESCRIPTION.search(q):
+        return True
+    if _DEFINITION.search(q) and not _DEFINED_VALUE.search(numeric(q)):
         return True
     # A quote that sits inside a line repeated on every page is a header or footer.
     return any(low.rstrip(".") in line for line in chrome)
@@ -834,6 +973,7 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
                           "boilerplate": 0, "off_term": 0}
     chrome = repeated_lines(pages)
     seen = set()
+    kept_keys: list[tuple[str, str, int]] = []  # (term, quote, page) of each kept claim, in the same order as `claims`
     set_aside: list[dict] = []  # Quotes found on the page whose wording the term rules did not confirm.
     label = doc.get("type") or TYPE_LABELS.get(kind, "Record")
     for cand in reading.candidates:
@@ -850,7 +990,8 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
         if is_boilerplate(cand.quote, chrome):
             counts["boilerplate"] += 1
             continue
-        if not term_fits(cand.topic, cand.quote):
+        topic = filed_term(cand.topic, cand.quote)
+        if topic is None:
             # Not dropped silently: the quote is real, so a person checks it. It counts toward no term or stage.
             counts["off_term"] += 1
             key = normalize(cand.quote).lower().rstrip(".")
@@ -863,12 +1004,23 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
             counts["duplicates"] += 1
             continue
         seen.add(key)
+        # A piece of a sentence already kept from the same page under the same term is the same claim, not a second one.
+        if any((t, n) == (topic, page) and len(key) >= MIN_PIECE_CHARS and key in k for t, k, n in kept_keys):
+            counts["duplicates"] += 1
+            continue
+        # The other way round, the whole sentence replaces the pieces kept before it.
+        pieces = [i for i, (t, k, n) in enumerate(kept_keys)
+                  if (t, n) == (topic, page) and len(k) >= MIN_PIECE_CHARS and k in key]
+        for i in reversed(pieces):
+            del claims[i], kept_keys[i]
+            counts["duplicates"] += 1
+        kept_keys.append((topic, key, page))
         corrected = page != cand.page
         counts["page_corrected"] += corrected
         wording = cand.wording if normalize(cand.wording).lower() in normalize(cand.quote).lower() else ""
         claim = {
             "id": f"{doc['id']}-{len(claims) + 1:02d}",
-            "quote": normalize(cand.quote),
+            "quote": printed_quote(cand.quote, pages, page),  # The record's own words, not the model's copy.
             "document": doc["id"],
             "document_type": label,
             "document_title": title,
@@ -876,18 +1028,22 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
             "page": page,
             "stated_page": cand.page,
             "page_corrected": corrected,
-            "topic": cand.topic,
+            "topic": topic,
             "status": claim_stage(stage, kind, cand.quote, pages),
             "wording": wording,
-            "value": canonical_value(cand.topic, cand.quote, cand.value),
-            "compare": compare_key(cand.topic, cand.quote),
+            "value": canonical_value(topic, cand.quote, cand.value),
+            "compare": compare_key(topic, cand.quote),
             "verified": True,
             "review_note": ai.REVIEW_LABEL,
-            **numbers(cand.topic, cand.quote),
+            **numbers(topic, cand.quote),
         }
+        if not quote_on_page(cand.quote, pages[page - 1]):  # The sentence runs over the page break.
+            claim["ends_on_page"] = page + 1
         if page in scans:  # The page was a scanned image; its text was transcribed by the model (app/vision.py).
             claim["from_scan"] = True
         claims.append(claim)
+    for number, claim in enumerate(claims, 1):
+        claim["id"] = f"{doc['id']}-{number:02d}"
     counts["kept"] = len(claims)
     kept_quotes = {normalize(c["quote"]).lower().rstrip(".") for c in claims}
     set_aside = [x for x in set_aside if normalize(x["quote"]).lower().rstrip(".") not in kept_quotes]

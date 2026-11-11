@@ -1,0 +1,77 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Sales tax rebate for Larkspur Commons",
+  "date": "2025-10-14",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Village of Stone Hollow",
+    "quote": "/s/ Village President",
+    "page": 1
+   },
+   {
+    "party": "Village of Stone Hollow",
+    "quote": "Attest: /s/ Village Clerk",
+    "page": 1
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "First. The Village Board approves a rebate of the Village share of sales tax on building materials for Larkspur Commons, not to exceed $350,000.",
+    "page": 1,
+    "wording": "approves a rebate",
+    "value": "Sales tax rebate not to exceed $350,000"
+   },
+   {
+    "topic": "remedies",
+    "quote": "Second. The rebate is paid only while each condition in Exhibit A is met.",
+    "page": 1,
+    "wording": "paid only while each condition in Exhibit A is met",
+    "value": "Rebate conditioned on meeting Exhibit A"
+   },
+   {
+    "topic": "reporting",
+    "quote": "Third. The Village Administrator shall report to the Board each year on whether the conditions are met.",
+    "page": 1,
+    "wording": "shall report",
+    "value": "Yearly report to Board"
+   },
+   {
+    "topic": "units",
+    "quote": "Sixteen of the sixty-four homes are rented at restricted rents.",
+    "page": 2,
+    "wording": "are rented at restricted rents",
+    "value": "16 of 64 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Each of those homes is rented to a household at or below fifty percent of area median income.",
+    "page": 2,
+    "wording": "at or below fifty percent of area median income",
+    "value": "50% of area median income"
+   },
+   {
+    "topic": "term",
+    "quote": "The restrictions stay in place until at least January 1, 2066.",
+    "page": 2,
+    "wording": "until at least January 1, 2066",
+    "value": "Until January 1, 2066"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The builder gives the Village a yearly list of the restricted homes and the rents charged.",
+    "page": 2,
+    "wording": "gives the Village a yearly list",
+    "value": "Yearly list of homes and rents"
+   }
+  ]
+ },
+ "tokens_in": 1308,
+ "tokens_out": 693,
+ "cost_usd": 0.002125,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

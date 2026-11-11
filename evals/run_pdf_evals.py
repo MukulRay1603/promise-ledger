@@ -14,6 +14,7 @@ Usage:
   python evals/run_pdf_evals.py              # uses cached readings, live calls only for new files
   python evals/run_pdf_evals.py --budget 30  # cap live model calls (default 30)
   python evals/run_pdf_evals.py --no-cache   # ignore cached readings (still capped)
+  python evals/run_pdf_evals.py --env path/.env   # read GEMINI_API_KEY / GEMINI_MODEL from another file
 Writes evals/results-pdf.json (gitignored).
 """
 from __future__ import annotations
@@ -28,7 +29,19 @@ sys.path.insert(0, str(ROOT))
 
 from dotenv import load_dotenv  # noqa: E402
 
-load_dotenv(ROOT / ".env")
+
+def _env_path(argv: list[str]) -> Path:
+    """--env has to be read before app.ai is imported, because the model name is fixed at import."""
+    for i, arg in enumerate(argv):
+        if arg == "--env" and i + 1 < len(argv):
+            return Path(argv[i + 1])
+        if arg.startswith("--env="):
+            return Path(arg.split("=", 1)[1])
+    return ROOT / ".env"
+
+
+if __name__ == "__main__":  # When another runner imports this module, that runner has loaded the key already.
+    load_dotenv(_env_path(sys.argv[1:]))
 
 from app import ai, deals, pipeline  # noqa: E402
 
@@ -69,15 +82,23 @@ class Budget:
         return ai.read_document(pages)
 
 
-def run_deal(folder: Path, budget: Budget, use_cache: bool) -> dict:
+def run_deal(folder: Path, budget: Budget, use_cache: bool, pdf_dir: Path | None = None) -> dict:
+    """Read and score one deal. With pdf_dir the PDFs are read from that folder (records kept outside the repo),
+    and each file must match the SHA-256 in the manifest."""
     manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
     expected = json.loads((folder / "expected_claims.json").read_text(encoding="utf-8"))
     gold = expected["claims"]
     reviewed_docs = []
     known = [manifest.get("owner") or "", f"City of {manifest.get('city')}"]
     preds, docs = [], []
+    # Pages left out of every score ("ignore"), such as a scanned copy of another record in the same file.
+    ignore = {(x["file"], n) for x in expected.get("excluded_pages", []) if x.get("score") == "ignore" for n in x["pages"]}
+    ignored = 0
     for entry in manifest["documents"]:
-        data = (folder / entry["file"]).read_bytes()
+        data = ((pdf_dir or folder) / entry["file"]).read_bytes()
+        if entry.get("sha256") and pipeline.file_hash(data) != entry["sha256"]:
+            raise SystemExit(f"{entry['file']} is not the file the labels were written for (SHA-256 differs). "
+                             f"Download it again from {entry.get('url')}.")
         pages = pipeline.extract_pages(data)
         sha = pipeline.file_hash(data)
         result, cached = pipeline.read_with_cache(sha, pages, reader=budget.reader, use_cache=use_cache)
@@ -96,6 +117,9 @@ def run_deal(folder: Path, budget: Budget, use_cache: bool) -> dict:
         docs.append(row)
         reviewed_docs.append({"id": entry["id"], "status": "done", "created_at": "", **checked})
         for claim in checked["claims"]:
+            if (entry["file"], claim["page"]) in ignore:
+                ignored += 1
+                continue
             preds.append({**claim, "file": entry["file"]})
 
     review = deals.build_deal_review({"id": folder.name, "name": manifest["deal"], "city": manifest.get("city") or "",
@@ -107,6 +131,12 @@ def run_deal(folder: Path, budget: Budget, use_cache: bool) -> dict:
     pairs = match(preds, gold)
     matched_gold = {g["id"] for _, g in pairs}
     by_pred = {id(p): g for p, g in pairs}
+    # Sentences that state a term correctly but repeat a labeled statement, so they are not in the count for recall.
+    # A kept claim that matches one is not an error. Only the real record lists any.
+    also = expected.get("also_right", [])
+    also_right = [p for p in preds if id(p) not in by_pred
+                  and any(a["file"] == p["file"] and same_quote(p["quote"], a["quote"]) for a in also)]
+    by_also = {id(p) for p in also_right}
     false_late = []
     for p in preds:
         if p["status"] in ("signed", "delivered"):
@@ -119,8 +149,11 @@ def run_deal(folder: Path, budget: Budget, use_cache: bool) -> dict:
         "documents": docs,
         "gold": len(gold),
         "kept": len(preds),
+        "ignored": ignored,
         "matched": len(pairs),
-        "page_ok": sum(p["page"] == g["page"] for p, g in pairs),
+        "also_right": len(also_right),
+        # A sentence that runs over a page break is cited to the page where it starts; the label may be on either.
+        "page_ok": sum(g["page"] in (p["page"], p.get("ends_on_page")) for p, g in pairs),
         "stage_ok": sum(p["status"] == g["stage"] for p, g in pairs),
         "term_ok": sum(p["topic"] == g["term"] for p, g in pairs),
         "false_signed_or_delivered": false_late,
@@ -133,7 +166,7 @@ def run_deal(folder: Path, budget: Budget, use_cache: bool) -> dict:
         "missed": [{"id": g["id"], "file": g["file"], "term": g["term"], "quote": g["quote"]}
                    for g in gold if g["id"] not in matched_gold],
         "extra": [{"file": p["file"], "topic": p["topic"], "status": p["status"], "quote": p["quote"]}
-                  for p in preds if id(p) not in by_pred],
+                  for p in preds if id(p) not in by_pred and id(p) not in by_also],
         "stage_misses": [{"gold": g["id"], "expected": g["stage"], "got": p["status"], "quote": g["quote"]}
                          for p, g in pairs if p["status"] != g["stage"]],
     }
@@ -145,6 +178,7 @@ def pct(a: int, b: int) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--env", default=str(ROOT / ".env"), help="file with GEMINI_API_KEY and GEMINI_MODEL")
     parser.add_argument("--budget", type=int, default=30, help="most live model calls to make")
     parser.add_argument("--no-cache", action="store_true", help="ignore cached readings")
     args = parser.parse_args()
@@ -187,7 +221,7 @@ def main() -> int:
                      if "stage" in doc else doc.get("error", ""))
             print(f"  {doc['file']:38} {src:6} {doc['model'] or '-':24} in={doc['tokens_in']:6} out={doc['tokens_out']:5} "
                   f"${doc['cost_usd']:.5f}  {extra}")
-    print(f"\nlive calls this run: {budget.used} · tokens in {tok_in}, out {tok_out} · est. cost ${cost:.4f} "
+    print(f"\nrecords read live this run: {budget.used} (model calls with retries: {ai.pdf_calls}) · tokens in {tok_in}, out {tok_out} · est. cost ${cost:.4f} "
           f"(at ${ai.PRICE_IN_PER_M}/M in, ${ai.PRICE_OUT_PER_M}/M out; cached rows show their original cost)")
 
     out = ROOT / "evals" / "results-pdf.json"

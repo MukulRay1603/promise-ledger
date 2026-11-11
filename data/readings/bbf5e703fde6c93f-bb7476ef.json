@@ -9,12 +9,12 @@
   "signatures": [
    {
     "party": "CITY OF LANTERN BAY",
-    "quote": "City Manager",
+    "quote": "[signature on file]",
     "page": 3
    },
    {
     "party": "MILL STREET HOUSING ASSOCIATES LP",
-    "quote": "Authorized Officer",
+    "quote": "[signature on file]",
     "page": 3
    }
   ],
@@ -23,69 +23,76 @@
     "topic": "public_support",
     "quote": "By Resolution No. 2011-18, the City approved a 15-year partial property tax exemption for the Project.",
     "page": 1,
-    "wording": "approved",
+    "wording": "approved a 15-year partial property tax exemption",
     "value": "15-year partial property tax exemption"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The exemption is granted in exchange for the affordability terms in this Agreement.",
+    "page": 1,
+    "wording": "granted in exchange for the affordability terms",
+    "value": "partial property tax exemption"
    },
    {
     "topic": "units",
     "quote": "The Owner shall reserve 9 of the 60 homes in the Project as Affordable Homes.",
     "page": 1,
-    "wording": "shall reserve",
+    "wording": "shall reserve 9 of the 60 homes",
     "value": "9 of 60 homes"
    },
    {
     "topic": "income_basis",
     "quote": "Each Affordable Home shall be leased to a household with income at or below 50 percent of Area Median Income.",
     "page": 1,
-    "wording": "at or below",
-    "value": "50 percent of AMI"
+    "wording": "income at or below 50 percent of Area Median Income",
+    "value": "at or below 50% AMI"
    },
    {
     "topic": "rent_limits",
     "quote": "Monthly rent for each Affordable Home shall not exceed 30 percent of 50 percent of Area Median Income, adjusted for household size.",
     "page": 2,
-    "wording": "shall not exceed",
-    "value": "30 percent of 50 percent of AMI"
+    "wording": "shall not exceed 30 percent of 50 percent of Area Median Income",
+    "value": "30% of 50% AMI"
    },
    {
     "topic": "term",
     "quote": "The Affordability Period begins on January 1, 2012 and ends on December 31, 2026.",
     "page": 2,
-    "wording": "begins on ... and ends on",
-    "value": "January 1, 2012 to December 31, 2026"
+    "wording": "begins on January 1, 2012 and ends on December 31, 2026",
+    "value": "January 1, 2012 through December 31, 2026"
    },
    {
     "topic": "responsible_party",
     "quote": "The Owner is responsible for compliance with this Agreement, and this Agreement binds every later owner of the Project.",
     "page": 2,
-    "wording": "is responsible for",
-    "value": "Mill Street Housing Associates LP"
+    "wording": "binds every later owner of the Project",
+    "value": "Owner and later owners"
    },
    {
     "topic": "reporting",
     "quote": "The Owner shall deliver an annual compliance certificate to the City by March 31 of each year.",
     "page": 2,
-    "wording": "shall deliver",
-    "value": "annual compliance certificate by March 31"
+    "wording": "shall deliver an annual compliance certificate",
+    "value": "annual by March 31"
    },
    {
     "topic": "remedies",
     "quote": "If a default is not cured within 30 days after written notice from the City, the Owner shall repay the property taxes exempted during the period of default.",
     "page": 3,
-    "wording": "shall repay",
+    "wording": "repay the property taxes exempted during the period of default",
     "value": "repay exempted property taxes"
    },
    {
     "topic": "remedies",
     "quote": "The City may also seek specific performance of this Agreement.",
     "page": 3,
-    "wording": "may also seek",
+    "wording": "seek specific performance",
     "value": "specific performance"
    }
   ]
  },
- "tokens_in": 1216,
- "tokens_out": 849,
- "cost_usd": 0.002487,
+ "tokens_in": 1651,
+ "tokens_out": 995,
+ "cost_usd": 0.002983,
  "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
 }

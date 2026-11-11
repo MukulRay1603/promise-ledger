@@ -1,0 +1,66 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Harbor Walk tax request",
+  "date": "2025-02-03",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "The owner, Harbor Walk Partners, has asked the City for help with property taxes.",
+    "page": 1,
+    "wording": "asked the City for help with property taxes",
+    "value": "help with property taxes"
+   },
+   {
+    "topic": "units",
+    "quote": "The developer has agreed to set aside 12 of the 120 homes as affordable homes.",
+    "page": 1,
+    "wording": "agreed to set aside 12 of the 120 homes as affordable homes",
+    "value": "12 of 120 homes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "These homes would serve households at or below 60 percent of area median income.",
+    "page": 1,
+    "wording": "households at or below 60 percent of area median income",
+    "value": "at or below 60% of AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "Staff understands that the income limits would last for 30 years.",
+    "page": 2,
+    "wording": "income limits would last for 30 years",
+    "value": "30 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The request is for a 50 percent reduction in property taxes on the new building for 20 years.",
+    "page": 2,
+    "wording": "50 percent reduction in property taxes on the new building for 20 years",
+    "value": "50% property tax reduction for 20 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Staff estimates the reduction at about $270,000 per year, based on a projected taxable value of $45 million.",
+    "page": 2,
+    "wording": "estimates the reduction at about $270,000 per year",
+    "value": "$270,000 per year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Staff recommends that the Council support the request for a 20-year property tax reduction.",
+    "page": 2,
+    "wording": "recommends that the Council support the request for a 20-year property tax reduction",
+    "value": "20-year property tax reduction"
+   }
+  ]
+ },
+ "tokens_in": 1386,
+ "tokens_out": 2480,
+ "cost_usd": 0.006616,
+ "notice": "Read by gemini-3.5-flash. Every quote is checked against the page text."
+}
