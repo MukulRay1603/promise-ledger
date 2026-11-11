@@ -658,6 +658,7 @@ const DEAL_TEMPLATE = `
       <div class="summary-box"><h2 id="glance-heading">At a glance</h2><ul class="glance-list" id="glance-list"></ul><p class="glance-foot" id="glance-foot"></p></div>
       <ul class="kpis" id="kpis" aria-label="Key figures"></ul>
     </section>
+    <section class="card promise-scene" id="promise-scene" aria-labelledby="scene-title" hidden></section>
     <div class="stepper-wrap"><h2 class="stepper-heading" id="stepper-heading"><span id="stage-term">Stages</span> on record</h2><ol class="stepper" id="stepper" aria-labelledby="stepper-heading"></ol></div>
     <section class="card review-panel" id="review-panel" aria-labelledby="review-title"></section>
   </div>
@@ -970,7 +971,140 @@ function renderSummary() {
         el("span", { class: "step-detail" }, located ? `Located · ${plural(stage.claim_ids.length, "claim")}` : "Not located")));
   }));
   byId("stepper").classList.toggle("draw", animate);
+  renderScene();
 }
+
+// ---------- Promise building ----------
+// An isometric building drawn from the deal's own checked numbers: one window per home, the promised homes lit
+// in the color of the stage a record reached. Nothing here decides anything; it pictures the checked claims.
+const SCENE_STAGE_TEXT = { proposed: "Proposed", supported: "Supported", signed: "Signed", delivered: "Delivered" };
+
+function homesOf(claim) {
+  const n = claim.homes?.count ?? parseInt(String(claim.value || "").match(/\d+/)?.[0] || "", 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function sceneData(review) {
+  const units = review.claims.filter((c) => c.topic === "units");
+  if (!units.length) return null;
+  const total = Math.max(0, ...units.map((c) => c.homes?.of || 0)) || null;
+  // For each stage, the record that went furthest at that stage (latest date), and how many homes it states.
+  const stages = STAGES.map((status) => {
+    const at = units.filter((c) => c.status === status && homesOf(c));
+    const lead = at.sort((a, b) => (b.date || "").localeCompare(a.date || ""))[0] || null;
+    return { status, claim: lead, homes: lead ? homesOf(lead) : null };
+  });
+  const furthest = [...stages].reverse().find((s) => s.homes);
+  if (!furthest) return null;
+  const promised = furthest.homes;
+  return { total: Math.max(total || 0, promised), totalStated: Boolean(total), stages, furthest, promised };
+}
+
+// Isometric projection: x runs right-down, y runs left-down, z is height.
+const ISO = (x, y, z) => [(x - y) * 0.866, (x + y) * 0.5 - z];
+const pts = (list) => list.map(([x, y, z]) => ISO(x, y, z).map((v) => v.toFixed(2)).join(",")).join(" ");
+
+function buildingLayout(total) {
+  const per = total >= 96 ? 12 : total >= 40 ? 10 : 6;   // Homes per floor.
+  const side = per >= 10 ? 4 : 2;                         // Windows on the short side.
+  const front = per - side;
+  const floors = Math.ceil(total / per);
+  return { per, side, front, floors };
+}
+
+function sceneSvg(data) {
+  const { per, side, front, floors } = buildingLayout(data.total);
+  const W = front + 0.6, D = side + 0.6, H = floors * 1.15 + 0.4;
+  // Spread the promised homes through the building, as regulatory agreements usually require.
+  // A golden-ratio order scatters them evenly without stripes, and is the same on every load.
+  const order = Array.from({ length: data.total }, (_, u) => u).sort((a, b) => ((a * 0.618034) % 1) - ((b * 0.618034) % 1));
+  const lit = new Set(order.slice(0, data.promised).sort((a, b) => a - b));
+  const root = document.createElementNS(SVG_NS, "svg");
+  const corners = [ISO(0, 0, H), ISO(W, 0, 0), ISO(0, D, 0), ISO(W, D, 0), ISO(W, 0, H), ISO(0, D, H)];
+  const xs = corners.map((p) => p[0]), ys = corners.map((p) => p[1]);
+  const pad = 0.8;
+  root.setAttribute("viewBox", `${Math.min(...xs) - pad} ${Math.min(...ys) - pad} ${Math.max(...xs) - Math.min(...xs) + 2 * pad} ${Math.max(...ys) - Math.min(...ys) + 2 * pad + 1.2}`);
+  root.setAttribute("class", "scene-svg");
+  root.setAttribute("aria-hidden", "true");
+  const add = (parent, tag, attrs) => { const n = document.createElementNS(SVG_NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); parent.append(n); return n; };
+  add(root, "polygon", { class: "scene-ground", points: pts([[-1.2, -1.2, 0], [W + 1.2, -1.2, 0], [W + 1.2, D + 1.2, 0], [-1.2, D + 1.2, 0]]) });
+  let unit = 0;
+  for (let f = 0; f < floors; f += 1) {
+    const g = add(root, "g", { class: "scene-floor", style: `--f:${f}` });
+    const z0 = 0.2 + f * 1.15, z1 = z0 + 1.15;
+    add(g, "polygon", { class: "scene-wall scene-wall-front", points: pts([[0, D, z0], [W, D, z0], [W, D, z1], [0, D, z1]]) });
+    add(g, "polygon", { class: "scene-wall scene-wall-side", points: pts([[W, 0, z0], [W, D, z0], [W, D, z1], [W, 0, z1]]) });
+    const windows = [];
+    for (let i = 0; i < front; i += 1) windows.push(pts([[0.4 + i, D, z0 + 0.3], [1.0 + i, D, z0 + 0.3], [1.0 + i, D, z0 + 0.9], [0.4 + i, D, z0 + 0.9]]));
+    for (let j = 0; j < side; j += 1) windows.push(pts([[W, 0.4 + j, z0 + 0.3], [W, 1.0 + j, z0 + 0.3], [W, 1.0 + j, z0 + 0.9], [W, 0.4 + j, z0 + 0.9]]));
+    for (const points of windows) {
+      if (unit >= data.total) break;
+      const on = lit.has(unit);
+      add(g, "polygon", { class: on ? "scene-win scene-lit" : "scene-win", points, style: on ? `--n:${[...lit].indexOf(unit)}` : "" });
+      unit += 1;
+    }
+  }
+  const roofZ = 0.2 + floors * 1.15;
+  add(root, "polygon", { class: "scene-roof", points: pts([[0, 0, roofZ], [W, 0, roofZ], [W, D, roofZ], [0, D, roofZ]]), style: `--f:${floors}` });
+  return root;
+}
+
+function renderScene() {
+  const host = byId("promise-scene");
+  if (!host || !dealState) return;
+  const data = sceneData(dealState.review);
+  host.hidden = !data;
+  if (!data) { host.replaceChildren(); return; }
+  const picture = sceneSvg(data);
+  const figure = el("div", { class: "scene-figure", "data-stage": data.furthest.status });
+  figure.append(picture);
+  const show = (status) => {
+    figure.dataset.stage = status;
+    const row = data.stages.find((s) => s.status === status);
+    const lit = picture.querySelectorAll(".scene-lit");
+    lit.forEach((w, i) => w.classList.toggle("scene-off", !row?.homes || i >= row.homes));
+    host.querySelectorAll(".scene-step").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.status === status)));
+  };
+  const steps = el("ol", { class: "scene-steps" }, ...data.stages.map((s) => el("li", {},
+    el("button", {
+      type: "button", class: `scene-step stage-${s.status}`, "data-status": s.status, "aria-pressed": String(s.status === data.furthest.status),
+      disabled: s.homes ? null : true, onmouseenter: () => s.homes && show(s.status), onfocus: () => s.homes && show(s.status),
+      onclick: () => s.homes && show(s.status),
+    },
+      el("span", { class: "scene-swatch", "aria-hidden": "true" }),
+      el("span", { class: "scene-step-name" }, SCENE_STAGE_TEXT[s.status]),
+      el("span", { class: "scene-step-count" }, s.homes ? plural(s.homes, "home") : "No home count"),
+      el("span", { class: "scene-step-src" }, s.claim ? sourceShort(s.claim) : "No record at this stage states a number of homes",
+        s.status === "signed" && s.claim && dealState.review.summary.signed_by_developer_only ? " · signed by the developer only" : "")),
+    s.claim ? viewSourceButton(s.claim, "Quote") : null)));
+  steps.addEventListener("mouseleave", () => show(data.furthest.status));
+  const label = `${data.promised} of ${data.total} homes${data.totalStated ? "" : " (total not stated)"} promised as affordable; furthest stage ${SCENE_STAGE_TEXT[data.furthest.status]}.`;
+  host.replaceChildren(
+    el("div", { class: "scene-visual", role: "img", "aria-label": label }, figure),
+    el("div", { class: "scene-text" },
+      el("p", { class: "kicker" }, "The promise, pictured"),
+      el("h2", { id: "scene-title", class: "scene-title" }, el("span", { class: "scene-big" }, String(data.promised)), ` of ${data.total} homes`),
+      el("p", { class: "scene-lede" }, data.totalStated
+        ? `Each window is one home. Lit windows are the homes described as affordable, in the color of the furthest stage a record reached. Point at a stage to see what that record promised.`
+        : `Each window is one home described as affordable; no record states the building's total.`),
+      steps,
+      el("p", { class: "scene-note" }, "Drawn from checked quotes only. Where the homes sit in the building is illustrative.")));
+  show(data.furthest.status);
+  const animate = !reducedMotion.matches && !sceneSeen.has(dealState.id);
+  sceneSeen.add(dealState.id);
+  host.classList.toggle("scene-animate", animate);
+  // Hold the animation until the building is on screen, so it plays where someone can see it.
+  host.classList.toggle("scene-wait", animate && "IntersectionObserver" in window);
+  if (animate && "IntersectionObserver" in window) {
+    const seen = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { host.classList.remove("scene-wait"); seen.disconnect(); }
+    }, { threshold: 0.35 });
+    seen.observe(host);
+    setTimeout(() => { host.classList.remove("scene-wait"); seen.disconnect(); }, 5000); // Never leave it hidden.
+  }
+}
+const sceneSeen = new Set();
+
 
 // Tabs: ARIA tabs with arrow keys, Home and End. The hash names the open tab.
 let printed = null; // The deal whose receipt has already printed this visit.

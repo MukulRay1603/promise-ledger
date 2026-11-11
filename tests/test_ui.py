@@ -211,6 +211,16 @@ class Rules(unittest.TestCase):
         self.assertIn("renderNextRecords();", js)
         self.assertIn(".next-records", self.css)
 
+    def test_promise_building(self):
+        # The building pictures the checked home counts only; it respects reduced motion and is left out of print.
+        js = self.js["app.js"]
+        self.assertIn('id="promise-scene"', js)
+        self.assertIn("function sceneData(review)", js)
+        self.assertIn('role: "img"', js)
+        self.assertIn("Drawn from checked quotes only", js)
+        self.assertIn(".scene-animate .scene-lit { animation: none", self.css)
+        self.assertIn(".promise-scene { display: none !important; }", self.css)
+
     def test_reduced_motion_and_print(self):
         self.assertIn("prefers-reduced-motion: reduce", self.css)
         self.assertGreaterEqual(self.css.count("prefers-reduced-motion: reduce"), 3)  # Base, landing and printer layers.
