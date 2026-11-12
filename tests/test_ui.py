@@ -220,6 +220,12 @@ class Rules(unittest.TestCase):
         self.assertIn("Drawn from checked quotes only", js)
         self.assertIn(".scene-animate .scene-lit { animation: none", self.css)
         self.assertIn(".promise-scene { display: none !important; }", self.css)
+        # It says in words whether the count held and whether any record shows the homes delivered.
+        self.assertIn("function sceneFacts(data, review)", js)
+        self.assertIn("No record in this packet shows the homes delivered yet.", js)
+        # The frame includes the ground plate, and narrow screens put the number before the picture.
+        self.assertIn("ISO(-G, D + G, 0)", js)
+        self.assertIn(".scene-text { display: contents; }", self.css)
 
     def test_paper_trail(self):
         # The trail is a real table, uses the server's own "wording differs" decision, and links each value to its source.
@@ -227,8 +233,19 @@ class Rules(unittest.TestCase):
         self.assertIn('id="paper-trail"', js)
         self.assertIn("term.wording_differs && normValue(value) !== normValue(previous)", js)
         self.assertIn('el("table", { class: "trail" }', js)
-        self.assertIn("openSource(claim, event.currentTarget)", js)
+        self.assertIn("openSource(cell.claim, event.currentTarget)", js)
         self.assertIn(".trail-wrap { display: none !important; }", self.css)
+        # Phones get one line per term instead of a table that shows one record at a time.
+        self.assertIn('el("ul", { class: "trail-mini" }', js)
+        self.assertIn(".trail-scroll, .trail-swipe { display: none; }", self.css)
+        # Term names jump to the full record-by-record wording.
+        self.assertIn("byId(`change-${term.key}`)", js)
+
+    def test_header_fits(self):
+        # The name never wraps; below 1100px the header is two rows, and on phones it scrolls away.
+        self.assertIn("white-space: nowrap; }", self.css.split(".brand {", 1)[1].split("\n", 1)[0])
+        self.assertIn("@media (max-width: 1100px)", self.css)
+        self.assertIn("@media (max-width: 720px) { .site-header { position: relative; } }", self.css)
 
     def test_reduced_motion_and_print(self):
         self.assertIn("prefers-reduced-motion: reduce", self.css)

@@ -1021,14 +1021,16 @@ function sceneSvg(data) {
   const order = Array.from({ length: data.total }, (_, u) => u).sort((a, b) => ((a * 0.618034) % 1) - ((b * 0.618034) % 1));
   const lit = new Set(order.slice(0, data.promised).sort((a, b) => a - b));
   const root = document.createElementNS(SVG_NS, "svg");
-  const corners = [ISO(0, 0, H), ISO(W, 0, 0), ISO(0, D, 0), ISO(W, D, 0), ISO(W, 0, H), ISO(0, D, H)];
+  // The frame includes the ground plate, so the plate is never cut off by the card edge.
+  const G = 1.2;
+  const corners = [ISO(0, 0, H), ISO(W, 0, H), ISO(0, D, H), ISO(-G, -G, 0), ISO(W + G, -G, 0), ISO(W + G, D + G, 0), ISO(-G, D + G, 0)];
   const xs = corners.map((p) => p[0]), ys = corners.map((p) => p[1]);
-  const pad = 0.8;
-  root.setAttribute("viewBox", `${Math.min(...xs) - pad} ${Math.min(...ys) - pad} ${Math.max(...xs) - Math.min(...xs) + 2 * pad} ${Math.max(...ys) - Math.min(...ys) + 2 * pad + 1.2}`);
+  const pad = 0.3;
+  root.setAttribute("viewBox", `${(Math.min(...xs) - pad).toFixed(2)} ${(Math.min(...ys) - pad).toFixed(2)} ${(Math.max(...xs) - Math.min(...xs) + 2 * pad).toFixed(2)} ${(Math.max(...ys) - Math.min(...ys) + 2 * pad).toFixed(2)}`);
   root.setAttribute("class", "scene-svg");
   root.setAttribute("aria-hidden", "true");
   const add = (parent, tag, attrs) => { const n = document.createElementNS(SVG_NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); parent.append(n); return n; };
-  add(root, "polygon", { class: "scene-ground", points: pts([[-1.2, -1.2, 0], [W + 1.2, -1.2, 0], [W + 1.2, D + 1.2, 0], [-1.2, D + 1.2, 0]]) });
+  add(root, "polygon", { class: "scene-ground", points: pts([[-G, -G, 0], [W + G, -G, 0], [W + G, D + G, 0], [-G, D + G, 0]]) });
   let unit = 0;
   for (let f = 0; f < floors; f += 1) {
     const g = add(root, "g", { class: "scene-floor", style: `--f:${f}` });
@@ -1048,6 +1050,34 @@ function sceneSvg(data) {
   const roofZ = 0.2 + floors * 1.15;
   add(root, "polygon", { class: "scene-roof", points: pts([[0, 0, roofZ], [W, 0, roofZ], [W, D, roofZ], [0, D, roofZ]]), style: `--f:${floors}` });
   return root;
+}
+
+// What the picture means, in words: was the count kept, and does any record show the homes delivered?
+// Each line comes straight from the stage counts and the server's "wording differs" flag.
+function sceneFacts(data, review) {
+  const promisedAt = data.stages.filter((s) => s.homes && s.status !== "delivered");
+  const delivered = data.stages.find((s) => s.status === "delivered");
+  const lines = [];
+  const first = promisedAt[0], last = promisedAt[promisedAt.length - 1];
+  if (first && last && first !== last) {
+    lines.push(first.homes === last.homes
+      ? ["ok", `Same count, ${plural(last.homes, "home")}, at every stage that states one.`]
+      : ["warn", `Count changed: ${SCENE_STAGE_TEXT[first.status]} ${plural(first.homes, "home")}, ${SCENE_STAGE_TEXT[last.status]} ${plural(last.homes, "home")}.`]);
+  }
+  if (delivered?.homes && last) {
+    lines.push(delivered.homes >= last.homes
+      ? ["ok", `A record shows ${delivered.homes} of ${plural(last.homes, "promised home")} delivered.`]
+      : ["warn", `A record shows only ${delivered.homes} of ${plural(last.homes, "promised home")} delivered.`]);
+  } else if (!delivered?.homes) {
+    lines.push(["warn", "No record in this packet shows the homes delivered yet."]);
+  }
+  const units = review.terms.find((t) => t.key === "units");
+  if (units?.wording_differs) {
+    lines.push(["warn", ["The wording of the home count changed between records. ",
+      el("a", { href: `#/deals/${encodeURIComponent(dealState.id)}/changes` }, "See the paper trail")]]);
+  }
+  if (!lines.length) return null;
+  return el("ul", { class: "scene-facts" }, ...lines.map(([tone, text]) => el("li", { class: `fact-${tone}` }, text)));
 }
 
 function renderScene() {
@@ -1080,6 +1110,7 @@ function renderScene() {
     s.claim ? viewSourceButton(s.claim, "Quote") : null)));
   steps.addEventListener("mouseleave", () => show(data.furthest.status));
   const label = `${data.promised} of ${data.total} homes${data.totalStated ? "" : " (total not stated)"} promised as affordable; furthest stage ${SCENE_STAGE_TEXT[data.furthest.status]}.`;
+  const facts = sceneFacts(data, dealState.review);
   host.replaceChildren(
     el("div", { class: "scene-visual", role: "img", "aria-label": label }, figure),
     el("div", { class: "scene-text" },
@@ -1088,6 +1119,7 @@ function renderScene() {
       el("p", { class: "scene-lede" }, data.totalStated
         ? `Each window is one home. Lit windows are the homes described as affordable, in the color of the furthest stage a record reached. Point at a stage to see what that record promised.`
         : `Each window is one home described as affordable; no record states the building's total.`),
+      facts,
       steps,
       el("p", { class: "scene-note" }, "Drawn from checked quotes only. Where the homes sit in the building is illustrative.")));
   show(data.furthest.status);
@@ -1304,24 +1336,49 @@ function renderTrail() {
       el("span", { class: "trail-doc-type" }, doc.type || "Record"),
       el("span", { class: "trail-doc-date" }, doc.date ? formatDate(doc.date) : "Undated"),
       tag(stageOf(doc)))));
-  const rows = terms.map((term) => {
+  // One pass decides each cell; the table (wide screens) and the summary list (phones) both draw from it.
+  const lines = terms.map((term) => {
     let previous = null;
-    const cells = docs.map((doc, i) => {
+    const cells = docs.map((doc) => {
       const claim = term.claim_ids.map((id) => claimsById.get(id)).find((c) => c?.document === doc.id);
-      if (!claim) return el("td", { class: `trail-cell trail-gap${previous ? " trail-through" : ""}`, style: `--c:${i}` },
-        el("span", { class: "visually-hidden" }, "Not in this record"));
+      if (!claim) return { doc, kind: previous ? "through" : "gap" };
       const value = comparedValue(claim);
       const changed = Boolean(previous) && term.wording_differs && normValue(value) !== normValue(previous);
-      const kind = !previous ? "trail-first" : changed ? "trail-changed" : "trail-same";
+      const kind = !previous ? "first" : changed ? "changed" : "same";
       previous = value;
-      return el("td", { class: `trail-cell ${kind}`, style: `--c:${i}` },
-        el("button", { type: "button", class: "trail-pill", onclick: (event) => openSource(claim, event.currentTarget),
-          "aria-label": `${term.label}: ${value}, ${doc.type || "record"} ${doc.date ? formatDate(doc.date) : ""}${changed ? ", changed from the previous record" : ""}. Open source.` },
-          changed ? el("span", { class: "trail-mark", "aria-hidden": "true" }, "Δ") : null, value));
+      return { doc, claim, value, changed, kind };
     });
-    return el("tr", { class: term.wording_differs ? "trail-row-differs" : null },
-      el("th", { scope: "row", class: "trail-term" }, term.label, term.wording_differs ? el("span", { class: "trail-flag" }, "changed") : null), ...cells);
+    return { term, cells, found: cells.filter((c) => c.claim) };
   });
+  // The term name jumps to that term's full record-by-record wording further down.
+  const jump = (term) => el("button", { type: "button", class: "trail-jump", "aria-label": `${term.label}: show every quote`, onclick: () => {
+    const target = byId(`change-${term.key}`);
+    if (!target) return;
+    target.setAttribute("tabindex", "-1");
+    target.scrollIntoView({ block: "start", behavior: reducedMotion.matches ? "auto" : "smooth" });
+    target.focus({ preventScroll: true });
+  } }, term.label);
+  const pill = (term, cell) => el("button", { type: "button", class: "trail-pill", onclick: (event) => openSource(cell.claim, event.currentTarget),
+    "aria-label": `${term.label}: ${cell.value}, ${cell.doc.type || "record"} ${cell.doc.date ? formatDate(cell.doc.date) : ""}${cell.changed ? ", changed from the previous record" : ""}. Open source.` },
+    cell.changed ? el("span", { class: "trail-mark", "aria-hidden": "true" }, "Δ") : null, cell.value);
+  const rows = lines.map(({ term, cells }) => el("tr", { class: term.wording_differs ? "trail-row-differs" : null },
+    el("th", { scope: "row", class: "trail-term" }, jump(term), term.wording_differs ? el("span", { class: "trail-flag" }, "changed") : null),
+    ...cells.map((cell, i) => el("td", { class: `trail-cell trail-${cell.kind === "through" ? "gap trail-through" : cell.kind}`, style: `--c:${i}` },
+      cell.claim ? pill(term, cell) : el("span", { class: "visually-hidden" }, "Not in this record")))));
+  // Phones: one line per term, first wording to latest wording, with a dot for every record.
+  const mini = el("ul", { class: "trail-mini" }, ...lines.map(({ term, cells, found }) => {
+    const first = found[0], latest = found[found.length - 1];
+    const moved = term.wording_differs && normValue(first.value) !== normValue(latest.value);
+    const changes = cells.filter((c) => c.changed).length;
+    return el("li", { class: term.wording_differs ? "tm-differs" : null },
+      el("div", { class: "tm-head" }, jump(term), term.wording_differs ? el("span", { class: "trail-flag" }, "changed") : null,
+        el("span", { class: "tm-count" }, `${found.length} of ${plural(docs.length, "record")}`)),
+      el("div", { class: "tm-dots", "aria-hidden": "true" }, ...cells.map((cell) => el("span", { class: `tm-dot tm-${cell.kind}` }))),
+      el("p", { class: "tm-values" },
+        moved ? [el("span", { class: "tm-was" }, first.value), el("span", { class: "tm-arrow", "aria-hidden": "true" }, "→"), el("span", { class: "visually-hidden" }, " became ")] : null,
+        pill(term, latest), el("span", { class: "tm-src" }, latest.doc.type || "Record", latest.doc.date ? ` · ${formatDate(latest.doc.date)}` : "",
+          changes ? ` · changed in ${plural(changes, "record")}${moved ? "" : ", now back to the first wording"}` : "")));
+  }));
   const animate = !reducedMotion.matches && !trailSeen.has(dealState.id);
   trailSeen.add(dealState.id);
   host.className = `trail-wrap${animate ? " trail-animate" : ""}`;
@@ -1334,7 +1391,8 @@ function renderTrail() {
     el("div", { class: "trail-scroll", tabindex: "0", role: "region", "aria-label": "Paper trail: each term across the records, in date order" },
       el("table", { class: "trail" },
         el("caption", { class: "visually-hidden" }, "Each term's wording in every record, oldest first. Select a value to open its source page."),
-        el("thead", {}, head), el("tbody", {}, ...rows))));
+        el("thead", {}, head), el("tbody", {}, ...rows))),
+    mini);
 }
 const trailSeen = new Set();
 
