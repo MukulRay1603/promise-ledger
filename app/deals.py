@@ -6,6 +6,7 @@ import csv
 import io
 import hashlib
 import json
+import os
 import re
 import secrets
 import uuid
@@ -1061,7 +1062,9 @@ def seed(store: Storage | None = None, samples_dir: Path = SAMPLES_DIR, county_d
     """Bring the sample deals (and the real county deals) up to date, or seed the Harbor Walk demo into an empty
     store without samples."""
     store = store or get_store()
-    county_dir = COUNTY_DIR if county_dir is None else county_dir
+    # COUNTY_DEALS=0 leaves the real county deals out (the test suite does, so tests never touch the network).
+    if county_dir is None:
+        county_dir = COUNTY_DIR if os.getenv("COUNTY_DEALS", "1") != "0" else Path("/nonexistent")
     if samples_dir.exists() and any(samples_dir.glob("*/manifest.json")):
         refreshed = refresh_samples(store, samples_dir)
         if county_dir.exists() and any(county_dir.glob("*/manifest.json")):
