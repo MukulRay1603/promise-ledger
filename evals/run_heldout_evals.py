@@ -324,8 +324,8 @@ def render(results: dict) -> str:
     use = results["usage"]
     models = ", ".join(f"`{m}` ({n} PDFs)" for m, n in sorted(use["models"].items()))
     out += [f"Model: {models}. Tokens: {use['tokens_in']:,} in, {use['tokens_out']:,} out. Estimated cost "
-            f"${use['cost_usd']:.4f} for all {results['documents']} PDFs (at ${ai.PRICE_IN_PER_M}/M in, "
-            f"${ai.PRICE_OUT_PER_M}/M out; cached readings keep their original cost).", ""]
+            f"${use['cost_usd']:.4f} for all {results['documents']} PDFs (each section at its model's price, see app/ai.py PRICES_PER_M; "
+            f"cached readings keep their original cost).", ""]
     if use["unread"]:
         out += [f"**Not read (no cached reading and no live call): {', '.join(use['unread'])}. Totals below leave these out.**", ""]
 

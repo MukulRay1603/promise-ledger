@@ -261,4 +261,4 @@ The live site has the same credits at `#/about`, and the roadmap to the Dec 2 fi
 
 ## Docs and license
 
-[Plan](docs/PLAN.md) · [Contributing](CONTRIBUTING.md). Code: Apache-2.0 ([LICENSE](LICENSE)). Docs and evaluation data (`docs/`, `data/demo/`, `data/samples/`, `data/readings/`, `evals/cases.jsonl`): CC BY 4.0 ([LICENSE-docs](LICENSE-docs)). pdf.js in `app/static/vendor/` is Apache-2.0 (Mozilla Foundation).
+[Plan](docs/PLAN.md) · [Contributing](CONTRIBUTING.md). Code: Apache-2.0 ([LICENSE](LICENSE)). Docs and evaluation data (`docs/`, `data/demo/`, `data/samples/`, `data/readings/`, and every data file under `evals/`, including the held-out, adversarial and real-record sets): CC BY 4.0 ([LICENSE-docs](LICENSE-docs)). pdf.js in `app/static/vendor/` is Apache-2.0 (Mozilla Foundation).

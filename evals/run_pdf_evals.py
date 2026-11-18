@@ -222,7 +222,7 @@ def main() -> int:
             print(f"  {doc['file']:38} {src:6} {doc['model'] or '-':24} in={doc['tokens_in']:6} out={doc['tokens_out']:5} "
                   f"${doc['cost_usd']:.5f}  {extra}")
     print(f"\nrecords read live this run: {budget.used} (model calls with retries: {ai.pdf_calls}) · tokens in {tok_in}, out {tok_out} · est. cost ${cost:.4f} "
-          f"(at ${ai.PRICE_IN_PER_M}/M in, ${ai.PRICE_OUT_PER_M}/M out; cached rows show their original cost)")
+          f"(each section at its model's price, see app/ai.py PRICES_PER_M; cached rows show their original cost)")
 
     out = ROOT / "evals" / "results-pdf.json"
     out.write_text(json.dumps({"totals": totals, "false_signed_or_delivered": false_total, "deals": deals,

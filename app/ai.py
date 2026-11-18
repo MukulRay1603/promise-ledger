@@ -24,8 +24,10 @@ from pydantic import BaseModel, Field
 
 SAMPLE_PATH = Path(__file__).resolve().parent.parent / "data" / "demo" / "extraction_sample.json"
 # Flash-class models keep inference cheap. Check AI Studio for the current model name.
-MODEL = os.getenv("GEMINI_MODEL") or "gemini-3.5-flash"
-FALLBACK_MODEL = os.getenv("GEMINI_FALLBACK_MODEL") or "gemini-flash-lite-latest"
+# Both are pinned versions, never a "-latest" alias, so a model change is always a deliberate, measured change.
+# gemini-3.5-flash was dropped from Google's model and price lists in Nov 2026, so the main model moved to 3.8.
+MODEL = os.getenv("GEMINI_MODEL") or "gemini-3.8-flash"
+FALLBACK_MODEL = os.getenv("GEMINI_FALLBACK_MODEL") or "gemini-3.5-flash-lite"
 # 429 is included because free-tier quotas are per model, so the fallback can still answer.
 BUSY_CODES = {429, 503, 504}
 
@@ -221,9 +223,27 @@ MAX_PDF_CANDIDATES = 60
 PDF_SECTION_PAGES = max(1, int(os.getenv("PDF_SECTION_PAGES") or 4))
 SECTION_WAIT_SECONDS = 65  # A later section waits this long for the per-minute call limit before giving up.
 SECTION_RETRY_SECONDS = 3  # Pause before one more try when both models were busy for a section.
-# Rough USD per million tokens for the cost log. Override when the price list changes.
-PRICE_IN_PER_M = float(os.getenv("GEMINI_PRICE_IN_PER_M") or 0.30)
-PRICE_OUT_PER_M = float(os.getenv("GEMINI_PRICE_OUT_PER_M") or 2.50)
+# USD per million tokens (input, output incl. thinking), paid Standard tier, from ai.google.dev pricing on
+# 2026-11-18. gemini-3.8-flash rises to 1.50 / 7.50 on 2027-01-01. GEMINI_PRICE_IN_PER_M / _OUT_PER_M override all.
+PRICES_PER_M = {
+    "gemini-3.8-flash": (0.75, 3.75),
+    "gemini-3.5-flash-lite": (0.30, 2.50),
+    "gemini-3.1-flash-lite": (0.25, 1.50),
+    "gemini-2.5-flash-lite": (0.10, 0.40),
+}
+DEFAULT_PRICE_PER_M = (0.75, 3.75)  # Unknown models are costed at the main model's price, never as free.
+
+
+def price_per_m(model: str) -> tuple[float, float]:
+    if os.getenv("GEMINI_PRICE_IN_PER_M") or os.getenv("GEMINI_PRICE_OUT_PER_M"):
+        return (float(os.getenv("GEMINI_PRICE_IN_PER_M") or DEFAULT_PRICE_PER_M[0]),
+                float(os.getenv("GEMINI_PRICE_OUT_PER_M") or DEFAULT_PRICE_PER_M[1]))
+    return PRICES_PER_M.get(model, DEFAULT_PRICE_PER_M)
+
+
+def cost_usd(model: str, tokens_in: int, tokens_out: int) -> float:
+    price_in, price_out = price_per_m(model)
+    return tokens_in / 1e6 * price_in + tokens_out / 1e6 * price_out
 
 PDF_SYSTEM_PROMPT = f"""You read the records of subsidized housing deals and list every sentence that states an
 affordable-housing commitment or one of its terms.
@@ -422,7 +442,7 @@ def read_document(pages: list[str]) -> ReadResult:
         return ReadResult(mode="off", notice="Live reading is off because no API key is set.")
     if not _allow_live_call():
         return ReadResult(mode="limited", notice="The live reading limit was reached. Try again in a minute.")
-    parts, models, tokens_in, tokens_out, room = [], [], 0, 0, MAX_RECORD_CHARS
+    parts, models, tokens_in, tokens_out, cost, room = [], [], 0, 0, 0.0, MAX_RECORD_CHARS
     try:
         for number, (first, last) in enumerate(sections(len(pages)) or [(1, 0)]):
             record = pages_to_record(pages[first - 1:last], limit=room, first=first)
@@ -441,13 +461,13 @@ def read_document(pages: list[str]) -> ReadResult:
                 reading, used_in, used_out, model = _read_section(record)
             parts.append(reading)
             tokens_in, tokens_out = tokens_in + used_in, tokens_out + used_out
+            cost += cost_usd(model, used_in, used_out)  # Each section at the price of the model that read it.
             if model not in models:
                 models.append(model)
     except Exception as err:  # The record text is never logged.
         print(f"Document reading failed: {type(err).__name__}")
         return ReadResult(mode="failed", notice=f"Live reading did not finish ({type(err).__name__}).")
     model = ", ".join(models)
-    cost = tokens_in / 1e6 * PRICE_IN_PER_M + tokens_out / 1e6 * PRICE_OUT_PER_M
     return ReadResult(mode="live", model=model, reading=merge_readings(parts), tokens_in=tokens_in,
                       tokens_out=tokens_out, cost_usd=round(cost, 6),
                       notice=f"Read by {model}. Every quote is checked against the page text.")

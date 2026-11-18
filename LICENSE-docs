@@ -13,7 +13,14 @@ This license covers:
 - data/demo/      (the made-up Harbor Walk packet and its hand-reviewed claims)
 - data/samples/   (the made-up sample deal PDFs, manifests and expected_claims.json gold answers)
 - data/readings/  (cached model readings of the sample PDFs)
-- evals/cases.jsonl
+- All evaluation data under evals/: every file except the scripts (evals/*.py). This includes
+  evals/cases.jsonl, evals/baseline.json, evals/results-*.json, evals/RESULTS.md, and everything in
+  evals/heldout/, evals/adversarial/ and evals/real/ (synthetic records, labels, manifests, cached
+  readings and scores).
+
+The real-record labels in evals/real/ describe public government records. The records themselves
+are public documents of their issuing government and are not redistributed here; this license covers
+only our labels, manifests and scores.
 
 Everything else, including all code under app/, tests/, tools/ and evals/*.py, is licensed under
 the Apache License 2.0 (see LICENSE).

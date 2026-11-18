@@ -211,7 +211,7 @@ def transcribe(data: bytes, numbers: list[int], sha: str | None = None, call=Non
             text = _usable(item.text)
             if text:
                 pages[numbers[item.page - 1]] = text
-    cost = tokens_in / 1e6 * ai.PRICE_IN_PER_M + tokens_out / 1e6 * ai.PRICE_OUT_PER_M
+    cost = ai.cost_usd(model, tokens_in, tokens_out)
     result = ScanResult(mode="live", model=model, pages=pages, tokens_in=tokens_in, tokens_out=tokens_out,
                         cost_usd=round(cost, 6))
     if sha and pages:
