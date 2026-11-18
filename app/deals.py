@@ -18,6 +18,9 @@ from app.storage import Storage, get_store
 
 ROOT = Path(__file__).resolve().parent.parent
 SAMPLES_DIR = ROOT / "data" / "samples"
+# Real public records (tools/county_import.py). Each manifest entry keeps the official URL and SHA-256; PDFs that
+# are not committed are downloaded and checked when the deal is seeded.
+COUNTY_DIR = ROOT / "data" / "county"
 STATUSES = ("queued", "reading", "checking", "done", "failed")
 DEMO_DEAL_ID = "harbor-walk-demo"
 
@@ -990,7 +993,10 @@ def sample_version(manifest_path: Path) -> str:
     for entry in manifest.get("documents") or []:
         path = manifest_path.parent / (entry.get("file") or entry.get("filename") or "")
         h.update(path.name.encode())
-        h.update(path.read_bytes() if path.is_file() else b"missing")
+        if entry.get("sha256"):  # Real records: the checked hash stands for the file, present on disk or not.
+            h.update(str(entry["sha256"]).encode())
+        else:
+            h.update(path.read_bytes() if path.is_file() else b"missing")
     h.update(pipeline.PROMPT_ID.encode())
     for source in _PIPELINE_FILES:
         h.update(source.read_bytes() if source.exists() else b"")
@@ -1051,11 +1057,16 @@ def refresh_samples(store: Storage | None = None, samples_dir: Path = SAMPLES_DI
         store.release_lock(REFRESH_LOCK, owner)
 
 
-def seed(store: Storage | None = None, samples_dir: Path = SAMPLES_DIR) -> list[str]:
-    """Bring the sample deals up to date, or seed the Harbor Walk demo into an empty store without samples."""
+def seed(store: Storage | None = None, samples_dir: Path = SAMPLES_DIR, county_dir: Path | None = None) -> list[str]:
+    """Bring the sample deals (and the real county deals) up to date, or seed the Harbor Walk demo into an empty
+    store without samples."""
     store = store or get_store()
+    county_dir = COUNTY_DIR if county_dir is None else county_dir
     if samples_dir.exists() and any(samples_dir.glob("*/manifest.json")):
-        return refresh_samples(store, samples_dir)
+        refreshed = refresh_samples(store, samples_dir)
+        if county_dir.exists() and any(county_dir.glob("*/manifest.json")):
+            refreshed += refresh_samples(store, county_dir)
+        return refreshed
     if store.list_deals():
         return []
     return [seed_demo(store)]
@@ -1073,34 +1084,78 @@ def seed_sample(manifest_path: Path, store: Storage, version: str | None = None)
     folder = manifest_path.parent
     slug = sample_slug(manifest, folder)
     existing = store.get_deal(slug)
+    real = bool(manifest.get("real"))
+    # A real deal's reminders count from today; a made-up sample is frozen at its own as_of date.
     deal = create_deal(manifest.get("deal") or manifest.get("name") or manifest.get("project") or folder.name,
                        manifest.get("city") or "", manifest.get("owner") or manifest.get("developer"),
-                       deal_id=slug, store=store, as_of=manifest.get("as_of"))
+                       deal_id=slug, store=store, as_of=None if real else manifest.get("as_of"))
     if existing and existing.get("created_at"):
         deal["created_at"] = existing["created_at"]
     deal.update(sample_slug=slug, sample_version=version or sample_version(manifest_path))
+    if real:
+        deal.update(real=True, county=manifest.get("county"), source=manifest.get("source") or {})
     store.put_deal(deal)
     keep = set()
     for entry in manifest.get("documents") or []:
         path = folder / (entry.get("file") or entry.get("filename") or "")
-        if not path.is_file():
+        data = path.read_bytes() if path.is_file() else (record_bytes(entry) if real else None)
+        if data is None:
             continue
         doc_id = sample_doc_id(slug, entry, path)
         keep.add(doc_id)
         try:
-            doc = add_document(deal["id"], path.name, path.read_bytes(), entry.get("type"), entry.get("date"),
+            doc = add_document(deal["id"], path.name, data, entry.get("type"), entry.get("date"),
                                entry.get("title"), store=store, process=False, demo=False, doc_id=doc_id)
         except (pipeline.PdfError, ValueError) as err:
             print(f"Seed skipped {path.name}: {err}")
             continue
+        if entry.get("url"):
+            doc["source_url"] = entry["url"]
+            store.put_document(deal["id"], doc)
         if pipeline.cached_reading(doc["sha256"]):
             process_document(deal["id"], doc["id"], store)
-        else:
+        elif not real:
             submit(deal["id"], doc["id"], store)
+        # A real record with no cached reading waits for tools/county_read.py: seeding never spends on live reads.
     for doc in store.list_documents(deal["id"]):  # Records no longer in the manifest. Visitor uploads go via the sweep.
         if doc["id"] not in keep and not doc.get("demo"):
             store.delete_document(deal["id"], doc["id"])
     return deal["id"]
+
+
+COUNTY_CACHE_DIR = ROOT / "data" / "runtime" / "county"
+RECORD_MAX_BYTES = 8_000_000
+
+
+def record_bytes(entry: dict) -> bytes | None:
+    """A real record's PDF: from the local cache, else downloaded from its official URL. Returned only if its
+    SHA-256 matches the manifest, so a changed or replaced file is never read as the one we checked."""
+    import urllib.request
+
+    sha, url = str(entry.get("sha256") or ""), str(entry.get("url") or "")
+    if not re.fullmatch(r"[0-9a-f]{64}", sha) or not url.startswith("https://"):
+        return None
+    cached = COUNTY_CACHE_DIR / f"{sha[:32]}.pdf"
+    if cached.is_file():
+        data = cached.read_bytes()
+        if hashlib.sha256(data).hexdigest() == sha:
+            return data
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "PromiseLedger/2.0 (open-source civic tool)"})
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = resp.read(RECORD_MAX_BYTES + 1)
+    except Exception as err:  # The record is listed as missing; the rest of the deal still seeds.
+        print(f"Seed could not download a county record: {type(err).__name__}")
+        return None
+    if len(data) > RECORD_MAX_BYTES or hashlib.sha256(data).hexdigest() != sha:
+        print("Seed skipped a county record whose file no longer matches its checked hash.")
+        return None
+    try:
+        COUNTY_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        cached.write_bytes(data)
+    except OSError:
+        pass  # A read-only disk only costs a download next time.
+    return data
 
 
 def sample_doc_id(slug: str, entry: dict, path: Path) -> str:

@@ -1,0 +1,107 @@
+{
+  "notice": "Real public records of Prince George's County, Maryland, from the County Council's Legistar system. Promise Ledger lists what the records say; it does not judge whether any party met an obligation.",
+  "real": true,
+  "deal": "Herman Apartments",
+  "slug": "herman-apartments-cr-042-2026",
+  "city": "Prince George's County",
+  "county": "Prince George's County, MD",
+  "owner": null,
+  "as_of": "2026-07-07",
+  "source": {
+    "system": "Prince George's County Legistar",
+    "file": "CR-042-2026",
+    "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR THE HERMAN APARTMENTS PROJECT for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Community Housing Initiative, Inc. (the “Owner”).",
+    "status": "Adopted",
+    "introduced": "2026-05-26",
+    "passed": "2026-07-07",
+    "url": "https://princegeorgescountymd.legistar.com/LegislationDetail.aspx?ID=19194&GUID=EFA535E1-A34C-4477-8E6B-3AE95483B251",
+    "api": "https://webapi.legistar.com/v1/princegeorgescountymd/matters/19194",
+    "votes": [
+      {
+        "date": "2026-06-29",
+        "body": "Sitting as the Committee of the Whole",
+        "action": "Favorably recommended",
+        "passed": true,
+        "tally": null
+      },
+      {
+        "date": "2026-07-07",
+        "body": "County Council",
+        "action": "adopted",
+        "passed": true,
+        "tally": null
+      }
+    ],
+    "retrieved": "2026-11-18"
+  },
+  "documents": [
+    {
+      "type": "Transmittal letter",
+      "title": "CR-042-2026 Transmittal",
+      "date": "2026-05-26",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/61e015f0-ea37-4261-be7e-5cff7549ed3c.pdf",
+      "file": "01-transmittal-letter.pdf",
+      "id": "r01",
+      "sha256": "1978060002bc16c3ef10e4b052c50bb78cc508bfd8039034362fb77db64d3d4f",
+      "bytes": 407306,
+      "signed_by": []
+    },
+    {
+      "type": "Resolution",
+      "title": "CR-042-2026 R2026042",
+      "date": "2026-07-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/1059149b-b7f4-48c9-986d-fa14c401ec63.docx",
+      "file": "02-resolution.from-docx.pdf",
+      "id": "r02",
+      "sha256": "248dfe887c4ad4d4d99cff1ab323b4be9c283df853f832a6d3d12bbef2f8f8ba",
+      "bytes": 148062,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/1059149b-b7f4-48c9-986d-fa14c401ec63.docx",
+        "sha256": "35767823e7518309ac9c4f89322847a502cc7e2252a0397002e1ba727c51994d"
+      }
+    },
+    {
+      "type": "Presentation",
+      "title": "CR-042-2026 & CR-045-2026 Presentation COW 6.29.2026",
+      "date": "2026-05-26",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/1925f44e-6633-4c9e-802a-f17f6378bf9d.pdf",
+      "file": "03-presentation.pdf",
+      "id": "r03",
+      "sha256": "1d2107cbd3b3fbf2ec791db342e4892c9b7906d631849b64c025122a49fdee0f",
+      "bytes": 1705478,
+      "signed_by": []
+    },
+    {
+      "type": "Legislative summary",
+      "title": "CR-042-2026 Summary",
+      "date": "2026-05-26",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/8061b2fc-fa78-4723-8a3c-cf7f1f03bd86.pdf",
+      "file": "04-legislative-summary.pdf",
+      "id": "r04",
+      "sha256": "ddeaf742f336259d3a0f78c7e53cd45b1dd14fd645567f0852f6af99e2794f0e",
+      "bytes": 90044,
+      "signed_by": []
+    },
+    {
+      "type": "Committee report",
+      "title": "CR-042-2026 Report",
+      "date": "2026-06-29",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/2b146905-bedc-42c3-a6d5-f029f9cd492d.docx",
+      "file": "05-committee-report.from-docx.pdf",
+      "id": "r05",
+      "sha256": "fe827fb2bb594cac35cde5dc46051dcfbf9e5bc57d46cc8716283e22ec4fe2cb",
+      "bytes": 95558,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/2b146905-bedc-42c3-a6d5-f029f9cd492d.docx",
+        "sha256": "164a8f9bcde35ed4e7f2d3e97b4587113c56e1ebd81da1bfc81a5fe217877a5e"
+      }
+    }
+  ],
+  "not_read": []
+}

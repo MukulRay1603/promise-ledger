@@ -52,7 +52,9 @@ def _read_pages(data: bytes) -> list[str]:
 
     try:
         reader = PdfReader(io.BytesIO(data))
-        if reader.is_encrypted:
+        # Many government PDFs are "secured": encrypted, but they open with an empty password and only restrict
+        # editing or printing. Those are read; a file that needs a real password to open is refused.
+        if reader.is_encrypted and not reader.decrypt(""):
             raise PdfError("The PDF is password protected.")
         if len(reader.pages) > MAX_PDF_PAGES:
             raise PdfError(f"The PDF has more than {MAX_PDF_PAGES} pages.")

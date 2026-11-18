@@ -1,0 +1,129 @@
+{
+  "notice": "Real public records of Prince George's County, Maryland, from the County Council's Legistar system. Promise Ledger lists what the records say; it does not judge whether any party met an obligation.",
+  "real": true,
+  "deal": "Addison Park Apartments",
+  "slug": "addison-park-apartments-cr-034-2023",
+  "city": "Prince George's County",
+  "county": "Prince George's County, MD",
+  "owner": null,
+  "as_of": "2023-06-20",
+  "source": {
+    "system": "Prince George's County Legistar",
+    "file": "CR-034-2023",
+    "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR ADDISON PARK APARTMENTS for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Addison Park, L.P. (the “Owner”).",
+    "status": "Adopted",
+    "introduced": "2023-05-09",
+    "passed": "2023-06-20",
+    "url": "https://princegeorgescountymd.legistar.com/LegislationDetail.aspx?ID=16071&GUID=1120D830-9402-4609-9C36-2DB8A57FDF99",
+    "api": "https://webapi.legistar.com/v1/princegeorgescountymd/matters/16071",
+    "votes": [
+      {
+        "date": "2023-06-06",
+        "body": "Sitting as the Committee of the Whole",
+        "action": "Favorably recommended",
+        "passed": true,
+        "tally": null
+      },
+      {
+        "date": "2023-06-20",
+        "body": "County Council",
+        "action": "adopted",
+        "passed": true,
+        "tally": null
+      }
+    ],
+    "retrieved": "2026-11-18"
+  },
+  "documents": [
+    {
+      "type": "Transmittal letter",
+      "title": "CR-034-2023 Transmittal",
+      "date": "2023-05-09",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/c171c283-9e43-4dae-984c-14fbba4c6a40.pdf",
+      "file": "01-transmittal-letter.pdf",
+      "id": "r01",
+      "sha256": "03901c06eed44054acace7426fe0fd6c3ed3671ea76f8d0307050bc52e247737",
+      "bytes": 249331,
+      "signed_by": []
+    },
+    {
+      "type": "PILOT agreement",
+      "title": "CR-034-2023 Attachment B",
+      "date": "2023-05-09",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/7bbfadc8-b521-444d-a3dd-9e90db553222.docx",
+      "file": "02-pilot-agreement.from-docx.pdf",
+      "id": "r02",
+      "sha256": "75a3052d3b94c2806203db340204909240a845f013129fa97e4403771b5f03ad",
+      "bytes": 307928,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/7bbfadc8-b521-444d-a3dd-9e90db553222.docx",
+        "sha256": "4997dd3336ebccf61d6bb379b50e4a9a14947850ccc74bf8b639cb738776a0f1"
+      }
+    },
+    {
+      "type": "Fiscal and policy note",
+      "title": "CR-034-2023 PAFI",
+      "date": "2023-05-09",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/b32ff4f1-db73-458a-870a-f26c1d8ecd03.pdf",
+      "file": "03-fiscal-and-policy-note.pdf",
+      "id": "r03",
+      "sha256": "fb4306c1725489611ce0d000983ebba7fe29107d5772f32dbc65df1ebb7e3518",
+      "bytes": 189399,
+      "signed_by": []
+    },
+    {
+      "type": "Presentation",
+      "title": "CR-034-2023 Presentation",
+      "date": "2023-05-09",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/7e57ad6a-0438-47ed-bde8-c08529bb0876.pdf",
+      "file": "04-presentation.pdf",
+      "id": "r04",
+      "sha256": "4498b11f5fa875b7d15bf1b4aff19c29e6ea4fea42b0c1c0ac0c36ad55cc757c",
+      "bytes": 1128455,
+      "signed_by": []
+    },
+    {
+      "type": "Legislative summary",
+      "title": "CR-034-2023 Summary",
+      "date": "2023-05-09",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/470e21ab-9a46-4c8e-b823-3bdf6cfb555c.pdf",
+      "file": "05-legislative-summary.pdf",
+      "id": "r05",
+      "sha256": "52c675f459f68e27690c31cf797fea344ad53bd210c062b25a6e1f7d389d968f",
+      "bytes": 90179,
+      "signed_by": []
+    },
+    {
+      "type": "Committee report",
+      "title": "CR-034-2023 Report",
+      "date": "2023-06-06",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/31d3888b-4b70-46fd-a673-8dbfd027cb8c.doc",
+      "file": "06-committee-report.from-doc.pdf",
+      "id": "r06",
+      "sha256": "2bd7cb72a5b51f2cf4834c57018165493a479f13735be516c7825272d0cfde61",
+      "bytes": 101852,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "doc",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/31d3888b-4b70-46fd-a673-8dbfd027cb8c.doc",
+        "sha256": "dd7fd8f1dcb807e21726f13ec22ea5f05c5587e276b154ff7519e43c9f6cc7a9"
+      }
+    },
+    {
+      "type": "Signed resolution",
+      "title": "CR-034-2023 - signed",
+      "date": "2023-06-20",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/75fe1248-12d9-4bb9-b4db-bfa926860a00.pdf",
+      "file": "07-signed-resolution.pdf",
+      "id": "r07",
+      "sha256": "bf8f43e32a81fdb13db93b7c94ef8ad1ba14f6e70d9fdbbd9d657d6313652c4d",
+      "bytes": 271966,
+      "signed_by": []
+    }
+  ],
+  "not_read": []
+}

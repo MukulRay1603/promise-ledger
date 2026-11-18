@@ -1,0 +1,151 @@
+{
+  "notice": "Real public records of Prince George's County, Maryland, from the County Council's Legistar system. Promise Ledger lists what the records say; it does not judge whether any party met an obligation.",
+  "real": true,
+  "deal": "Flats at Glenridge Station",
+  "slug": "flats-at-glenridge-station-cr-117-2025",
+  "city": "Prince George's County",
+  "county": "Prince George's County, MD",
+  "owner": null,
+  "as_of": "2025-11-17",
+  "source": {
+    "system": "Prince George's County Legistar",
+    "file": "CR-117-2025",
+    "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR THE FLATS AT GLENRIDGE STATION PROJECT for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Dominium Inc. (the “Owner”).",
+    "status": "Adopted",
+    "introduced": "2025-10-07",
+    "passed": "2025-11-17",
+    "url": "https://princegeorgescountymd.legistar.com/LegislationDetail.aspx?ID=18442&GUID=E61FDE67-CE6B-4B38-88BA-86E2DC3BBF93",
+    "api": "https://webapi.legistar.com/v1/princegeorgescountymd/matters/18442",
+    "votes": [
+      {
+        "date": "2025-11-10",
+        "body": "Sitting as the Committee of the Whole",
+        "action": "Favorably recommended",
+        "passed": true,
+        "tally": null
+      },
+      {
+        "date": "2025-11-17",
+        "body": "County Council",
+        "action": "adopted",
+        "passed": true,
+        "tally": null
+      }
+    ],
+    "retrieved": "2026-11-18"
+  },
+  "documents": [
+    {
+      "type": "PILOT agreement",
+      "title": "CR-117-2025 Attachment B",
+      "date": "2025-10-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/4d92d46f-2632-4feb-a1b9-10d514fe2210.pdf",
+      "file": "01-pilot-agreement.pdf",
+      "id": "r01",
+      "sha256": "dd27c81af383f5bad4395a4561966b4abb45c084ecee77ba6074d0866327611e",
+      "bytes": 324251,
+      "signed_by": []
+    },
+    {
+      "type": "Resolution",
+      "title": "CR-117-2025 R2025117",
+      "date": "2025-11-17",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/bea31bb1-263e-42b9-acc0-093d88e28e64.docx",
+      "file": "02-resolution.from-docx.pdf",
+      "id": "r02",
+      "sha256": "f73c208390251dd196757a82a4df54deed6c27dfed1c7de00cc66b455957dd16",
+      "bytes": 162492,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/bea31bb1-263e-42b9-acc0-093d88e28e64.docx",
+        "sha256": "3ec5e90b875f5d545597587c4383dfef542b82c7860d955f354e195df5480e66"
+      }
+    },
+    {
+      "type": "Transmittal letter",
+      "title": "CR-117-2025 Transmittal",
+      "date": "2025-10-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/83f514c5-299d-4607-8846-eaa203762375.pdf",
+      "file": "03-transmittal-letter.pdf",
+      "id": "r03",
+      "sha256": "552dfb4e7b8edd69b04d1695249f59d2c2812a75f2cf47f61088cbd5b069fd49",
+      "bytes": 421724,
+      "signed_by": []
+    },
+    {
+      "type": "Agency comments",
+      "title": "CR-117-2025 OMB Comments",
+      "date": "2025-10-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/343ce703-6d1c-4ad5-bffd-757a9069fe32.pdf",
+      "file": "04-agency-comments.pdf",
+      "id": "r04",
+      "sha256": "4e78579febe72380d00f70713a9840128571e4d5615118a91f2bed339334b0b1",
+      "bytes": 163085,
+      "signed_by": []
+    },
+    {
+      "type": "Fiscal and policy note",
+      "title": "CR-117-2025 PAFI",
+      "date": "2025-10-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/44356e6a-e7f6-4fbf-8ea6-3f01b79e7e78.pdf",
+      "file": "05-fiscal-and-policy-note.pdf",
+      "id": "r05",
+      "sha256": "f57f5e39aa8ff4623be6e25fa77c074c769423fae7884bef518382dd56bdf5d3",
+      "bytes": 360433,
+      "signed_by": []
+    },
+    {
+      "type": "Presentation",
+      "title": "CR-117-2025 Presentation COW 11102025",
+      "date": "2025-10-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/961df688-e8e6-46e0-9c21-c3245d5277a1.pdf",
+      "file": "06-presentation.pdf",
+      "id": "r06",
+      "sha256": "56fc8f907d2b22dabc0315b11b219a2721caa0490a9fc14692f60c8320863daf",
+      "bytes": 3214080,
+      "signed_by": []
+    },
+    {
+      "type": "Committee report",
+      "title": "CR-117-2025 Committee Report - COW",
+      "date": "2025-11-10",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/9f5767c3-d1b5-4e81-8a57-4bdf4efe9598.docx",
+      "file": "07-committee-report.from-docx.pdf",
+      "id": "r07",
+      "sha256": "b7babdaff12464d77e90f071c15b5f91dad58e9cd2b60dbb98118571f466ff5e",
+      "bytes": 99022,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/9f5767c3-d1b5-4e81-8a57-4bdf4efe9598.docx",
+        "sha256": "0c1632764518a217a3e7d47f57ceb5bc9d7600a6127f098a44ba1195da0aaacb"
+      }
+    },
+    {
+      "type": "Legislative summary",
+      "title": "CR-117-2025 Summary",
+      "date": "2025-10-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/d83530ef-4714-486c-8bab-890f53fb774d.pdf",
+      "file": "08-legislative-summary.pdf",
+      "id": "r08",
+      "sha256": "a2b184750d57f9877fc3a493257ec365ab01f788441d2ba4ffed14c0dfb16f22",
+      "bytes": 89854,
+      "signed_by": []
+    },
+    {
+      "type": "Signed resolution",
+      "title": "CR-117-2025 - signed",
+      "date": "2025-11-17",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/12acd1a6-3f23-4541-887e-02c4a28dd759.pdf",
+      "file": "09-signed-resolution.pdf",
+      "id": "r09",
+      "sha256": "13eff8502466b66cfc9cecacb03d9b1cf59cce7bd92a4ff0a0c220c2a21989eb",
+      "bytes": 2254871,
+      "signed_by": []
+    }
+  ],
+  "not_read": []
+}

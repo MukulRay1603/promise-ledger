@@ -1,0 +1,140 @@
+{
+  "notice": "Real public records of Prince George's County, Maryland, from the County Council's Legistar system. Promise Ledger lists what the records say; it does not judge whether any party met an obligation.",
+  "real": true,
+  "deal": "New Carrollton - Affordable - Phase 3 - 9%",
+  "slug": "new-carrollton-affordable-phase-3-9-cr-073-2024",
+  "city": "Prince George's County",
+  "county": "Prince George's County, MD",
+  "owner": null,
+  "as_of": "2024-10-15",
+  "source": {
+    "system": "Prince George's County Legistar",
+    "file": "CR-073-2024",
+    "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR THE NEW CARROLLTON - AFFORDABLE - PHASE 3 - 9% PROJECT for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Urban Atlantic Development LLC (the “Owner”).",
+    "status": "Adopted",
+    "introduced": "2024-09-10",
+    "passed": "2024-10-15",
+    "url": "https://princegeorgescountymd.legistar.com/LegislationDetail.aspx?ID=17365&GUID=7F6F9C3B-6519-40CE-9757-8C9CB16308D1",
+    "api": "https://webapi.legistar.com/v1/princegeorgescountymd/matters/17365",
+    "votes": [
+      {
+        "date": "2024-10-08",
+        "body": "Sitting as the Committee of the Whole",
+        "action": "Favorably recommended",
+        "passed": true,
+        "tally": null
+      },
+      {
+        "date": "2024-10-15",
+        "body": "County Council",
+        "action": "adopted",
+        "passed": true,
+        "tally": null
+      }
+    ],
+    "retrieved": "2026-11-18"
+  },
+  "documents": [
+    {
+      "type": "Transmittal letter",
+      "title": "CR-073-2024 Transmittal",
+      "date": "2024-09-10",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/1d658016-7280-466f-9e6c-9e62aae8a8e8.pdf",
+      "file": "01-transmittal-letter.pdf",
+      "id": "r01",
+      "sha256": "e16f27d4cc2ab9bd5457202f55e2b7121e7991d3bfc25f1ed68c6a9a089dcf07",
+      "bytes": 186110,
+      "signed_by": []
+    },
+    {
+      "type": "Resolution",
+      "title": "CR-073-2024 R2024073",
+      "date": "2024-10-15",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/2d9d3d2c-4f22-4b24-961d-11fc4fce2617.docx",
+      "file": "02-resolution.from-docx.pdf",
+      "id": "r02",
+      "sha256": "761c940e7922b7a2adde5862070edaaa029dd96bc674cf957c7136cdfe8c7ee7",
+      "bytes": 165385,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/2d9d3d2c-4f22-4b24-961d-11fc4fce2617.docx",
+        "sha256": "306a1135819163e59f0319786f3b1d8fd8dbadbedc104499c92a690bc4882e64"
+      }
+    },
+    {
+      "type": "PILOT agreement",
+      "title": "CR-073-2024 Attachment B",
+      "date": "2024-09-10",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/c4c4d334-8589-45d3-9f92-0ae8efe8287f.pdf",
+      "file": "03-pilot-agreement.pdf",
+      "id": "r03",
+      "sha256": "a894a4e81f22a132d97c97b4b45ae4a9b7aa563c5de08891603b9521d97f1b5b",
+      "bytes": 246947,
+      "signed_by": []
+    },
+    {
+      "type": "Fiscal and policy note",
+      "title": "CR-073-2024 PAFI",
+      "date": "2024-09-10",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/ee3b50f9-081f-4d61-b8fc-343e69a685a2.pdf",
+      "file": "04-fiscal-and-policy-note.pdf",
+      "id": "r04",
+      "sha256": "13325def01c852f3363fdbf554d21c4f71687572574587cc684e9b8ee9240282",
+      "bytes": 353952,
+      "signed_by": []
+    },
+    {
+      "type": "Attachment",
+      "title": "CR-073-2024 New Carrollton 3 Legislative Preview Presentaiton",
+      "date": "2024-09-10",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/983c852e-b8b0-4884-b39f-443b0c9a7821.pdf",
+      "file": "05-attachment.pdf",
+      "id": "r05",
+      "sha256": "8754b19ab329653dcceea28918658afef0de150640699393f6b756224a469e15",
+      "bytes": 833499,
+      "signed_by": []
+    },
+    {
+      "type": "Committee report",
+      "title": "CR-073-2024 Report",
+      "date": "2024-10-08",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/250b3599-a329-4caf-9ebb-ecc5aa2e529d.docx",
+      "file": "06-committee-report.from-docx.pdf",
+      "id": "r06",
+      "sha256": "312418a8128f46175ab2db7b7d6f670442d8d2746ed486acd4b2ad50e7d718d8",
+      "bytes": 103451,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/250b3599-a329-4caf-9ebb-ecc5aa2e529d.docx",
+        "sha256": "db56946bad8d47d9fd69b6863a86de5b43142c66c049f57906988d5eb4cf018d"
+      }
+    },
+    {
+      "type": "Legislative summary",
+      "title": "CR-073-2024 Summary",
+      "date": "2024-09-10",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/96d3a239-73ba-42be-82dd-6f3564316a36.pdf",
+      "file": "07-legislative-summary.pdf",
+      "id": "r07",
+      "sha256": "ee8a3bcc8f8f9850f0d6b6bb774099adae51de96a068bc39ef41fc9bc758f5ae",
+      "bytes": 91026,
+      "signed_by": []
+    },
+    {
+      "type": "Signed resolution",
+      "title": "CR-073-2024 - signed",
+      "date": "2024-10-15",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/825f9878-16cc-4460-bc97-d2ca46c3b34f.pdf",
+      "file": "08-signed-resolution.pdf",
+      "id": "r08",
+      "sha256": "8a702550c8e8017c2fed61149707b566d28b0d7ca42b24ea41aa96eee52e8098",
+      "bytes": 218557,
+      "signed_by": []
+    }
+  ],
+  "not_read": []
+}

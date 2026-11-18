@@ -9,3 +9,8 @@ data/runtime/
 .vscode/
 .idea/
 *.tmp
+
+# Real county PDFs are public records fetched by URL and SHA-256 (tools/county_import.py); not committed.
+data/county/*/*.pdf
+!data/county/*/*.from-docx.pdf
+!data/county/*/*.from-doc.pdf

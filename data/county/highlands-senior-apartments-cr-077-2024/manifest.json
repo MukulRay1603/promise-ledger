@@ -1,0 +1,129 @@
+{
+  "notice": "Real public records of Prince George's County, Maryland, from the County Council's Legistar system. Promise Ledger lists what the records say; it does not judge whether any party met an obligation.",
+  "real": true,
+  "deal": "Highlands Senior Apartments",
+  "slug": "highlands-senior-apartments-cr-077-2024",
+  "city": "Prince George's County",
+  "county": "Prince George's County, MD",
+  "owner": null,
+  "as_of": "2024-10-15",
+  "source": {
+    "system": "Prince George's County Legistar",
+    "file": "CR-077-2024",
+    "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR THE HIGHLANDS SENIOR APARTMENTS for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Highland Senior Living, LLLP (the “Owner”).",
+    "status": "Adopted",
+    "introduced": "2024-09-10",
+    "passed": "2024-10-15",
+    "url": "https://princegeorgescountymd.legistar.com/LegislationDetail.aspx?ID=17369&GUID=E7478FA0-108D-4DFA-9FE4-C923C4E494A7",
+    "api": "https://webapi.legistar.com/v1/princegeorgescountymd/matters/17369",
+    "votes": [
+      {
+        "date": "2024-10-08",
+        "body": "Sitting as the Committee of the Whole",
+        "action": "Favorably recommended",
+        "passed": true,
+        "tally": null
+      },
+      {
+        "date": "2024-10-15",
+        "body": "County Council",
+        "action": "adopted",
+        "passed": true,
+        "tally": null
+      }
+    ],
+    "retrieved": "2026-11-18"
+  },
+  "documents": [
+    {
+      "type": "Resolution",
+      "title": "CR-077-2024 R2024077",
+      "date": "2024-10-15",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/2f1760e9-88c0-4f04-9d4b-5e1d6b4479a3.docx",
+      "file": "01-resolution.from-docx.pdf",
+      "id": "r01",
+      "sha256": "bd56c012978c3ff6ec02791e6b4f6e10c30f098978243bb3ca87efa1391ce6f0",
+      "bytes": 318568,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/2f1760e9-88c0-4f04-9d4b-5e1d6b4479a3.docx",
+        "sha256": "4bf1437e4fed8238085e694777713633667cc8bfbcd3e543e81cc1e57d31efd8"
+      }
+    },
+    {
+      "type": "PILOT agreement",
+      "title": "CR-077-2024 Attachment B",
+      "date": "2024-09-10",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/2d40b148-dc17-4737-9157-b5297daba0f6.pdf",
+      "file": "02-pilot-agreement.pdf",
+      "id": "r02",
+      "sha256": "f176798931eafded7ab248369b93250fd5e5b12bfcfe73b3c161022243cf5f65",
+      "bytes": 265227,
+      "signed_by": []
+    },
+    {
+      "type": "Transmittal letter",
+      "title": "CR-077-2024 Transmittal",
+      "date": "2024-09-10",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/69dd52e6-7d1b-48af-87e9-325506db5063.pdf",
+      "file": "03-transmittal-letter.pdf",
+      "id": "r03",
+      "sha256": "af54baaeb30bffc24aefa442b58c7fa5f6a7359893856ff5c3269fb33f527ca9",
+      "bytes": 189787,
+      "signed_by": []
+    },
+    {
+      "type": "Fiscal and policy note",
+      "title": "CR-077-2024 PAFI",
+      "date": "2024-09-10",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/66daccb8-e588-41e2-857b-e8bb432a303b.pdf",
+      "file": "04-fiscal-and-policy-note.pdf",
+      "id": "r04",
+      "sha256": "017cc5048f3f1cfc9c700c0f464cd64f7121c9e3de4bf981fb96fc956e96907b",
+      "bytes": 355203,
+      "signed_by": []
+    },
+    {
+      "type": "Committee report",
+      "title": "CR-077-2024 Report",
+      "date": "2024-10-08",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/4e9bf17f-a6ad-4c99-8fca-f4248f3c40f1.docx",
+      "file": "05-committee-report.from-docx.pdf",
+      "id": "r05",
+      "sha256": "7fe8d84c689f146f952350a5a6c68b64ff55c687ecdf79701adb0faae1f659cd",
+      "bytes": 94657,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/4e9bf17f-a6ad-4c99-8fca-f4248f3c40f1.docx",
+        "sha256": "27f717d0410e0690dc29a420a0a04a67d99957937dbcd41a51a10f52d20eb48e"
+      }
+    },
+    {
+      "type": "Legislative summary",
+      "title": "CR-077-2024 Summary",
+      "date": "2024-09-10",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/ecad4801-1f61-47ef-b02c-54772cdbcdd0.pdf",
+      "file": "06-legislative-summary.pdf",
+      "id": "r06",
+      "sha256": "0440c19fa4028e4a3330e5188bc03119dab0cd10e31599845f1b6ff3c0ca3360",
+      "bytes": 89547,
+      "signed_by": []
+    },
+    {
+      "type": "Signed resolution",
+      "title": "CR-077-2024 - signed",
+      "date": "2024-10-15",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/259bcf4b-598f-4cb7-ac9a-64c0aa0792fb.pdf",
+      "file": "07-signed-resolution.pdf",
+      "id": "r07",
+      "sha256": "a9084de49dd5d3444aae48bdb259bd819603240acde52014e2ef28367c655674",
+      "bytes": 257075,
+      "signed_by": []
+    }
+  ],
+  "not_read": []
+}
