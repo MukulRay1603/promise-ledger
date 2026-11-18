@@ -92,10 +92,97 @@ _live_lock = threading.Lock()  # Reader threads and request threads share the ca
 MAX_RECORD_CHARS = int(os.getenv("MAX_RECORD_CHARS") or 200_000)
 
 
+# Private people: tenants, applicants and members of their households. Names and home addresses are removed only
+# where the page itself marks them as such (a labelled field, or a row of a rent roll that has a tenant column).
+# A name is never guessed from free text, so company names, officials in votes and signature blocks, and the
+# project's own address stay as printed. Line by line, with bounded patterns (see the note on _PII).
+# Two to four name words with single spaces between them ("Maria T. Lopez", "Lopez, Daniel", "Ana de la Cruz").
+# A wider gap starts the next field of a form.
+_PERSON = (r"[A-Z][A-Za-z'’\-]{1,29}(?:,?[ \t](?:(?:de la|de|del|van der|van|von|da|di|la|le|bin|al)[ \t])?"
+           r"(?:[A-Z]\.|[A-Z][A-Za-z'’\-]{1,29})){1,3}")
+_PRIVATE_LABEL = (r"(?:co-?tenant|tenant|co-?applicant|resident|occupant|lessee|leaseholder|renter|head of household|"
+                  r"household head|household member|member of household|spouse|dependent|emergency contact)")
+_FIELD_TAIL = r"(?:'s|’s)?(?:[ \t]+name)?(?:[ \t]*(?:no\.?|#)?[ \t]*\d{1,2})?[ \t]*:[ \t]*"
+_NAME_FIELD = re.compile(rf"(?<![\w-])((?i:(?:name of[ \t]+)?{_PRIVATE_LABEL}){_FIELD_TAIL})({_PERSON})")
+# "Applicant:" is usually the developer in a deal record. It is a private person only on a household form.
+_APPLICANT_FIELD = re.compile(rf"(?<![\w-])((?i:(?:name of[ \t]+)?applicant){_FIELD_TAIL})({_PERSON})")
+_HOUSEHOLD_FORM = re.compile(r"\bhousehold (?:size|income|members?|composition)\b|\bdate of birth\b|\bDOB\b|\bhead of household\b|"
+                             r"\btenant income certification\b|\brental application\b|\bsocial security\b|\[SSN\]", re.I)
+# Words that make a labelled name an organization, not a person ("Tenant: Harbor Cafe LLC").
+_ORG_WORD = re.compile(r"\b(?:LLC|L\.L\.C|LP|LLP|Inc|Incorporated|Corp|Corporation|Co|Company|Partners?|Partnership|Associates|"
+                       r"Authority|Agency|City|County|Town|Village|State|Department|Housing|Homes|Residences|Apartments|"
+                       r"Properties|Holdings|Ventures|Builders|Developers?|Development|Group|Trust|Foundation|Fund|Bank|"
+                       r"Church|Services|Council|Commission|Board|Committee|Association|Limited|Ltd)\b", re.I)
+_ADDRESS_FIELD = re.compile(r"(?<![\w-])((?i:(?:(?:home|mailing|residential|residence|current|previous|prior|forwarding)[ \t]+address|"
+                            rf"{_PRIVATE_LABEL}(?:'s|’s)?[ \t]+(?:home[ \t]+|mailing[ \t]+)?address|applicant(?:'s|’s)?[ \t]+"
+                            r"(?:home[ \t]+|mailing[ \t]+)?address))[ \t]*:[ \t]*)(\S[^\n]{0,119})")
+_BIRTH_FIELD = re.compile(r"(?<![\w-])((?i:date of birth|birth ?date|DOB)[ \t]*:[ \t]*)(\S+(?:[ \t]\d\S*){0,2})")
+# The apartment in a street address is one household's home: "2200 Beacon Avenue, Apt 4B" keeps the building.
+_STREET_UNIT = re.compile(r"(\b\d{1,6}[ \t]+(?:[A-Z][A-Za-z.'’]{0,24}[ \t]+){1,4}(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|"
+                          r"Lane|Ln|Way|Court|Ct|Place|Pl|Terrace|Circle|Cir|Highway|Hwy|Parkway|Pkwy)\b\.?,?[ \t]+)"
+                          r"((?i:apt\.?|apartment|unit|#)[ \t]*#?[ \t]*[A-Za-z]?-?\d{1,5}[A-Za-z]?\b)")
+# Rent rolls: a page that has a column of tenant names, and rows that start with a unit number.
+_ROLL_HEADER = re.compile(r"^[ \t]*(?:unit\b[ \t#.]*(?:no\.?|number)?[ \t]*)?(?:tenant|resident|occupant|lessee|leaseholder|"
+                          r"head of household|household)s?(?:[ \t]+names?)?(?=[ \t]|$)(?![ \t]*:)", re.I)
+_UNIT_CELL = r"(?:(?i:unit|apt\.?|apartment)[ \t]*)?#?[A-Za-z]?-?\d{1,4}[A-Za-z]?"
+_ROLL_ROW = re.compile(rf"^([ \t]*{_UNIT_CELL}[ \t]+)({_PERSON})(?![A-Za-z])")
+_UNIT_ONLY = re.compile(rf"^[ \t]*{_UNIT_CELL}[ \t]*$")
+_NAME_ONLY = re.compile(rf"^[ \t]*{_PERSON}[ \t]*$")
+# Words in a row that are not a person: the kind of home, a status, a month, a street.
+_NOT_A_NAME = re.compile(r"\b(?:vacant|studio|bedrooms?|one|two|three|four|market|affordable|restricted|rate|total|yes|no|model|"
+                         r"manager|office|section|unit|units|leased|occupied|homes?|income|rent|median|area|january|february|"
+                         r"march|april|may|june|july|august|september|october|november|december|street|avenue|road|lane|way|"
+                         r"drive|court|place)\b", re.I)
+MAX_FIELD_LINE = 400  # A longer line is running text, never a form field or a table row.
+
+
+def _is_person(name: str, rest: str = "") -> bool:
+    """False when the name, or the capitalized words right after it, name an organization."""
+    return not _ORG_WORD.search(name) and not any(m.group(0)[0].isupper() for m in _ORG_WORD.finditer(rest[:30]))
+
+
+def _field_name(m: re.Match) -> str:
+    return m.group(1) + "[NAME]" if _is_person(m.group(2), m.string[m.end():]) else m.group(0)
+
+
+def _redact_private(text: str) -> str:
+    """Names, home addresses and birth dates of tenants, applicants and household members, where the page labels them."""
+    household_form = bool(_HOUSEHOLD_FORM.search(text))
+    lines = text.split("\n")
+    roll = any(len(line) <= MAX_FIELD_LINE and _ROLL_HEADER.search(line) for line in lines)
+    out, after_unit = [], False
+    for line in lines:
+        if len(line) <= MAX_FIELD_LINE:
+            was_unit, after_unit = after_unit, bool(_UNIT_ONLY.match(line))
+            line = _NAME_FIELD.sub(_field_name, line)
+            if household_form:
+                line = _APPLICANT_FIELD.sub(_field_name, line)
+            line = _ADDRESS_FIELD.sub(r"\1[ADDRESS]", line)
+            line = _BIRTH_FIELD.sub(r"\1[DATE OF BIRTH]", line)
+            line = _STREET_UNIT.sub(r"\1[UNIT]", line)
+            if roll:
+                row = _ROLL_ROW.match(line)
+                if row and _is_person(row.group(2)) and not _NOT_A_NAME.search(row.group(2)):
+                    line = row.group(1) + "[NAME]" + line[row.end(2):]
+                elif was_unit and _NAME_ONLY.match(line) and _is_person(line) and not _NOT_A_NAME.search(line):
+                    line = "[NAME]"  # A table read one cell per line: the unit number, then the tenant.
+        else:
+            after_unit = False
+        out.append(line)
+    return "\n".join(out)
+
+
 def redact(text: str) -> str:
+    """The text with personal details replaced by labels, before it goes to the model.
+
+    Removed: Social Security numbers, emails, phone numbers, and the names, home addresses and birth dates of
+    private people where the page labels them ("Tenant:", "Head of household:", "Home address:", rent-roll rows).
+    Not removed: a private person's name in running prose. A quote is checked against the page as printed, so a
+    sentence that held a removed detail cannot be kept as a claim; nothing else about checking changes.
+    """
     for pattern, label in _PII:
         text = pattern.sub(label, text)
-    return text
+    return _redact_private(text)
 
 
 @lru_cache
