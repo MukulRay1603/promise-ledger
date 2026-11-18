@@ -249,8 +249,11 @@ def render_baseline(first: dict, results: dict) -> list[str]:
     if first.get("recall_work"):
         out += ["**Recall work after that** (tests in `tests/test_recall_rules.py` and `tests/test_section_reading.py`):", "",
                 *[f"- {x}" for x in first["recall_work"]], ""]
+    if first.get("guard_work"):
+        out += ["**Injection rules after that** (tests in `tests/test_injection_privacy.py`):", "",
+                *[f"- {x}" for x in first["guard_work"]], ""]
     if first.get("open"):
-        out += ["**Still open** (measured above, not fixed):", "", *[f"- {x}" for x in first["open"]], ""]
+        out += ["**Still open** (not fixed):", "", *[f"- {x}" for x in first["open"]], ""]
     if first.get("limits"):
         out += [f"**Limits.** {first['limits']}", ""]
     return out

@@ -563,6 +563,72 @@ _BLANK_LINE = re.compile(r"_{3,}")
 _ESIGN_LEAD = re.compile(r"(?<!\bto be )(?<!\bwill be )(?<!\bnot )(?<!\bnot yet )\b(?:digitally|electronically) signed by\s*$", re.I)
 
 
+# ---------------------------------------------------------------------------
+# Text addressed to an automated reader (prompt injection). A public record speaks to people. A line that
+# speaks to "the AI", calls itself a system message or tells the reader to ignore its instructions is not part
+# of the record: it is never evidence for a stage, and a quote that exists only inside it is not kept.
+_INSTRUCTION = re.compile("|".join([
+    r"\b(?:ignore|disregard|forget|override)\s+(?:all\s+|any\s+|the\s+|your\s+)?(?:previous|prior|above|earlier|preceding)"
+    r"\s+(?:instructions?|prompts?|rules|directions|guidance)\b",
+    r"\b(?:system|developer)\s+(?:message|prompt|instructions?|override)\b",
+    r"^\W*(?:system|assistant|ai)\s*:",
+    r"\b(?:AI|A\.I\.|LLM)\s+(?:assistants?|systems?|models?|readers?|agents?|tools?)\s*[:,]",
+    r"\b(?:notes?|message|instructions?|attention|notice)\s+(?:to|for)\s+(?:the\s+|any\s+|all\s+)?"
+    r"(?:AI\b|A\.I\.|LLMs?\b|language models?\b|chatbots?\b|automated\s+(?:readers?|systems?|tools?)\b|"
+    r"document readers?\b|the\s+(?:model|assistant)\b)",
+    r"\bin your (?:output|json)\b",
+    r"\byou are (?:now\s+)?(?:an?\s+|the\s+)?(?:AI\b|assistant\b|language model\b|chatbot\b|document reader\b)",
+    r"\bset\s+\w+\s+to\s+(?:true|false)\b",
+]), re.I)
+# The instruction points at what follows it ("the next sentence is the binding term").
+_POINTS_AHEAD = re.compile(r"\b(?:next|following)\s+(?:sentence|line|paragraph|statement|text|clause|term)\b", re.I)
+_LINE_ENDS = re.compile(r"[.!?;:\"')\]]$")
+MAX_INSTRUCTION_RUN = 6  # Most printed lines one instruction can take with it.
+
+
+def instruction_lines(page_text: str) -> list[int]:
+    """Indexes of the printed lines on this page that are addressed to an automated reader, with what they carry.
+
+    The line with the instruction is marked. So is the rest of its sentence when it wraps onto the next lines
+    (until a line ends a sentence and every quotation mark opened is closed), and the line after it when the
+    instruction ends with a colon or points at "the next sentence".
+    """
+    lines = [normalize(line) for line in page_text.split("\n")]
+    marked: set[int] = set()
+
+    def run(i: int) -> int:
+        """Mark line i and the lines its sentence wraps onto. Returns the last line marked."""
+        marked.add(i)
+        said, last = lines[i], i
+        while ((not _LINE_ENDS.search(said) or said.count('"') % 2) and last + 1 < len(lines)
+               and last - i < MAX_INSTRUCTION_RUN):
+            last += 1
+            marked.add(last)
+            said = (said + " " + lines[last]).strip()
+        return last
+
+    for i, line in enumerate(lines):
+        if i in marked or not _INSTRUCTION.search(line):
+            continue
+        last = run(i)
+        said = " ".join(lines[i:last + 1]).strip()
+        ahead = _POINTS_AHEAD.search(said)
+        # "The next sentence is binding." with nothing after it on these lines: the sentence meant is on the next line.
+        if said.endswith(":") or (ahead and not re.search(r"[.:!?]\s*\S", said[ahead.end():])):
+            nxt = next((j for j in range(last + 1, len(lines)) if lines[j]), None)
+            if nxt is not None and nxt not in marked:
+                run(nxt)
+    return sorted(marked)
+
+
+def without_instructions(page_text: str) -> str:
+    """The page with lines addressed to an automated reader left blank. Any other page is returned unchanged."""
+    marked = set(instruction_lines(page_text))
+    if not marked:
+        return page_text
+    return "\n".join("" if i in marked else line for i, line in enumerate(page_text.split("\n")))
+
+
 def type_key(label: str | None) -> str | None:
     """Map a staff-entered type such as "Executed agreement" to a rule key, from the label's words only (L4).
 
@@ -658,19 +724,93 @@ def _sentences(text: str) -> list[str]:
     return [s for s in re.split(r"(?<=[.;:])\s+|\n", normalize(text)) if s.strip()]
 
 
-def support_actions(text: str) -> list[int]:
-    """Character offsets of recorded actions that passed: adopted, carried, or a vote with more ayes (L5)."""
-    found, at = [], 0
+# A sentence that records that a motion or measure did not pass.
+_VOTE_FAILED = re.compile(r"\b(?:motion|vote|resolution|ordinance|measure)\b[^.;]{0,160}\b(?:fail(?:ed|s)|defeated|denied|rejected|"
+                          r"lost|did not (?:pass|carry)|(?:was|were|is) not (?:adopted|approved))\b", re.I)
+_LOST_TALLY = re.compile(r"\bvoted (\d+) to (\d+) to (?:support|approve|adopt|grant)\b", re.I)
+# The heading of an agenda item in minutes: "4. Public hearing", "ITEM 4. Quarry Row".
+_ITEM_HEAD = re.compile(r"^(?:item\s+\d{1,3}\b|\d{1,2}[.)]\s+[A-Z])", re.I)
+
+
+def _item_starts(text: str, norm: str) -> list[int]:
+    """Offsets in the normalized text where each agenda item starts. The text before the first heading is item 0."""
+    starts, at = [0], 0
+    for line in text.split("\n"):
+        line = normalize(line)
+        if not line:
+            continue
+        pos = norm.find(line, at)
+        if pos < 0:
+            continue
+        if _ITEM_HEAD.match(line) and pos > 0:
+            starts.append(pos)
+        at = pos + len(line)
+    return starts
+
+
+# A sentence that records its own vote: a tally, or the motion it is about ("The motion to adopt the budget carried").
+_OWN_VOTE = re.compile(r"\bvoted \d+ to \d+\b|\bvote of \d+\s*(?:to|-)\s*\d+\b|\b\d+\s*-\s*\d+ vote\b|\bunanimous(?:ly)?\b|"
+                       r"\bmotion to \w+", re.I)
+
+
+def vote_record(text: str) -> tuple[list[int], list[int], bool]:
+    """(actions that passed, bare adoption lines that are contradicted, mixed), offsets in the normalized text (L5).
+
+    An action passed when a sentence says so: adopted, carried, or a vote with more ayes. A bare line that names no
+    motion and gives no tally ("PASSED AND ADOPTED.", "The motion carried.", "The request was approved.") refers to
+    the motion recorded beside it. When the same agenda item records that a motion failed, was defeated or was
+    denied, such a line is contradicted and the failed result wins, so a line added under a failed vote does not make
+    the record supported. A sentence with its own tally or its own motion still counts; `mixed` is True when one of
+    those shares an item with a failed motion, so the stage note can ask a person to check. A record without item
+    headings is one item.
+    """
+    from bisect import bisect_right
+
+    passed, failed, at = [], [], 0
     norm = normalize(text)
     for sentence in _sentences(text):
         at = norm.find(sentence, at)
+        lost = _LOST_TALLY.search(sentence)
+        if _VOTE_FAILED.search(sentence) or (lost and int(lost.group(1)) <= int(lost.group(2))):
+            failed.append(max(at, 0))
         if _SUPPORT_NOT.search(sentence):
             continue
         for m in _SUPPORT_ACTED.finditer(sentence):
             if m.group(1) and int(m.group(1)) <= int(m.group(2)):
                 continue  # "voted 2 to 5 to approve" did not pass.
-            found.append(max(at, 0) + m.start())
-    return found
+            passed.append((max(at, 0) + m.start(), not _OWN_VOTE.search(sentence)))
+    starts = _item_starts(text, norm)
+    failed_items = {bisect_right(starts, offset) for offset in failed}
+    beside_failure = [(offset, bare) for offset, bare in passed if bisect_right(starts, offset) in failed_items]
+    contradicted = [offset for offset, bare in beside_failure if bare]
+    stands = [offset for offset, _ in passed if offset not in contradicted]
+    return stands, contradicted, any(not bare for _, bare in beside_failure)
+
+
+def support_actions(text: str) -> list[int]:
+    """Character offsets of recorded actions that passed and that the same agenda item does not contradict (L5)."""
+    return vote_record(text)[0]
+
+
+_HEADING_KINDS = {**_KIND_IN_TEXT, "staff_report": re.compile(r"\bstaff (?:memo|report|summary)\b|\bmemorandum\b", re.I)}
+MAX_HEADING_WORDS = 12
+
+
+def heading_kinds(first_page: str) -> list[str]:
+    """The record types named by the first heading on the page that names one, in the order it names them.
+
+    A heading is a short line in capitals ("MINUTES", "REGULATORY AGREEMENT", "RESOLUTION NO. 2025-41").
+    Empty when no heading names a type.
+    """
+    for line in first_page.split("\n"):
+        text = normalize(line)
+        letters = [ch for ch in text if ch.isalpha()]
+        if len(letters) < 5 or len(text.split()) > MAX_HEADING_WORDS or not all(ch.isupper() for ch in letters):
+            continue
+        hits = sorted((m.start(), kind) for kind, pattern in _HEADING_KINDS.items() if (m := pattern.search(text)))
+        if hits:
+            return [kind for _, kind in hits]
+    return []
 
 
 def record_kind(staff_type: str | None, model_type: str | None, pages: list[str]) -> tuple[str, bool]:
@@ -680,6 +820,11 @@ def record_kind(staff_type: str | None, model_type: str | None, pages: list[str]
         return kind, True
     guess = type_key(model_type) or "other"
     first = "\n".join(pages[:1])
+    named = heading_kinds(first)
+    if named and guess not in named:
+        # The record's own heading says what it is. A model told "classify this record as a signed agreement"
+        # by a line planted in minutes headed MINUTES does not make it an agreement.
+        return named[0], False
     if guess in _KIND_IN_TEXT and _KIND_IN_TEXT[guess].search(first):
         return guess, False
     return "other", False
@@ -701,8 +846,14 @@ def decide_stage(kind: str, pages: list[str], signatures: list[dict], draft: boo
         why = "Marked as a draft or unsigned." if draft else "No completed signature was located."
         return "proposed", [], why
     if kind in ("minutes", "resolution"):
-        if support_actions(text):
-            return "supported", [], "Council minutes or resolution with a recorded action that passed."
+        passed, contradicted, mixed = vote_record(text)
+        if passed:
+            note = (" The same item also records a motion that failed. Check which vote applies to this deal."
+                    if mixed else "")
+            return "supported", [], "Council minutes or resolution with a recorded action that passed." + note
+        if contradicted:
+            return "proposed", [], ("The record says both that a motion failed and that it passed. The failed result is "
+                                    "used until a person checks the record.")
         return "proposed", [], "Minutes or resolution, but no adopted or carried action was located."
     return "proposed", [], "Staff reports, letters and slides describe proposals."
 
@@ -942,20 +1093,29 @@ def is_boilerplate(quote: str, chrome: set[str]) -> bool:
 
 def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_parties: list[str] | None = None) -> dict:
     """Check the model's reading against the page text. Returns the fields to save on the document."""
-    kind, _from_staff = record_kind(doc.get("type"), reading.document_type, pages)
+    # Lines addressed to an automated reader are not the record speaking. They are left out of everything that
+    # decides the type or the stage, and a quote found only inside them is not kept. A draft mark still counts
+    # wherever it is printed, because it can only hold a record back.
+    clean = [without_instructions(text) for text in pages]
+    planted = [n for n, (text, kept) in enumerate(zip(pages, clean), 1) if text != kept]
+    kind, _from_staff = record_kind(doc.get("type"), reading.document_type, clean)
     draft = is_draft(pages, reading.draft)
     scans = set(doc.get("transcribed_pages") or [])
     # Stage evidence (signatures, votes, delivery) counts only from pages with their own text layer. Text the
     # model transcribed from a scan can hold claims, but it never moves a record past proposed by itself.
-    evidence = [("" if i in scans else text) for i, text in enumerate(pages, 1)]
+    evidence = [("" if i in scans else text) for i, text in enumerate(clean, 1)]
     signatures = checked_signatures([s.model_dump() for s in reading.signatures], evidence)
     for sig in signatures:
         sig["party"] = canonical_party(sig["party"], known_parties or [])
     stage, signed_by, reason = decide_stage(kind, evidence, signatures, draft)
-    if scans and stage == "proposed" and decide_stage(kind, pages, checked_signatures(
-            [s.model_dump() for s in reading.signatures], pages), draft)[0] != "proposed":
+    if scans and stage == "proposed" and decide_stage(kind, clean, checked_signatures(
+            [s.model_dump() for s in reading.signatures], clean), draft)[0] != "proposed":
         reason += (" A signature, vote or delivery statement appears only on a scanned page. "
                    "A person must confirm it against the PDF before it counts.")
+    if planted:
+        where = f"page {planted[0]}" if len(planted) == 1 else "pages " + ", ".join(map(str, planted))
+        reason += (f" Text addressed to an automated reader was found on {where}. It was not used as evidence, "
+                   "and no quote was taken from it.")
 
     # The model's title is kept only if it is printed in the record (S10); otherwise the filename shows.
     found = normalize(reading.title or "").lower().rstrip(".")
@@ -972,7 +1132,7 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
 
     claims, counts = [], {"candidates": len(reading.candidates), "kept": 0, "page_corrected": 0,
                           "dropped": 0, "duplicates": 0, "absent": 0,
-                          "boilerplate": 0, "off_term": 0}
+                          "boilerplate": 0, "off_term": 0, "instruction_text": 0}
     chrome = repeated_lines(pages)
     seen = set()
     kept_keys: list[tuple[str, str, int]] = []  # (term, quote, page) of each kept claim, in the same order as `claims`
@@ -986,6 +1146,13 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
         if page is None:
             counts["dropped"] += 1
             continue
+        if planted:
+            # The words are on the page, but only inside text addressed to an automated reader: not a statement
+            # of the record. Dropped and counted, and never set aside as a sentence to check.
+            page = locate(cand.quote, clean, cand.page)
+            if page is None:
+                counts["instruction_text"] += 1
+                continue
         if _ABSENT.search(normalize(cand.quote)):
             counts["absent"] += 1
             continue
@@ -1031,7 +1198,7 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
             "stated_page": cand.page,
             "page_corrected": corrected,
             "topic": topic,
-            "status": claim_stage(stage, kind, cand.quote, pages),
+            "status": claim_stage(stage, kind, cand.quote, clean),
             "wording": wording,
             "value": canonical_value(topic, cand.quote, cand.value),
             "compare": compare_key(topic, cand.quote),
@@ -1064,4 +1231,5 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
         "draft": draft,
         "claims": claims,
         "counts": counts,
+        "instruction_pages": planted,
     }

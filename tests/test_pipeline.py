@@ -88,7 +88,7 @@ class QuoteChecks(unittest.TestCase):
             cand("The developer has agreed to set aside 12 of the 120 homes as affordable homes.", page=1),
         ])
         out = pipeline.verify_reading(r, PAGES, {"id": "d1", "type": "Staff report", "date": "2025-02-03"})
-        self.assertEqual(out["counts"], {"candidates": 4, "kept": 2, "page_corrected": 1, "dropped": 1, "duplicates": 1, "absent": 0, "boilerplate": 0, "off_term": 0})
+        self.assertEqual(out["counts"], {"candidates": 4, "kept": 2, "page_corrected": 1, "dropped": 1, "duplicates": 1, "absent": 0, "boilerplate": 0, "off_term": 0, "instruction_text": 0})
         units, term = out["claims"]
         self.assertEqual((units["page"], units["stated_page"], units["page_corrected"]), (1, 2, True))
         self.assertEqual(units["homes"], {"count": 12, "of": 120})

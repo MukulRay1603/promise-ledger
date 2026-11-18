@@ -8,6 +8,10 @@ words it sees and nothing else: it finds no claims, sets no stage and decides no
 - At most VISION_MAX_PAGES scanned pages per document are sent. The rest keep the "not read" question.
 - A handwritten signature is transcribed as "[handwritten signature]", which the signature rules do not count.
 - With no GEMINI_API_KEY, or if the call fails, nothing changes: the pages stay unread.
+- A scanned page is sent as an image, so the redactor (ai.redact) cannot touch it. SCANS_TO_MODEL decides whether
+  that is allowed: on by default in the public demo (made-up records), off by default in a staff deployment
+  (DEMO_MODE=0) unless SCANS_TO_MODEL=1 is set. When it is off no page image leaves the server and the pages
+  stay flagged as not read.
 Page images and transcribed text are never logged.
 """
 from __future__ import annotations
@@ -26,6 +30,21 @@ VISION_MAX_PDF_BYTES = 15 * 1024 * 1024  # The scanned pages go inline in one re
 VISION_MAX_OUTPUT_TOKENS = 24_000
 MAX_SCAN_ATTEMPTS = 2  # One try, plus one retry after a server error.
 VISION_MAX_PAGE_CHARS = 20_000  # Text kept for one transcribed page.
+
+_OFF = ("0", "false", "off", "no")
+
+
+def scans_to_model() -> bool:
+    """May scanned pages be sent to the model as images? They cannot be redacted first.
+
+    SCANS_TO_MODEL=1 or 0 decides. Unset, it follows the deployment: yes in the public demo, which asks for
+    made-up records, and no in a staff deployment (DEMO_MODE=0), where real records may name private people.
+    """
+    setting = os.getenv("SCANS_TO_MODEL", "").strip().lower()
+    if setting:
+        return setting not in _OFF
+    return os.getenv("DEMO_MODE", "1").strip().lower() not in _OFF  # Same reading as app/guard.enabled().
+
 
 VISION_SYSTEM_PROMPT = """You transcribe scanned pages of subsidized housing deal records.
 
@@ -52,7 +71,7 @@ class Transcription(BaseModel):
 
 
 class ScanResult(BaseModel):
-    mode: str = "off"  # live, cache, off, limited, failed
+    mode: str = "off"  # live, cache, off, limited, failed, withheld (SCANS_TO_MODEL is off)
     model: str | None = None
     pages: dict[int, str] = {}  # Page number in the whole document -> transcribed text.
     tokens_in: int = 0
@@ -186,6 +205,8 @@ def transcribe(data: bytes, numbers: list[int], sha: str | None = None, call=Non
     numbers = sorted(set(numbers))[:max(VISION_MAX_PAGES, 0)]
     if not numbers:
         return ScanResult(mode="off")
+    if not scans_to_model():  # Checked here as well as in fill_scanned, so no caller can send a page image.
+        return ScanResult(mode="withheld")
     if call is None and not os.getenv("GEMINI_API_KEY"):
         return ScanResult(mode="off")
     if use_cache and sha:
@@ -230,6 +251,8 @@ def fill_scanned(doc: dict, pages: list[str], load_pdf, call=None, use_cache: bo
     todo = [n for n in allowed if 1 <= n <= len(pages) and len(pages[n - 1].strip()) < pipeline.MIN_PAGE_CHARS]
     if not todo or (call is None and not os.getenv("GEMINI_API_KEY")):
         return pages, ScanResult(mode="off")
+    if not scans_to_model():  # No image is sent and no attempt is counted. The pages keep their open question.
+        return pages, ScanResult(mode="withheld")
     if int(doc.get("scan_attempts") or 0) >= MAX_SCAN_ATTEMPTS:
         return pages, ScanResult(mode="limited")
     data = load_pdf()
@@ -267,7 +290,13 @@ def scan_questions(doc: dict) -> list[dict]:
         out.append({"key": f"transcribed-{doc['id']}", "tag": "not_located",
                     "text": f"{name}: {which(transcribed)} {'was a scanned image; its' if one else 'were scanned images; their'} "
                             f"text was transcribed by AI. Check quotes from {'it' if one else 'them'} against the PDF."})
-    if unread:
+    if unread and not scans_to_model():
+        one = len(unread) == 1
+        out.append({"key": f"scanned-{doc['id']}", "tag": "not_located",
+                    "text": f"{name}: {which(unread)} {'is a scanned image and was' if one else 'are scanned images and were'} "
+                            f"not sent to the AI model, because a page image cannot be redacted (SCANS_TO_MODEL is off). "
+                            f"{'It was' if one else 'They were'} not read. Upload a text copy or run OCR on your own systems."})
+    elif unread:
         one = len(unread) == 1
         out.append({"key": f"scanned-{doc['id']}", "tag": "not_located",
                     "text": f"{name}: {which(unread)} {'has' if one else 'have'} no text layer and "
