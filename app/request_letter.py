@@ -37,6 +37,18 @@ def _law(review: dict, deal: dict) -> str:
     return "your state's public records law"
 
 
+# How each kind of missing record is asked for in the letter. The review's "why" text speaks to our user; these
+# lines speak to the records office.
+ASK = {
+    "agreement": "The signed regulatory, development or PILOT agreement, with its signature pages",
+    "agreement_full": "The complete signed agreement, with every page, exhibit and schedule, and any recorded covenant",
+    "exhibit": "The affordability exhibit or term sheet to the agreement",
+    "staff_report": "The staff report to the council on this project",
+    "minutes": "The council minutes or resolution that record the vote on this project",
+    "delivery": "Any certificate of occupancy, compliance report or annual certification showing the homes were built and leased",
+}
+
+
 def draft(deal: dict, review: dict) -> dict:
     """The request letter, built by rule from the review. Never calls a model."""
     items = review.get("next_records") or []
@@ -55,9 +67,8 @@ def draft(deal: dict, review: dict) -> dict:
     ]
     if items:
         for n, item in enumerate(items, 1):
-            why = item["why"].rstrip(".")
-            terms = f" It should state: {', '.join(item['terms'])}." if item.get("terms") else ""
-            lines.append(f"{n}. {item['record']}. {why}.{terms}")
+            terms = f" In particular, the parts that state: {', '.join(t.lower() for t in item['terms'])}." if item.get("terms") else ""
+            lines.append(f"{n}. {ASK.get(item.get('key'), item['record'])}.{terms}")
     else:
         lines.append("1. Any record that reports whether the affordable homes were built and leased, and any later "
                      "amendment to the agreement.")
@@ -77,7 +88,7 @@ def draft(deal: dict, review: dict) -> dict:
         "[Your email or phone]",
     ]
     return {"mode": "template", "subject": subject, "body": "\n".join(lines),
-            "requested": [i["record"] for i in items],
+            "requested": [ASK.get(i.get("key"), i["record"]) for i in items],
             "notice": "Drafted by code from this deal's review. Check it, add your name, and send it yourself."}
 
 

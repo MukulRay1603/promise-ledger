@@ -647,12 +647,18 @@ function countyTimeline(rows) {
   const x = (iso) => 2 + 96 * Math.min(1, Math.max(0, (Number(iso.slice(0, 4)) + Number(iso.slice(5, 7)) / 12 - now) / span));
   const ticks = [];
   for (let y = Math.ceil(now / 10) * 10; y <= last; y += 10) ticks.push(y);
-  const lanes = []; // Stagger markers that would overlap.
+  // Each label takes about 16% of the track to the right of its mark, or to the left when it is flipped near the
+  // right edge. A mark goes on the lowest lane where its label overlaps no other.
+  const LABEL = 16;
+  const lanes = [];
   const placed = dated.map((r) => {
     const at = x(r.term_end);
-    let lane = lanes.findIndex((end) => at - end > 7);
-    if (lane < 0) { lane = lanes.length; lanes.push(at); } else lanes[lane] = at;
-    return { r, at, lane, soon: Number(r.term_end.slice(0, 4)) - now <= 15, est: r.term_end_estimated };
+    const flip = at > 68;
+    const span = flip ? [at - LABEL, at + 1] : [at - 1, at + LABEL];
+    let lane = lanes.findIndex((used) => used.every(([a, b]) => span[1] <= a || span[0] >= b));
+    if (lane < 0) { lane = lanes.length; lanes.push([]); }
+    lanes[lane].push(span);
+    return { r, at, lane, flip, soon: Number(r.term_end.slice(0, 4)) - now <= 15, est: r.term_end_estimated };
   });
   return el("figure", { class: "county-timeline", style: `--lanes:${Math.max(1, lanes.length)}` },
     el("figcaption", {},
@@ -661,8 +667,8 @@ function countyTimeline(rows) {
     el("div", { class: "ct-track", role: "list", "aria-labelledby": "county-timeline-title" },
       el("div", { class: "ct-axis", "aria-hidden": "true" },
         ...ticks.map((y) => el("span", { class: "ct-tick", style: `left:${2 + 96 * (y - now) / span}%` }, String(y)))),
-      ...placed.map(({ r, at, lane, soon, est }, i) => el("a", {
-        class: `ct-mark${soon ? " ct-soon" : ""}${est ? " ct-est" : ""}${at > 68 ? " ct-flip" : ""}`, role: "listitem", href: `#/deals/${encodeURIComponent(r.id)}`,
+      ...placed.map(({ r, at, lane, flip, soon, est }, i) => el("a", {
+        class: `ct-mark${soon ? " ct-soon" : ""}${est ? " ct-est" : ""}${flip ? " ct-flip" : ""}`, role: "listitem", href: `#/deals/${encodeURIComponent(r.id)}`,
         style: `left:${at}%;--lane:${lane};--i:${i}`,
         "aria-label": `${r.name}: stated term runs to ${est ? "about " + r.term_end.slice(0, 4) + " or later" : formatDate(r.term_end)}${r.homes ? `, ${plural(r.homes, "home")}` : ""}`,
       }, el("span", { class: "ct-dot", "aria-hidden": "true" }),
@@ -770,7 +776,7 @@ async function renderCounty() {
               el("span", {}, r.council_status || "—", r.passed ? ` ${formatDate(r.passed)}` : ""),
               r.source_url ? el("a", { class: "reminder-source", href: r.source_url, target: "_blank", rel: "noopener" }, "Council record", el("span", { class: "visually-hidden" }, ` for ${r.name} (opens the County's site)`)) : null),
             el("td", { "data-label": "Homes", class: "num" }, r.homes ? (r.total_homes ? `${r.homes} of ${r.total_homes}` : String(r.homes)) : el("span", { class: "cell-muted" }, "—")),
-            el("td", { "data-label": "Income limit" }, r.income_limit || el("span", { class: "cell-muted" }, "—")),
+            el("td", { "data-label": "Income limits" }, r.income_limit || el("span", { class: "cell-muted" }, "—")),
             el("td", { "data-label": "Longest stated term" }, r.term_end
               ? [el("span", {}, r.term_years ? `${r.term_years} years` : formatDate(r.term_end)),
                 el("span", { class: "deal-city" }, r.term_end_estimated ? `to about ${r.term_end.slice(0, 4)} or later` : `ends ${formatDate(r.term_end)}`),

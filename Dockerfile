@@ -10,7 +10,8 @@ RUN pip install -r requirements.txt
 RUN useradd --create-home --uid 10001 app
 COPY --chown=app:app app ./app
 COPY --chown=app:app data ./data
-RUN chown app:app /srv
+# The runtime folder exists in the image, so a mounted volume starts out owned by the app user.
+RUN mkdir -p /srv/data/runtime && chown -R app:app /srv/data/runtime && chown app:app /srv
 USER app
 # Cloud Run sets $PORT.
 CMD exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}

@@ -11,7 +11,7 @@
 
 **Full guide:** [docs/GUIDE.md](docs/GUIDE.md), covering the product, pipeline, AI, stack, evaluation, safety, deployment and API in one place.
 
-For city and county housing staff, compliance officers and council aides. Shared receipts are read-only, so residents can see them too. All data is made up, and nothing here makes legal findings. Built for GDG AI for Good 2026: Housing by Liyue Housing Association, a two-person student team.
+For city and county housing staff, compliance officers and council aides. Shared receipts are read-only, so residents can see them too. The demo deals are made up; the **County** page reads real public records of Prince George's County, Maryland. Nothing here makes legal findings. Built for GDG AI for Good 2026: Housing by Liyue Housing Association, a two-person student team.
 
 <table>
   <tr>
@@ -84,6 +84,17 @@ Code drops headers, footers and sentences that describe the record itself, sente
 Readings are cached in `data/readings/` by file hash and prompt version, so seeding and evals don't call the model again. Reminders (`/api/reminders`) come from signed term and reporting clauses and the certificates on file; each sample deal's reminders are computed as of its `as_of` date, so they read the same on any day.
 </details>
 
+## Real records: Prince George's County
+
+The County page (`#/county`) runs the same pipeline on every payment-in-lieu-of-taxes (PILOT) agreement the Prince George's County Council considered since 2023: 21 agreements and 160 council records (transmittal letters, legislative summaries, the agreements themselves, fiscal notes, committee reports, resolutions as adopted and signed).
+
+- **Where the records come from.** `tools/county_import.py` reads the Council's public [Legistar Web API](https://webapi.legistar.com/Home/Examples): each matter, its official vote history and its attachments. Word attachments are converted to PDF with Word and committed; PDFs are not committed. Each manifest keeps every record's official URL and SHA-256, and the app downloads and checks the file when it seeds the deal, so a changed file is never read as the one we checked.
+- **Read once, never live.** `tools/county_read.py` reads each record once and saves the reading in `data/readings/`. The app seeds these deals only from saved readings; a record without one is marked "not read yet", so a restart never spends on a live read.
+- **What the page shows.** For each agreement: homes described, every income tier stated as a share of area median income, the longest term the records state, and whether wording was found for reporting, remedies, rent limits, income limits and term. "Not found" means no wording was found in the records read: a question to ask, not a finding.
+- **What real records taught us.** Several approved agreements still hold template text, such as "Term (in years): 30 years (insert specific dates upon approval)" and bracketed alternatives like "OR [Owner agrees …]". The page flags them with the quote. Council files hold the approved agreement, rarely the executed copy, so end dates are counted from the adoption date and labelled "or later".
+- **Search every agreement.** `tools/county_index.py` embeds each checked quote with Gemini (`gemini-embedding-001`, 256 dimensions); at query time only the question is embedded. Without a key, search falls back to keywords and says so.
+- **Calendar.** `/api/reminders.ics` exports term ends with heads-ups 5, 3 and 1 years before, the window to plan for keeping the homes affordable.
+
 ## Results
 
 `python evals/run_pdf_evals.py` on the 3 sample deals (11 PDFs, 53 hand-labeled claims):
@@ -99,11 +110,12 @@ Readings are cached in `data/readings/` by file hash and prompt version, so seed
 
 **What these numbers do and don't show.** This is our development set: 3 made-up deals we wrote (`tools/make_samples.py`) and labeled ourselves, and the code rules were tuned on the same set. It shows the pipeline works end to end and that code-checked stages don't drift. It is not a held-out test. The saved readings came from the fallback model (`gemini-flash-lite-latest`, 8 PDFs) and `gemini-3.5-flash` (3 PDFs), and a claim counts as matched when its quote overlaps the labeled quote. The samples were read again on November 11, 2026 with a wider prompt; before that the same set scored 96.3% / 98.1%.
 
-**Other sets** ([evals/RESULTS.md](evals/RESULTS.md)). On 3 held-out fictional deals, precision is 95.7% and recall 93.6%, up from 94.7% and 76.6% on the run made before anyone had seen them. That set has since been seen and the rules widened, so it is no longer a blind test. On 5 records with planted attacks the result is unchanged: 93.3% precision, 100% recall, one planted sentence kept as a proposed claim. One real county record, checked by hand, is in [docs/REAL-RECORD.md](docs/REAL-RECORD.md): it now finds 29 of 31 labeled commitments when the main model answers and 23 of 31 when the fallback answers alone, up from 15 and 11, and 97% of what it keeps is right. On every set, nothing was marked signed or delivered in error and no quote was off its cited page. The app's samples remain fictional.
+**Other sets** ([evals/RESULTS.md](evals/RESULTS.md)). On 3 held-out fictional deals, precision is 95.7% and recall 93.6%, up from 94.7% and 76.6% on the run made before anyone had seen them. That set has since been seen and the rules widened, so it is no longer a blind test. On 5 records with 8 planted attacks (fake adoption lines, fake signatures, hidden instructions, invented commitments), all 8 are now held: no injected claim is kept and no record gets the wrong stage. The rules were written after reading these attacks, so this is not a blind result; what is still open is listed in [evals/RESULTS.md](evals/RESULTS.md). One real county record, checked by hand, is in [docs/REAL-RECORD.md](docs/REAL-RECORD.md): it now finds 29 of 31 labeled commitments when the main model answers and 23 of 31 when the fallback answers alone, up from 15 and 11, and 97% of what it keeps is right. On every set, nothing was marked signed or delivered in error and no quote was off its cited page. The app's samples remain fictional.
 
 ## Safety and accessibility
 
-- **Text in documents is data, never instructions to the model.** Obvious personal details are removed from page text before any model call. Scanned pages are the exception: they are sent as images, which cannot be redacted, so the demo asks for made-up records only. Pasted text and Ask questions are not stored or logged.
+- **Text in documents is data, never instructions to the model.** Lines addressed to an automated reader ("ignore previous…", "system:") are excluded as evidence, and a quote found only inside them is dropped.
+- **Personal details are removed before any model call:** SSNs, emails, phone numbers, and the names, home addresses and birth dates in labelled tenant or household fields and rent-roll rows. Company names, officials in votes and signature blocks, and the project address are kept. Scanned pages are sent as images, which cannot be redacted, so with `DEMO_MODE=0` they are kept from the model unless `SCANS_TO_MODEL=1`. Pasted text, Ask questions and searches are not stored or logged.
 - **Neutral wording only:** "wording differs", "not located", "flagged for human review".
 - **Every claim shows its exact quote, document type, date and page.** Statuses stay separate: a later stage is never inferred.
 - **A review records people's decisions. It is not a legal finding.** That line closes every receipt.
@@ -113,7 +125,7 @@ Readings are cached in `data/readings/` by file hash and prompt version, so seed
   - works by keyboard, with visible focus;
   - meets 4.5:1 contrast in light and dark;
   - supports reduced motion and has a larger-text mode;
-  - scores 100 for accessibility in Lighthouse.
+  - passes axe-core's WCAG 2.1 A/AA rules on every main view at 1280 px and 375 px, light and dark ([docs/accessibility/AXE-SUMMARY.md](docs/accessibility/AXE-SUMMARY.md), `tools/a11y/check.mjs`); keyboard and screen-reader checks done by hand are in [docs/accessibility/MANUAL-CHECKS.md](docs/accessibility/MANUAL-CHECKS.md).
 
 <details>
 <summary>Public demo guard</summary>
@@ -121,7 +133,7 @@ Readings are cached in `data/readings/` by file hash and prompt version, so seed
 `app/guard.py` is on unless `DEMO_MODE=0`.
 
 - **Your deals are yours.** A deal a visitor creates belongs to their browser's demo session. Other browsers get 404 for it, its files and its exports, and don't see it in their list or reminders. Sample deals are public and read-only: uploads to them get "Sample deals are read-only. Start a new deal to try your own PDFs." Session ids are never returned by the API or put on share pages, and are never read from the query string.
-- **Rate limits** per IP, in memory per instance: 5 uploads, 3 new deals, 20 share links, 30 pasted-text readings, 30 questions and 120 exports an hour. Over a limit, the API answers 429 with a plain message and `Retry-After`. Reviewer decisions allow 60 a minute per session and 300 a minute per network.
+- **Rate limits** per IP, in memory per instance: 5 uploads, 3 new deals, 20 share links, 30 pasted-text readings, 30 questions, 20 letter drafts, 60 county searches and 120 exports an hour. Over a limit, the API answers 429 with a plain message and `Retry-After`. Reviewer decisions allow 60 a minute per session and 300 a minute per network.
 - **Which IP.** The last `X-Forwarded-For` hop, which Cloud Run's front end appends, so a client can't spoof it. That holds only directly behind Cloud Run; behind another proxy or load balancer the client moves one hop left. IPv6 is counted per /64.
 - **Clean-up.** Deals and uploads made by visitors are marked `demo` and deleted, with their files, after `DEMO_TTL_HOURS` (24), along with each browser's decisions on sample deals. Sample deals are never deleted.
 - **Sample-deal reviews are kept per browser.** The browser sends a random session id, so one visitor's decisions, notes and stamp never appear for another visitor or on their share links. "Reset my review" starts over. Deals created by staff keep one shared review.
@@ -154,6 +166,28 @@ python -m app.ledger                        # check every demo quote against its
 python evals/run_pdf_evals.py               # score the pipeline on data/samples/ (cached; at most 30 live calls)
 ```
 
+### Self-host with Docker (no Google Cloud needed)
+
+For a city or nonprofit IT team: one container, files on a local volume, no cloud account. Without a key it shows saved readings; with one it reads new uploads.
+
+```bash
+docker build -t promise-ledger .
+docker run -p 8080:8080 -v promise-data:/srv/data/runtime \
+  -e STORAGE=local -e DEMO_MODE=0 -e GEMINI_API_KEY=... promise-ledger
+```
+
+`DEMO_MODE=0` turns off the public-demo limits and clean-up and keeps scanned pages away from the model (set `SCANS_TO_MODEL=1` to allow them). Back up the `promise-data` volume.
+
+### What it depends on
+
+| Service | Used for | Needed? |
+|---|---|---|
+| Gemini API (`google-genai`) | Reading records, transcribing scanned pages, Ask answers, letter edits, search embeddings | Optional: without a key the app runs on saved readings and keyword search |
+| Firestore + Cloud Storage | Deals, decisions and PDFs on Cloud Run (`STORAGE=gcp`) | Optional: `STORAGE=local` keeps them on disk |
+| Legistar Web API | Importing county records (`tools/county_import.py`, offline) | Only to add or refresh county records |
+| pdf.js (vendored) | Showing source pages in the browser | Bundled |
+| pypdf, cryptography, reportlab, openpyxl | Reading PDFs (including "secured" ones), samples, Excel export | Bundled |
+
 ## Deploy (Cloud Run)
 
 ```bash
@@ -168,13 +202,25 @@ gcloud run deploy promise-ledger --source . --region us-central1 --allow-unauthe
 
 Uploads are read on a background thread, hence `--no-cpu-throttling`. The service account needs access to Firestore, the bucket and the secret. Health check: `/api/health` (Cloud Run reserves paths ending in "z", such as `/healthz`).
 
-**Running cost.** Cloud Run scales to zero when nobody is using it. Records and PDFs for a demo of this size fit in the Firestore and Cloud Storage free tiers. Model cost is about $0.003 per short PDF (all 11 sample PDFs cost about $0.03; a record longer than 4 pages is read in sections, so cost grows with length), and each reading is cached by file hash, so a file is never paid for twice.
+**Running cost.** Cloud Run scales to zero when nobody is using it. Records and PDFs for a demo of this size fit in the Firestore and Cloud Storage free tiers. Each reading is cached by file hash, so a file is never paid for twice. Model prices (paid tier, per million tokens, from Google's price list on 2026-11-18) are in `app/ai.py` `PRICES_PER_M`, and every reading logs its tokens and cost.
+
+| What | Model | Measured or estimated cost |
+|---|---|---|
+| A short record (1 to 4 pages) | `gemini-3.5-flash-lite` | about $0.002 to $0.004 (measured on the county records) |
+| A 60-page deal packet (about 40k tokens in, 8k out) | `gemini-3.8-flash` | about $0.06 (estimated; $0.12 after Google's Jan 1, 2027 price change) |
+| The same packet | `gemini-3.5-flash-lite` | about $0.03 (estimated) |
+| A year of a county's deals (say 25 deals of 8 records) | either | under $5 |
+| A search | `gemini-embedding-001` | under $0.0001 per question |
 
 | Variable | Default | What it does |
 |---|---|---|
 | `GEMINI_API_KEY` | none | Turns on live reading. Without it, saved readings are used. |
-| `GEMINI_MODEL` | `gemini-3.5-flash` | Model for reading records. |
-| `GEMINI_FALLBACK_MODEL` | `gemini-flash-lite-latest` | Tried once if the main model is busy or times out. |
+| `GEMINI_MODEL` | `gemini-3.8-flash` | Model for reading records. Use a pinned version, never a `-latest` alias, so every change is measured. |
+| `GEMINI_FALLBACK_MODEL` | `gemini-3.5-flash-lite` | Tried once if the main model is busy, out of quota or times out. |
+| `MAIN_PDF_TIMEOUT_MS` | `60000` | How long the main model gets on one record section before the fallback reads it. |
+| `EMBED_MODEL` | `gemini-embedding-001` | Model for county search. |
+| `SCANS_TO_MODEL` | on in demo mode, off with `DEMO_MODE=0` | Send scanned page images to the model for transcription. |
+| `COUNTY_DEALS` | `1` | Seed the real county deals from `data/county/`. `0` leaves them out. |
 | `STORAGE` | `local` | `local` (files under `data/runtime/`) or `gcp` (Firestore and Cloud Storage). |
 | `GCS_BUCKET` | none | Bucket for PDFs and page text when `STORAGE=gcp`. |
 | `FIRESTORE_DATABASE` | `(default)` | Firestore database name. |
@@ -188,6 +234,9 @@ Uploads are read on a background thread, hence `--no-cpu-throttling`. The servic
 | `RATE_LIMIT_EXTRACTS_PER_HOUR` | `30` | Pasted-text readings per IP per hour. |
 | `RATE_LIMIT_EXPORTS_PER_HOUR` | `120` | Excel, CSV and preview exports per IP per hour. |
 | `RATE_LIMIT_RETRIES_PER_HOUR` | `10` | Document retries per IP per hour. |
+| `RATE_LIMIT_ASKS_PER_HOUR` | `30` | Ask questions per IP per hour. |
+| `RATE_LIMIT_LETTERS_PER_HOUR` | `20` | Records-request drafts per IP per hour. |
+| `RATE_LIMIT_SEARCHES_PER_HOUR` | `60` | County searches per IP per hour. |
 | `PDF_SANDBOX` | `1` | Parse each PDF in a separate process with a 15-second limit. `0` parses in-process. |
 | `MAX_RECORD_CHARS` | `200000` | Most characters of one record sent to the model. |
 | `VISION_MAX_PAGES` | `10` | Most scanned pages of one record sent to the model to be transcribed. `0` turns it off. |
@@ -211,6 +260,10 @@ Exports open in a preview first, built from the same rows as the files:
 | `GET/POST/DELETE /api/deals/{id}/decisions` | Read, record or reset reviewer decisions (`X-Reviewer-Name` header) |
 | `GET /api/deals/{id}/export.xlsx`, `.csv`, `.json` | Excel and CSV exports, and the JSON behind the in-app preview |
 | `POST /api/deals/{id}/share` | Read-only link `/r/{token}`; JSON at `/api/share/{token}` |
+| `GET /api/county` | The real county agreements in one table, with totals |
+| `GET /api/county/search?q=` | Search every checked quote in the county agreements, by meaning (with a key) or keywords |
+| `POST /api/deals/{id}/request-letter` | A records request for what the deal is missing `{polish}`: drafted by code; with `polish: true` the model edits it and code keeps the edit only if it adds no number, date or link and keeps every requested record. Nothing is sent |
+| `GET /api/reminders.ics` | Reminders as a calendar file (`?deal=` for one deal), with heads-ups 5, 3 and 1 years before a term ends |
 | `GET /api/reminders` | Term end dates and yearly certificates due. `days` is positive until the date and negative after it, counted from `as_of` (the deal's file date for samples, otherwise today). The app shows it as "in 243 days, as of Jul 1, 2025" |
 | `GET /api/review` | The reviewed Harbor Walk demo packet (also shipped inside the home page) |
 | `POST /api/deals/{id}/ask` | Ask a question `{question, audience}` (`staff` or `resident`, up to 300 characters). Each answer sentence cites checked quotes; code removes any sentence its quotes do not back. Nothing is stored |
@@ -245,7 +298,7 @@ python -m unittest tests.test_samples         # every gold quote is on its state
 
 - Plain HTML, CSS and JS in `app/static/`, with no framework. pdf.js (pinned, served from `app/static/vendor/`) loads only when a source is opened.
 - Sample deals are read-only: their documents card shows "Sample deals are read-only. Start a new deal to try your own PDFs." with a New deal button in place of the upload box, and they have no Retry button. A failed document on your own deal has Retry.
-- Pages: home `#/`, deals `#/deals`, deal `#/deals/{id}`, guided tour `#/deals/{id}/tour`, and a read-only receipt at `/r/{token}`. Press Ctrl+K (Cmd+K on a Mac) for the command menu.
+- Pages: home `#/`, deals `#/deals`, county `#/county`, deal `#/deals/{id}`, guided tour `#/deals/{id}/tour`, and a read-only receipt at `/r/{token}`. Press Ctrl+K (Cmd+K on a Mac) for the command menu.
 - `?mock=1` forces `mock.js`, an in-browser copy of the API with made-up deals.
 - Explainer videos are `NN-slug.mp4`, `.vtt` and `.jpg` under `MEDIA_BASE_URL`; `/api/media` reports which are present.
 </details>

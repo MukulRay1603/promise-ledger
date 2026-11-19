@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-19",
+  "axe": "4.10.3",
+  "base": "http://localhost:8780",
+  "results": [
+    {
+      "route": "#/county",
+      "size": "desktop",
+      "theme": "light",
+      "violations": [],
+      "passes": 26,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 19
+        }
+      ]
+    },
+    {
+      "route": "#/county",
+      "size": "desktop",
+      "theme": "dark",
+      "violations": [],
+      "passes": 26,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 19
+        }
+      ]
+    },
+    {
+      "route": "#/county",
+      "size": "phone",
+      "theme": "light",
+      "violations": [],
+      "passes": 26,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 8
+        }
+      ]
+    },
+    {
+      "route": "#/county",
+      "size": "phone",
+      "theme": "dark",
+      "violations": [],
+      "passes": 26,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 8
+        }
+      ]
+    }
+  ]
+}

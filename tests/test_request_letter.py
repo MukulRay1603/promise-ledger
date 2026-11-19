@@ -26,8 +26,9 @@ class Draft(unittest.TestCase):
         self.assertEqual(d["mode"], "template")
         self.assertIn("CR-044-2026", d["subject"])
         self.assertIn("Maryland Public Information Act", d["body"])
-        self.assertIn("1. Certificate of occupancy or compliance report.", d["body"])
-        self.assertIn("It should state: Reporting, Remedies.", d["body"])
+        self.assertIn("1. Any certificate of occupancy, compliance report or annual certification", d["body"])
+        self.assertIn("In particular, the parts that state: reporting, remedies.", d["body"])
+        self.assertNotIn("Some terms were not located in it", d["body"])  # Our notes to the user stay out of the letter.
         self.assertIn("I have not found wording for these terms in the records I have: Reporting.", d["body"])
         self.assertIn("- CR-044-2026 Transmittal (2026-05-26)", d["body"])  # Records on file are not asked for again.
         self.assertNotIn("Broken file", d["body"])
@@ -52,7 +53,7 @@ class Polish(unittest.TestCase):
         self.assertIn("numbers", rl.check(self.edit(self.base["body"] + "\nPlease reply within 30 days."), self.base))
 
     def test_a_dropped_record_is_rejected(self):
-        body = self.base["body"].replace("The full signed agreement", "The agreement")
+        body = self.base["body"].replace("The complete signed agreement", "The agreement")
         self.assertIn("dropped", rl.check(self.edit(body), self.base))
 
     def test_an_added_link_is_rejected(self):

@@ -1720,3 +1720,9 @@ textarea { font-family: var(--serif); font-size: 1.0625rem; }
 .sr-quote:hover { color: var(--primary-ink); }
 .sr-meta { margin: .375rem 0 0; font-size: .8125rem; color: var(--muted); }
 @media (max-width: 520px) { .cs-row { flex-direction: column; } }
+@media (max-width: 720px) {
+  .county-table.stack tr { padding: .875rem 1rem; border-top: 1px solid var(--border); }
+  .county-table.stack th, .county-table.stack td { padding: .3rem 0; border-top: 0; }
+  .county-table.stack tbody tr > th { padding-bottom: .5rem; }
+}
+.county-table td.num::before { font-family: var(--sans, inherit); font-variant-numeric: normal; }
