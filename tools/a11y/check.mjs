@@ -23,7 +23,7 @@ const axeSource = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 
 const routes = (process.env.A11Y_ROUTES || [
   "#/", "#/deals", "#/county", "#/deals/harbor-walk", "#/deals/harbor-walk/changes", "#/deals/harbor-walk/questions",
-  "#/deals/harbor-walk/receipt", "#/deals/harbor-walk/ask", "#/roadmap", "#/about",
+  "#/deals/harbor-walk/receipt", "#/deals/harbor-walk/ask", "#/deals/holly-place-cr-044-2026", "#/test", "#/roadmap", "#/about",
 ].join(",")).split(",");
 const sizes = [{ name: "desktop", width: 1280, height: 900 }, { name: "phone", width: 375, height: 812, mobile: true }];
 const themes = ["light", "dark"];

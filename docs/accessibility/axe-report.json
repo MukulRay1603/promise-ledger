@@ -4,7 +4,7 @@
   "base": "http://localhost:8780",
   "results": [
     {
-      "route": "#/county",
+      "route": "#/",
       "size": "desktop",
       "theme": "light",
       "violations": [],
@@ -12,29 +12,107 @@
       "incomplete": [
         {
           "id": "color-contrast",
-          "count": 19
+          "count": 60
+        }
+      ]
+    },
+    {
+      "route": "#/deals",
+      "size": "desktop",
+      "theme": "light",
+      "violations": [],
+      "passes": 26,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 3
         }
       ]
     },
     {
       "route": "#/county",
       "size": "desktop",
-      "theme": "dark",
+      "theme": "light",
       "violations": [],
-      "passes": 26,
+      "passes": 30,
       "incomplete": [
         {
           "id": "color-contrast",
-          "count": 19
+          "count": 52
         }
       ]
     },
     {
-      "route": "#/county",
-      "size": "phone",
+      "route": "#/deals/harbor-walk",
+      "size": "desktop",
       "theme": "light",
       "violations": [],
-      "passes": 26,
+      "passes": 29,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 11
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/changes",
+      "size": "desktop",
+      "theme": "light",
+      "violations": [],
+      "passes": 29,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 39
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/questions",
+      "size": "desktop",
+      "theme": "light",
+      "violations": [],
+      "passes": 28,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 11
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/receipt",
+      "size": "desktop",
+      "theme": "light",
+      "violations": [],
+      "passes": 29,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 11
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/ask",
+      "size": "desktop",
+      "theme": "light",
+      "violations": [],
+      "passes": 30,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 11
+        }
+      ]
+    },
+    {
+      "route": "#/deals/holly-place-cr-044-2026",
+      "size": "desktop",
+      "theme": "light",
+      "violations": [],
+      "passes": 29,
       "incomplete": [
         {
           "id": "color-contrast",
@@ -43,7 +121,460 @@
       ]
     },
     {
+      "route": "#/test",
+      "size": "desktop",
+      "theme": "light",
+      "violations": [],
+      "passes": 25,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "#/roadmap",
+      "size": "desktop",
+      "theme": "light",
+      "violations": [],
+      "passes": 25,
+      "incomplete": []
+    },
+    {
+      "route": "#/about",
+      "size": "desktop",
+      "theme": "light",
+      "violations": [],
+      "passes": 25,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "#/",
+      "size": "desktop",
+      "theme": "dark",
+      "violations": [],
+      "passes": 26,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 61
+        }
+      ]
+    },
+    {
+      "route": "#/deals",
+      "size": "desktop",
+      "theme": "dark",
+      "violations": [],
+      "passes": 26,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 3
+        }
+      ]
+    },
+    {
       "route": "#/county",
+      "size": "desktop",
+      "theme": "dark",
+      "violations": [],
+      "passes": 30,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 52
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk",
+      "size": "desktop",
+      "theme": "dark",
+      "violations": [],
+      "passes": 29,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 11
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/changes",
+      "size": "desktop",
+      "theme": "dark",
+      "violations": [],
+      "passes": 29,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 39
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/questions",
+      "size": "desktop",
+      "theme": "dark",
+      "violations": [],
+      "passes": 28,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 11
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/receipt",
+      "size": "desktop",
+      "theme": "dark",
+      "violations": [],
+      "passes": 29,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 11
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/ask",
+      "size": "desktop",
+      "theme": "dark",
+      "violations": [],
+      "passes": 30,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 11
+        }
+      ]
+    },
+    {
+      "route": "#/deals/holly-place-cr-044-2026",
+      "size": "desktop",
+      "theme": "dark",
+      "violations": [],
+      "passes": 29,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 8
+        }
+      ]
+    },
+    {
+      "route": "#/test",
+      "size": "desktop",
+      "theme": "dark",
+      "violations": [],
+      "passes": 25,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "#/roadmap",
+      "size": "desktop",
+      "theme": "dark",
+      "violations": [],
+      "passes": 25,
+      "incomplete": []
+    },
+    {
+      "route": "#/about",
+      "size": "desktop",
+      "theme": "dark",
+      "violations": [],
+      "passes": 25,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "#/",
+      "size": "phone",
+      "theme": "light",
+      "violations": [],
+      "passes": 27,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 56
+        }
+      ]
+    },
+    {
+      "route": "#/deals",
+      "size": "phone",
+      "theme": "light",
+      "violations": [],
+      "passes": 27,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "route": "#/county",
+      "size": "phone",
+      "theme": "light",
+      "violations": [],
+      "passes": 31,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 12
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk",
+      "size": "phone",
+      "theme": "light",
+      "violations": [],
+      "passes": 30,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 12
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/changes",
+      "size": "phone",
+      "theme": "light",
+      "violations": [],
+      "passes": 28,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 49
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/questions",
+      "size": "phone",
+      "theme": "light",
+      "violations": [],
+      "passes": 29,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 12
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/receipt",
+      "size": "phone",
+      "theme": "light",
+      "violations": [],
+      "passes": 30,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 12
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/ask",
+      "size": "phone",
+      "theme": "light",
+      "violations": [],
+      "passes": 31,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 12
+        }
+      ]
+    },
+    {
+      "route": "#/deals/holly-place-cr-044-2026",
+      "size": "phone",
+      "theme": "light",
+      "violations": [],
+      "passes": 30,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 10
+        }
+      ]
+    },
+    {
+      "route": "#/test",
+      "size": "phone",
+      "theme": "light",
+      "violations": [],
+      "passes": 26,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "#/roadmap",
+      "size": "phone",
+      "theme": "light",
+      "violations": [],
+      "passes": 26,
+      "incomplete": []
+    },
+    {
+      "route": "#/about",
+      "size": "phone",
+      "theme": "light",
+      "violations": [],
+      "passes": 26,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "#/",
+      "size": "phone",
+      "theme": "dark",
+      "violations": [],
+      "passes": 27,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 57
+        }
+      ]
+    },
+    {
+      "route": "#/deals",
+      "size": "phone",
+      "theme": "dark",
+      "violations": [],
+      "passes": 27,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "route": "#/county",
+      "size": "phone",
+      "theme": "dark",
+      "violations": [],
+      "passes": 31,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 12
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk",
+      "size": "phone",
+      "theme": "dark",
+      "violations": [],
+      "passes": 30,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 12
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/changes",
+      "size": "phone",
+      "theme": "dark",
+      "violations": [],
+      "passes": 28,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 49
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/questions",
+      "size": "phone",
+      "theme": "dark",
+      "violations": [],
+      "passes": 29,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 12
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/receipt",
+      "size": "phone",
+      "theme": "dark",
+      "violations": [],
+      "passes": 30,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 12
+        }
+      ]
+    },
+    {
+      "route": "#/deals/harbor-walk/ask",
+      "size": "phone",
+      "theme": "dark",
+      "violations": [],
+      "passes": 31,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 12
+        }
+      ]
+    },
+    {
+      "route": "#/deals/holly-place-cr-044-2026",
+      "size": "phone",
+      "theme": "dark",
+      "violations": [],
+      "passes": 30,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 10
+        }
+      ]
+    },
+    {
+      "route": "#/test",
       "size": "phone",
       "theme": "dark",
       "violations": [],
@@ -51,7 +582,28 @@
       "incomplete": [
         {
           "id": "color-contrast",
-          "count": 8
+          "count": 2
+        }
+      ]
+    },
+    {
+      "route": "#/roadmap",
+      "size": "phone",
+      "theme": "dark",
+      "violations": [],
+      "passes": 26,
+      "incomplete": []
+    },
+    {
+      "route": "#/about",
+      "size": "phone",
+      "theme": "dark",
+      "violations": [],
+      "passes": 26,
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "count": 2
         }
       ]
     }
