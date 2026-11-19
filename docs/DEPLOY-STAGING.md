@@ -1,7 +1,6 @@
 # Deploying the dec2 build (staging first, then production)
 
-Ray has approved step 1 (staging). Step 2 (production) waits for his go after testing.
-touching the live site; then **production** once testing looks good.
+Ray has approved step 1, a staging service that gives testers a link without touching the live site. Step 2 (production) waits for his go after testing.
 
 Project: `promise-ledger-cloud`, region `us-central1`. Replace `PROD_BUCKET` with the bucket the live service uses
 (`gcloud run services describe promise-ledger --region us-central1 --format='value(spec.template.spec.containers[0].env)'`).
