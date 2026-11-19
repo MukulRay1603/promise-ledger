@@ -311,7 +311,7 @@ async function route({ initial = false } = {}) {
     window.scrollTo(0, 0);
     byId("main").focus({ preventScroll: true });
   }
-  if (next.view === "home") { document.title = "Promise Ledger"; setupVideos(); if (!hero.running && hero.loops < HERO_LOOPS) heroPlay(); return; }
+  if (next.view === "home") { document.title = "Promise Ledger"; setupVideos(); setupRealStrip(); if (!hero.running && hero.loops < HERO_LOOPS) heroPlay(); return; }
   if (STATIC_PAGES[next.view]) { document.title = `${STATIC_PAGES[next.view]} · Promise Ledger`; if (next.view === "test") setupTester(); return; }
   if (next.view === "deals") return renderDeals();
   if (next.view === "county") return renderCounty();
@@ -625,6 +625,42 @@ async function renderDeals() {
     : [el("li", { class: "reminder" }, el("p", { class: "reminder-text" }, "Nothing due."))]));
 }
 
+// ---------- Home: real records strip ----------
+// Live totals from the real county agreements, and one real quote of unfilled template text. Hidden if none are loaded.
+let realStripDone = false;
+async function setupRealStrip() {
+  if (realStripDone) return;
+  realStripDone = true;
+  const strip = byId("real-strip");
+  if (!strip) return;
+  let board;
+  try { board = await api("/api/county"); } catch { return; }
+  const t = board?.totals;
+  if (!t?.deals_read) return;
+  strip.hidden = false;
+  const values = { deals: t.deals_read, homes: t.homes, template_text: t.template_text };
+  for (const dd of strip.querySelectorAll("[data-count]")) {
+    const end = values[dd.dataset.count] || 0;
+    if (reducedMotion.matches) { dd.textContent = end.toLocaleString(); continue; }
+    const began = performance.now();
+    const step = (now) => {
+      const k = Math.min(1, (now - began) / 1100);
+      dd.textContent = Math.round(end * (1 - (1 - k) ** 3)).toLocaleString();
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  const pick = board.deals.find((r) => r.template_text?.length);
+  if (pick) {
+    const q = pick.template_text[0];
+    byId("rs-quote-text").textContent = `“${q.quote}”`;
+    byId("rs-quote-cite").replaceChildren(
+      el("a", { href: sourceHref(pick.id, q.claim_id) }, pick.name), `, ${q.document || "record"}${q.page ? `, p. ${q.page}` : ""} · council file ${pick.file}. `,
+      el("span", { class: "rs-note" }, "Approved text that still holds a template blank."));
+    byId("rs-quote").hidden = false;
+  }
+}
+
 // ---------- Tester page (#/test) ----------
 // Timed tasks and a short form. Times are measured by the page; nothing about the tester is sent unless they type it.
 let testerReady = false;
@@ -805,7 +841,7 @@ async function renderCounty() {
   body.replaceChildren(
     el("div", { class: "kpi-row county-kpis" },
       kpi(String(t.deals), "Agreements", `${t.records_read} of ${t.records} council records read`),
-      kpi(t.homes ? t.homes.toLocaleString() : "—", "Affordable homes described", t.deals_with_homes ? `in ${plural(t.deals_with_homes, "agreement")} that state a count` : "No counts found yet"),
+      kpi(t.homes ? t.homes.toLocaleString() : "—", "Affordable homes stated", t.deals_with_homes ? `in the ${plural(t.deals_with_homes, "agreement")} whose records state a count outright` : "No counts found yet"),
       kpi(`${t.found.reporting} of ${read.length}`, "Have reporting wording", `${pct(t.found.reporting)}% of agreements read`, t.found.reporting < read.length ? "kpi-warn" : ""),
       kpi(`${t.found.remedies} of ${read.length}`, "Have remedy wording", `${pct(t.found.remedies)}% of agreements read`, t.found.remedies < read.length ? "kpi-warn" : ""),
       kpi(String(t.ending_by_2040), "Stated terms run out by 2040", `of ${plural(t.term_ends_known, "agreement")} that state a term`, t.ending_by_2040 ? "kpi-warn" : ""),
@@ -819,7 +855,7 @@ async function renderCounty() {
         el("table", { class: "county-table stack" },
           el("caption", { class: "visually-hidden" }, "County PILOT agreements, newest first"),
           el("thead", {}, el("tr", {},
-            ["Agreement", "Council action", "Homes", "Income limits", "Longest stated term"].map((h) => el("th", { scope: "col" }, h)),
+            ["Agreement", "Council action", "Affordable homes", "Income limits", "Longest stated term"].map((h) => el("th", { scope: "col" }, h)),
             ...OBLIGATIONS.map(([, label, help]) => el("th", { scope: "col", class: "ob-head", title: help }, label)))),
           el("tbody", {}, ...board.deals.map((r) => el("tr", { class: r.records_read ? null : "row-pending" },
             el("th", { scope: "row", "data-label": "Agreement" },
@@ -830,7 +866,9 @@ async function renderCounty() {
             el("td", { "data-label": "Council action" },
               el("span", {}, r.council_status || "—", r.passed ? ` ${formatDate(r.passed)}` : ""),
               r.source_url ? el("a", { class: "reminder-source", href: r.source_url, target: "_blank", rel: "noopener" }, "Council record", el("span", { class: "visually-hidden" }, ` for ${r.name} (opens in a new tab)`)) : null),
-            el("td", { "data-label": "Homes", class: "num" }, r.homes ? (r.total_homes ? `${r.homes} of ${r.total_homes}` : String(r.homes)) : el("span", { class: "cell-muted" }, "—")),
+            el("td", { "data-label": "Affordable homes", class: "num" }, r.homes
+              ? [el("span", {}, String(r.homes)), r.homes_claim_id ? el("a", { class: "reminder-source", href: sourceHref(r.id, r.homes_claim_id) }, "Quote", el("span", { class: "visually-hidden" }, ` for ${r.name} homes`)) : null]
+              : el("span", { class: "cell-muted" }, "—")),
             el("td", { "data-label": "Income limits" }, r.income_limit || el("span", { class: "cell-muted" }, "—")),
             el("td", { "data-label": "Longest stated term" }, r.term_end
               ? [el("span", {}, r.term_years ? `${r.term_years} years` : formatDate(r.term_end)),

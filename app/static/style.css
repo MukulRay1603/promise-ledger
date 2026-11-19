@@ -1746,3 +1746,21 @@ textarea { font-family: var(--serif); font-size: 1.0625rem; }
 .t-named { display: grid; gap: .375rem; }
 .tester-thanks { max-width: 46rem; padding: 1.5rem; }
 .tester-thanks h2 { margin-top: 0; }
+/* Home: live strip from the real county records. */
+.real-strip { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 1.5rem 2.5rem; align-items: center; margin-top: 2rem; padding-top: 1.75rem; padding-bottom: 1.75rem;
+  border: 1px solid var(--primary-line); border-radius: var(--r-lg);
+  background: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--primary) 12%, transparent), transparent 55%), var(--surface); }
+.real-strip h2 { margin: 0 0 1rem; font-size: 1.25rem; line-height: 1.3; text-wrap: balance; }
+.real-badge-static { display: inline-block; margin-right: .5rem; padding: .1rem .55rem; border: 1px solid var(--primary-line); border-radius: 999px; background: var(--primary-soft);
+  color: var(--primary-ink); font-size: .75rem; font-weight: 700; vertical-align: .2em; }
+.rs-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: 0 0 1.25rem; }
+.rs-stats div { display: flex; flex-direction: column-reverse; gap: .125rem; }
+.rs-stats dt { font-size: .8125rem; color: var(--muted); }
+.rs-stats dd { margin: 0; font-size: 2.25rem; font-weight: 700; letter-spacing: -.02em; line-height: 1; font-variant-numeric: tabular-nums; color: var(--primary-ink); }
+.rs-stats dd.rs-warn { color: var(--amber-ink); }
+.rs-quote { margin: 0; padding: 1.25rem 1.25rem 1rem; border-left: 3px solid var(--amber, #D97706); border-radius: var(--r); background: var(--subtle); }
+.rs-quote blockquote { margin: 0 0 .75rem; font-family: var(--serif); font-size: 1.125rem; line-height: 1.5; }
+.rs-quote figcaption { font-size: .8125rem; color: var(--muted); }
+.rs-note { color: var(--amber-ink); }
+@media (max-width: 860px) { .real-strip { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 420px) { .rs-stats { grid-template-columns: minmax(0, 1fr); } .rs-stats dd { font-size: 1.75rem; } }

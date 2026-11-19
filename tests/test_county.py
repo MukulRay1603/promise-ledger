@@ -167,3 +167,23 @@ class CalendarExport(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AffordableCount(unittest.TestCase):
+    """Real county sentences hold several counts; only the one stated as affordable is taken."""
+
+    def count(self, quote):
+        return deals.affordable_homes([{"topic": "units", "quote": quote, "id": "c"}])[0]
+
+    def test_counts_next_to_affordable_words(self):
+        self.assertEqual(self.count("Unit Mix - 145 Affordable Units"), 145)
+        self.assertEqual(self.count("this project includes 175 affordable housing units at 60% or less than AMI."), 175)
+        self.assertEqual(self.count("rehabilitate a thirty six (36) unit affordable rental community for seniors"), 36)
+        self.assertEqual(self.count("Of the two hundred forty five (245) units, twenty six (26) units will be set-aside "
+                                    "for families earning no more than fifty percent (50%) AMI"), 26)
+
+    def test_market_rate_and_accessibility_counts_are_not_taken(self):
+        self.assertEqual(self.count("Of the one hundred fifty eight (158) residential units, one hundred twenty eight "
+                                    "(128) units will be income-restricted, and thirty (30) units will be market-rate."), 128)
+        self.assertIsNone(self.count("Of the three hundred four (304) units, sixteen (16) units will be designated for "
+                                     "residents with mobility impairments"))

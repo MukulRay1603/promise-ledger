@@ -159,6 +159,33 @@ _TEMPLATE = re.compile(r"\(insert\b|\[insert\b|(?-i:\bOR \[)|\[(?:name|date|numb
 _AMI = re.compile(r"(\d{2,3})\s*(?:%|percent)\s+(?:or less\s+)?(?:of\s+)?(?:the\s+)?(?:area\s+)?(?:median|AMI\b)", re.I)
 
 
+# A count is taken as affordable homes only when the number sits right next to words that say so. In real county
+# records one sentence often holds several counts ("Of the 158 units, 128 will be income-restricted, and 30 units
+# will be market-rate"; "16 units will be designated for residents with mobility impairments"), so a looser reading
+# picks the wrong one. Numbers may be written "thirty six (36)"; the digits are used.
+_AFFORDABLE_COUNT = [
+    re.compile(r"(\d[\d,]*)\)?\s+(?:new\s+)?(?:affordable|income[- ]restricted|rent[- ]restricted)\b", re.I),
+    re.compile(r"(\d[\d,]*)\)?[- ]unit\s+(?:affordable|income[- ]restricted)", re.I),
+    re.compile(r"(\d[\d,]*)\)?\s+(?:units?|homes?|apartments?)\s+(?:will|shall|are|to)\s+(?:be\s+)?"
+               r"(?:income[- ]restricted|affordable|set[- ]aside|rent[- ]restricted)\b", re.I),
+    re.compile(r"(\d[\d,]*)\)?\s+(?:units?|homes?)\s+(?:at|for households (?:earning|at))\s+(?:or below\s+)?\d{2}\s*(?:%|percent)", re.I),
+]
+
+
+def affordable_homes(claims: list[dict]) -> tuple[int | None, str | None]:
+    """The largest count of affordable homes any checked quote states outright, and that claim's id."""
+    best: tuple[int, str] | None = None
+    for c in claims:
+        if c["topic"] not in ("units", "income_basis"):
+            continue
+        for pattern in _AFFORDABLE_COUNT:
+            for m in pattern.finditer(c["quote"]):
+                n = int(m.group(1).replace(",", ""))
+                if 0 < n < 5000 and (best is None or n > best[0]):
+                    best = (n, c["id"])
+    return best if best else (None, None)
+
+
 def _homes(claims: list[dict]) -> tuple[int | None, int | None]:
     """Affordable homes and total homes from the furthest-stage claim that states a count."""
     order = {s: i for i, s in enumerate(ledger.STATUSES)}
@@ -187,7 +214,8 @@ def county_board(store: Storage | None = None, today: date | None = None) -> dic
         claims = [c for d in done for c in d.get("claims") or []]
         review = build_deal_review(deal, docs)
         located = {t["key"]: bool(t.get("located")) for t in review["terms"]}
-        homes, total = _homes(claims)
+        _, total = _homes(claims)
+        homes, homes_claim = affordable_homes(claims)
         end = term_end(claims, done)
         source = deal.get("source") or {}
         # Council files hold the approved agreement, rarely the executed copy, so a signed end date is often missing.
@@ -212,7 +240,7 @@ def county_board(store: Storage | None = None, today: date | None = None) -> dic
             "introduced": source.get("introduced"), "passed": source.get("passed"), "source_url": source.get("url"),
             "votes": source.get("votes") or [],
             "records": len(docs), "records_read": len(done), "claims": len(claims),
-            "homes": homes, "total_homes": total, "income_limit": income,
+            "homes": homes, "homes_claim_id": homes_claim, "total_homes": total, "income_limit": income,
             "term_end": end["date"].isoformat() if end and end.get("date") else (estimate or {}).get("date"),
             "term_end_estimated": bool(estimate),
             "term_years": (end.get("years") if end and end.get("date") else None) or (estimate or {}).get("years"),
@@ -223,7 +251,8 @@ def county_board(store: Storage | None = None, today: date | None = None) -> dic
             "terms_differ": review["summary"]["terms_differ"],
             # Approved text that still holds template blanks or alternatives, e.g. "(insert specific dates upon
             # approval)" or "OR [Owner agrees ...]". Quoted so a person can see exactly what was left unfilled.
-            "template_text": [{"claim_id": c["id"], "quote": c["quote"][:160], "document": c.get("document_type")}
+            "template_text": [{"claim_id": c["id"], "quote": c["quote"][:160], "document": c.get("document_type"),
+                               "page": c.get("page")}
                               for c in claims if _TEMPLATE.search(c["quote"])][:5],
         })
     rows.sort(key=lambda r: r["passed"] or r["introduced"] or "", reverse=True)
