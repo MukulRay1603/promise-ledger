@@ -1,6 +1,6 @@
 # Deploying the dec2 build (staging first, then production)
 
-Nothing here has been run. Ray decides when. Two steps: a **staging** service first, so testers get a link without
+Ray has approved step 1 (staging). Step 2 (production) waits for his go after testing.
 touching the live site; then **production** once testing looks good.
 
 Project: `promise-ledger-cloud`, region `us-central1`. Replace `PROD_BUCKET` with the bucket the live service uses
