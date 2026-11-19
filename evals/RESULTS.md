@@ -2,7 +2,7 @@
 
 Written by `python evals/run_heldout_evals.py`. Do not edit by hand. The first-run scores and the list of rule fixes come from `evals/baseline.json`.
 
-Run date 2026-11-18 · prompt bb7476ef · live calls this run 0
+Run date 2026-11-19 · prompt bb7476ef · live calls this run 0
 
 Model: `gemini-3.5-flash` (2 PDFs), `gemini-flash-lite-latest` (12 PDFs). Tokens: 18,025 in, 8,696 out. Estimated cost $0.0271 for all 14 PDFs (each section at its model's price, see app/ai.py PRICES_PER_M; cached readings keep their original cost).
 
