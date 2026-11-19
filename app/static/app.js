@@ -644,14 +644,8 @@ async function setupRealStrip() {
   const values = { deals: t.deals_read, homes: t.homes, template_text: t.template_text };
   for (const dd of strip.querySelectorAll("[data-count]")) {
     const end = values[dd.dataset.count] || 0;
-    if (reducedMotion.matches || !first) { dd.textContent = end.toLocaleString(); continue; }
-    const began = performance.now();
-    const step = (now) => {
-      const k = Math.min(1, (now - began) / 1100);
-      dd.textContent = Math.round(end * (1 - (1 - k) ** 3)).toLocaleString();
-      if (k < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
+    if (!first) { dd.textContent = end.toLocaleString(); continue; }
+    animateNumber(dd, end, 1100, (v) => Math.round(v).toLocaleString());
   }
   const pick = board.deals.find((r) => r.template_text?.length);
   if (pick) {
@@ -852,7 +846,7 @@ async function renderCounty() {
         el("h1", { id: "county-title" }, "Prince George's County"),
         el("p", { class: "page-sub" }, "Every payment-in-lieu-of-taxes (PILOT) agreement the County Council considered since 2023, read from the Council's own records. Open any deal to see each commitment's quote and page.")),
       el("div", { class: "page-actions" },
-        el("a", { class: "btn", href: "/api/reminders.ics", download: "promise-ledger-reminders.ics" }, icon("calendar"), "Add end dates to a calendar"))),
+        el("a", { class: "btn", href: "/api/reminders.ics?county=1", download: "prince-georges-terms.ics" }, icon("calendar"), "Add term end dates to a calendar"))),
     body);
   let board;
   try {
@@ -1033,7 +1027,7 @@ const DEAL_TEMPLATE = `
         </div>
         <label for="ask-text">Your question</label>
         <div class="ask-row">
-          <input id="ask-text" name="question" type="text" required minlength="3" maxlength="300" autocomplete="off" aria-describedby="ask-hint">
+          <input id="ask-text" name="question" type="text" required minlength="3" maxlength="300" autocomplete="off" aria-describedby="ask-hint" placeholder="Type a question about this deal">
           <button type="button" class="btn btn-secondary" id="ask-mic" hidden aria-pressed="false">Speak</button>
           <button type="submit" class="btn btn-primary">Ask</button>
         </div>
@@ -1251,18 +1245,25 @@ function viewSourceButton(claim, label = "View source") {
   }, label);
 }
 
-function countUp(node, value) {
-  node.textContent = String(value);
-  if (typeof value !== "number" || reducedMotion.matches || value === 0) return;
+// The real number is always in the page text (screen readers, copy, print); only a decorative copy counts up.
+function animateNumber(node, end, duration, format = (v) => String(Math.round(v))) {
+  if (typeof end !== "number" || !Number.isFinite(end)) { node.textContent = String(end); return; } // e.g. "Signed".
+  node.textContent = format(end);
+  if (!end || reducedMotion.matches) return;
+  const shown = el("span", { class: "count-anim", "aria-hidden": "true" }, format(0));
+  node.replaceChildren(shown, el("span", { class: "visually-hidden" }, format(end)));
   const start = performance.now();
-  const duration = 650;
   const step = (now) => {
     const t = Math.min(1, (now - start) / duration);
-    node.textContent = String(Math.round(value * (1 - (1 - t) ** 3)));
+    shown.textContent = format(end * (1 - (1 - t) ** 3));
     if (t < 1) requestAnimationFrame(step);
+    else node.textContent = format(end);
   };
-  node.textContent = "0";
   requestAnimationFrame(step);
+}
+
+function countUp(node, value) {
+  animateNumber(node, value, 650);
 }
 
 function renderSummary() {
@@ -1573,7 +1574,7 @@ function renderClaims() {
       el("th", { scope: "row", "data-label": "Term" }, termLabel(claim.topic)),
       el("td", { "data-label": "Exact quote" }, el("span", { class: "quote" }, `“${claim.quote}”`)),
       el("td", { "data-label": "Source" }, el("span", { class: "source-cell" },
-        el("span", { class: "source-line" }, docType(claim.document_type), ` · ${formatDate(claim.date)}`), quoteBadge(claim), claim.from_scan ? tag("machine", "From scan") : null, viewSourceButton(claim))),
+        el("span", { class: "source-line" }, docType(claim.document_type), docLabel(claim) !== claim.document_type ? " (not signed)" : "", ` · ${formatDate(claim.date)}`), quoteBadge(claim), claim.from_scan ? tag("machine", "From scan") : null, viewSourceButton(claim))),
       el("td", { "data-label": "Stage" }, tag(claim.status)),
       el("td", { "data-label": "Wording" }, wording),
       el("td", { "data-label": "Review" }, decisionCell("claim", claim.id, `${review.topics[claim.topic] || claim.topic}, ${claim.document_type} page ${claim.page}`)));
@@ -2516,19 +2517,8 @@ function setupHeroMotion() {
 }
 
 function countStat(node) {
-  const target = Number(node.dataset.count);
   const decimals = Number(node.dataset.decimals || 0);
-  const show = (value) => { node.textContent = value.toFixed(decimals); };
-  if (reducedMotion.matches || !target) { show(target); return; }
-  const start = performance.now();
-  const duration = 900;
-  const step = (now) => {
-    const t = Math.min(1, (now - start) / duration);
-    show(target * (1 - (1 - t) ** 3));
-    if (t < 1) requestAnimationFrame(step);
-  };
-  show(0);
-  requestAnimationFrame(step);
+  animateNumber(node, Number(node.dataset.count), 900, (v) => v.toFixed(decimals));
 }
 
 function setupReveal() {

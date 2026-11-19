@@ -409,15 +409,16 @@ def county_search(q: str = ""):
 
 
 @app.get("/api/reminders.ics")
-def reminders_calendar(request: Request, deal: str | None = None):
-    """Every reminder this browser can see (or one deal's) as a calendar file, with heads-up events before term ends."""
-    rows = deals.all_reminders(session=identity.demo_session(request))
+def reminders_calendar(request: Request, deal: str | None = None, county: bool = False):
+    """Every reminder this browser can see (or one deal's, or the county agreements' stated terms with county=1) as a
+    calendar file, with heads-up events before term ends. Dates already past are left out."""
+    rows = deals.county_reminders(deals.county_board()) if county else deals.all_reminders(session=identity.demo_session(request))
     if deal is not None:
         if not _ID.fullmatch(deal):
             raise HTTPException(404, "Deal not found.")
         rows = [r for r in rows if r["deal_id"] == deal]
     base = str(request.base_url).rstrip("/")
-    name = f"promise-ledger-{deal}.ics" if deal else "promise-ledger-reminders.ics"
+    name = f"promise-ledger-{deal}.ics" if deal else ("prince-georges-terms.ics" if county else "promise-ledger-reminders.ics")
     return Response(deals.reminders_ics(rows, base), media_type="text/calendar; charset=utf-8",
                     headers={"Content-Disposition": f'attachment; filename="{name}"'})
 

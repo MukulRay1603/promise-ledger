@@ -236,3 +236,20 @@ class CountRulesFromTesting(unittest.TestCase):
         for c in (template, statute):
             self.assertTrue(deals._TEMPLATE.search(c["quote"]) or deals._STATUTE.search(c["quote"]))
         self.assertEqual(deals._term_years(real), 30)
+
+
+class CountyCalendar(unittest.TestCase):
+    def test_county_terms_become_calendar_events_and_past_dates_are_left_out(self):
+        board = {"deals": [
+            {"id": "a", "name": "Holly Place", "file": "CR-044-2026", "term_end": "2066-07-07", "term_end_estimated": True,
+             "term_years": 40, "term_claim_id": "c1"},
+            {"id": "b", "name": "Old Deal", "file": "CR-1-2000", "term_end": "2020-01-01", "term_end_estimated": True,
+             "term_years": 20, "term_claim_id": "c2"},
+            {"id": "c", "name": "No Term", "file": "CR-2-2024", "term_end": None}]}
+        rows = deals.county_reminders(board)
+        self.assertEqual([r["deal_name"] for r in rows], ["Holly Place", "Old Deal"])
+        self.assertIn("or later", rows[0]["text"])
+        ics = deals.reminders_ics(rows, today=date(2026, 11, 19))
+        self.assertIn("Holly Place", ics)
+        self.assertNotIn("Old Deal", ics)  # Already past.
+        self.assertIn("DTSTART;VALUE=DATE:20610707", ics)  # Five-year heads-up.

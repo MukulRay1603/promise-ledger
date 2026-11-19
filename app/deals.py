@@ -994,7 +994,22 @@ def _ics_fold(line: str) -> str:
     return "\r\n".join(out)
 
 
-def reminders_ics(reminders: list[dict], base_url: str = "") -> str:
+def county_reminders(board: dict) -> list[dict]:
+    """Each county agreement's longest stated term as a calendar reminder, worded as what it is: the term the records
+    state, counted from the Council's adoption date unless a signed record dates it, so the real end is then or later."""
+    rows = []
+    for r in board["deals"]:
+        if not r.get("term_end"):
+            continue
+        how = (f"{r['term_years']}-year term counted from the Council's adoption, so it ends then or later"
+               if r.get("term_end_estimated") else "dated by a signed record")
+        rows.append({"deal_id": r["id"], "deal_name": r["name"], "city": "", "kind": "term_end", "date": r["term_end"],
+                     "text": f"Stated affordability term runs to {display_date(date.fromisoformat(r['term_end']))} ({how}). "
+                             f"Council file {r.get('file') or ''}.", "claim_id": r.get("term_claim_id")})
+    return rows
+
+
+def reminders_ics(reminders: list[dict], base_url: str = "", today: date | None = None) -> str:
     """The reminders as an iCalendar file any calendar app can subscribe to or import.
 
     Each term end also gets heads-up events TERM_WARNING_YEARS before it. Every event says where its date came
@@ -1010,18 +1025,25 @@ def reminders_ics(reminders: list[dict], base_url: str = "") -> str:
                       f"SUMMARY:{_ics_text(summary)}", f"DESCRIPTION:{_ics_text(description)}"]
                      + ([f"URL:{url}"] if url else []) + ["TRANSP:TRANSPARENT", "END:VEVENT"])
 
+    today = today or date.today()
     for r in reminders:
         when = date.fromisoformat(r["date"])
+        if when < today:
+            continue  # A calendar is for what is still ahead.
         url = f"{base_url}/#/deals/{r['deal_id']}" if base_url else ""
         note = f"{r['text']} Source: Promise Ledger, from a checked quote; confirm against the record."
         key = f"{r['deal_id']}-{r['kind']}-{r['date']}"
-        event(key, when, f"{r['deal_name']}: {r['text'].split(':')[0].split(',')[0]}", note, url)
+        title = (f"affordability term ends {display_date(when)}" if r["kind"] == "term_end"
+                 else r["text"].split(":")[0].split(",")[0])
+        event(key, when, f"{r['deal_name']}: {title}", note, url)
         if r["kind"] == "term_end":
             for years in TERM_WARNING_YEARS:
                 try:
                     early = when.replace(year=when.year - years)
                 except ValueError:  # 29 February
                     early = when.replace(year=when.year - years, day=28)
+                if early < today:
+                    continue
                 event(f"{key}-warn{years}", early,
                       f"{r['deal_name']}: affordability ends in {years} year{'s' if years > 1 else ''}",
                       f"{note} Time to plan for preservation before {display_date(when)}.", url)
