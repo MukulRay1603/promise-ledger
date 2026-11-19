@@ -669,6 +669,42 @@ function countyTimeline(rows) {
         el("span", { class: "ct-label", "aria-hidden": "true" }, el("b", {}, r.term_end.slice(0, 4)), " ", r.name)))));
 }
 
+// Search every checked quote across the county agreements. Results are quotes found word for word on their page.
+const TOPIC_LABEL = { units: "Homes", income_basis: "Income limit", rent_limits: "Rent limits", term: "Term", responsible_party: "Responsible party", reporting: "Reporting", remedies: "Remedies" };
+const SEARCH_EXAMPLES = ["right of first refusal", "annual income certification", "what if the owner sells the property", "rent increases"];
+function countySearch() {
+  const input = el("input", { type: "search", id: "county-q", maxlength: "200", autocomplete: "off",
+    placeholder: "e.g. right of first refusal", "aria-describedby": "county-search-note" });
+  const note = el("p", { class: "hint", id: "county-search-note", role: "status" },
+    "Finds matching sentences in every agreement's checked quotes, by meaning.");
+  const list = el("ol", { class: "search-results" });
+  let seq = 0;
+  const run = async (q) => {
+    q = q.trim();
+    if (!q) { list.replaceChildren(); return; }
+    const mine = ++seq;
+    note.textContent = "Searching…";
+    try {
+      const res = await api(`/api/county/search?q=${encodeURIComponent(q)}`);
+      if (mine !== seq) return;
+      note.textContent = res.results.length ? `${plural(res.results.length, "match", "matches")}. ${res.notice}` : `No checked quote matches “${q}”. ${res.notice}`;
+      list.replaceChildren(...res.results.map((r) => el("li", {},
+        el("a", { class: "sr-quote", href: sourceHref(r.deal_id, r.claim_id) }, `“${r.quote}”`),
+        el("p", { class: "sr-meta" }, el("a", { href: `#/deals/${encodeURIComponent(r.deal_id)}` }, r.deal), ` · ${r.file} · ${r.document || "Record"}`,
+          r.page ? ` · p. ${r.page}` : "", ` · ${TOPIC_LABEL[r.topic] || r.topic}`))));
+    } catch (err) {
+      if (mine === seq) note.textContent = `Search did not run. ${err.message}`;
+    }
+  };
+  const form = el("form", { class: "county-search", role: "search", "aria-label": "Search the county agreements",
+    onsubmit: (event) => { event.preventDefault(); run(input.value); } },
+    el("label", { for: "county-q" }, "Search every agreement"),
+    el("div", { class: "cs-row" }, input, el("button", { type: "submit", class: "btn btn-primary" }, "Search")),
+    el("div", { class: "cs-examples" }, el("span", { class: "hint" }, "Try:"),
+      ...SEARCH_EXAMPLES.map((q) => el("button", { type: "button", class: "q-chip", onclick: () => { input.value = q; run(q); } }, q))));
+  return el("section", { class: "card county-search-card", "aria-label": "Search" }, form, note, list);
+}
+
 async function renderCounty() {
   document.title = "Prince George's County · Promise Ledger";
   setBanner(true);
@@ -713,6 +749,7 @@ async function renderCounty() {
       kpi(`${t.found.remedies} of ${read.length}`, "Have remedy wording", `${pct(t.found.remedies)}% of agreements read`, t.found.remedies < read.length ? "kpi-warn" : ""),
       kpi(String(t.ending_by_2040), "Stated terms run out by 2040", `of ${plural(t.term_ends_known, "agreement")} that state a term`, t.ending_by_2040 ? "kpi-warn" : ""),
       kpi(String(t.template_text), "Approved text with blanks", "Unfilled template text, like “(insert specific dates)”", t.template_text ? "kpi-warn" : "")),
+    countySearch(),
     countyTimeline(read),
     el("section", { class: "card county-table-card", "aria-labelledby": "county-table-cap" },
       el("div", { class: "card-head" }, el("h2", { id: "county-table-cap" }, "What each agreement's records say"),

@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 
 load_dotenv()
 
-from app import ai, ask, deals, guard, identity, ledger, pipeline, request_letter  # noqa: E402  (needs env loaded first)
+from app import ai, ask, deals, guard, identity, ledger, pipeline, request_letter, search  # noqa: E402  (needs env loaded first)
 from app.storage import get_store  # noqa: E402
 
 STATIC = Path(__file__).parent / "static"
@@ -386,6 +386,12 @@ def reminders(request: Request):
 def county(request: Request):
     """The real Prince George's County deals in one table, with county-wide totals."""
     return deals.county_board()
+
+
+@app.get("/api/county/search")
+def county_search(q: str = ""):
+    """Search every checked quote in the real county deals, by meaning when a key is set, else by keywords."""
+    return search.search(q)
 
 
 @app.get("/api/reminders.ics")
