@@ -304,6 +304,9 @@ def extract(text: str) -> ExtractResult:
 # 8192 and came back as cut-off JSON, which reads as a failed document.
 PDF_MAX_OUTPUT_TOKENS = int(os.getenv("PDF_MAX_OUTPUT_TOKENS") or 16384)
 PDF_TIMEOUT_MS = 120_000
+# The main model's attempt gets less time than the fallback's: when the main model is overloaded it can hang until
+# its deadline (Nov 2026: about 119 s, then 504), and a person should not wait two minutes before the fallback runs.
+MAIN_PDF_TIMEOUT_MS = int(os.getenv("MAIN_PDF_TIMEOUT_MS") or 60_000)
 MAX_PDF_CANDIDATES = 60
 # A long record is read a few pages at a time. Given 20 pages at once, a model lists the first terms it meets and
 # skips whole sections; given 4, it reads each one. Short records (up to this many pages) are still one call.
@@ -448,7 +451,8 @@ def _call_pdf_model(record: str, model: str) -> tuple[PdfReading, int, int]:
     global pdf_calls
     pdf_calls += 1
 
-    client = _client(os.environ["GEMINI_API_KEY"], PDF_TIMEOUT_MS)
+    timeout = MAIN_PDF_TIMEOUT_MS if model == MODEL and MODEL != FALLBACK_MODEL else PDF_TIMEOUT_MS
+    client = _client(os.environ["GEMINI_API_KEY"], timeout)
     response = client.models.generate_content(
         model=model,
         contents=f"<record>\n{record}\n</record>",

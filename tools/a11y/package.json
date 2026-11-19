@@ -1,0 +1,11 @@
+{
+  "name": "promise-ledger-a11y",
+  "private": true,
+  "description": "Automated WCAG checks (axe-core) for Promise Ledger pages, run in the system Chrome.",
+  "type": "module",
+  "scripts": { "check": "node check.mjs" },
+  "dependencies": {
+    "axe-core": "4.10.3",
+    "puppeteer-core": "24.10.0"
+  }
+}

@@ -11,7 +11,7 @@ import re
 import secrets
 import uuid
 from concurrent.futures import ThreadPoolExecutor
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from app import guard, ledger, pipeline, vision
@@ -148,8 +148,79 @@ def list_deals(store: Storage | None = None, session: str | None = None) -> list
             "next_reminder": {"date": nxt["date"], "due": nxt["date"], "days": nxt["days"], "text": nxt["text"],
                               "kind": nxt["kind"], "claim_id": nxt["claim_id"]} if nxt else None,
             "updated_at": deal.get("updated_at"),
+            "real": bool(deal.get("real")),
         })
     return sorted(rows, key=lambda r: r["updated_at"] or "", reverse=True)
+
+
+# Terms a monitoring office needs on file for every deal (Lincoln Institute 2015 practitioner list; DC Auditor 2024).
+OBLIGATION_TERMS = ("reporting", "remedies", "rent_limits", "income_basis", "term")
+
+
+def _homes(claims: list[dict]) -> tuple[int | None, int | None]:
+    """Affordable homes and total homes from the furthest-stage claim that states a count."""
+    order = {s: i for i, s in enumerate(ledger.STATUSES)}
+    counted = [c for c in claims if c["topic"] == "units" and (c.get("homes") or {}).get("count")]
+    if not counted:
+        return None, None
+    best = max(counted, key=lambda c: (order.get(c.get("status"), 0), c.get("date") or ""))
+    total = max((c["homes"].get("of") or 0 for c in counted), default=0) or None
+    return best["homes"]["count"], total
+
+
+def county_board(store: Storage | None = None, today: date | None = None) -> dict:
+    """Every real county deal in one table, plus county-wide totals.
+
+    Each number comes from checked quotes in that deal's records ("not found" means no wording was found in the
+    records read, not that the agreement lacks it). Nothing here is a finding about any party.
+    """
+    store = store or get_store()
+    today = today or date.today()
+    rows = []
+    for deal in store.list_deals():
+        if not deal.get("real"):
+            continue
+        docs = store.list_documents(deal["id"])
+        done = [d for d in docs if d.get("status") == "done"]
+        claims = [c for d in done for c in d.get("claims") or []]
+        review = build_deal_review(deal, docs)
+        located = {t["key"]: bool(t.get("located")) for t in review["terms"]}
+        homes, total = _homes(claims)
+        end = term_end(claims, done)
+        income = next((t["values"][-1] for t in review["terms"] if t["key"] == "income_basis" and t.get("values")), None)
+        source = deal.get("source") or {}
+        rows.append({
+            "id": deal["id"], "name": deal["name"], "file": source.get("file"), "council_status": source.get("status"),
+            "introduced": source.get("introduced"), "passed": source.get("passed"), "source_url": source.get("url"),
+            "votes": source.get("votes") or [],
+            "records": len(docs), "records_read": len(done), "claims": len(claims),
+            "homes": homes, "total_homes": total, "income_limit": income,
+            "term_end": end["date"].isoformat() if end and end.get("date") else None,
+            "term_years": end.get("years") if end else None,
+            "furthest_stage": review["summary"]["furthest_status"],
+            "found": {k: located.get(k, False) for k in OBLIGATION_TERMS},
+            "not_found": [k for k in OBLIGATION_TERMS if not located.get(k, False)],
+            "terms_differ": review["summary"]["terms_differ"],
+        })
+    rows.sort(key=lambda r: r["passed"] or r["introduced"] or "", reverse=True)
+    read = [r for r in rows if r["records_read"]]
+    ends = [r for r in read if r["term_end"]]
+    return {
+        "county": "Prince George's County, Maryland",
+        "source": "Prince George's County Council records (Legistar)",
+        "as_of": today.isoformat(),
+        "deals": rows,
+        "totals": {
+            "deals": len(rows), "deals_read": len(read),
+            "records": sum(r["records"] for r in rows), "records_read": sum(r["records_read"] for r in rows),
+            "homes": sum(r["homes"] or 0 for r in read), "deals_with_homes": sum(1 for r in read if r["homes"]),
+            "total_homes": sum(r["total_homes"] or 0 for r in read if r["homes"]),
+            "found": {k: sum(1 for r in read if r["found"][k]) for k in OBLIGATION_TERMS},
+            "term_ends_known": len(ends),
+            "ending_by_2040": sum(1 for r in ends if r["term_end"] < "2041-01-01"),
+            "terms_differ": sum(1 for r in read if r["terms_differ"]),
+        },
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -804,6 +875,64 @@ def all_reminders(store: Storage | None = None, today: date | None = None, sessi
         if visible_to(deal, session):
             rows.extend(deal_reminders(deal, store.list_documents(deal["id"]), today))
     return _sort_reminders(rows)
+
+
+# Years before an affordability term ends when staff get a heads-up: the window to negotiate an extension,
+# a right of first refusal or a new regulatory agreement before the homes can leave the affordable stock.
+TERM_WARNING_YEARS = (5, 3, 1)
+
+
+def _ics_text(value: str) -> str:
+    """RFC 5545 TEXT escaping."""
+    return value.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\r", "").replace("\n", "\\n")
+
+
+def _ics_fold(line: str) -> str:
+    """Fold a content line at 75 octets (RFC 5545 3.1)."""
+    raw, out = line.encode("utf-8"), []
+    while len(raw) > 75:
+        cut = 75
+        while cut and (raw[cut] & 0xC0) == 0x80:  # Never split a UTF-8 character.
+            cut -= 1
+        out.append(raw[:cut].decode("utf-8"))
+        raw = b" " + raw[cut:]
+    out.append(raw.decode("utf-8"))
+    return "\r\n".join(out)
+
+
+def reminders_ics(reminders: list[dict], base_url: str = "") -> str:
+    """The reminders as an iCalendar file any calendar app can subscribe to or import.
+
+    Each term end also gets heads-up events TERM_WARNING_YEARS before it. Every event says where its date came
+    from, so a person can check it against the record before acting on it.
+    """
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Promise Ledger//Affordability reminders//EN",
+             "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:Promise Ledger reminders"]
+
+    def event(uid: str, when: date, summary: str, description: str, url: str) -> None:
+        lines.extend(["BEGIN:VEVENT", f"UID:{uid}@promise-ledger", f"DTSTAMP:{stamp}",
+                      f"DTSTART;VALUE=DATE:{when:%Y%m%d}", f"DTEND;VALUE=DATE:{(when + timedelta(days=1)):%Y%m%d}",
+                      f"SUMMARY:{_ics_text(summary)}", f"DESCRIPTION:{_ics_text(description)}"]
+                     + ([f"URL:{url}"] if url else []) + ["TRANSP:TRANSPARENT", "END:VEVENT"])
+
+    for r in reminders:
+        when = date.fromisoformat(r["date"])
+        url = f"{base_url}/#/deals/{r['deal_id']}" if base_url else ""
+        note = f"{r['text']} Source: Promise Ledger, from a checked quote; confirm against the record."
+        key = f"{r['deal_id']}-{r['kind']}-{r['date']}"
+        event(key, when, f"{r['deal_name']}: {r['text'].split(':')[0].split(',')[0]}", note, url)
+        if r["kind"] == "term_end":
+            for years in TERM_WARNING_YEARS:
+                try:
+                    early = when.replace(year=when.year - years)
+                except ValueError:  # 29 February
+                    early = when.replace(year=when.year - years, day=28)
+                event(f"{key}-warn{years}", early,
+                      f"{r['deal_name']}: affordability ends in {years} year{'s' if years > 1 else ''}",
+                      f"{note} Time to plan for preservation before {display_date(when)}.", url)
+    lines.append("END:VCALENDAR")
+    return "\r\n".join(_ics_fold(line) for line in lines) + "\r\n"
 
 
 # ---------------------------------------------------------------------------

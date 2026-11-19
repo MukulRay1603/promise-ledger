@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 
 load_dotenv()
 
-from app import ai, ask, deals, guard, identity, ledger, pipeline  # noqa: E402  (needs env loaded first)
+from app import ai, ask, deals, guard, identity, ledger, pipeline, request_letter  # noqa: E402  (needs env loaded first)
 from app.storage import get_store  # noqa: E402
 
 STATIC = Path(__file__).parent / "static"
@@ -232,6 +232,15 @@ def ask_deal(deal_id: str, body: ask.Question, request: Request):
     return ask.answer(review, body.question, body.audience)
 
 
+@app.post("/api/deals/{deal_id}/request-letter")
+def request_letter_draft(deal_id: str, body: request_letter.LetterIn, request: Request):
+    """A records request for what this deal is missing. Drafted by code; optionally edited by the model and checked.
+    Nothing is sent or saved."""
+    deal = _deal_or_404(deal_id, request)
+    review = deals.deal_review(deal_id, session=identity.demo_session(request))
+    return request_letter.letter(deal, review, body.polish)
+
+
 @app.get("/api/deals/{deal_id}/export.xlsx")
 def export_xlsx(deal_id: str, request: Request):
     _deal_or_404(deal_id, request)
@@ -371,6 +380,26 @@ def media():
 @app.get("/api/reminders")
 def reminders(request: Request):
     return deals.all_reminders(session=identity.demo_session(request))
+
+
+@app.get("/api/county")
+def county(request: Request):
+    """The real Prince George's County deals in one table, with county-wide totals."""
+    return deals.county_board()
+
+
+@app.get("/api/reminders.ics")
+def reminders_calendar(request: Request, deal: str | None = None):
+    """Every reminder this browser can see (or one deal's) as a calendar file, with heads-up events before term ends."""
+    rows = deals.all_reminders(session=identity.demo_session(request))
+    if deal is not None:
+        if not _ID.fullmatch(deal):
+            raise HTTPException(404, "Deal not found.")
+        rows = [r for r in rows if r["deal_id"] == deal]
+    base = str(request.base_url).rstrip("/")
+    name = f"promise-ledger-{deal}.ics" if deal else "promise-ledger-reminders.ics"
+    return Response(deals.reminders_ics(rows, base), media_type="text/calendar; charset=utf-8",
+                    headers={"Content-Disposition": f'attachment; filename="{name}"'})
 
 
 DATA_SLOT = '<script id="review-data" type="application/json"></script>'

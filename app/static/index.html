@@ -18,7 +18,7 @@
 <body>
   <a class="skip" href="#main">Skip to main content</a>
 
-  <p class="demo-banner" role="note"><strong>Demo:</strong> <span id="demo-banner">Made-up demo data. Every city, project, company, date, number and quote here is fictional.</span></p>
+  <p class="demo-banner" role="note"><strong>Demo:</strong> <span id="demo-banner">Demo deals use made-up data. Deals marked Real record are public records of Prince George's County, Maryland.</span></p>
 
   <header class="site-header">
     <div class="container header-inner">
@@ -33,6 +33,7 @@
       <nav class="main-nav" aria-label="Main">
         <a href="#/" data-nav="home">Home</a>
         <a href="#/deals" data-nav="deals">Deals</a>
+        <a href="#/county" data-nav="county">County</a>
         <a href="#/roadmap" data-nav="roadmap">Roadmap</a>
         <a href="#/about" data-nav="about">About</a>
       </nav>
@@ -247,6 +248,7 @@
     </section>
 
     <section class="view container" id="view-deals" data-view="deals" aria-labelledby="deals-title" hidden></section>
+    <section class="view container" id="view-county" data-view="county" aria-labelledby="county-title" hidden></section>
     <section class="view container" id="view-deal" data-view="deal" aria-labelledby="deal-title" hidden></section>
     <section class="view container" id="view-shared" data-view="shared" aria-labelledby="shared-title" hidden></section>
     <section class="view container" id="view-missing" data-view="missing" aria-labelledby="missing-title" hidden>
@@ -490,6 +492,21 @@
     </form>
   </dialog>
 
+  <dialog class="modal letter-modal" id="letter-dialog" aria-labelledby="letter-title" aria-describedby="letter-note">
+    <form method="dialog" class="modal-form">
+      <h2 id="letter-title">Records request</h2>
+      <p class="hint" id="letter-note" role="status">Drafting…</p>
+      <label for="letter-subject">Subject</label>
+      <input id="letter-subject" maxlength="300" autocomplete="off">
+      <label for="letter-body">Letter</label>
+      <textarea id="letter-body" rows="16" maxlength="6000"></textarea>
+      <div class="modal-actions">
+        <button type="submit" class="btn btn-secondary" value="close">Close</button>
+        <button type="button" class="btn btn-secondary" id="letter-polish">Make it read better (AI)</button>
+        <button type="button" class="btn btn-primary" id="letter-copy">Copy letter</button>
+      </div>
+    </form>
+  </dialog>
   <dialog class="source-panel" id="source-dialog" aria-labelledby="source-title">
     <div class="sp-head">
       <div class="sp-titles">

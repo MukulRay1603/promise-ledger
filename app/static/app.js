@@ -98,6 +98,18 @@ function toast(message, { kind = "ok", detail = null, timeout = 4500 } = {}) {
 // ---------- API: the live server, or the in-browser mock until it is live ----------
 class ApiError extends Error { constructor(status, message) { super(message); this.status = status; } }
 let mock = null;
+let dealIsReal = false; // The open deal is a real county record: the nav marks County, and the banner says so.
+
+// The banner says what the visitor is looking at: made-up demo data, or a real public record.
+const BANNER_DEMO = "Demo deals use made-up data. Deals marked Real record are public records of Prince George's County, Maryland.";
+const BANNER_REAL = "Real public records of Prince George's County, Maryland. Promise Ledger lists what the records say; it does not judge whether anyone met an obligation.";
+function setBanner(real) {
+  const banner = document.querySelector(".demo-banner");
+  if (!banner) return;
+  banner.classList.toggle("real-banner", Boolean(real));
+  banner.querySelector("strong").textContent = real ? "Real records:" : "Demo:";
+  byId("demo-banner").textContent = real ? BANNER_REAL : BANNER_DEMO;
+}
 let ready = null;
 
 async function loadSeed() {
@@ -259,6 +271,7 @@ function parseRoute() {
   if (!hash.startsWith("/")) return { view: "home" };
   const parts = hash.split("/").filter(Boolean);
   if (parts[0] === "deals" && parts.length === 1) return { view: "deals" };
+  if (parts[0] === "county" && parts.length === 1) return { view: "county" };
   if (STATIC_PAGES[parts[0]] && parts.length === 1) return { view: parts[0] };
   if (parts[0] === "deals" && parts[1] && parts[2] === "source" && parts[3]) return { view: "deal", id: parts[1], tab: "claims", source: parts[3] };
   if (parts[0] === "deals" && parts[1] && parts[2] === "tour") return { view: "deal", id: parts[1], tab: "claims", tour: true };
@@ -272,7 +285,7 @@ function showView(view) {
   document.documentElement.classList.toggle("route-shared", view === "shared");
   document.documentElement.classList.toggle("route-app", view !== "home" && view !== "shared");
   for (const link of document.querySelectorAll("[data-nav]")) {
-    const on = link.dataset.nav === view || (view === "deal" && link.dataset.nav === "deals");
+    const on = link.dataset.nav === view || (view === "deal" && link.dataset.nav === (dealIsReal ? "county" : "deals"));
     if (on) link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
   }
 }
@@ -291,6 +304,8 @@ async function route({ initial = false } = {}) {
   current = next;
   stopPolling();
   for (const dialog of document.querySelectorAll("dialog[open]")) dialog.close();
+  dealIsReal = false; // renderDeal sets it once the deal has loaded.
+  setBanner(next.view === "county");
   showView(next.view);
   if (!initial) {
     window.scrollTo(0, 0);
@@ -299,6 +314,7 @@ async function route({ initial = false } = {}) {
   if (next.view === "home") { document.title = "Promise Ledger"; setupVideos(); if (!hero.running && hero.loops < HERO_LOOPS) heroPlay(); return; }
   if (STATIC_PAGES[next.view]) { document.title = `${STATIC_PAGES[next.view]} · Promise Ledger`; return; }
   if (next.view === "deals") return renderDeals();
+  if (next.view === "county") return renderCounty();
   if (next.view === "deal") return renderDeal(next.id, next.tab, next.source, next.tour);
   if (next.view === "shared") return renderShared(next.token);
   document.title = "Page not found · Promise Ledger";
@@ -567,6 +583,16 @@ async function renderDeals() {
   if (current.view !== "deals") return;
   modeNote.hidden = !mock;
   rememberSample(deals);
+  // Real county deals have their own page; this table keeps the demo deals and the visitor's own.
+  const realCount = deals.filter((deal) => deal.real).length;
+  deals = deals.filter((deal) => !deal.real);
+  reminders = (Array.isArray(reminders) ? reminders : []).filter((r) => deals.some((deal) => deal.id === r.deal_id));
+  if (realCount) {
+    view.querySelector(".page-head").after(el("a", { class: "card county-callout", href: "#/county" },
+      el("span", { class: "real-badge" }, icon("check"), "Real records"),
+      el("span", { class: "cc-text" }, el("b", {}, `${realCount} Prince George's County agreements`), " read from the County Council's own records"),
+      el("span", { class: "cc-go", "aria-hidden": "true" }, "→")));
+  }
   // The deal row's next reminder may lack the as-of date; the full reminder list has it for each deal.
   const asOfByDeal = new Map((Array.isArray(reminders) ? reminders : []).filter((r) => r.as_of).map((r) => [r.deal_id, r.as_of]));
 
@@ -597,6 +623,118 @@ async function renderDeals() {
       el("a", { href: `#/deals/${encodeURIComponent(item.deal_id)}` }, item.deal_name || "Open deal"),
       item.claim_id ? [" · ", el("a", { href: sourceHref(item.deal_id, item.claim_id) }, "Source", el("span", { class: "visually-hidden" }, ` for: ${reminderText(item)}`))] : null)))
     : [el("li", { class: "reminder" }, el("p", { class: "reminder-text" }, "Nothing due."))]));
+}
+
+// ---------- County board ----------
+// Every PILOT agreement the Prince George's County Council considered since 2023, from its own records. Each number
+// links back to checked quotes; "not found" means no wording was found in the records read, never a finding about
+// a party.
+const OBLIGATIONS = [
+  ["reporting", "Reporting", "A yearly report or certification to the County"],
+  ["remedies", "Remedies", "What happens if the terms are not met"],
+  ["rent_limits", "Rent limit", "A cap on rents"],
+  ["income_basis", "Income limit", "Who qualifies, as a share of area median income"],
+  ["term", "Term", "How many years the homes stay affordable"],
+];
+
+function countyTimeline(rows) {
+  // Affordability end dates on one line from this year to the latest end, so expiring homes stand out.
+  const dated = rows.filter((r) => r.term_end).sort((a, b) => a.term_end.localeCompare(b.term_end));
+  if (!dated.length) return null;
+  const now = new Date().getFullYear();
+  const last = Math.max(now + 20, ...dated.map((r) => Number(r.term_end.slice(0, 4)) + 2));
+  const span = last - now;
+  const x = (iso) => 2 + 96 * Math.min(1, Math.max(0, (Number(iso.slice(0, 4)) + Number(iso.slice(5, 7)) / 12 - now) / span));
+  const ticks = [];
+  for (let y = Math.ceil(now / 10) * 10; y <= last; y += 10) ticks.push(y);
+  const lanes = []; // Stagger markers that would overlap.
+  const placed = dated.map((r) => {
+    const at = x(r.term_end);
+    let lane = lanes.findIndex((end) => at - end > 7);
+    if (lane < 0) { lane = lanes.length; lanes.push(at); } else lanes[lane] = at;
+    return { r, at, lane, soon: Number(r.term_end.slice(0, 4)) - now <= 15 };
+  });
+  return el("figure", { class: "county-timeline", style: `--lanes:${Math.max(1, lanes.length)}` },
+    el("figcaption", {},
+      el("h2", { id: "county-timeline-title" }, "When the affordability ends"),
+      el("p", { class: "hint" }, "Each mark is one agreement's affordability end date, from its signed term. Amber marks end within 15 years: the window to plan for keeping those homes affordable.")),
+    el("div", { class: "ct-track", role: "list", "aria-labelledby": "county-timeline-title" },
+      el("div", { class: "ct-axis", "aria-hidden": "true" },
+        ...ticks.map((y) => el("span", { class: "ct-tick", style: `left:${2 + 96 * (y - now) / span}%` }, String(y)))),
+      ...placed.map(({ r, at, lane, soon }, i) => el("a", {
+        class: `ct-mark${soon ? " ct-soon" : ""}`, role: "listitem", href: `#/deals/${encodeURIComponent(r.id)}`,
+        style: `left:${at}%;--lane:${lane};--i:${i}`,
+        "aria-label": `${r.name}: affordability ends ${formatDate(r.term_end)}${r.homes ? `, ${plural(r.homes, "home")}` : ""}`,
+      }, el("span", { class: "ct-dot", "aria-hidden": "true" }),
+        el("span", { class: "ct-label", "aria-hidden": "true" }, el("b", {}, r.term_end.slice(0, 4)), " ", r.name)))));
+}
+
+async function renderCounty() {
+  document.title = "Prince George's County · Promise Ledger";
+  setBanner(true);
+  const view = byId("view-county");
+  const body = el("div", { class: "county-body", "aria-busy": "true" }, el("div", { class: "skeleton", style: "height:10rem;border-radius:var(--r-lg)" }));
+  view.replaceChildren(
+    el("div", { class: "page-head" },
+      el("div", {},
+        el("p", { class: "kicker" }, "Real public records"),
+        el("h1", { id: "county-title" }, "Prince George's County"),
+        el("p", { class: "page-sub" }, "Every payment-in-lieu-of-taxes (PILOT) agreement the County Council considered since 2023, read from the Council's own records. Open any deal to see each commitment's quote and page.")),
+      el("div", { class: "page-actions" },
+        el("a", { class: "btn", href: "/api/reminders.ics", download: "promise-ledger-reminders.ics" }, icon("calendar"), "Add end dates to a calendar"))),
+    body);
+  let board;
+  try {
+    board = await api("/api/county");
+  } catch (err) {
+    body.replaceChildren(el("p", {}, `The county records did not load. ${err.message} Reload the page to try again.`));
+    return;
+  }
+  if (current.view !== "county") return;
+  const t = board.totals;
+  const read = board.deals.filter((r) => r.records_read);
+  if (!board.deals.length) {
+    body.replaceChildren(el("p", {}, "No county records are loaded on this server yet."));
+    return;
+  }
+  const pct = (n) => (read.length ? Math.round((100 * n) / read.length) : 0);
+  const kpi = (value, label, sub, tone = "") => el("div", { class: `kpi county-kpi ${tone}` },
+    el("p", { class: "kpi-label" }, label), el("p", { class: "kpi-value" }, value), el("p", { class: "kpi-sub" }, sub));
+  const dot = (found, row, key, label) => el("td", { class: `ob-cell ${found ? "ob-found" : "ob-missing"}`, "data-label": label },
+    el("span", { class: "ob-dot", "aria-hidden": "true" }),
+    el("span", { class: "visually-hidden" }, found ? "Wording found" : "No wording found"),
+    el("span", { class: "ob-text", "aria-hidden": "true" }, found ? "Found" : "Not found"));
+  body.removeAttribute("aria-busy");
+  body.replaceChildren(
+    el("div", { class: "kpi-row county-kpis" },
+      kpi(String(t.deals), "Agreements", `${t.records_read} of ${t.records} council records read`),
+      kpi(t.homes ? t.homes.toLocaleString() : "—", "Affordable homes described", t.deals_with_homes ? `in ${plural(t.deals_with_homes, "agreement")} that state a count` : "No counts found yet"),
+      kpi(`${t.found.reporting} of ${read.length}`, "Have reporting wording", `${pct(t.found.reporting)}% of agreements read`, t.found.reporting < read.length ? "kpi-warn" : ""),
+      kpi(`${t.found.remedies} of ${read.length}`, "Have remedy wording", `${pct(t.found.remedies)}% of agreements read`, t.found.remedies < read.length ? "kpi-warn" : ""),
+      kpi(String(t.ending_by_2040), "Affordability ends by 2040", `of ${plural(t.term_ends_known, "agreement")} with a dated term`)),
+    countyTimeline(read),
+    el("section", { class: "card county-table-card", "aria-labelledby": "county-table-cap" },
+      el("div", { class: "card-head" }, el("h2", { id: "county-table-cap" }, "What each agreement's records say"),
+        el("p", { class: "hint" }, "Found means wording for that term was found and checked on its page in the records read. Not found is a question to ask, not a finding.")),
+      el("div", { class: "county-scroll" },
+        el("table", { class: "county-table stack" },
+          el("caption", { class: "visually-hidden" }, "County PILOT agreements, newest first"),
+          el("thead", {}, el("tr", {},
+            ["Agreement", "Council action", "Homes", "Income limit", "Affordability ends"].map((h) => el("th", { scope: "col" }, h)),
+            ...OBLIGATIONS.map(([, label, help]) => el("th", { scope: "col", class: "ob-head", title: help }, label)))),
+          el("tbody", {}, ...board.deals.map((r) => el("tr", { class: r.records_read ? null : "row-pending" },
+            el("th", { scope: "row", "data-label": "Agreement" },
+              el("a", { class: "deal-name", href: `#/deals/${encodeURIComponent(r.id)}` }, r.name),
+              el("span", { class: "deal-city" }, r.file, " · ", r.records_read < r.records ? `${r.records_read} of ${r.records} records read` : plural(r.records, "record"))),
+            el("td", { "data-label": "Council action" },
+              el("span", {}, r.council_status || "—", r.passed ? ` ${formatDate(r.passed)}` : ""),
+              r.source_url ? el("a", { class: "reminder-source", href: r.source_url, target: "_blank", rel: "noopener" }, "Council record", el("span", { class: "visually-hidden" }, ` for ${r.name} (opens the County's site)`)) : null),
+            el("td", { "data-label": "Homes", class: "num" }, r.homes ? (r.total_homes ? `${r.homes} of ${r.total_homes}` : String(r.homes)) : el("span", { class: "cell-muted" }, "—")),
+            el("td", { "data-label": "Income limit" }, r.income_limit || el("span", { class: "cell-muted" }, "—")),
+            el("td", { "data-label": "Affordability ends" }, r.term_end ? formatDate(r.term_end) : el("span", { class: "cell-muted" }, "—")),
+            ...OBLIGATIONS.map(([key, label]) => dot(r.found[key], r, key, label)))))))),
+    el("p", { class: "hint county-source" }, `Source: ${board.source}, retrieved by tools/county_import.py. Records are read once and checked word for word; numbers update when new records are added.`),
+  );
 }
 
 function rememberSample(deals) {
@@ -774,9 +912,22 @@ async function renderDeal(id, tab, sourceClaim = null, withTour = false) {
   if (current.view !== "deal" || current.id !== id) return;
   setDeal(id, deal, review);
   document.title = `${deal.name} · Promise Ledger`;
+  dealIsReal = Boolean(deal.real);
+  setBanner(dealIsReal);
+  showView("deal"); // Re-marks the nav: a real deal belongs to County.
   byId("crumb-name").textContent = deal.name;
   byId("deal-title").textContent = deal.name;
   byId("deal-sub").textContent = deal.city;
+  if (dealIsReal) {
+    const crumb = document.querySelector("#view-deal .crumbs a");
+    if (crumb) { crumb.href = "#/county"; crumb.textContent = "Prince George's County"; }
+    const src = deal.source || {};
+    byId("deal-sub").replaceChildren(
+      el("span", { class: "real-badge" }, icon("check"), "Real record"), " ",
+      src.file ? `Council file ${src.file}` : deal.city,
+      src.status ? ` · ${src.status}${src.passed ? ` ${formatDate(src.passed)}` : ""}` : "",
+      src.url ? [" · ", el("a", { href: src.url, target: "_blank", rel: "noopener" }, "County record", el("span", { class: "visually-hidden" }, " (opens the County's site)"))] : null);
+  }
   renderActions(id, deal);
   renderDocs();
   renderReview({ tab: sourceClaim ? null : tab });
@@ -1708,7 +1859,50 @@ function renderNextRecords() {
     : el("p", { class: "next-records-why" }, "Every term is located, and a record shows the homes were delivered. Nothing more to ask for.");
   (byId("no-claims-note") || list).after(el("section", { id: "next-records", class: "next-records", "aria-labelledby": "next-records-title" },
     el("h3", { id: "next-records-title" }, items.length ? "Records to ask for next" : "Records on file"),
-    body));
+    body,
+    items.length ? el("button", { type: "button", class: "btn btn-small", onclick: (event) => openLetter(event.currentTarget) },
+      icon("docq"), "Draft a records request") : null));
+}
+
+// ---------- Records request letter ----------
+// Code drafts the letter from the review; "Make it read better" asks the model to edit it, and the server keeps the
+// edit only if it adds no number, date or link and keeps every requested record. Nothing is sent from here.
+async function openLetter(opener) {
+  const dialog = byId("letter-dialog");
+  const subject = byId("letter-subject"), text = byId("letter-body"), note = byId("letter-note");
+  const polish = byId("letter-polish"), copy = byId("letter-copy");
+  const id = dealState.id;
+  const load = async (wantPolish) => {
+    polish.disabled = true;
+    note.textContent = wantPolish ? "Asking the model to edit the draft, then checking its edit…" : "Drafting…";
+    try {
+      const res = await api(`/api/deals/${encodeURIComponent(id)}/request-letter`, { method: "POST", body: { polish: wantPolish } });
+      subject.value = res.subject;
+      text.value = res.body;
+      note.textContent = res.notice;
+      note.classList.toggle("letter-ok", res.mode === "polished");
+      polish.hidden = res.mode === "polished";
+    } catch (err) {
+      note.textContent = `The draft did not load. ${err.message}`;
+    } finally {
+      polish.disabled = false;
+    }
+  };
+  polish.onclick = () => load(true);
+  copy.onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(`Subject: ${subject.value}\n\n${text.value}`);
+      toast("Letter copied. Paste it into an email to the records office.");
+    } catch {
+      text.select();
+      toast("Select all and copy the letter.");
+    }
+  };
+  dialog.onclose = () => opener?.focus();
+  polish.hidden = false;
+  dialog.showModal();
+  await load(false);
+  subject.focus();
 }
 
 function noClaimsNote({ canShow }) {

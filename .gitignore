@@ -14,3 +14,4 @@ data/runtime/
 data/county/*/*.pdf
 !data/county/*/*.from-docx.pdf
 !data/county/*/*.from-doc.pdf
+node_modules/
