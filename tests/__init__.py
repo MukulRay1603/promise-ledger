@@ -9,3 +9,5 @@ os.environ.setdefault("SCANS_TO_MODEL", "1")
 os.environ.setdefault("PDF_SANDBOX", "0")
 # The real county deals (data/county) download public records when seeded; the suite stays offline.
 os.environ.setdefault("COUNTY_DEALS", "0")
+# The main-model circuit breaker keeps state between calls; tests/test_breaker.py turns it on for itself.
+os.environ.setdefault("MAIN_COOLDOWN_SECONDS", "0")

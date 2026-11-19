@@ -275,13 +275,15 @@ def answer(review: dict, question: str, audience: Audience = "staff") -> dict:
     if not ai._allow_live_call():
         return _quotes_only(question, review, "The AI answer limit was reached for this minute.")
     prompt = f"<records>\n{_records_block(review)}\n</records>\n<question>\n{_data(question)}\n</question>"
-    model = ai.MODEL
+    model = ai.first_model()
     try:
         try:
             reply = _call(prompt, audience, model)
-        except Exception:  # Busy, out of quota, a server error or a malformed reply: one try on the fallback.
-            if ai.FALLBACK_MODEL == ai.MODEL or not ai._allow_live_call():  # The second call counts too.
+        except Exception as err:  # Busy, out of quota, a server error or a malformed reply: one try on the fallback.
+            if model == ai.FALLBACK_MODEL or not ai._allow_live_call():  # The second call counts too.
                 raise
+            if ai._is_busy(err):
+                ai.note_busy(model)
             model = ai.FALLBACK_MODEL
             reply = _call(prompt, audience, model)
     except Exception as err:  # The question itself is never logged.

@@ -147,13 +147,14 @@ def _call_vision_model(pdf: bytes, model: str) -> tuple[Transcription, int, int]
 
 def _live(pdf: bytes) -> tuple[Transcription, str, int, int]:
     """The main model, then the fallback if it is busy, as in ai.read_document."""
-    model = ai.MODEL
+    model = ai.first_model()
     try:
         out, tokens_in, tokens_out = _call_vision_model(pdf, model)
     except Exception as err:
-        if not ai._is_busy(err) or ai.FALLBACK_MODEL == ai.MODEL:
+        if not ai._is_busy(err) or model == ai.FALLBACK_MODEL:
             raise
-        print(f"{ai.MODEL} was busy ({type(err).__name__}). Retrying with {ai.FALLBACK_MODEL}.")
+        ai.note_busy(model)
+        print(f"{model} was busy ({type(err).__name__}). Retrying with {ai.FALLBACK_MODEL}.")
         model = ai.FALLBACK_MODEL
         out, tokens_in, tokens_out = _call_vision_model(pdf, model)
     return out, model, tokens_in, tokens_out

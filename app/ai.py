@@ -242,6 +242,27 @@ def _is_busy(err: Exception) -> bool:
     return isinstance(err, TimeoutError) or "timeout" in type(err).__name__.lower()
 
 
+# Circuit breaker: after the main model is busy or times out, rest it for a while and go straight to the fallback,
+# so an overloaded model costs one slow call, not one per record section. MAIN_COOLDOWN_SECONDS=0 turns it off.
+MAIN_COOLDOWN_SECONDS = int(os.getenv("MAIN_COOLDOWN_SECONDS") or 600)
+_main_resting_until = 0.0
+
+
+def first_model() -> str:
+    """The model to try first: the main one, unless it is resting after being busy."""
+    if MAIN_COOLDOWN_SECONDS and time.monotonic() < _main_resting_until:
+        return FALLBACK_MODEL
+    return MODEL
+
+
+def note_busy(model: str) -> None:
+    """The main model was busy or timed out: rest it for MAIN_COOLDOWN_SECONDS."""
+    global _main_resting_until
+    if model == MODEL and MODEL != FALLBACK_MODEL and MAIN_COOLDOWN_SECONDS:
+        _main_resting_until = time.monotonic() + MAIN_COOLDOWN_SECONDS
+        print(f"{MODEL} is resting for {MAIN_COOLDOWN_SECONDS} s; {FALLBACK_MODEL} reads until then.")
+
+
 def _unreadable_answer(err: Exception) -> bool:
     """True when the model answered but the answer is not the JSON asked for (cut off, or empty)."""
     from pydantic import ValidationError
@@ -273,14 +294,15 @@ def extract(text: str) -> ExtractResult:
         return _saved(text, "Live extraction is off because no API key is set.")
     if not _allow_live_call():
         return _saved(text, "The live extraction limit was reached. Try again in a minute.")
-    model = MODEL
+    model = first_model()
     try:
         try:
             extraction = _call_model(text, model)
         except Exception as err:
-            if not _is_busy(err) or FALLBACK_MODEL == MODEL:
+            if not _is_busy(err) or model == FALLBACK_MODEL:
                 raise
-            print(f"{MODEL} was busy ({type(err).__name__}). Retrying with {FALLBACK_MODEL}.")
+            note_busy(model)
+            print(f"{model} was busy ({type(err).__name__}). Retrying with {FALLBACK_MODEL}.")
             model = FALLBACK_MODEL
             extraction = _call_model(text, model)
     except Exception as err:  # Any model failure falls back. The text itself is never logged.
@@ -513,14 +535,17 @@ def _wait_for_live_call(seconds: float) -> bool:
 
 def _read_section(record: str) -> tuple[PdfReading, int, int, str]:
     """One model call, with one retry on the fallback model. Raises if both fail."""
+    first = first_model()
     try:
-        return (*_call_pdf_model(record, MODEL), MODEL)
+        return (*_call_pdf_model(record, first), first)
     except Exception as err:
         # A cut-off answer is retried on the other model too: it reads the same record with its own budget.
-        if not (_is_busy(err) or _unreadable_answer(err)) or FALLBACK_MODEL == MODEL:
+        if not (_is_busy(err) or _unreadable_answer(err)) or first == FALLBACK_MODEL:
             raise
+        if _is_busy(err):
+            note_busy(first)
         why = "was busy" if _is_busy(err) else "gave an answer that could not be read"
-        print(f"{MODEL} {why} ({type(err).__name__}). Retrying with {FALLBACK_MODEL}.")
+        print(f"{first} {why} ({type(err).__name__}). Retrying with {FALLBACK_MODEL}.")
         return (*_call_pdf_model(record, FALLBACK_MODEL), FALLBACK_MODEL)
 
 

@@ -140,13 +140,15 @@ def letter(deal: dict, review: dict, polish: bool = False) -> dict:
         return {**base, "notice": "AI polish is off on this server, so this is the code draft. " + base["notice"]}
     if not ai._allow_live_call():
         return {**base, "notice": "The AI limit was reached for this minute, so this is the code draft."}
-    model = ai.MODEL
+    model = ai.first_model()
     try:
         try:
             polished = _call(base, model)
-        except Exception:
-            if ai.FALLBACK_MODEL == ai.MODEL or not ai._allow_live_call():
+        except Exception as err:
+            if model == ai.FALLBACK_MODEL or not ai._allow_live_call():
                 raise
+            if ai._is_busy(err):
+                ai.note_busy(model)
             model = ai.FALLBACK_MODEL
             polished = _call(base, model)
     except Exception as err:  # The letter text is never logged.
