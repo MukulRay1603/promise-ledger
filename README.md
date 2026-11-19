@@ -208,7 +208,7 @@ Uploads are read on a background thread, hence `--no-cpu-throttling`. The servic
 | What | Model | Measured or estimated cost |
 |---|---|---|
 | A short record (1 to 4 pages) | `gemini-3.5-flash-lite` | about $0.002 to $0.004 (measured on the county records) |
-| A 60-page deal packet (about 40k tokens in, 8k out) | `gemini-3.8-flash` | about $0.06 (estimated; $0.12 after Google's Jan 1, 2027 price change) |
+| A 60-page deal packet (about 40k tokens in, 8k out) | `gemini-3.5-flash` (main) | about $0.06 (estimated at the 3.8 Flash price, which doubles on Jan 1, 2027) |
 | The same packet | `gemini-3.5-flash-lite` | about $0.03 (estimated) |
 | A year of a county's deals (say 25 deals of 8 records) | either | under $5 |
 | A search | `gemini-embedding-001` | under $0.0001 per question |
@@ -216,7 +216,7 @@ Uploads are read on a background thread, hence `--no-cpu-throttling`. The servic
 | Variable | Default | What it does |
 |---|---|---|
 | `GEMINI_API_KEY` | none | Turns on live reading. Without it, saved readings are used. |
-| `GEMINI_MODEL` | `gemini-3.8-flash` | Model for reading records. Use a pinned version, never a `-latest` alias, so every change is measured. |
+| `GEMINI_MODEL` | `gemini-3.5-flash` | Model for reading records, the one the evals measured. Use a pinned version, never a `-latest` alias, so every change is measured. `gemini-3.8-flash` works too where the key has access to it. |
 | `GEMINI_FALLBACK_MODEL` | `gemini-3.5-flash-lite` | Tried once if the main model is busy, out of quota or times out. |
 | `MAIN_PDF_TIMEOUT_MS` | `60000` | How long the main model gets on one record section before the fallback reads it. |
 | `MAIN_COOLDOWN_SECONDS` | `600` | After the main model is busy or times out, the fallback reads for this long before the main model is tried again. `0` turns it off. |

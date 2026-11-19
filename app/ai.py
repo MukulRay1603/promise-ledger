@@ -25,11 +25,14 @@ from pydantic import BaseModel, Field
 SAMPLE_PATH = Path(__file__).resolve().parent.parent / "data" / "demo" / "extraction_sample.json"
 # Flash-class models keep inference cheap. Check AI Studio for the current model name.
 # Both are pinned versions, never a "-latest" alias, so a model change is always a deliberate, measured change.
-# gemini-3.5-flash was dropped from Google's model and price lists in Nov 2026, so the main model moved to 3.8.
-MODEL = os.getenv("GEMINI_MODEL") or "gemini-3.8-flash"
+# gemini-3.5-flash is the model our evals measured (93.5% recall on a real county record). Google took it off its
+# public model and price lists in Nov 2026 but still serves it; if it is ever retired, a "not found" answer falls back
+# like a busy one. gemini-3.8-flash hung on every call for our free-tier key on Nov 18-19 (about 119 s, then 504),
+# so it is opt-in: GEMINI_MODEL=gemini-3.8-flash.
+MODEL = os.getenv("GEMINI_MODEL") or "gemini-3.5-flash"
 FALLBACK_MODEL = os.getenv("GEMINI_FALLBACK_MODEL") or "gemini-3.5-flash-lite"
 # 429 is included because free-tier quotas are per model, so the fallback can still answer.
-BUSY_CODES = {429, 503, 504}
+BUSY_CODES = {404, 429, 503, 504}  # 404: the main model was retired or is not offered to this key.
 
 MAX_INPUT_CHARS = 4000
 MAX_CANDIDATES = 8
@@ -339,6 +342,7 @@ SECTION_RETRY_SECONDS = 3  # Pause before one more try when both models were bus
 # 2026-11-18. gemini-3.8-flash rises to 1.50 / 7.50 on 2027-01-01. GEMINI_PRICE_IN_PER_M / _OUT_PER_M override all.
 PRICES_PER_M = {
     "gemini-3.8-flash": (0.75, 3.75),
+    "gemini-3.5-flash": (0.75, 3.75),  # No longer on the price list; costed like 3.8 Flash so it is never under-counted.
     "gemini-3.5-flash-lite": (0.30, 2.50),
     "gemini-3.1-flash-lite": (0.25, 1.50),
     "gemini-2.5-flash-lite": (0.10, 0.40),

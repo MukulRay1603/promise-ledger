@@ -35,7 +35,7 @@ class NoKey(unittest.TestCase):
         with mock.patch.dict(os.environ, {"GEMINI_MODEL": "", "GEMINI_FALLBACK_MODEL": ""}):
             import importlib
             fresh = importlib.reload(ai)
-            self.assertEqual(fresh.MODEL, "gemini-3.8-flash")
+            self.assertEqual(fresh.MODEL, "gemini-3.5-flash")
             self.assertEqual(fresh.FALLBACK_MODEL, "gemini-3.5-flash-lite")
             # Pinned versions only: a moving "-latest" alias would change results without a measured change.
             self.assertNotIn("latest", fresh.MODEL + fresh.FALLBACK_MODEL)
