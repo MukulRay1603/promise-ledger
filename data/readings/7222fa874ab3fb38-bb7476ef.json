@@ -1,0 +1,73 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Policy Analysis and Fiscal Impact Statement CR-043-2023, Payment in Lieu of Taxes (“PILOT”) – Agreement for the 210 on the Park Apartments",
+  "date": "2023-06-13",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Under the proposed agreement, for at least a 50-year term, Community First Development Corporation, (the “Developer”) will reserve 121 units for family households, whose incomes are at or below 80% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "reserve 121 units",
+    "value": "121 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Under the proposed agreement, for at least a 50-year term, Community First Development Corporation, (the “Developer”) will reserve 121 units for family households, whose incomes are at or below 80% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "at or below 80% of the Area Median Income",
+    "value": "80% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Seven (7) units will be provided for youth transitioning out of foster care, who earn no more than 40% of t he AMI.",
+    "page": 3,
+    "wording": "Seven (7) units",
+    "value": "7 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Seven (7) units will be provided for youth transitioning out of foster care, who earn no more than 40% of t he AMI.",
+    "page": 3,
+    "wording": "no more than 40% of t he AMI",
+    "value": "40% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "An additional thirty 30 units will be market-rate.",
+    "page": 3,
+    "wording": "thirty 30 units",
+    "value": "30 units"
+   },
+   {
+    "topic": "term",
+    "quote": "Under the proposed agreement, for at least a 50-year term, Community First Development Corporation, (the “Developer”) will reserve 121 units for family households, whose incomes are at or below 80% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "at least a 50-year term",
+    "value": "50 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "CR-043-2023 would authorize the County to accept a payment in lieu of taxes equal to a $58.00 payment per affordable unit during the term of the PILOT agreement.",
+    "page": 3,
+    "wording": "$58.00 payment per affordable unit",
+    "value": "$58 per unit"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Revenues: Forgone tax revenues totaling approximately $19,400,416 over a 50-year period.",
+    "page": 1,
+    "wording": "Forgone tax revenues totaling approximately $19,400,416",
+    "value": "$19,400,416"
+   }
+  ]
+ },
+ "tokens_in": 3260,
+ "tokens_out": 873,
+ "cost_usd": 0.003161,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

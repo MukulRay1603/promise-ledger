@@ -1,0 +1,31 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR ADDISON PARK APARTMENTS",
+  "date": "2023-06-20",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR ADDISON PARK APARTMENTS for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Addison Park, L.P. (the “Owner”).",
+    "page": 1,
+    "wording": "Payments in Lieu of Taxes (“PILOT”) Agreement",
+    "value": "PILOT Agreement"
+   },
+   {
+    "topic": "public_support",
+    "quote": "This Resolution is approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Addison Park, L.P. (the “Owner”) concerning the Addison Park project.",
+    "page": 2,
+    "wording": "Payments in Lieu of Taxes (“PILOT”) Agreement",
+    "value": "PILOT Agreement for Addison Park project"
+   }
+  ]
+ },
+ "tokens_in": 1479,
+ "tokens_out": 337,
+ "cost_usd": 0.001286,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

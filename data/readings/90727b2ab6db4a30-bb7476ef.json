@@ -1,0 +1,115 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Policy Analysis and Fiscal Impact Statement CR-044-2023, Payment in Lieu of Taxes (“PILOT”) – Agreement for the Park Place at Addison Road Apartments",
+  "date": "2023-06-13",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "term",
+    "quote": "Revenues:      Forgone tax revenues totaling approximately $ 9,326,066 over a 40-year period.",
+    "page": 2,
+    "wording": "40-year period",
+    "value": "40 years"
+   },
+   {
+    "topic": "term",
+    "quote": "enters into an agreement with the governing body of the county or municipal corporation to allow the entire property or the portion of the property which was maintained for lower income persons to remain as housing for lower income persons for a term of at least five (5) years.",
+    "page": 3,
+    "wording": "at least five (5) years",
+    "value": "at least 5 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Park Place at Addison Road (the “Project”)2 is located at 6301 Central Avenue/212 Zelma Avenue/109 Addison Road, Capitol Heights, Maryland, and is a 193 unit newly constructed family affordable housing development.",
+    "page": 3,
+    "wording": "193 unit",
+    "value": "193 units"
+   },
+   {
+    "topic": "term",
+    "quote": "Under the proposed agreement, for the 40-year term, Banneker Ventures, LLC (the “Developer”) will reserve 193 units for households, whose incomes are at or below 70% of the Area Median Income (“AMI”) 3.",
+    "page": 3,
+    "wording": "40-year term",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Under the proposed agreement, for the 40-year term, Banneker Ventures, LLC (the “Developer”) will reserve 193 units for households, whose incomes are at or below 70% of the Area Median Income (“AMI”) 3.",
+    "page": 3,
+    "wording": "reserve 193 units",
+    "value": "193 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Under the proposed agreement, for the 40-year term, Banneker Ventures, LLC (the “Developer”) will reserve 193 units for households, whose incomes are at or below 70% of the Area Median Income (“AMI”) 3.",
+    "page": 3,
+    "wording": "at or below 70% of the Area Median Income",
+    "value": "70% of AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "CR-044-2023 would authorize the County to accept a payment in lieu of taxes equal to a $85.64 payment per affordable unit in year one, which will escalate by two percent (2%) per year during the term of the PILOT agreement.",
+    "page": 3,
+    "wording": "payment in lieu of taxes",
+    "value": "$85.64 per unit in year one escalating by 2% per year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The 40-year value of the County PILOT is approximately seventeen million, ninety-two thousand, eight hundred twenty dollars ($17,092,820)7.",
+    "page": 3,
+    "wording": "County PILOT",
+    "value": "$17,092,820 over 40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Under the agreement, the County would be forgoing real property tax revenue of approximately $154,400, or approximately $800 per affordable unit, in year one 8.",
+    "page": 4,
+    "wording": "forgoing real property tax revenue",
+    "value": "$154,400 in year one"
+   },
+   {
+    "topic": "public_support",
+    "quote": "As described above, accepting the PILOT on the entire Project of $16,528 will result in a loss of approximately $154,400 in the first year of the term.",
+    "page": 4,
+    "wording": "accepting the PILOT",
+    "value": "loss of approximately $154,400 in the first year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Factoring in the 2% estimated average annual increase in the property tax assessment, the total impact is estimated at $9,326,066.00 over the 40-year period that the PILOT agreement remains in effect.",
+    "page": 4,
+    "wording": "PILOT agreement remains in effect",
+    "value": "$9,326,066.00 over 40 years"
+   },
+   {
+    "topic": "term",
+    "quote": "The Affordability Period is listed as being for 99 years in Attachment B for the Agreement, but the Agreement’s affordability period is for 40 years as confirmed by DHCD staff.",
+    "page": 4,
+    "wording": "Affordability Period",
+    "value": "40 years or 99 years"
+   },
+   {
+    "topic": "term",
+    "quote": "The years for the Term of the Pilot is listed as being for 99 years in Attachment B for the Agreement, but the actual term is for 40 years.",
+    "page": 4,
+    "wording": "Term of the Pilot",
+    "value": "40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Agreement provides that “Eligible Households” are those earning 80% or less of AMI on page 1 of Attachment B, but in the definition of “Eligible Household on page 5, the text states that eight percent of AMI is the reference.",
+    "page": 4,
+    "wording": "Eligible Households",
+    "value": "80% or less of AMI"
+   }
+  ]
+ },
+ "tokens_in": 4475,
+ "tokens_out": 1641,
+ "cost_usd": 0.005445,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

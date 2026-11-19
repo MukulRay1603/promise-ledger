@@ -1,0 +1,65 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "Proposed PILOT Agreement for New Carrollton - Affordable - Phase 4",
+  "date": "2025-09-10",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Aisha N. Braveboy",
+    "quote": "Aisha N. Braveboy",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner, Urban Atlantic Development LLC, will form an entity for the purpose of acquiring land and constructing a one hundred two (102) unit affordable rental community for low and moderate-income families, earning seventy percent (70%) or below of the Area Median Income (\"AMI\"), located within the confines of Pennsy Drive, Route 50 and Corporate Drive, New Carrollton, Maryland 20785.",
+    "page": 1,
+    "wording": "constructing a one hundred two (102) unit affordable rental community",
+    "value": "102 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner, Urban Atlantic Development LLC, will form an entity for the purpose of acquiring land and constructing a one hundred two (102) unit affordable rental community for low and moderate-income families, earning seventy percent (70%) or below of the Area Median Income (\"AMI\"), located within the confines of Pennsy Drive, Route 50 and Corporate Drive, New Carrollton, Maryland 20785.",
+    "page": 1,
+    "wording": "earning seventy percent (70%) or below of the Area Median Income",
+    "value": "70% or below of AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require a mandatory annual payment in an amount no less than approximately sixty-six thousand, three hundred dollars or six hundred fifty dollars per unit ($66,300 or $650 per unit) for the first year.",
+    "page": 1,
+    "wording": "mandatory annual payment in an amount no less than",
+    "value": "$66,300 or $650 per unit for the first year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment for these affordable units will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%) for each subsequent tax year",
+    "value": "2% annual increase"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for forty (40) years, which includes the extended affordability period.",
+    "page": 1,
+    "wording": "remain in effect for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "When considering the financial effects of the PILOT, the County will be providing yearly operating support of approximately one hundred six thousand, four hundred forty-seven dollars ($106,447) to this affordable family housing development.",
+    "page": 2,
+    "wording": "providing yearly operating support of approximately",
+    "value": "$106,447 yearly operating support"
+   }
+  ]
+ },
+ "tokens_in": 1699,
+ "tokens_out": 813,
+ "cost_usd": 0.002542,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

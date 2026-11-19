@@ -1,0 +1,16 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (\"PILOT\") AGREEMENT FOR THE NEW CARROLLTON - AFFORDABLE - PHASE 4 PROJECT",
+  "date": "2025-11-17",
+  "draft": true,
+  "signatures": [],
+  "candidates": []
+ },
+ "tokens_in": 1658,
+ "tokens_out": 91,
+ "cost_usd": 0.000725,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

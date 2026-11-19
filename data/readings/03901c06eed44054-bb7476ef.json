@@ -1,0 +1,65 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "PILOT Agreement for Addison Park Apartments",
+  "date": "2023-04-28",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Angela D. Alsobrooks",
+    "quote": "Angela D. Alsobrooks  ",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner is an entity formed by the development team of Atlantic Pacific Communities and Cober Johnson Romney for the purpose of acquiring land and constructing the Project, which will be two hundred ninety three (293) units of new affordable multi-family rental housing for low-income to moderate-income seniors, ages sixty two (62) years and older, known as Addison Park, located at 216 Yolanda Avenue, Capitol Heights, Maryland 20743.",
+    "page": 1,
+    "wording": "will be two hundred ninety three (293) units",
+    "value": "293 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be reserved for senior households whose incomes are at or below sixty percent (60%) of the Area Median Income (“AMI”).",
+    "page": 1,
+    "wording": "All units will be reserved",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All units will be reserved for senior households whose incomes are at or below sixty percent (60%) of the Area Median Income (“AMI”).",
+    "page": 1,
+    "wording": "at or below sixty percent (60%) of the Area Median Income",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require the Owner to make a mandatory annual payment to the County in an amount of no less than approximately thirty one thousand, fifty-eight dollars ($31,058) or approximately one hundred six dollars ($106) per unit for the full tax year.",
+    "page": 1,
+    "wording": "PILOT",
+    "value": "$31,058 annually"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment for these affordable units will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%)",
+    "value": "2% annual increase"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for forty (40) years which includes the extended affordability period.",
+    "page": 1,
+    "wording": "remain in effect for forty (40) years",
+    "value": "40 years"
+   }
+  ]
+ },
+ "tokens_in": 1797,
+ "tokens_out": 707,
+ "cost_usd": 0.002307,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

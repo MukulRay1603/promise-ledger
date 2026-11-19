@@ -1,0 +1,72 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "PILOT Agreement Transmittal Letter for The Highlands Senior Apartments project",
+  "date": "2024-07-26",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Angela D. Alsobrooks",
+    "quote": "Angela D. Alsobrooks",
+    "page": 1
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner, Highland Senior Living, LLLP, is an entity formed for the purpose of constructing the Project, which will be a one hundred thirty seven (137) unit affordable rental housing community for seniors earning sixty percent (60%) or below of the Area Median Income (“AMI”), located at 6801 Sheriff Road, Landover, Maryland 20785.",
+    "page": 1,
+    "wording": "will be a one hundred thirty seven (137) unit",
+    "value": "137 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner, Highland Senior Living, LLLP, is an entity formed for the purpose of constructing the Project, which will be a one hundred thirty seven (137) unit affordable rental housing community for seniors earning sixty percent (60%) or below of the Area Median Income (“AMI”), located at 6801 Sheriff Road, Landover, Maryland 20785.",
+    "page": 1,
+    "wording": "earning sixty percent (60%) or below of the Area Median Income",
+    "value": "60% or below of AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Additionally, The Highlands Senior Apartments project will be financed by the Prince George’s County Housing Investment Trust Fund (“HITF”) Program loan in the amount of two million, five hundred thousand dollars ($2,500,000).",
+    "page": 1,
+    "wording": "financed by the Prince George’s County Housing Investment Trust Fund",
+    "value": "$2,500,000 HITF loan"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require the Owner to make a mandatory annual payment to the County in an amount of no less than approximately one hundred seventy six thousand, eight hundred thirty dollars or one thousand, two hundred ninety one dollars per unit ($176,830 or $1,291 per unit) for the first year.",
+    "page": 1,
+    "wording": "PILOT will require the Owner to make a mandatory annual payment",
+    "value": "$176,830 or $1,291 per unit for the first year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment for these affordable units will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%)",
+    "value": "2% increase per year"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for forty (40) years, including the extended affordability period.",
+    "page": 1,
+    "wording": "remain in effect for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "When considering the financial effects of the PILOT, the County will be providing yearly operating support of approximately eighty two thousand, two hundred dollars ($82,200) to this affordable senior housing development.",
+    "page": 1,
+    "wording": "County will be providing yearly operating support of approximately",
+    "value": "$82,200 yearly operating support"
+   }
+  ]
+ },
+ "tokens_in": 1690,
+ "tokens_out": 930,
+ "cost_usd": 0.002832,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

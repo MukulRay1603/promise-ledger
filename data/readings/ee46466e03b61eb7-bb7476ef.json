@@ -1,0 +1,58 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "Letter regarding Holly Place PILOT Agreement",
+  "date": "2026-03-19",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "County Executive",
+    "quote": "Aisha N. Braveboy",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Project involves the new construction of a seventy two (72) unit affordable rental housing community for seniors earning sixty percent (60%) or below of the Area Median Income (\"AMI\"), located at 4500 Saint Barnabas Road, Temple Hills, Maryland 20748.",
+    "page": 1,
+    "wording": "seventy two (72) unit",
+    "value": "72 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Project involves the new construction of a seventy two (72) unit affordable rental housing community for seniors earning sixty percent (60%) or below of the Area Median Income (\"AMI\"), located at 4500 Saint Barnabas Road, Temple Hills, Maryland 20748.",
+    "page": 1,
+    "wording": "sixty percent (60%) or below of the Area Median Income",
+    "value": "60% or below AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require a mandatory annual payment in an amount of no less than approximately fifty two thousand, seven hundred eighteen dollars or seven hundred thirty two dollars per unit ($52,718 or $732 per unit) for the first year.",
+    "page": 1,
+    "wording": "PILOT will require a mandatory annual payment",
+    "value": "$52,718 or $732 per unit"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment for these affordable units will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%)",
+    "value": "2% annual increase"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for forty (40) years, including the extended affordability period.",
+    "page": 1,
+    "wording": "forty (40) years",
+    "value": "40 years"
+   }
+  ]
+ },
+ "tokens_in": 1662,
+ "tokens_out": 621,
+ "cost_usd": 0.002051,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

@@ -1,0 +1,44 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "PILOT Approval for Petra's The Promise Project",
+  "date": "2023-10-21",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Angela Alsobrooks",
+    "quote": "Angela Alsobrooks",
+    "page": 1
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Promise will consist of 841 residential units of all types, including age-restricted senior units, and over 100 affordable units at 65% of the Area Median Income (AMI).",
+    "page": 1,
+    "wording": "over 100 affordable units",
+    "value": "over 100 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Promise will consist of 841 residential units of all types, including age-restricted senior units, and over 100 affordable units at 65% of the Area Median Income (AMI).",
+    "page": 1,
+    "wording": "65% of the Area Median Income",
+    "value": "65% AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Enclosed for the County Council's consideration is a Resolution that seeks the County Council’s approval for a Payment in Lieu of Taxes (\"PILOT\") for Petra's \"The Promise\" project in Oxon Hill.",
+    "page": 1,
+    "wording": "approval for a Payment in Lieu of Taxes (\"PILOT\")",
+    "value": "PILOT"
+   }
+  ]
+ },
+ "tokens_in": 1243,
+ "tokens_out": 412,
+ "cost_usd": 0.001403,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

@@ -1,0 +1,128 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Resolution No. CR-117-2025, Payments in Lieu of Taxes (“PILOT”) Agreement for the Flats at Glenridge Station Project",
+  "date": "2025-11-17",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Edward P. Burroughs III\nChair",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct two hundred forty five (245) units of new affordable multi-family rental housing for low-income to moderate-income families, earning sixty percent (60%) and below of the Area Median Income (“AMI”), known as Flats at Glenridge Station, located at 7011 Chesapeake Road, Hyattsville, Maryland 20784, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "two hundred forty five (245) units",
+    "value": "245 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct two hundred forty five (245) units of new affordable multi-family rental housing for low-income to moderate-income families, earning sixty percent (60%) and below of the Area Median Income (“AMI”), known as Flats at Glenridge Station, located at 7011 Chesapeake Road, Hyattsville, Maryland 20784, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "earning sixty percent (60%) and below of the Area Median Income (“AMI”)",
+    "value": "60% and below AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "PROJECT DESCRIPTION: A two hundred forty five (245) unit affordable rental apartment community for families that will be constructed in Hyattsville, Maryland.",
+    "page": 4,
+    "wording": "A two hundred forty five (245) unit",
+    "value": "245 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "All units will be affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "rents will be restricted",
+    "value": "restricted rents for 40 years"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income (“AMI”) for forty (40) years",
+    "page": 4,
+    "wording": "All units will be priced at levels affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income (“AMI”) for forty (40) years",
+    "page": 4,
+    "wording": "earning sixty percent (60%) or less of the Area Median Income (“AMI”)",
+    "value": "60% or less AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income (“AMI”) for forty (40) years",
+    "page": 4,
+    "wording": "for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The Flats at Glenridge Station project (the “Project”) is a proposed six (6) story, two hundred forty five (245) unit, transit-oriented family affordable housing development to be located at 7011 Chesapeake Road, Hyattsville, Maryland 20784 and developed by Dominium Inc.",
+    "page": 5,
+    "wording": "two hundred forty five (245) unit",
+    "value": "245 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The target population will be families with household incomes at or below  sixty percent (60%) of the Area Median Income (“AMI”).",
+    "page": 5,
+    "wording": "at or below  sixty percent (60%) of the Area Median Income",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Of the two hundred forty five (245) units, twenty six (26) units will be set-aside for families earning no more than fifty percent (50%) AMI, with the remaining two hundred nineteen (219) units retained for families earning no more than sixty percent (60%) AMI.",
+    "page": 5,
+    "wording": "twenty six (26) units will be set-aside",
+    "value": "26 units at 50% AMI"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Of the two hundred forty five (245) units, twenty six (26) units will be set-aside for families earning no more than fifty percent (50%) AMI, with the remaining two hundred nineteen (219) units retained for families earning no more than sixty percent (60%) AMI.",
+    "page": 5,
+    "wording": "earning no more than fifty percent (50%) AMI",
+    "value": "50% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Of the two hundred forty five (245) units, twenty six (26) units will be set-aside for families earning no more than fifty percent (50%) AMI, with the remaining two hundred nineteen (219) units retained for families earning no more than sixty percent (60%) AMI.",
+    "page": 5,
+    "wording": "remaining two hundred nineteen (219) units",
+    "value": "219 units at 60% AMI"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Of the two hundred forty five (245) units, twenty six (26) units will be set-aside for families earning no more than fifty percent (50%) AMI, with the remaining two hundred nineteen (219) units retained for families earning no more than sixty percent (60%) AMI.",
+    "page": 5,
+    "wording": "earning no more than sixty percent (60%) AMI",
+    "value": "60% AMI"
+   }
+  ]
+ },
+ "tokens_in": 4660,
+ "tokens_out": 1862,
+ "cost_usd": 0.006053,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

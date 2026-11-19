@@ -1,0 +1,31 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "CR-042-2026",
+  "date": "2026-06-29",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Community Housing Initiative, Inc., is the owner of the project, and they propose to build a one hundred forty-five (145) unit affordable rental housing community for families earning sixty percent (60%) or below of the Area Median Income (\"AMI\"), located at 6203 Ager Road, Hyattsville, Maryland 20782.",
+    "page": 1,
+    "wording": "propose to build a one hundred forty-five (145) unit affordable rental housing community",
+    "value": "145 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Community Housing Initiative, Inc., is the owner of the project, and they propose to build a one hundred forty-five (145) unit affordable rental housing community for families earning sixty percent (60%) or below of the Area Median Income (\"AMI\"), located at 6203 Ager Road, Hyattsville, Maryland 20782.",
+    "page": 1,
+    "wording": "earning sixty percent (60%) or below of the Area Median Income",
+    "value": "60% or below of AMI"
+   }
+  ]
+ },
+ "tokens_in": 1478,
+ "tokens_out": 359,
+ "cost_usd": 0.001341,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

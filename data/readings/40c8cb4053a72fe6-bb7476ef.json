@@ -1,0 +1,16 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "other",
+  "title": "LEGISLATIVE COMMENT CR-48-2023",
+  "date": "2023-06-05",
+  "draft": false,
+  "signatures": [],
+  "candidates": []
+ },
+ "tokens_in": 1143,
+ "tokens_out": 67,
+ "cost_usd": 0.00051,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

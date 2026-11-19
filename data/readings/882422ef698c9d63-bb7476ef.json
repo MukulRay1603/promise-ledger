@@ -1,0 +1,126 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Resolution No. CR-036-2025 Payments in Lieu of Taxes (“PILOT”) Agreement for the Penn Place I Project",
+  "date": "2025-04-29",
+  "draft": true,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Edward P. Burroughs III",
+    "page": 3
+   },
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Donna J. Brown",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to construct one hundred sixty eight (168) units of new affordable multi-family rental housing for low-income to moderate-income families, earning sixty percent (60%) or below of the Area Median Income (“AMI”), known as Penn Place I, located at 5501 Penn Crossing Drive, District Heights, Maryland 20747, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "proposes to construct",
+    "value": "168 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "WHEREAS, the Owner proposes to construct one hundred sixty eight (168) units of new affordable multi-family rental housing for low-income to moderate-income families, earning sixty percent (60%) or below of the Area Median Income (“AMI”), known as Penn Place I, located at 5501 Penn Crossing Drive, District Heights, Maryland 20747, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "earning sixty percent (60%) or below of the Area Median Income",
+    "value": "60% or below of AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "(a)(2)(iv)(2) enters into an agreement with the governing body of Prince George’s County to allow the entire property or the portion of the property that was maintained for lower income persons to remain as housing for lower income persons for a term of at least 5 years; and",
+    "page": 2,
+    "wording": "for a term of at least 5 years",
+    "value": "at least 5 years"
+   },
+   {
+    "topic": "units",
+    "quote": "A one hundred sixty eight (168) unit rental apartment community for families will be constructed in four elevator buildings on a 7.54-acre site in District Heights, Maryland.",
+    "page": 4,
+    "wording": "one hundred sixty eight (168) unit",
+    "value": "168 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "All units will be affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "restricted for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "rents will be restricted",
+    "value": "restricted for 40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income (AMI) for forty (40) years.",
+    "page": 4,
+    "wording": "All units will be priced",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income (AMI) for forty (40) years.",
+    "page": 4,
+    "wording": "earning sixty percent (60%) or less of the Area Median Income",
+    "value": "60% or less of AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income (AMI) for forty (40) years.",
+    "page": 4,
+    "wording": "for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "A minimum of up to forty three (43) units will be at fifty percent (50%) AMI and one hundred twenty five (125) units will be at sixty percent (60%) AMI.",
+    "page": 4,
+    "wording": "A minimum of up to forty three (43) units... and one hundred twenty five (125) units",
+    "value": "43 units at 50% AMI and 125 units at 60% AMI"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "A minimum of up to forty three (43) units will be at fifty percent (50%) AMI and one hundred twenty five (125) units will be at sixty percent (60%) AMI.",
+    "page": 4,
+    "wording": "at fifty percent (50%) AMI... at sixty percent (60%) AMI",
+    "value": "50% and 60% of AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "The Project is a proposed one hundred sixty eight (168) unit transit-oriented family affordable housing development to be newly constructed on a 7.54-acre parcel, located at 5501 Penn Crossing Drive in District Heights.",
+    "page": 5,
+    "wording": "one hundred sixty eight (168) unit",
+    "value": "168 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The target population will be families earning no more than sixty percent (60%) of the Area Median Income (“AMI”).",
+    "page": 5,
+    "wording": "earning no more than sixty percent (60%) of the Area Median Income",
+    "value": "60% AMI"
+   }
+  ]
+ },
+ "tokens_in": 4822,
+ "tokens_out": 1708,
+ "cost_usd": 0.005717,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

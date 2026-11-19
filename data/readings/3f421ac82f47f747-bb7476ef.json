@@ -1,0 +1,114 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Resolution No. CR-044-2023",
+  "date": "2023-06-20",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Thomas E. Dernoga\nChair",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct one hundred ninety three (193) units of multi-family rental housing for low-income to moderate-income residents, known as Park Place at Addison Road, on a 3.70 acre parcel located at 6301 Central Avenue, 212 Zelma Avenue, and 109 Addison Road, Capitol Heights, Maryland 20743, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (\"Property\"); and",
+    "page": 1,
+    "wording": "one hundred ninety three (193) units",
+    "value": "193 units"
+   },
+   {
+    "topic": "units",
+    "quote": "Ownership proposes to restrict rents for one hundred percent (100%) of units to households with incomes below seventy percent (70%) of Area Median Income (AMI) for at least forty (40) years.",
+    "page": 4,
+    "wording": "one hundred percent (100%) of units",
+    "value": "100% of units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Ownership proposes to restrict rents for one hundred percent (100%) of units to households with incomes below seventy percent (70%) of Area Median Income (AMI) for at least forty (40) years.",
+    "page": 4,
+    "wording": "incomes below seventy percent (70%) of Area Median Income (AMI)",
+    "value": "below 70% of AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "Ownership proposes to restrict rents for one hundred percent (100%) of units to households with incomes below seventy percent (70%) of Area Median Income (AMI) for at least forty (40) years.",
+    "page": 4,
+    "wording": "restrict rents",
+    "value": "restricted to households below 70% AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "Ownership proposes to restrict rents for one hundred percent (100%) of units to households with incomes below seventy percent (70%) of Area Median Income (AMI) for at least forty (40) years.",
+    "page": 4,
+    "wording": "for at least forty (40) years",
+    "value": "at least 40 years"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "WHEREAS, there is a significant need in the County for quality housing units for persons with limited income; and",
+    "page": 1,
+    "wording": "Owner",
+    "value": "Banneker Ventures, LLC"
+   },
+   {
+    "topic": "public_support",
+    "quote": "WHEREAS, the Owner has requested that the County Council of Prince George’s County, Maryland, (the “County Council”) authorize the Owner to make payments in lieu of County real property taxes pursuant to Section 7-506.3 of the Tax-Property Article of the Annotated Code of Maryland, as amended; and",
+    "page": 1,
+    "wording": "payments in lieu of County real property taxes",
+    "value": "PILOT"
+   },
+   {
+    "topic": "units",
+    "quote": "Banneker Ventures, LLC (the “Developer”) propose to restrict rent levels for one hundred ninety three (193) rental units at Park Place at Addison Road (the “Project”) to serve households with incomes at or below seventy percent (70%) of the Area Median Income (“AMI”) for a period of at least forty (40) years.",
+    "page": 5,
+    "wording": "propose to restrict rent levels for one hundred ninety three (193) rental units",
+    "value": "193 units"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "Banneker Ventures, LLC (the “Developer”) propose to restrict rent levels for one hundred ninety three (193) rental units at Park Place at Addison Road (the “Project”) to serve households with incomes at or below seventy percent (70%) of the Area Median Income (“AMI”) for a period of at least forty (40) years.",
+    "page": 5,
+    "wording": "propose to restrict rent levels",
+    "value": "restrict rent levels"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Banneker Ventures, LLC (the “Developer”) propose to restrict rent levels for one hundred ninety three (193) rental units at Park Place at Addison Road (the “Project”) to serve households with incomes at or below seventy percent (70%) of the Area Median Income (“AMI”) for a period of at least forty (40) years.",
+    "page": 5,
+    "wording": "at or below seventy percent (70%) of the Area Median Income",
+    "value": "70% AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "Banneker Ventures, LLC (the “Developer”) propose to restrict rent levels for one hundred ninety three (193) rental units at Park Place at Addison Road (the “Project”) to serve households with incomes at or below seventy percent (70%) of the Area Median Income (“AMI”) for a period of at least forty (40) years.",
+    "page": 5,
+    "wording": "for a period of at least forty (40) years",
+    "value": "at least 40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The Project is a proposed one hundred ninety three (193) unit family affordable housing development to be newly constructed on a 3.70 acre parcel at 6301 Central Avenue, 212 Zelma Avenue and 109 Addison Road in Capitol Heights.",
+    "page": 5,
+    "wording": "one hundred ninety three (193) unit family affordable housing development",
+    "value": "193 units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Developer is applying for a Prince George’s County Housing Investment Trust Fund (“HITF”) in the amount of three million, five hundred thousand dollars ($3,500,000) and a Payment in Lieu of Taxes (“PILOT”) Agreement since both the loan funds and PILOT subsidy will allow one hundred percent (100%) of the Project’s units to be income - and rent-restricted and ensure the Project is able to adequately service its debt and equity capital.",
+    "page": 6,
+    "wording": "Payment in Lieu of Taxes (“PILOT”) Agreement",
+    "value": "PILOT agreement and HITF loan"
+   }
+  ]
+ },
+ "tokens_in": 5297,
+ "tokens_out": 1782,
+ "cost_usd": 0.006044,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

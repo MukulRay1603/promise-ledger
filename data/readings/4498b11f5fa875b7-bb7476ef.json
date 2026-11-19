@@ -1,0 +1,101 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "Addison Park Subcommittee Presentation",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "The affordable multifamily buildings are being funded with County HITF and a PILOT",
+    "page": 4,
+    "wording": "being funded with",
+    "value": "HITF and a PILOT"
+   },
+   {
+    "topic": "units",
+    "quote": "2 mid-rise apartment buildings with 293 newly constructed affordable units",
+    "page": 4,
+    "wording": "293 newly constructed affordable units",
+    "value": "293 units"
+   },
+   {
+    "topic": "units",
+    "quote": "16 543 - 813 50% $1,371",
+    "page": 5,
+    "wording": "16",
+    "value": "16 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "16 543 - 813 50% $1,371",
+    "page": 5,
+    "wording": "50%",
+    "value": "50% AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "16 543 - 813 50% $1,371",
+    "page": 5,
+    "wording": "$1,371",
+    "value": "$1,371"
+   },
+   {
+    "topic": "units",
+    "quote": "262 543 - 813 60% $1,645",
+    "page": 5,
+    "wording": "262",
+    "value": "262 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "262 543 - 813 60% $1,645",
+    "page": 5,
+    "wording": "60%",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "262 543 - 813 60% $1,645",
+    "page": 5,
+    "wording": "$1,645",
+    "value": "$1,645"
+   },
+   {
+    "topic": "units",
+    "quote": "15 1020 - 1114 60% $1,974",
+    "page": 5,
+    "wording": "15",
+    "value": "15 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "15 1020 - 1114 60% $1,974",
+    "page": 5,
+    "wording": "60%",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "15 1020 - 1114 60% $1,974",
+    "page": 5,
+    "wording": "$1,974",
+    "value": "$1,974"
+   },
+   {
+    "topic": "units",
+    "quote": "Total 293",
+    "page": 5,
+    "wording": "Total 293",
+    "value": "293 units"
+   }
+  ]
+ },
+ "tokens_in": 3065,
+ "tokens_out": 970,
+ "cost_usd": 0.003344,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

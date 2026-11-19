@@ -1,0 +1,164 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "agreement",
+  "title": "PAYMENTS IN LIEU OF TAXES AGREEMENT",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "income_basis",
+    "quote": "Eligible Households: Households earning at or below 60% AMI",
+    "page": 1,
+    "wording": "Households earning at or below 60% AMI",
+    "value": "Households earning at or below 60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Total Number of Units: 175",
+    "page": 1,
+    "wording": "Total Number of Units: 175",
+    "value": "175"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Affordable Units: 175",
+    "page": 1,
+    "wording": "Number of Affordable Units: 175",
+    "value": "175"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Market Rate Units: 0",
+    "page": 1,
+    "wording": "Number of Market Rate Units: 0",
+    "value": "0"
+   },
+   {
+    "topic": "public_support",
+    "quote": "$102,931 per year or $588 per affordable unit per year.",
+    "page": 1,
+    "wording": "$102,931 per year or $588 per affordable unit per year",
+    "value": "$102,931 per year or $588 per affordable unit per year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The payment will escalate annually by an amount equal to the Annual Rate.",
+    "page": 1,
+    "wording": "escalate annually by an amount equal to the Annual Rate",
+    "value": "2% per year"
+   },
+   {
+    "topic": "term",
+    "quote": "Term (in years): 30 years",
+    "page": 1,
+    "wording": "30 years",
+    "value": "30 years"
+   },
+   {
+    "topic": "term",
+    "quote": "Long Term Affordability Covenant by Owner in favor of the County of even date hereof.",
+    "page": 2,
+    "wording": "Long Term Affordability Covenant",
+    "value": "Long term"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner has or will contract to construct or rehabilitate the Project to provide housing to Eligible Households as set forth in the Owner’s Application for a PILOT.",
+    "page": 2,
+    "wording": "provide housing to Eligible Households",
+    "value": "Eligible Households"
+   },
+   {
+    "topic": "term",
+    "quote": "(3) the owner of the real property agrees to (A) continue to commence or continue to maintain the real property as rental housing for lower income persons under the requirements of the governmental programs described in item (2) of this paragraph and agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement or (B) enters into an agreement with the governing body of the county to allow the entire property or the portion of the property which was maintained for lower income persons to remain as housing for lower income persons for a term of at least five years; and",
+    "page": 3,
+    "wording": "term of at least five years",
+    "value": "at least five years"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "“Affordability Covenants” means the covenants executed and recorded on the Property, in a form acceptable to the County, that require the Owner and all subsequent owners of the Property to offer for rent at least the Affordable Units to Eligible Households.",
+    "page": 3,
+    "wording": "Owner and all subsequent owners of the Property",
+    "value": "Owner and all subsequent owners"
+   },
+   {
+    "topic": "units",
+    "quote": "“Affordable Units” mean those rental units in the Project that will be dedicated to the Eligible Households.",
+    "page": 3,
+    "wording": "dedication of rental units to the Eligible Households",
+    "value": "Affordable Units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "“Eligible Households” mean the households as described in the Project Facts Section that are eligible to reside in the Project and whose initial annual income is sixty percent (60%) or less of the median income as set from time to time by the United States Department of Housing and Urban Development for Section 8 Programs in the Baltimore Metropolitan Statistical Area.",
+    "page": 4,
+    "wording": "initial annual income is sixty percent (60%) or less of the median income",
+    "value": "60% or less of median income"
+   },
+   {
+    "topic": "term",
+    "quote": "“Term” means that period of time equal to the number of full tax years set forth in the Project Facts Section which commences on the Substantial Completion Date and expiring on the last day of such period.",
+    "page": 5,
+    "wording": "Term means",
+    "value": "number of full tax years in Project Facts Section"
+   },
+   {
+    "topic": "public_support",
+    "quote": "This Agreement shall become effective as of the Effective Date and the obligation to pay negotiated payments in lieu of taxes for the Project shall commence as of the Substantial Completion Date and shall remain effective until the Termination Date.",
+    "page": 5,
+    "wording": "negotiated payments in lieu of taxes",
+    "value": "PILOT from Substantial Completion Date to Termination Date"
+   },
+   {
+    "topic": "public_support",
+    "quote": "During that period commencing with the Substantial Completion Date until the Termination Date, the Project shall be exempt from paying full Prince George’s County real property taxes.",
+    "page": 6,
+    "wording": "exempt from paying full Prince George’s County real property taxes",
+    "value": "Exempt from full county real property taxes"
+   },
+   {
+    "topic": "units",
+    "quote": "If the Project consist entirely of Affordable Units, then the Annual Payment shall consist of the Affordable Unit Annual Payment.",
+    "page": 6,
+    "wording": "If the Project consist entirely of Affordable Units",
+    "value": "entirely Affordable Units"
+   },
+   {
+    "topic": "units",
+    "quote": "If the Project consist of both Affordable Units and Market Rate Units, the Annual Payment shall consist of the Affordable Unit Annual Payment plus the Market Rate Unit Annual Payment.",
+    "page": 6,
+    "wording": "both Affordable Units and Market Rate Units",
+    "value": "Affordable Units and Market Rate Units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Owner agrees to maintain the Property as rental housing for lower income persons under the requirements a federal, State, or local government program and the Owner agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement.",
+    "page": 8,
+    "wording": "rental housing for lower income persons",
+    "value": "lower income persons"
+   },
+   {
+    "topic": "reporting",
+    "quote": "Owner shall submit to the County’s Director of Finance and the County’s Director of the Department of Housing and Community Development, within five (5) business days after execution by Owner, the following documents: entity agreements, including but not limited to , the Operating Agreement or Limited Partnership Agreement , the Affordability Covenants, and any other agreement or documents deemed necessary for submission to the County.",
+    "page": 8,
+    "wording": "Owner shall submit",
+    "value": "entity agreements and Affordability Covenants within 5 business days"
+   },
+   {
+    "topic": "reporting",
+    "quote": "If requested by the County, t he Owner shall provide a copy of the Certificate of Substantial Completion to the County’s Director of Finance and the Director of the Department of Housing and Community Development within five (5) business days after issuance.",
+    "page": 8,
+    "wording": "Owner shall provide a copy",
+    "value": "Certificate of Substantial Completion within 5 business days if requested"
+   }
+  ]
+ },
+ "tokens_in": 8899,
+ "tokens_out": 2120,
+ "cost_usd": 0.00797,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

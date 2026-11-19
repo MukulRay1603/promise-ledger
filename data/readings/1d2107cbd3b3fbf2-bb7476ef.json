@@ -1,0 +1,87 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "The Herman Apartments",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "145-unit family apartment building with 100% of units reserved for families making 60% or less of Area Median Income.",
+    "page": 2,
+    "wording": "100% of units reserved",
+    "value": "145 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "145-unit family apartment building with 100% of units reserved for families making 60% or less of Area Median Income.",
+    "page": 2,
+    "wording": "making 60% or less of Area Median Income",
+    "value": "60% or less of Area Median Income"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The development team has requested a Pilot deferral of $600/Unit per year totaling $87,000 in Year 1 and $2,500,000 HIFT Loan.",
+    "page": 2,
+    "wording": "requested a Pilot deferral",
+    "value": "Pilot deferral of $600/Unit per year and $2,500,000 HIFT Loan"
+   },
+   {
+    "topic": "units",
+    "quote": "Unit Mix – 145 Affordable Units",
+    "page": 5,
+    "wording": "145 Affordable Units",
+    "value": "145 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "1 Bedroom – 60% AMI 64 $1,631 669 SF",
+    "page": 5,
+    "wording": "60% AMI",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "1 Bedroom – 60% AMI 64 $1,631 669 SF",
+    "page": 5,
+    "wording": "$1,631",
+    "value": "$1,631 monthly rent"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "2 Bedroom – 60% AMI 76 $1,932 937 SF",
+    "page": 5,
+    "wording": "60% AMI",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "2 Bedroom – 60% AMI 76 $1,932 937 SF",
+    "page": 5,
+    "wording": "$1,932",
+    "value": "$1,932 monthly rent"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "3 Bedroom – 60% AMI 5 $2,285 1,186 SF",
+    "page": 5,
+    "wording": "60% AMI",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "3 Bedroom – 60% AMI 5 $2,285 1,186 SF",
+    "page": 5,
+    "wording": "$2,285",
+    "value": "$2,285 monthly rent"
+   }
+  ]
+ },
+ "tokens_in": 2797,
+ "tokens_out": 938,
+ "cost_usd": 0.003184,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

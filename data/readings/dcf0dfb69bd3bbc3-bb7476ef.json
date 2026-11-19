@@ -1,0 +1,290 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "agreement",
+  "title": "PAYMENTS IN LIEU OF TAXES AGREEMENT",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "income_basis",
+    "quote": "Households earning 60% or less of the Area Median Income (“AMI”)",
+    "page": 1,
+    "wording": "Households earning 60% or less of the Area Median Income",
+    "value": "60% or less of AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Total Number of Units: \n \n94",
+    "page": 1,
+    "wording": "Total Number of Units",
+    "value": "94"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Affordable Units: \n \n57",
+    "page": 1,
+    "wording": "Number of Affordable Units",
+    "value": "57"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Market Rate Units: \n \n37",
+    "page": 1,
+    "wording": "Number of Market Rate Units",
+    "value": "37"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Affordable Unit Annual Payment \n(applies when there are Market Rate \nUnits in the Project) \n \n \n$300 per affordable unit",
+    "page": 1,
+    "wording": "$300 per affordable unit",
+    "value": "$300 per affordable unit"
+   },
+   {
+    "topic": "term",
+    "quote": "15 years (insert specific dates upon approval)",
+    "page": 2,
+    "wording": "15 years",
+    "value": "15 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner has or will acquire the Property located in Prince George’s County, Maryland \nfor the purpose of constructing or rehabilitating the Project to provide housing to Eligible Households.",
+    "page": 3,
+    "wording": "provide housing to Eligible Households",
+    "value": "Eligible Households"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner has or will contract to construct or rehabilitate the Project to provide housing \nto Eligible Households as set forth in the Owner’s Application for a PILOT.",
+    "page": 3,
+    "wording": "provide housing to Eligible Households",
+    "value": "Eligible Households"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "(3) the owner of the real property agrees to (A) continue to commence or continue to \nmaintain the real property as rental housing  for lower income persons under the requirements of the \ngovernmental programs described in item (2) of this paragraph and agrees to renew any annual \ncontributions contract or other agreement for rental subsidy or supplement or (B) enters into an agreement \nwith the governing body of the county to allow the entire property or the portion of the property which was \nmaintained for lower income persons to remain as housing for lower income persons for a term of at least \nfive years; and",
+    "page": 3,
+    "wording": "maintain the real property as rental housing  for lower income persons",
+    "value": "lower income persons"
+   },
+   {
+    "topic": "term",
+    "quote": "with the governing body of the county to allow the entire property or the portion of the property which was \nmaintained for lower income persons to remain as housing for lower income persons for a term of at least \nfive years; and",
+    "page": 3,
+    "wording": "for a term of at least \nfive years",
+    "value": "at least five years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "F. Pursuant to the County Resolution , the County Council of Prince George’s County, \nMaryland, approved the County entering into an agreement PILOT for the Property and authorized the \nCounty to enter into this agreement for negotiated payments in lieu of the payment of Prince George’s \nCounty taxes for the Project.",
+    "page": 3,
+    "wording": "approved the County entering into an agreement PILOT",
+    "value": "PILOT"
+   },
+   {
+    "topic": "units",
+    "quote": "“Affordable Units” mean those rental units in the Project that will be dedicated to the \nEligible Households.",
+    "page": 4,
+    "wording": "rental units in the Project that will be dedicated to the \nEligible Households",
+    "value": "rental units dedicated to Eligible Households"
+   },
+   {
+    "topic": "public_support",
+    "quote": "“Affordable Unit Annual Payment” means the amount set forth in the Project Facts \nSection that represents the amount the Owner shall pay in lieu of taxes in accordance with \nthis Agreement for the Affordable Units.",
+    "page": 4,
+    "wording": "amount the Owner shall pay in lieu of taxes",
+    "value": "Affordable Unit Annual Payment"
+   },
+   {
+    "topic": "public_support",
+    "quote": "“Annual Payment” means the amount or formula set forth in the Project Facts Section that \nrepresents the amount that the Owner shall pay in lieu of taxes in accordance with \nthis Agreement for a tax year .",
+    "page": 4,
+    "wording": "amount that the Owner shall pay in lieu of taxes",
+    "value": "Annual Payment"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "“Eligible Households” mean the households as described in the Project Facts Section that are eligible to reside in the Project and whose initial annual income is eight percent (80%) or less of the median income as set from time to time by the United States Department of Housing and Urban Development for Section 8 Programs in the Baltimore Metropolitan Statistical Area.",
+    "page": 5,
+    "wording": "initial annual income is eight percent (80%) or less of the median income",
+    "value": "80% or less of median income"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "“Low Income Covenants” means the covenants executed and recorded on the Property, in a form acceptable to the County, that require the Owner and all subsequent owners of the Property to offer for rent at least the Affordable Units to Eligible Households.",
+    "page": 5,
+    "wording": "require the Owner and all subsequent owners of the Property",
+    "value": "Owner and subsequent owners"
+   },
+   {
+    "topic": "units",
+    "quote": "“Market Rate Units” means those rental units in the Project that are anticipated to be unrestricted and leased at market rate.",
+    "page": 5,
+    "wording": "Market Rate Units",
+    "value": "Unrestricted rental units"
+   },
+   {
+    "topic": "term",
+    "quote": "“Term” means that period of time equal to the number of full tax years set forth in the Project Facts Section which commences on the Substantial Completion Date and expiring on the last day of such period.",
+    "page": 6,
+    "wording": "commences on the Substantial Completion Date and expiring on the last day of such period",
+    "value": "Number of full tax years in Project Facts Section"
+   },
+   {
+    "topic": "units",
+    "quote": "“Total Units” means the total number of rental units in the Project as set forth in the Project Facts Section.",
+    "page": 6,
+    "wording": "Total Units",
+    "value": "Total rental units in project"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The payments to be made by the Owner to the County, provided for herein with respect to the Project, shall be in lieu of the payment of Prince George’s County taxes on real property under the Tax-Property Article of the Annotated Code of Maryland, as amended.",
+    "page": 6,
+    "wording": "in lieu of the payment of Prince George’s County taxes on real property",
+    "value": "PILOT"
+   },
+   {
+    "topic": "units",
+    "quote": "(i) the Project is owned and used for the provision of rental housing and related Service Facilities, including parking facilities, on a limited distribution basis, to Eligible Households and pursuant to the Low Income Covenants; (ii) the Owner complies in all other respects with the requirements of the Act, and (iii) the Owner complies with all of its obligations under this Agreement.",
+    "page": 6,
+    "wording": "provision of rental housing and related Service Facilities... to Eligible Households",
+    "value": "Rental housing for Eligible Households"
+   },
+   {
+    "topic": "public_support",
+    "quote": "3. Maximum Payments; Other Taxes and Fees.  The intention of this Agreement is that any payments made in lieu of taxes pursuant to this Agreement shall at no time exceed the amount of County real property taxes which would have been paid for the tax year to which the payment applies if the Project were not exempt from taxation .",
+    "page": 6,
+    "wording": "payments made in lieu of taxes pursuant to this Agreement shall at no time exceed the amount of County real property taxes",
+    "value": "PILOT capped at regular tax amount"
+   },
+   {
+    "topic": "term",
+    "quote": "5. Commencement of Exemption.  During that period commencing with the Substantial Completion Date until the Termination Date, the Project shall be exempt from paying full Prince George’s County real property taxes.",
+    "page": 6,
+    "wording": "commencing with the Substantial Completion Date until the Termination Date",
+    "value": "From Substantial Completion Date to Termination Date"
+   },
+   {
+    "topic": "units",
+    "quote": "If the Project consist entirely of Affordable Units, then the Annual Payment shall consist of the Affordable Unit Annual Payment.",
+    "page": 7,
+    "wording": "If the Project consist entirely of Affordable Units",
+    "value": "All units affordable"
+   },
+   {
+    "topic": "units",
+    "quote": "If the Project consist of both Affordable Units and Market Rate Units, the Annual Payment shall consist of the Affordable Unit Annual Payment plus the Market Rate Unit Annual Payment.",
+    "page": 7,
+    "wording": "If the Project consist of both Affordable Units and Market Rate Units",
+    "value": "Mixed affordable and market rate units"
+   },
+   {
+    "topic": "remedies",
+    "quote": "(d) Deferred Amount .  The Deferred Amount shall be due and payable on the refinance, sale or transfer of the Property if the Project ceases to be used in whole or part for the purpose set forth in this Agreement prior to the Termination Date, unless prior written consent of the  County is obtained.",
+    "page": 7,
+    "wording": "Deferred Amount shall be due and payable on the refinance, sale or transfer",
+    "value": "Deferred amount due upon unauthorized transfer or change in use"
+   },
+   {
+    "topic": "remedies",
+    "quote": "Notwithstanding the foregoing , this Agreement will continue to be in effect if a subsequent purchaser obtains ownership of the Project through a foreclosure, deed in lieu of foreclosure, or similar proceeding and if the subsequent owner is (a) in compliance with the requirements of (i) the Act, (ii) the Low Income Covenants, and (iii) this Agreement and (b) executes its own Agreement with the County containing the same terms and conditions as set forth in this Agreement, for a term equal to the term remaining in the  Agreement.",
+    "page": 7,
+    "wording": "Agreement will continue to be in effect if a subsequent purchaser obtains ownership... and executes its own Agreement",
+    "value": "Agreement survives foreclosure under specific compliance conditions"
+   },
+   {
+    "topic": "remedies",
+    "quote": "However, if the Low Income Covenants is terminated, this PILOT will also terminate.",
+    "page": 7,
+    "wording": "if the Low Income Covenants is terminated, this PILOT will also terminate",
+    "value": "PILOT terminates if low income covenants terminate"
+   },
+   {
+    "topic": "remedies",
+    "quote": "7. Termination of Agreement.  This Agreement shall terminate upon the occurrence of any of the following events, and upon termination all payments then due under this Agreement, shall be paid to the County within sixty (60) calendar days thereof.",
+    "page": 7,
+    "wording": "This Agreement shall terminate upon the occurrence of any of the following events",
+    "value": "Termination upon default events"
+   },
+   {
+    "topic": "remedies",
+    "quote": "(a) The Property shall cease to be owned by the Owner;",
+    "page": 7,
+    "wording": "Property shall cease to be owned by the Owner",
+    "value": "Termination on change of ownership"
+   },
+   {
+    "topic": "remedies",
+    "quote": "(b) An event of default, as defined within the Low Income Covenants , has been declared by the benef iciary of the Low Income Covenants  and remains uncured by the Owner or its successor within sixty (60) days;",
+    "page": 7,
+    "wording": "event of default... remains uncured by the Owner or its successor within sixty (60) days",
+    "value": "60-day cure period for covenant default"
+   },
+   {
+    "topic": "remedies",
+    "quote": "(c) The Owner, the Property or the Project shall cease to comply with the conditions of the Act;",
+    "page": 7,
+    "wording": "cease to comply with the conditions of the Act",
+    "value": "Termination for non-compliance with Act"
+   },
+   {
+    "topic": "remedies",
+    "quote": "(d) The Owner shall fail to make any payment hereby required as and when due, which failure continues for ten (10) business days following Owner’s receipt from the County of notice of such  payment failure;",
+    "page": 8,
+    "wording": "fail to make any payment... continues for ten (10) business days following... notice",
+    "value": "10-day notice and cure for payment failure"
+   },
+   {
+    "topic": "remedies",
+    "quote": "(e) The Owner shall fail to deliver the annual financial statement required hereunder, which failure continues for thirty (30) days following Owner’s receipt from the County of notice of such payment failure;",
+    "page": 8,
+    "wording": "fail to deliver the annual financial statement... continues for thirty (30) days following... notice",
+    "value": "30-day notice and cure for financial statement failure"
+   },
+   {
+    "topic": "remedies",
+    "quote": "(f) The Owner shall elect to terminate this Agreement by providing written notice to the County.",
+    "page": 8,
+    "wording": "Owner shall elect to terminate this Agreement by providing written notice",
+    "value": "Termination by owner notice"
+   },
+   {
+    "topic": "remedies",
+    "quote": "If within ten (10) business days of such notice, any payments that are owed have not been brought current by the Owner  or a Person listed on Exhibit B on the Owner’s behalf , then the County may declare all taxes, which shall include the Deferred Amount, due.",
+    "page": 8,
+    "wording": "within ten (10) business days of such notice, any payments... not been brought current... County may declare all taxes... due",
+    "value": "10 days to cure payment default before taxes declared due"
+   },
+   {
+    "topic": "reporting",
+    "quote": "(a) By March 31 of each tax year, the Owner shall submit to the County’s Director of Finance and the County’s Director of the Department of Housing and Community Development audited financial statements which shall include any information as may be required by the Director of Finance to administer this Agreement.",
+    "page": 8,
+    "wording": "By March 31 of each tax year, the Owner shall submit... audited financial statements",
+    "value": "Annual audited financial statements due by March 31"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "12. Agreement to Maintain Housing for Lower Income Persons.",
+    "page": 9,
+    "wording": "lower income persons",
+    "value": "lower income persons"
+   },
+   {
+    "topic": "term",
+    "quote": "[Owner agrees to enter into an agreement with the County , with terms and conditions that are subject to the County’s sole satisfaction, to allow the Property to remain as housing for lower income persons for a term of at least 5 years].",
+    "page": 9,
+    "wording": "at least 5 years",
+    "value": "at least 5 years"
+   }
+  ]
+ },
+ "tokens_in": 8785,
+ "tokens_out": 4158,
+ "cost_usd": 0.013031,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

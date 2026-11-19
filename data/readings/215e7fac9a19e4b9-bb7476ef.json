@@ -1,0 +1,115 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Policy Analysis and Fiscal Impact Statement CR-020-2024, Payment in Lieu of Taxes (“PILOT”) – Agreement for the Cassidy Project",
+  "date": "2024-04-22",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "Revenues: Forgone tax revenues totaling approximately $8,456,278 over a 40 -year period.",
+    "page": 2,
+    "wording": "Forgone tax revenues",
+    "value": "$8,456,278 over 40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 2,
+    "wording": "All units will be affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 2,
+    "wording": "restricted for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "term",
+    "quote": "Duration: At least 40 years",
+    "page": 2,
+    "wording": "At least 40 years",
+    "value": "At least 40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Under the propos ed agreement, for at least a 40-year term, KCG Development and Streetscape at Capitol Heights (the “Developer”) will construct 175 units for family households whose incomes are at or below 60% of the Area Median Income (“AMI”) .",
+    "page": 3,
+    "wording": "construct 175 units",
+    "value": "175 units"
+   },
+   {
+    "topic": "term",
+    "quote": "Under the propos ed agreement, for at least a 40-year term, KCG Development and Streetscape at Capitol Heights (the “Developer”) will construct 175 units for family households whose incomes are at or below 60% of the Area Median Income (“AMI”) .",
+    "page": 3,
+    "wording": "for at least a 40-year term",
+    "value": "at least 40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Under the propos ed agreement, for at least a 40-year term, KCG Development and Streetscape at Capitol Heights (the “Developer”) will construct 175 units for family households whose incomes are at or below 60% of the Area Median Income (“AMI”) .",
+    "page": 3,
+    "wording": "incomes are at or below 60% of the Area Median Income",
+    "value": "at or below 60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Three (3) units will be reserved for HOME-ARP to households earning no more",
+    "page": 3,
+    "wording": "Three (3) units will be reserved",
+    "value": "3 units"
+   },
+   {
+    "topic": "units",
+    "quote": "Additionally, 5% of the units will be ADA accessible, and 2% will be adaptable for residents with audio, visual, or hearing needs.",
+    "page": 4,
+    "wording": "5% of the units will be ADA accessible",
+    "value": "5% ADA accessible"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The 40-year value of the County PILOT is approximately $8,456,2785.",
+    "page": 4,
+    "wording": "value of the County PILOT",
+    "value": "$8,456,278 over 40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The PILOT reduces the aggregate tax burden on the entire 175-unit Project to 52.62% of that amount, or approximately $102,931, equivalent to $588 per unit tax burden on the 175 affordable units.",
+    "page": 4,
+    "wording": "175-unit Project",
+    "value": "175 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Based on the Washington- Arlington-Alexandria-DC-VA-MD-WV Metro Area regional guidelines, this project includes 175 affordable housing units at 60% or less than AMI.",
+    "page": 5,
+    "wording": "at 60% or less than AMI",
+    "value": "60% or less than AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "As described above, accepting the PILOT on the entire Project will result in a loss of approximately $140,000 in the first year of the term.",
+    "page": 5,
+    "wording": "accepting the PILOT",
+    "value": "PILOT for the project"
+   },
+   {
+    "topic": "term",
+    "quote": "Factoring in the 2% estimated average annual increase in the property tax assessment, the total impact is estimated at $8,456,278, forgoing 57.62% of the tax revenue cumulatively over the 40-year period that the PILOT agreement remains in effect.",
+    "page": 5,
+    "wording": "40-year period",
+    "value": "40 years"
+   }
+  ]
+ },
+ "tokens_in": 4966,
+ "tokens_out": 1490,
+ "cost_usd": 0.005215,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

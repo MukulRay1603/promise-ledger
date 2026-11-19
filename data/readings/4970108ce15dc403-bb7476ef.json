@@ -1,0 +1,31 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (\"PILOT\") AGREEMENT FOR PARK PLACE AT ADDISON ROAD APARTMENTS",
+  "date": "2023-06-13",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR PARK PLACE AT ADDISON ROAD APARTMENTS for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Banneker Ventures, LLC (the “Owner”).",
+    "page": 1,
+    "wording": "Payments in Lieu of Taxes (\"PILOT\") Agreement",
+    "value": "PILOT agreement"
+   },
+   {
+    "topic": "public_support",
+    "quote": "This Resolution is approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Banneker Ventures, LLC (the “Owner”) concerning the Park Place at Addison Road project.",
+    "page": 2,
+    "wording": "approving the terms and conditions of a Payments in Lieu of Taxes (\"PILOT\") Agreement",
+    "value": "PILOT agreement"
+   }
+  ]
+ },
+ "tokens_in": 1626,
+ "tokens_out": 346,
+ "cost_usd": 0.001353,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

@@ -1,0 +1,45 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "PRINCE GEORGE'S COUNTY COUNCIL COMMITTEE REPORT Reference No.: CR-118-2025",
+  "date": "2025-11-13",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Council staff provided an overview of the legislation and the project, which involves the acquisition and rehabilitation of a 304-unit, affordable rental community for low and moderate-income households earning 70% or below the Area Median Income.",
+    "page": 1,
+    "wording": "involves the acquisition and rehabilitation of a 304-unit",
+    "value": "304 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Council staff provided an overview of the legislation and the project, which involves the acquisition and rehabilitation of a 304-unit, affordable rental community for low and moderate-income households earning 70% or below the Area Median Income.",
+    "page": 1,
+    "wording": "earning 70% or below the Area Median Income",
+    "value": "70% or below AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "Factoring in the estimated 2% average annual increase in property tax assessments, the total impact is estimated at $22,038,441, resulting in a cumulative forgoing of 75.6% of the tax revenue over the 40-year period that the PILOT agreement remains in effect.",
+    "page": 1,
+    "wording": "over the 40-year period",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Accepting the PILOT on the entire Project will result in a loss of approximately $482,511 in the first year of the term.",
+    "page": 1,
+    "wording": "Accepting the PILOT",
+    "value": "PILOT agreement"
+   }
+  ]
+ },
+ "tokens_in": 1677,
+ "tokens_out": 514,
+ "cost_usd": 0.001788,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

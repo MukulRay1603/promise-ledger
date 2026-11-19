@@ -1,0 +1,59 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "PRINCE GEORGE'S COUNTY COUNCIL COMMITTEE REPORT CR-048-2023",
+  "date": "2023-06-13",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Project is a ninety-four (94) unit garden-style apartment community, a portion of which will provide affordable housing for fifty-seven (57) low-income to moderate-income households.",
+    "page": 1,
+    "wording": "will provide affordable housing for",
+    "value": "57 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Project is a ninety-four (94) unit garden-style apartment community, a portion of which will provide affordable housing for fifty-seven (57) low-income to moderate-income households.",
+    "page": 1,
+    "wording": "low-income to moderate-income",
+    "value": "low to moderate income"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require the Owner to make a mandatory annual payment to the County in an amount of no less than approximately seventeen thousand, one hundred dollars ($17,100), or approximately three hundred dollars ($300) per unit, for the fifty -seven (57) affordable units for the first full tax year.",
+    "page": 1,
+    "wording": "mandatory annual payment",
+    "value": "$17,100 or $300 per unit"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%)",
+    "value": "2% annual increase"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for fifteen (15) yea rs.",
+    "page": 1,
+    "wording": "remain in effect for fifteen (15) years",
+    "value": "15 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "However, should CR-048-2023 not be adopted, the Owner may raise rents, making the units unaffordable to tenants at or below 60% of AMI.",
+    "page": 2,
+    "wording": "at or below 60% of AMI",
+    "value": "at or below 60% of AMI"
+   }
+  ]
+ },
+ "tokens_in": 2040,
+ "tokens_out": 656,
+ "cost_usd": 0.002252,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

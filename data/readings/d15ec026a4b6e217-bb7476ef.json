@@ -1,0 +1,16 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (\"PILOT\") AGREEMENT FOR COTTAGE CITY TOWERS APARTMENTS",
+  "date": "2023-06-13",
+  "draft": true,
+  "signatures": [],
+  "candidates": []
+ },
+ "tokens_in": 1639,
+ "tokens_out": 86,
+ "cost_usd": 0.000707,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

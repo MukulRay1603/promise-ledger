@@ -1,0 +1,192 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "agreement",
+  "title": "PAYMENTS IN LIEU OF TAXES AGREEMENT",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "income_basis",
+    "quote": "Eligible Households: Households earning at or below 60% AMI",
+    "page": 1,
+    "wording": "at or below 60% AMI",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Total Number of Units: 36",
+    "page": 1,
+    "wording": "Total Number of Units",
+    "value": "36"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Affordable Units: 36",
+    "page": 1,
+    "wording": "Number of Affordable Units",
+    "value": "36"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Market Rate Units: 0",
+    "page": 1,
+    "wording": "Number of Market Rate Units",
+    "value": "0"
+   },
+   {
+    "topic": "public_support",
+    "quote": "$20,233 per year or $562 per affordable unit per year.",
+    "page": 1,
+    "wording": "$20,233 per year",
+    "value": "$20,233 per year"
+   },
+   {
+    "topic": "term",
+    "quote": "Term (in years): 40 years",
+    "page": 1,
+    "wording": "40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner has or will acquire the Property located in Prince George’s County, Maryland for the purpose of constructing or rehabilitating the Project to provide housing to Eligible Households.",
+    "page": 2,
+    "wording": "provide housing to Eligible Households",
+    "value": "Eligible Households"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner has or will contract to construct or rehabilitate the Project to provide housing to Eligible Households as set forth in the Owner’s Application for a PILOT.",
+    "page": 2,
+    "wording": "provide housing to Eligible Households",
+    "value": "Eligible Households"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "the owner of the real property agrees to (A) continue to commence or continue to maintain the real property as rental housing for lower income persons under the requirements of the governmental programs described in item (2) of this paragraph and agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement or (B) enters into an agreement with the governing body of the county to allow the entire property or the portion of the property which was maintained for lower income persons to remain as housing for lower income persons for a term of at least five years; and",
+    "page": 3,
+    "wording": "housing for lower income persons for a term of at least five years",
+    "value": "lower income persons"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "“Affordability Covenants” means the covenants executed and recorded on the Property, in a form acceptable to the County, that require the Owner and all subsequent owners of the Property to offer for rent at least the Affordable Units to Eligible Households.",
+    "page": 3,
+    "wording": "require the Owner and all subsequent owners",
+    "value": "Owner and all subsequent owners"
+   },
+   {
+    "topic": "units",
+    "quote": "“Affordable Units” mean those rental units in the Project that will be dedicated to the Eligible Households.",
+    "page": 3,
+    "wording": "dedicated to the Eligible Households",
+    "value": "Affordable Units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "“Eligible Households” mean the households as described in the Project Facts Section that are eligible to reside in the Project and whose initial annual income is sixty percent (60%) or less of the median income as set from time to time by the United States Department of Housing and Urban Development for Section 8 Programs in the Baltimore Metropolitan Statistical Area.",
+    "page": 4,
+    "wording": "sixty percent (60%) or less of the median income",
+    "value": "60% or less of median income"
+   },
+   {
+    "topic": "term",
+    "quote": "“Term” means that period of time equal to the number of full tax years set forth in the Project Facts Section which commences on the Substantial Completion Date and expiring on the last day of such period.",
+    "page": 5,
+    "wording": "“Term” means",
+    "value": "number of full tax years set forth in the Project Facts Section"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The payments to be made by the Owner to the County, provided for herein with respect to the Project, shall be in lieu of the payment of Prince George’s County taxes on real property under the Tax-Property Article of the Annotated Code of Maryland, as amended.",
+    "page": 5,
+    "wording": "in lieu of the payment of Prince George’s County taxes",
+    "value": "PILOT"
+   },
+   {
+    "topic": "public_support",
+    "quote": "During that period commencing with the Substantial Completion Date until the Termination Date, the Project shall be exempt from paying full Prince George’s County real property taxes.",
+    "page": 6,
+    "wording": "exempt from paying full Prince George’s County real property taxes",
+    "value": "Exemption from full real property taxes"
+   },
+   {
+    "topic": "public_support",
+    "quote": "If the Project consist entirely of Affordable Units, then the Annual Payment shall consist of the Affordable Unit Annual Payment.",
+    "page": 6,
+    "wording": "Affordable Unit Annual Payment",
+    "value": "Affordable Unit Annual Payment"
+   },
+   {
+    "topic": "public_support",
+    "quote": "If the Project consist of both Affordable Units and Market Rate Units, the Annual Payment shall consist of the Affordable Unit Annual Payment plus the Market Rate Unit Annual Payment.",
+    "page": 6,
+    "wording": "Affordable Unit Annual Payment plus the Market Rate Unit Annual Payment",
+    "value": "Combined Annual Payment"
+   },
+   {
+    "topic": "remedies",
+    "quote": "The Owner agrees that the Deferred Amount shall be due and payable upon the occurrence of any of the events set forth in Section 7 prior to the Termination Date; provided, however no Deferred Amount will be due to the County upon a sale, transfer or conveyance of the Property under Section 7(a) of this Agreement if the Owner or a subsequent owner, as the case may be, is (i) in compliance with the requirements of (1) the Act, (2) the Affordability Covenants, and (3) this Agreement; and (ii) the subsequent owner agrees in writing, to the County’s absolute and sole satisfaction, to be bound by the terms, covenants, and conditions of the Affordability Covenants.",
+    "page": 6,
+    "wording": "Deferred Amount shall be due and payable",
+    "value": "Deferred Amount payable on default events"
+   },
+   {
+    "topic": "remedies",
+    "quote": "If the Property is transferred or conveyed due to a foreclosure or a deed in lieu of foreclosure, the Project shall no longer be exempt from the County real property taxes and as applicable, all real property taxes shall be due and immediately payable to the County.",
+    "page": 6,
+    "wording": "all real property taxes shall be due and immediately payable",
+    "value": "Taxes due immediately on foreclosure"
+   },
+   {
+    "topic": "remedies",
+    "quote": "This Agreement shall terminate upon the occurrence of any of the following events, and upon termination all payments then due under this Agreement, including but not limited to the Deferred Amount (but subject to the terms of Section 6(d) above), shall be paid to the County by the Owner within sixty (60) calendar days thereof:",
+    "page": 7,
+    "wording": "shall terminate upon the occurrence of any of the following events",
+    "value": "Termination and payment within 60 days"
+   },
+   {
+    "topic": "remedies",
+    "quote": "If the Owner has not paid the amount due under this Agreement before March 30th following the due date, the County may, at its option, declare a default by providing notice of such default to the Owner and to the Persons listed on Exhibit B attached hereto.",
+    "page": 7,
+    "wording": "declare a default",
+    "value": "Default declared if unpaid by March 30th"
+   },
+   {
+    "topic": "reporting",
+    "quote": "Owner shall submit to the County’s Director of Finance and the County’s Director of the Department of Housing and Community Development, within five (5) business days after execution by Owner, the following documents: entity agreements, including but not limited to , the Operating Agreement or Limited Partnership Agreement , the Affordability Covenants, and any other agreement or documents deemed necessary for submission to the County.",
+    "page": 8,
+    "wording": "Owner shall submit",
+    "value": "Submit entity and affordability agreements within 5 days"
+   },
+   {
+    "topic": "reporting",
+    "quote": "If requested by the County, the Owner shall provide a copy of the Certificate of Substantial Completion to the County’s Director of Finance and the Director of the Department of Housing and Community Development within five (5) business days after issuance.",
+    "page": 8,
+    "wording": "Owner shall provide a copy",
+    "value": "Provide Certificate of Substantial Completion within 5 days"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Owner shall provide the amendments to any of the above documents or reports within five (5) business days after execution or receipt of such amendments.",
+    "page": 8,
+    "wording": "The Owner shall provide the amendments",
+    "value": "Provide amendments within 5 days"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Owner agrees to maintain the Property as rental housing for lower income persons under the requirements a federal, State, or local government program and the Owner agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement.",
+    "page": 8,
+    "wording": "rental housing for lower income persons",
+    "value": "Lower income persons"
+   }
+  ]
+ },
+ "tokens_in": 8792,
+ "tokens_out": 2667,
+ "cost_usd": 0.009305,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

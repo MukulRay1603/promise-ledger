@@ -1,0 +1,73 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "PRINCE GEORGE'S COUNTY COUNCIL COMMITTEE REPORT Reference No.: CR-030-2025",
+  "date": "2025-04-15",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "During the meeting, DHCD Director Aspasia Xypolia described the terms of the PILOT agreement, which include 100% tax waivers of 102 units for the next 40 years, with a 2% annual escalation per unit over that period.",
+    "page": 1,
+    "wording": "100% tax waivers",
+    "value": "100% tax waiver for 102 units for 40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The project consists of a one hundred two (102) unit rental apartment community for families that will be constructed in New Carrollton, Maryland.",
+    "page": 1,
+    "wording": "one hundred two (102) unit",
+    "value": "102 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for the entire term, which would be forty (40) years.",
+    "page": 1,
+    "wording": "All units will be affordable",
+    "value": "All 102 units"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for the entire term, which would be forty (40) years.",
+    "page": 1,
+    "wording": "forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Annual Rate (expressed as a percentage) is 2% per year.",
+    "page": 1,
+    "wording": "2% per year",
+    "value": "2% per year"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "This development is for seniors whose incomes are at or below seventy percent (70%) of the Area Median Income (“AMI”).",
+    "page": 1,
+    "wording": "at or below seventy percent (70%) of the Area Median Income",
+    "value": "70% of AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT reduces the aggregate tax burden on the entire 102-unit Project by 62.5% of that amount, or approximately $66,300, equivalent to a $650 per unit tax burden on the 102 affordable units.",
+    "page": 1,
+    "wording": "reduces the aggregate tax burden",
+    "value": "62.5% reduction"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The total impact is estimated at $6,675,209, forgoing 62.5% of the tax revenue cumulatively over the 40-year period that the PILOT agreement remains in effect.",
+    "page": 1,
+    "wording": "forgoing 62.5% of the tax revenue",
+    "value": "62.5% tax revenue foregone over 40 years"
+   }
+  ]
+ },
+ "tokens_in": 1677,
+ "tokens_out": 849,
+ "cost_usd": 0.002626,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

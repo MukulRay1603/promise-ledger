@@ -1,0 +1,45 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "PRINCE GEORGE'S COUNTY COUNCIL COMMITTEE REPORT Reference No.: CR-115-2025",
+  "date": "2025-11-10",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner, Urban Atlantic Development LLC, will form an entity for the purpose of acquiring land and constructing a 102-unit, affordable rental community for low and moderate-income families earning 70% or below the Area Median Income (\"AMI\").",
+    "page": 1,
+    "wording": "constructing a 102-unit",
+    "value": "102 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner, Urban Atlantic Development LLC, will form an entity for the purpose of acquiring land and constructing a 102-unit, affordable rental community for low and moderate-income families earning 70% or below the Area Median Income (\"AMI\").",
+    "page": 1,
+    "wording": "earning 70% or below the Area Median Income",
+    "value": "70% or below AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "Factoring in the estimated 2% average annual increase in property tax assessments, the total impact is estimated at $6,429,612, resulting in a cumulative forgoing of 61.6% of the tax revenue over the 40-year period that the PILOT agreement remains in effect.",
+    "page": 2,
+    "wording": "over the 40-year period",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will result in a loss of approximately $172,747 in the first year of the term.",
+    "page": 2,
+    "wording": "PILOT will result in a loss",
+    "value": "$172,747 in the first year"
+   }
+  ]
+ },
+ "tokens_in": 1838,
+ "tokens_out": 520,
+ "cost_usd": 0.001851,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

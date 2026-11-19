@@ -1,0 +1,58 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "PILOT Agreement Approval - New Carrollton - Affordable - Phase 3 - 9%",
+  "date": "2024-07-16",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Prince George's County Government Office of the County Executive",
+    "quote": "Angela D. Alsobrooks",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner, Urban Atlantic Development LLC, will form an entity for the purpose of acquiring land and constructing a fifty (50) unit affordable rental community for low and moderate-income families, earning fifty percent (50%) or below of the Area Median Income (“AMI”), located within the confines of Pennsy Drive, Route 50 and Corporate Drive, New Carrollton, Maryland 20785.",
+    "page": 1,
+    "wording": "constructing a fifty (50) unit",
+    "value": "50 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner, Urban Atlantic Development LLC, will form an entity for the purpose of acquiring land and constructing a fifty (50) unit affordable rental community for low and moderate-income families, earning fifty percent (50%) or below of the Area Median Income (“AMI”), located within the confines of Pennsy Drive, Route 50 and Corporate Drive, New Carrollton, Maryland 20785.",
+    "page": 1,
+    "wording": "earning fifty percent (50%) or below of the Area Median Income",
+    "value": "50% or below of AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require a mandatory annual payment in an amount no less than approximately two thousand, five hundred dollars or fifty dollars per unit ($2,500 or $50 per unit) for the first year.",
+    "page": 1,
+    "wording": "PILOT will require a mandatory annual payment",
+    "value": "$2,500 or $50 per unit for the first year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment for these affordable units will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%)",
+    "value": "2% annual increase"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for forty (40) years, which includes the extended affordability period.",
+    "page": 1,
+    "wording": "remain in effect for forty (40) years",
+    "value": "40 years"
+   }
+  ]
+ },
+ "tokens_in": 1827,
+ "tokens_out": 684,
+ "cost_usd": 0.002258,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

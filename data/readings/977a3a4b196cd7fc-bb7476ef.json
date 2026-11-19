@@ -1,0 +1,126 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Resolution No. CR-042-2023",
+  "date": "2023-07-05",
+  "draft": true,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Thomas E. Dernoga",
+    "page": 3
+   },
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Donna J. Brown",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct three hundred seventeen (317) units of multi-family rental housing for low-income to moderate-income residents, known as Flats at College Park, on a 4.26 acre parcel located at 9113 Baltimore Avenue, College Park, Maryland 20740, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (\"Property\"); and",
+    "page": 1,
+    "wording": "three hundred seventeen (317) units",
+    "value": "317 units"
+   },
+   {
+    "topic": "term",
+    "quote": "(a)(2)(iv)(2) enters into an agreement with the governing body of Prince George's County to allow the entire property or the portion of the property that was maintained for lower income persons to remain as housing for lower income persons for a term of at least 5 years;",
+    "page": 2,
+    "wording": "for a term of at least 5 years",
+    "value": "at least 5 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Ownership proposes to restrict rents for one hundred percent (100%) of units to households with incomes below eighty (80%) of Area Median Income (AMI) for at least thirty (30) years.",
+    "page": 4,
+    "wording": "one hundred percent (100%) of units",
+    "value": "100% of units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Ownership proposes to restrict rents for one hundred percent (100%) of units to households with incomes below eighty (80%) of Area Median Income (AMI) for at least thirty (30) years.",
+    "page": 4,
+    "wording": "incomes below eighty (80%) of Area Median Income (AMI)",
+    "value": "below 80% AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "Ownership proposes to restrict rents for one hundred percent (100%) of units to households with incomes below eighty (80%) of Area Median Income (AMI) for at least thirty (30) years.",
+    "page": 4,
+    "wording": "for at least thirty (30) years",
+    "value": "30 years"
+   },
+   {
+    "topic": "units",
+    "quote": "AFFORDABILITY:   80% or less of the AMI:  317 units",
+    "page": 4,
+    "wording": "317 units",
+    "value": "317 units"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "RST Development, LLC (the “Developer”) propose to restrict rent levels for three hundred seventeen (317) rental units at Flats at College Park (the “Project”) to serve households with incomes at or below eighty percent (80%) of the Area Median Income (“AMI ”) for a period of at least thirty (30) years.",
+    "page": 5,
+    "wording": "propose to restrict rent levels",
+    "value": "317 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "RST Development, LLC (the “Developer”) propose to restrict rent levels for three hundred seventeen (317) rental units at Flats at College Park (the “Project”) to serve households with incomes at or below eighty percent (80%) of the Area Median Income (“AMI ”) for a period of at least thirty (30) years.",
+    "page": 5,
+    "wording": "households with incomes at or below eighty percent (80%) of the Area Median Income",
+    "value": "80% AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "RST Development, LLC (the “Developer”) propose to restrict rent levels for three hundred seventeen (317) rental units at Flats at College Park (the “Project”) to serve households with incomes at or below eighty percent (80%) of the Area Median Income (“AMI ”) for a period of at least thirty (30) years.",
+    "page": 5,
+    "wording": "for a period of at least thirty (30) years",
+    "value": "at least 30 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The Project is a proposed three hundred seventeen ( 317) unit family affordable housing development to be newly constructed on a 4.26 acre parcel (currently occupied by three vacant low-rise motels) at 9113 Baltimore Avenue in College Park.",
+    "page": 5,
+    "wording": "three hundred seventeen ( 317) unit family affordable housing development",
+    "value": "317 units"
+   },
+   {
+    "topic": "units",
+    "quote": "In addition to the thr ee hundred seventeen ( 317) residential units, the Project will include a community room, a bike storage area, a pool with men’s and women’s locker rooms, an outdoor gathering area and grills for resident use, a fully equipped fitness center, a walking path, dog park and 750 square feet of green space and a passive sitting area on the roof.",
+    "page": 5,
+    "wording": "three hundred seventeen ( 317) residential units",
+    "value": "317 units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Developer is applying for a Prince George’s County Payment in L ieu of Taxes (“PILOT”) since this subsidy will allow one hundred percent (100%) of the Project’s units to be income- and rent-restricted and ensure the Project is able to adequately service its debt and equity capital for a period of at least thirty (30) years .",
+    "page": 6,
+    "wording": "Payment in L ieu of Taxes (“PILOT”)",
+    "value": "PILOT"
+   },
+   {
+    "topic": "units",
+    "quote": "The Developer is applying for a Prince George’s County Payment in L ieu of Taxes (“PILOT”) since this subsidy will allow one hundred percent (100%) of the Project’s units to be income- and rent-restricted and ensure the Project is able to adequately service its debt and equity capital for a period of at least thirty (30) years .",
+    "page": 6,
+    "wording": "one hundred percent (100%) of the Project’s units",
+    "value": "100% of units"
+   },
+   {
+    "topic": "term",
+    "quote": "The Developer is applying for a Prince George’s County Payment in L ieu of Taxes (“PILOT”) since this subsidy will allow one hundred percent (100%) of the Project’s units to be income- and rent-restricted and ensure the Project is able to adequately service its debt and equity capital for a period of at least thirty (30) years .",
+    "page": 6,
+    "wording": "for a period of at least thirty (30) years",
+    "value": "at least 30 years"
+   }
+  ]
+ },
+ "tokens_in": 5012,
+ "tokens_out": 1929,
+ "cost_usd": 0.006326,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

@@ -1,0 +1,101 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "New Carrollton – Affordable – Phase 3 – 9% – Building Overview",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "PILOT Deferral Amount: $501/Unit Per Year totaling $25,050 in YR 1",
+    "page": 2,
+    "wording": "PILOT Deferral Amount",
+    "value": "$501/Unit Per Year"
+   },
+   {
+    "topic": "units",
+    "quote": "Unit Mix – 50 Units",
+    "page": 2,
+    "wording": "Unit Mix",
+    "value": "50 Units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "1 Bedroom – 30% AMI 13 $  738",
+    "page": 2,
+    "wording": "30% AMI",
+    "value": "13 units at 30% AMI"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "1 Bedroom – 50% AMI 7 $1,300",
+    "page": 2,
+    "wording": "50% AMI",
+    "value": "7 units at 50% AMI"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "2 Bedroom – 30% AMI 7 $  875",
+    "page": 2,
+    "wording": "30% AMI",
+    "value": "7 units at 30% AMI"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "2 Bedroom – 50% AMI 8 $1,567",
+    "page": 2,
+    "wording": "50% AMI",
+    "value": "8 units at 50% AMI"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "3 Bedroom – 30% AMI 15 $1,000",
+    "page": 2,
+    "wording": "30% AMI",
+    "value": "15 units at 30% AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "1 Bedroom – 30% AMI 13 $  738",
+    "page": 2,
+    "wording": "$  738",
+    "value": "$738"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "1 Bedroom – 50% AMI 7 $1,300",
+    "page": 2,
+    "wording": "$1,300",
+    "value": "$1,300"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "2 Bedroom – 30% AMI 7 $  875",
+    "page": 2,
+    "wording": "$  875",
+    "value": "$875"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "2 Bedroom – 50% AMI 8 $1,567",
+    "page": 2,
+    "wording": "$1,567",
+    "value": "$1,567"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "3 Bedroom – 30% AMI 15 $1,000",
+    "page": 2,
+    "wording": "$1,000",
+    "value": "$1,000"
+   }
+  ]
+ },
+ "tokens_in": 1334,
+ "tokens_out": 933,
+ "cost_usd": 0.002733,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

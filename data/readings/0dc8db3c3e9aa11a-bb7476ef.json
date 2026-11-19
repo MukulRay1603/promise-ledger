@@ -1,0 +1,31 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (\"PILOT\") AGREEMENT FOR THE PROMISE PROJECT",
+  "date": "2023-11-07",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Lastly, The Promise will consist of 841 residential units of all types, including age-restricted senior units, and over 100 affordable units at 65% of Area Median Income (AMI).",
+    "page": 2,
+    "wording": "over 100 affordable units",
+    "value": "over 100 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Lastly, The Promise will consist of 841 residential units of all types, including age-restricted senior units, and over 100 affordable units at 65% of Area Median Income (AMI).",
+    "page": 2,
+    "wording": "65% of Area Median Income (AMI)",
+    "value": "65% of AMI"
+   }
+  ]
+ },
+ "tokens_in": 1646,
+ "tokens_out": 290,
+ "cost_usd": 0.001219,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

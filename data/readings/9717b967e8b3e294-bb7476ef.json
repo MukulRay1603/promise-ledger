@@ -1,0 +1,115 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "The Towns at Hamlet Woods Subcommittee Presentation",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "59-unit workforce housing rental project",
+    "page": 3,
+    "wording": "59-unit",
+    "value": "59 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "60% 3 2 22 1,422 $120 $1,880.00",
+    "page": 7,
+    "wording": "60%",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "60% 3 2 22 1,422 $120 $1,880.00",
+    "page": 7,
+    "wording": "22",
+    "value": "22 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "60% 3 2 7 1,496 $120 $1,880.00",
+    "page": 7,
+    "wording": "60%",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "60% 3 2 7 1,496 $120 $1,880.00",
+    "page": 7,
+    "wording": "7",
+    "value": "7 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "60% 3 2 2 1,562 $120 $1,880.00",
+    "page": 7,
+    "wording": "60%",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "60% 3 2 2 1,562 $120 $1,880.00",
+    "page": 7,
+    "wording": "2",
+    "value": "2 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "50% 3 2 12 1,496 $120 $1,700.00",
+    "page": 7,
+    "wording": "50%",
+    "value": "50% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "50% 3 2 12 1,496 $120 $1,700.00",
+    "page": 7,
+    "wording": "12",
+    "value": "12 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "60% 4 3 16 1,584 $175 $2,070.00",
+    "page": 7,
+    "wording": "60%",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "60% 4 3 16 1,584 $175 $2,070.00",
+    "page": 7,
+    "wording": "16",
+    "value": "16 units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Housing Investment Trust Fund Request– $2,500,000",
+    "page": 8,
+    "wording": "Housing Investment Trust Fund Request",
+    "value": "$2,500,000"
+   },
+   {
+    "topic": "public_support",
+    "quote": "CDA Risk Share – $9,803,373",
+    "page": 8,
+    "wording": "CDA Risk Share",
+    "value": "$9,803,373"
+   },
+   {
+    "topic": "public_support",
+    "quote": "CDA Rental Housing Works – $3,500,000",
+    "page": 8,
+    "wording": "CDA Rental Housing Works",
+    "value": "$3,500,000"
+   }
+  ]
+ },
+ "tokens_in": 4432,
+ "tokens_out": 1230,
+ "cost_usd": 0.004405,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

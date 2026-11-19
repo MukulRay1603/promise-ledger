@@ -1,0 +1,52 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Policy Analysis and Fiscal Impact Statement CR-097-2024 PILOT The National View Project",
+  "date": "2024-11-06",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "Revenue: Forgone property tax revenues  of approximately $74 million in the near term are more than offset by additional property tax and income tax",
+    "page": 1,
+    "wording": "Forgone property tax revenues",
+    "value": "approximately $74 million"
+   },
+   {
+    "topic": "public_support",
+    "quote": "CR-097-2024 would approve the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Petra Development (the “Developer”) for The National View Project.",
+    "page": 2,
+    "wording": "Payments in Lieu of Taxes (“PILOT”) Agreement",
+    "value": "PILOT Agreement"
+   },
+   {
+    "topic": "public_support",
+    "quote": "o an amount that the owner or owners shall pay to the County each year in lieu of the payment of county real property taxes during the term of the agreement that is not less than the sum of:  the taxes on the property before the construction or rehabilitation of the project; and  25% of the County real property taxes related to the economic development project that would have otherwise been due absent the agreement;",
+    "page": 3,
+    "wording": "not less than the sum of",
+    "value": "not less than pre-construction taxes plus 25% of otherwise due taxes"
+   },
+   {
+    "topic": "term",
+    "quote": "o the term of the agreement, not to exceed 15 years from the date a certificate of occupancy is first issued for the project or the date a certificate of occupancy is first issued for any phase of the project that is covered by the agreement; and",
+    "page": 3,
+    "wording": "not to exceed 15 years",
+    "value": "not to exceed 15 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Based upon the tax assessment projections supplied by the Administration, and using a two percent (2%) annual escalator, the execution of the contemplated PILOT agreements subsequent to the adoption of CR -097-2024 will result in an estimated $ 74 million in foregone real property tax revenue between 2029 and 2052 after accounting for the PILOT payments.",
+    "page": 5,
+    "wording": "PILOT agreements",
+    "value": "$74 million in foregone real property tax revenue"
+   }
+  ]
+ },
+ "tokens_in": 4404,
+ "tokens_out": 753,
+ "cost_usd": 0.003204,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

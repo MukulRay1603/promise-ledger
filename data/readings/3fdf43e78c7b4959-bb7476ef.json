@@ -1,0 +1,59 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "PRINCE GEORGE'S COUNTY COUNCIL COMMITTEE REPORT Reference No.: CR-028-2025",
+  "date": "2025-04-15",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "During the meeting, DHCD Director Aspasia Xypolia described the legislation and the terms of the PILOT agreement, which include 100% tax waivers of 112 units of transit-oriented senior affordable housing for the next 40 years, with a 2% annual escalation per unit over that period.",
+    "page": 1,
+    "wording": "include",
+    "value": "112 units"
+   },
+   {
+    "topic": "term",
+    "quote": "During the meeting, DHCD Director Aspasia Xypolia described the legislation and the terms of the PILOT agreement, which include 100% tax waivers of 112 units of transit-oriented senior affordable housing for the next 40 years, with a 2% annual escalation per unit over that period.",
+    "page": 1,
+    "wording": "for the next",
+    "value": "40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "This development is for seniors whose incomes are at or below seventy percent (70%) of the Area Median Income (“AMI”).",
+    "page": 1,
+    "wording": "at or below",
+    "value": "70% of AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT reduces the aggregate tax burden on the entire 112-unit Project by 71.34% of that amount, or approximately $47,600, equivalent to a $425 per unit tax burden on the 112 affordable units.",
+    "page": 1,
+    "wording": "reduces the aggregate tax burden",
+    "value": "71.34% reduction"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Under the agreement, the County would forgo real property tax revenue of approximately $118,497, or approximately $1,058 per affordable unit, in year one.",
+    "page": 1,
+    "wording": "would forgo",
+    "value": "$118,497 in year one"
+   },
+   {
+    "topic": "term",
+    "quote": "The projected cost with a 2% estimated average annual increase in the property tax assessment and a 40-year term is projected to be $7,157,432.",
+    "page": 1,
+    "wording": "40-year term",
+    "value": "40 years"
+   }
+  ]
+ },
+ "tokens_in": 1546,
+ "tokens_out": 699,
+ "cost_usd": 0.002211,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

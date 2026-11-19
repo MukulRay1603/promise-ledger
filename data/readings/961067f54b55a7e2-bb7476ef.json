@@ -1,0 +1,38 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "PRINCE GEORGE'S COUNTY COUNCIL COMMITTEE REPORT Reference No.: CR-044-2026",
+  "date": "2026-06-29",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Project involves the new construction of a seventy-two (72) unit affordable rental housing community for seniors earning sixty percent (60%) or below of the Area Median Income (“AMI”), located at 4500 Saint Barnabas Road, Temple Hills, Maryland 20748.",
+    "page": 1,
+    "wording": "seventy-two (72) unit affordable rental housing community",
+    "value": "72 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Project involves the new construction of a seventy-two (72) unit affordable rental housing community for seniors earning sixty percent (60%) or below of the Area Median Income (“AMI”), located at 4500 Saint Barnabas Road, Temple Hills, Maryland 20748.",
+    "page": 1,
+    "wording": "earning sixty percent (60%) or below of the Area Median Income",
+    "value": "60% AMI or below"
+   },
+   {
+    "topic": "public_support",
+    "quote": "This legislation seeks to approve the terms and conditions of a Payment in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Holly Place Limited Partnership (the “Owner”).",
+    "page": 1,
+    "wording": "Payment in Lieu of Taxes (\"PILOT\") Agreement",
+    "value": "PILOT agreement"
+   }
+  ]
+ },
+ "tokens_in": 1537,
+ "tokens_out": 436,
+ "cost_usd": 0.001551,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

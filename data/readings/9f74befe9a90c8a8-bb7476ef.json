@@ -1,0 +1,94 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Policy Analysis and Fiscal Impact Statement CR-036-2023, Payment in Lieu of Taxes (“PILOT”) – Agreement for the Hamlet Woods Apartments",
+  "date": "2023-06-01",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "Revenues: Forgone tax revenues totaling approximately $ 1,436,110 over a 30-year period.",
+    "page": 2,
+    "wording": "Forgone tax revenues",
+    "value": "$1,436,110 over 30 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The Hamlet Woods Project (“Project”) is located at the end of 57th Avenue in Bladensburg Prince George’s County, Maryland, and is a 59-unit townhouse-style affordable housing project that consists of 5 sticks of townhouse -style buildings.",
+    "page": 3,
+    "wording": "59-unit",
+    "value": "59 units"
+   },
+   {
+    "topic": "term",
+    "quote": "Under the proposed agreement, for the 30-year term, Osprey Property Company II LLC and Parallax Development Group, LLC (“Owner”) will have a target population of families whose incomes are at or below 80% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "30-year term",
+    "value": "30 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Under the proposed agreement, for the 30-year term, Osprey Property Company II LLC and Parallax Development Group, LLC (“Owner”) will have a target population of families whose incomes are at or below 80% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "at or below 80% of the Area Median Income",
+    "value": "80% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "The Owner will also reserve 3 units to meet the Uniform Federal Accessibility Standards (UFAS) requirements, and 2 units will be built to accommodate residents with sensory impairments.",
+    "page": 3,
+    "wording": "reserve 3 units",
+    "value": "3 UFAS units and 2 sensory impairment units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "CR-036-2023 would authorize the County to accept a payment in lieu of taxes equal to a $600.00 payment per affordable unit during the term of the PILOT agreement.",
+    "page": 3,
+    "wording": "$600.00 payment per affordable unit",
+    "value": "$600 per unit per year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Adoption of CR-036-2023 will have an adverse fiscal impact in the form of forgone tax revenue.",
+    "page": 4,
+    "wording": "will have an adverse fiscal impact in the form of forgone tax revenue",
+    "value": "forgone tax revenue"
+   },
+   {
+    "topic": "public_support",
+    "quote": "As described above, accepting the PILOT on the entire Project of $35,400 will result in a loss of approximately $35,400 in the first year of the term.",
+    "page": 4,
+    "wording": "accepting the PILOT on the entire Project",
+    "value": "$35,400 in the first year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Factoring in the 2% estimated average annual increase in the property tax assessment, the total impact is estimated at $1,436,110.00 over the 30- year period that the PILOT agreement remains in effect.",
+    "page": 4,
+    "wording": "total impact is estimated at $1,436,110.00 over the 30- year period",
+    "value": "$1,436,110.00 over 30 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "However, should CR -036-2023 not be adopted the Owner may raise rents, mak ing the units unaffordable to tenants at 80% AMI.",
+    "page": 4,
+    "wording": "tenants at 80% AMI",
+    "value": "80% AMI"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "• The Agreement provides that “Eligible Households” are those earning 80% or less of AMI on page 1 of Attachment B, but in the definition of “Eligible Household on page 4, 60% of AMI is the reference.",
+    "page": 4,
+    "wording": "those earning 80% or less of AMI",
+    "value": "80% or less of AMI and 60% of AMI"
+   }
+  ]
+ },
+ "tokens_in": 4174,
+ "tokens_out": 1334,
+ "cost_usd": 0.004587,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

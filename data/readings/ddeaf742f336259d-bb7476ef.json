@@ -1,0 +1,16 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (\"PILOT\") AGREEMENT FOR THE HERMAN APARTMENTS PROJECT",
+  "date": "2026-07-07",
+  "draft": true,
+  "signatures": [],
+  "candidates": []
+ },
+ "tokens_in": 1570,
+ "tokens_out": 84,
+ "cost_usd": 0.000681,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

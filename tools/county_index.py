@@ -45,10 +45,19 @@ def main() -> int:
                               "date": c.get("date"), "page": c.get("page"), "quote": c["quote"]})
         print(f"{manifest['source']['file']}: {len(items)} quotes so far", flush=True)
     vectors = []
+    # The free tier counts each quote in a batch as one request, 100 a minute: 50 quotes, then a 32-second pause.
     for start in range(0, len(items), 50):
         batch = [it["quote"][:2000] for it in items[start:start + 50]]
-        vectors += search.embed(batch, "RETRIEVAL_DOCUMENT")
-        time.sleep(1)
+        for attempt in range(4):
+            try:
+                vectors += search.embed(batch, "RETRIEVAL_DOCUMENT")
+                break
+            except Exception as err:
+                if "429" not in str(err) or attempt == 3:
+                    raise
+                time.sleep(65)
+        print(f"embedded {len(vectors)} of {len(items)}", flush=True)
+        time.sleep(32)
     for it, v in zip(items, vectors):
         it["v"] = [round(x, 4) for x in v]
     search.INDEX.write_text(json.dumps({"model": search.EMBED_MODEL, "dim": search.DIM, "built": time.strftime("%Y-%m-%d"),

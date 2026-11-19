@@ -1,0 +1,101 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Resolution No. CR-044-2026",
+  "date": "2026-05-26",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct seventy two (72) units of new affordable multi-family rental housing for low-income to moderate-income seniors, earning sixty percent (60%) and below of the Area Median Income (“AMI”), known as Holly Place, located at 4500 Saint Barnabas Road, Temple Hills, Maryland 20748, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "seventy two (72) units",
+    "value": "72 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct seventy two (72) units of new affordable multi-family rental housing for low-income to moderate-income seniors, earning sixty percent (60%) and below of the Area Median Income (“AMI”), known as Holly Place, located at 4500 Saint Barnabas Road, Temple Hills, Maryland 20748, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "sixty percent (60%) and below of the Area Median Income",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": " PROJECT DESCRIPTION: A seventy two (72) unit affordable rental apartment 1 community will be constructed for seniors in a one 2 (1) elevator building with four (4) stories on a 2.40-3 acre site in Temple Hills, Maryland.",
+    "page": 4,
+    "wording": "seventy two (72) unit",
+    "value": "72 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty 5 (40) years",
+    "page": 4,
+    "wording": "All units will be affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "All units will be affordable, and rents will be restricted for forty 5 (40) years",
+    "page": 4,
+    "wording": "rents will be restricted",
+    "value": "rent restricted for 40 years"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty 5 (40) years",
+    "page": 4,
+    "wording": "forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": " AFFORDABILITY:   All units will be priced at levels affordable to 22 households earning sixty percent (60%) or less of 23 the Area Median Income (“AMI”) for forty (40) 24 years",
+    "page": 4,
+    "wording": "All units",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": " AFFORDABILITY:   All units will be priced at levels affordable to 22 households earning sixty percent (60%) or less of 23 the Area Median Income (“AMI”) for forty (40) 24 years",
+    "page": 4,
+    "wording": "households earning sixty percent (60%) or less of the Area Median Income",
+    "value": "60% or less of AMI"
+   },
+   {
+    "topic": "term",
+    "quote": " AFFORDABILITY:   All units will be priced at levels affordable to 22 households earning sixty percent (60%) or less of 23 the Area Median Income (“AMI”) for forty (40) 24 years",
+    "page": 4,
+    "wording": "forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The Holly Place project (the “Project”) is a seventy two (72) unit new construction, senior affordable housing project located in the northern portion of Temple Hills, Maryland.",
+    "page": 5,
+    "wording": "seventy two (72) unit",
+    "value": "72 units"
+   },
+   {
+    "topic": "units",
+    "quote": "The Project will consist of a total of seventy two (72) residential units, including fifty one (51) one (1) bedroom units and twenty one (21) two (2) bedroom units.",
+    "page": 5,
+    "wording": "total of seventy two (72) residential units",
+    "value": "72 residential units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All units will be restricted to renters age sixty two (62) or older and earning up to sixty percent (60%) of the Area Median Income (“AMI”).",
+    "page": 5,
+    "wording": "earning up to sixty percent (60%) of the Area Median Income",
+    "value": "up to 60% AMI"
+   }
+  ]
+ },
+ "tokens_in": 5221,
+ "tokens_out": 1381,
+ "cost_usd": 0.005019,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

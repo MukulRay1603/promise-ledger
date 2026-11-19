@@ -1,0 +1,24 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (\"PILOT\") AGREEMENT FOR THE NEW CARROLLTON - AFFORDABLE - PHASE 1 PROJECT",
+  "date": "2025-04-29",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR THE NEW CARROLLTON - AFFORDABLE - PHASE 1 PROJECT for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and New Carrollton Affordable Senior I, LLC (the “Owner”).",
+    "page": 1,
+    "wording": "Payments in Lieu of Taxes (“PILOT”) Agreement",
+    "value": "PILOT agreement for New Carrollton - Affordable - Phase 1"
+   }
+  ]
+ },
+ "tokens_in": 1629,
+ "tokens_out": 246,
+ "cost_usd": 0.001104,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

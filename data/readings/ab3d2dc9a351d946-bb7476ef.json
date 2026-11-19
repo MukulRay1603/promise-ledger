@@ -1,0 +1,66 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "PRINCE GEORGE'S COUNTY COUNCIL COMMITTEE REPORT CR-041-2023",
+  "date": "2023-06-13",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner is an entity to be formed by Developer: HAPGC Affordable H ousing Development Corporation, LLC C/O Housing Authority of Prince George's County for the purpose of acquiring and rehabilitating the Project, which is an existing one hundred (100) unit affordable multi -family rental housing for low-income to moderate-income families, known as Cottage City Towers, located at 4142 Bunker Hill Road, Cottage City, Maryland 20722.",
+    "page": 1,
+    "wording": "one hundred (100) unit",
+    "value": "100 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be reserved for households earning sixty percent (60%) or less of the Area Median Income (\"AMI\").",
+    "page": 1,
+    "wording": "All units will be reserved",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All units will be reserved for households earning sixty percent (60%) or less of the Area Median Income (\"AMI\").",
+    "page": 1,
+    "wording": "earning sixty percent (60%) or less of the Area Median Income",
+    "value": "60% AMI or less"
+   },
+   {
+    "topic": "term",
+    "quote": "Factoring in the 2% estimated average annual increase in the property tax assessment, the total impact is estimated at $3,351,766.00 over the 30 years that the PILOT agreement remains in effect.",
+    "page": 2,
+    "wording": "over the 30 years",
+    "value": "30 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "CR -041-2023 seeks the approval of the terms and conditions of a Payments in Lieu of Taxes (\"PILOT\") Agreement between Prince George's County (the \"County\") and an entity to be formed by Developer: HAPGC Affordable Housing Development Corporation, LLC C/O Housing Authority of Prince George's County (the \"Owner\") concerning the Cottage City Towers Apartments (the \"Project\").",
+    "page": 1,
+    "wording": "Payments in Lieu of Taxes (\"PILOT\") Agreement",
+    "value": "PILOT Agreement"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Project will also be financed with a Prince George's County Housing Investment Trust Fund (\"HITF\") loan in the amount of two million, five hundred thousand dollars ($2,500,000).",
+    "page": 1,
+    "wording": "Housing Investment Trust Fund (\"HITF\") loan in the amount of two million, five hundred thousand dollars ($2,500,000)",
+    "value": "$2,500,000 HITF loan"
+   },
+   {
+    "topic": "public_support",
+    "quote": "As described above, accepting the PILOT on the entire Project of $0 will result in a loss of approximately $82,621 in the first year of the term.",
+    "page": 2,
+    "wording": "accepting the PILOT on the entire Project of $0",
+    "value": "$0 PILOT payment"
+   }
+  ]
+ },
+ "tokens_in": 1964,
+ "tokens_out": 883,
+ "cost_usd": 0.002797,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

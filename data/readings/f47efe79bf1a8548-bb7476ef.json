@@ -1,0 +1,87 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "210 ON THE PARK",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Thedevelopmentwillconsistofamixof158apartmentunitsforrentinadditionto7flex-retailunitsand2typicalretailspaces.",
+    "page": 3,
+    "wording": "mix of 158 apartment units",
+    "value": "158 apartment units"
+   },
+   {
+    "topic": "units",
+    "quote": "Theprojectisdevelopedasworkforcehousingwithapproximately20%oftheunitsunrestrictedandtheremaining75%oftheunitsareat80-70%AMIand5%at40%AMI",
+    "page": 3,
+    "wording": "approximately 20% of the units unrestricted and the remaining 75% of the units are at 80-70% AMI and 5% at 40% AMI",
+    "value": "20% unrestricted, 75% at 80-70% AMI, 5% at 40% AMI"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Theprojectisdevelopedasworkforcehousingwithapproximately20%oftheunitsunrestrictedandtheremaining75%oftheunitsareat80-70%AMIand5%at40%AMI",
+    "page": 3,
+    "wording": "80-70% AMI and 5% at 40% AMI",
+    "value": "80-70% AMI and 40% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "The 158 residential units will be comprised of the proposed unit mix of 77 one-bedroom units, that will contain 1.5 bathrooms, while the 81 two-bedroom units will contain 2 full bathrooms.",
+    "page": 5,
+    "wording": "will be comprised of",
+    "value": "158 residential units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Unrestricted 30 19%",
+    "page": 5,
+    "wording": "Unrestricted",
+    "value": "Unrestricted: 30 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "80% 80 51%",
+    "page": 5,
+    "wording": "80%",
+    "value": "80% AMI: 80 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "70% 41 26%",
+    "page": 5,
+    "wording": "70%",
+    "value": "70% AMI: 41 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "40% 7 4%",
+    "page": 5,
+    "wording": "40%",
+    "value": "40% AMI: 7 units"
+   },
+   {
+    "topic": "units",
+    "quote": "Gross Rents range from $2,226 to $2,519 for unrestricted units and $1,036 to $2,562 for restricted units",
+    "page": 5,
+    "wording": "range from",
+    "value": "158 total units"
+   },
+   {
+    "topic": "units",
+    "quote": "The project is developed as workforce housing with approximately 20% of the units unrestricted and the remaining 75% of the units are at 80-70% AMI and 5% at 40% AMI",
+    "page": 5,
+    "wording": "approximately 20% of the units unrestricted and the remaining 75% of the units are at 80-70% AMI and 5% at 40% AMI",
+    "value": "20% unrestricted, 75% at 80-70% AMI, 5% at 40% AMI"
+   }
+  ]
+ },
+ "tokens_in": 4315,
+ "tokens_out": 1068,
+ "cost_usd": 0.003964,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

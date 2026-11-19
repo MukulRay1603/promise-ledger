@@ -1,0 +1,157 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "agreement",
+  "title": "PAYMENTS IN LIEU OF TAXES AGREEMENT",
+  "date": "",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "income_basis",
+    "quote": "Senior households earning 60% or less of AMI",
+    "page": 1,
+    "wording": "earning 60% or less of AMI",
+    "value": "60% or less of AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Total Number of Units: 293",
+    "page": 1,
+    "wording": "Total Number of Units: 293",
+    "value": "293 total units"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Affordable Units: 293",
+    "page": 1,
+    "wording": "Number of Affordable Units: 293",
+    "value": "293 affordable units"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Market Rate Units: 0",
+    "page": 1,
+    "wording": "Number of Market Rate Units: 0",
+    "value": "0 market rate units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "$31,058 total or $106 per Affordable Unit per year.",
+    "page": 1,
+    "wording": "$31,058 total or $106 per Affordable Unit per year",
+    "value": "$31,058 total or $106 per Affordable Unit per year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The payment will escalate annually by an amount equal to the Annual Rate.",
+    "page": 1,
+    "wording": "escalate annually by an amount equal to the Annual Rate",
+    "value": "2% per year"
+   },
+   {
+    "topic": "term",
+    "quote": "Term (in years): 40 years",
+    "page": 2,
+    "wording": "40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner has or will acquire the Property located in Prince George’s County, Maryland for the purpose of constructing or rehabilitating the Project to provide housing to Eligible Households.",
+    "page": 2,
+    "wording": "provide housing to Eligible Households",
+    "value": "housing to Eligible Households"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner has or will contract to construct or rehabilitate the Project to provide housing to Eligible Households as set forth in the Owner’s Application for a PILOT.",
+    "page": 2,
+    "wording": "provide housing to Eligible Households",
+    "value": "housing to Eligible Households"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Eligible Households mean the households as described in the Project Facts Section that are eligible to reside in the Project and whose initial annual income is sixty percent (60%) or less of the median income as set from time to time by the United States Department of Housing and Urban Development for Section 8 Programs in the Washington Metropolitan Statistical Area.",
+    "page": 4,
+    "wording": "initial annual income is sixty percent (60%) or less of the median income",
+    "value": "60% or less of median income"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "Low Income Covenants means the covenants executed and recorded on the Property, in a form acceptable to the County, that require the Owner and all subsequent owners of the Property to offer for rent at least the Affordable Units to Eligible Households.",
+    "page": 4,
+    "wording": "require the Owner and all subsequent owners of the Property",
+    "value": "Owner and all subsequent owners"
+   },
+   {
+    "topic": "units",
+    "quote": "If the Project consist entirely of Affordable Units, then the Annual Payment shall consist of the Affordable Unit Annual Payment.",
+    "page": 6,
+    "wording": "consist entirely of Affordable Units",
+    "value": "entirely Affordable Units"
+   },
+   {
+    "topic": "units",
+    "quote": "If the Project consist of both Affordable Units and Market Rate Units, the Annual Payment shall consist of the Affordable Unit Annual Payment plus the Market Rate Unit Annual Payment.",
+    "page": 6,
+    "wording": "Affordable Units and Market Rate Units",
+    "value": "Affordable Units and Market Rate Units"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "Notwithstanding the foregoing , this Agreement will continue to be in effect if a subsequent purchaser obtains ownership of the Project through a foreclosure, deed in lieu of foreclosure, or similar proceeding and if the subsequent owner is (a) in compliance with the requirements of (i) the Act, (ii) the Low Income Covenants, and (iii) this Agreement and (b) executes its own Agreement with the County containing the same terms and conditions as set forth in this Agreement, for a term equal to the term remaining in the  Agreement.",
+    "page": 7,
+    "wording": "subsequent purchaser",
+    "value": "subsequent purchaser"
+   },
+   {
+    "topic": "reporting",
+    "quote": "By March 31 of each tax year, the Owner shall submit to the County’s Director of Finance and the County’s Director of the Department of Housing and Community Development audited financial statements which shall include any information as may be required by the Director of Finance to administer this Agreement.",
+    "page": 8,
+    "wording": "shall submit",
+    "value": "audited financial statements by March 31"
+   },
+   {
+    "topic": "reporting",
+    "quote": "Owner shall submit to the County’s Director of Finance and the County’s Director of the Department of Housing and Community Development, within five (5) business days after execution by Owner, the following documents:  entity agreements, including but not limited to , the Operating Agreement or Limited Partnership Agreement , the Low Income Covenants , and any other agreement or documents deemed necessary for submission to the County.",
+    "page": 8,
+    "wording": "shall submit",
+    "value": "entity agreements within 5 days"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Owner shall provide a copy of the Certificate of Substantial Completion to the County’s Director of Finance and the Director of the Department of Housing and Community Development within five (5) business days after issuance.",
+    "page": 8,
+    "wording": "shall provide",
+    "value": "Certificate of Substantial Completion within 5 days"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Owner shall provide the amendments to any of the above documents or reports within five (5) business days after execution or receipt of such amendments.",
+    "page": 8,
+    "wording": "shall provide",
+    "value": "amendments within 5 days"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Owner agrees to maintain the Property as rental housing for lower income persons under the requirements a federal, State, or local government program and the Owner agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement.",
+    "page": 8,
+    "wording": "lower income persons",
+    "value": "lower income persons"
+   },
+   {
+    "topic": "public_support",
+    "quote": "During that period commencing with the Substantial Completion Date until the Termination Date, the Project shall be exempt from paying full Prince George’s County real property taxes.",
+    "page": 6,
+    "wording": "exempt from paying full Prince George’s County real property taxes",
+    "value": "exempt from full real property taxes"
+   }
+  ]
+ },
+ "tokens_in": 8739,
+ "tokens_out": 2010,
+ "cost_usd": 0.007647,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

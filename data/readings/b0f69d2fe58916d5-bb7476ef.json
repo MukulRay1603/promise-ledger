@@ -1,0 +1,58 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "PILOT Agreement for Park Place at Addison Road Apartments",
+  "date": "2023-05-05",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Angela D. Alsobrooks",
+    "quote": "Angela D. Alsobrooks",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner is an entity formed by Banneker Ventures, LLC for the purpose of acquiring and constructing the Project, which will be one hundred ninety three (193) units of multi-family rental housing for low-income to moderate-income residents, known as Park Place at Addison Road, on a 3.70 acre parcel located at 6301 Central Avenue, 212 Zelma Avenue, and 109 Addison Road, Capitol Heights, Maryland 20743.",
+    "page": 1,
+    "wording": "will be one hundred ninety three (193) units",
+    "value": "193 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner is an entity formed by Banneker Ventures, LLC for the purpose of acquiring and constructing the Project, which will be one hundred ninety three (193) units of multi-family rental housing for low-income to moderate-income residents, known as Park Place at Addison Road, on a 3.70 acre parcel located at 6301 Central Avenue, 212 Zelma Avenue, and 109 Addison Road, Capitol Heights, Maryland 20743.",
+    "page": 1,
+    "wording": "low-income to moderate-income residents",
+    "value": "low-income to moderate-income"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require the Owner to make a mandatory annual payment to the County in an amount of no less than approximately sixteen thousand, five hundred twenty-eight dollars ($16,528) or approximately eighty five dollars ($85.64) per unit, for the one hundred ninety three (193) affordable units, for the first full tax year.",
+    "page": 1,
+    "wording": "mandatory annual payment",
+    "value": "$16,528"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment will increase by two percent (2%) for each subsequent tax year.",
+    "page": 2,
+    "wording": "increase by two percent (2%)",
+    "value": "2% increase annually"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for forty (40) years.",
+    "page": 2,
+    "wording": "remain in effect for forty (40) years",
+    "value": "40 years"
+   }
+  ]
+ },
+ "tokens_in": 2004,
+ "tokens_out": 721,
+ "cost_usd": 0.002404,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

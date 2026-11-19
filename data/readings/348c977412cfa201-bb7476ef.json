@@ -1,0 +1,52 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Policy Analysis and Fiscal Impact Statement CR-042-2023, Payment in Lieu of Taxes (“PILOT”) – Agreement for Flats at College Park",
+  "date": "2023-06-06",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Under the proposed agreement, for the 30-year term, Flats at College Park RST, LLC (“Owner”) will reserve 100% of the units for a target population of households whose incomes are at or below 80% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "reserve 100% of the units",
+    "value": "100% of the units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Under the proposed agreement, for the 30-year term, Flats at College Park RST, LLC (“Owner”) will reserve 100% of the units for a target population of households whose incomes are at or below 80% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "at or below 80% of the Area Median Income",
+    "value": "80% AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "Under the proposed agreement, for the 30-year term, Flats at College Park RST, LLC (“Owner”) will reserve 100% of the units for a target population of households whose incomes are at or below 80% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "30-year term",
+    "value": "30 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "CR-0-2023 would authorize the County to accept a payment in lieu of taxes equal to a $600.00 payment per affordable unit during the term of the PILOT agreement.",
+    "page": 3,
+    "wording": "accept a payment in lieu of taxes equal to a $600.00 payment per affordable unit",
+    "value": "$600 per unit annually"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "Under the proposed agreement, for the 30-year term, Flats at College Park RST, LLC (“Owner”) will reserve 100% of the units for a target population of households whose incomes are at or below 80% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "Flats at College Park RST, LLC (“Owner”)",
+    "value": "Flats at College Park RST, LLC"
+   }
+  ]
+ },
+ "tokens_in": 3161,
+ "tokens_out": 680,
+ "cost_usd": 0.002648,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

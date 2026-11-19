@@ -1,0 +1,101 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Policy Analysis and Fiscal Impact Statement CR-034-2023, Payment in Lieu of Taxes (“PILOT”) – Agreement for the Addison Park Apartments",
+  "date": "2023-06-01",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "Revenues:      Forgone tax revenues totaling approximately $17,694,603 over a 40-year period.",
+    "page": 1,
+    "wording": "Forgone tax revenues",
+    "value": "$17,694,603 over 40 years"
+   },
+   {
+    "topic": "term",
+    "quote": "CR-034-2023 would approve the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Addison Park, L.P. (“Owner”) for the Addison Park project (“Project”).",
+    "page": 2,
+    "wording": "Payments in Lieu of Taxes (“PILOT”) Agreement",
+    "value": "PILOT Agreement"
+   },
+   {
+    "topic": "term",
+    "quote": "• enters into an agreement with the governing body of the county or municipal corporation to allow the entire property or the portion  of the property which was maintained for lower income persons to remain as housing for lower income persons  for a term of at least five (5) years.",
+    "page": 2,
+    "wording": "for a term of at least five (5) years",
+    "value": "at least 5 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The Addison Park  Project (“Project”)  is located at 216 Yolanda Avenue, Capitol Heights , Maryland,2 and is a 293-unit transit-oriented senior affordable housing development .",
+    "page": 3,
+    "wording": "293-unit",
+    "value": "293 units"
+   },
+   {
+    "topic": "term",
+    "quote": "Under the proposed Agreement, for the 40-year term, Addison Park, L.P. (“Owner”) will reserve all units for seniors, ages 62 and older,  whose incomes are at or below 60% of the Area Median Income (“AMI”)3.",
+    "page": 3,
+    "wording": "40-year term",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Under the proposed Agreement, for the 40-year term, Addison Park, L.P. (“Owner”) will reserve all units for seniors, ages 62 and older,  whose incomes are at or below 60% of the Area Median Income (“AMI”)3.",
+    "page": 3,
+    "wording": "reserve all units",
+    "value": "all units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Under the proposed Agreement, for the 40-year term, Addison Park, L.P. (“Owner”) will reserve all units for seniors, ages 62 and older,  whose incomes are at or below 60% of the Area Median Income (“AMI”)3.",
+    "page": 3,
+    "wording": "at or below 60% of the Area Median Income",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "CR-034-2023 would authorize the County to accept a payment in lieu of taxes equal to a $106 payment per affordable unit in year one, which will escalate by two percent (2%) per year  during the term of the PILOT agreement.",
+    "page": 3,
+    "wording": "payment in lieu of taxes equal to a $106 payment per affordable unit in year one",
+    "value": "$106 per unit in year one"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT reduces the aggregate tax burden on the entire 293-unit Project to roughly ten percent (10%) of that amount, or approximately $31,058; this is equivalent to $106 per unit tax burden.",
+    "page": 4,
+    "wording": "PILOT reduces the aggregate tax burden",
+    "value": "10% of tax amount or approximately $31,058"
+   },
+   {
+    "topic": "units",
+    "quote": "Under the agreement, the County would be forgoing real property tax revenue of approximately $292,947, or approximately $1,000 per affordable unit, in year one.",
+    "page": 4,
+    "wording": "affordable unit",
+    "value": "affordable units in the project"
+   },
+   {
+    "topic": "term",
+    "quote": "Factoring in the 2% estimated average annual increase in the property tax assessment , the total impact is estimated at $17,694,603 in foregone tax revenue over the 40-year period that the PILOT agreement remains in effect.",
+    "page": 4,
+    "wording": "40-year period",
+    "value": "40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "However, should CR-034-2023 not be adopted the Owner may charge rents unaffordable to tenants at 60% AMI.",
+    "page": 4,
+    "wording": "60% AMI",
+    "value": "60% of Area Median Income"
+   }
+  ]
+ },
+ "tokens_in": 4262,
+ "tokens_out": 1452,
+ "cost_usd": 0.004909,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

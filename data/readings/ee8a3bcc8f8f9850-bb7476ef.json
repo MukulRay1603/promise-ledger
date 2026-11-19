@@ -1,0 +1,24 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (\"PILOT\") AGREEMENT FOR THE NEW CARROLLTON - AFFORDABLE - PHASE 3 - 9% PROJECT",
+  "date": "2024-10-15",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR THE NEW CARROLLTON - AFFORDABLE - PHASE 3 - 9% PROJECT for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Urban Atlantic Development LLC (the “Owner”).",
+    "page": 1,
+    "wording": "Payments in Lieu of Taxes (\"PILOT\") Agreement",
+    "value": "PILOT Agreement"
+   }
+  ]
+ },
+ "tokens_in": 1625,
+ "tokens_out": 240,
+ "cost_usd": 0.001087,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

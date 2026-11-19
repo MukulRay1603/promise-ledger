@@ -1,0 +1,45 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "PRINCE GEORGE'S COUNTY COUNCIL COMMITTEE REPORT Reference No.: CR-20-2024",
+  "date": "2024-04-23",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "The Prince George's County Council convened as the Committee of the Whole on April 23, 2024, to consider CR-020-2024 (Proposed DR-2), which is a Resolution approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) agreement between Prince George’s County and KCG SSP Capitol Heights LP, the owner.",
+    "page": 1,
+    "wording": "Payments in Lieu of Taxes (“PILOT”) agreement",
+    "value": "PILOT agreement"
+   },
+   {
+    "topic": "units",
+    "quote": "This project is a one hundred seventy-five (175) unit affordable rental housing community for families earning sixty percent (60%) or below the Area Median Income (“AMI”), located at Karen Boulevard and Wilberforce Court, Capitol Heights, Maryland, 20743.",
+    "page": 1,
+    "wording": "one hundred seventy-five (175) unit affordable rental housing community",
+    "value": "175 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "This project is a one hundred seventy-five (175) unit affordable rental housing community for families earning sixty percent (60%) or below the Area Median Income (“AMI”), located at Karen Boulevard and Wilberforce Court, Capitol Heights, Maryland, 20743.",
+    "page": 1,
+    "wording": "sixty percent (60%) or below the Area Median Income (“AMI”)",
+    "value": "60% AMI or below"
+   },
+   {
+    "topic": "term",
+    "quote": "The Project’s total development cost is expected to be sixty-eight million, six hundred thirty-two thousand five hundred eighty-one dollars ($68,632,581), and the term is 30 years.",
+    "page": 1,
+    "wording": "the term is 30 years",
+    "value": "30 years"
+   }
+  ]
+ },
+ "tokens_in": 1653,
+ "tokens_out": 570,
+ "cost_usd": 0.001921,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

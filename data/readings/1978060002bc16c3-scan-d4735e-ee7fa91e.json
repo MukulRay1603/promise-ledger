@@ -1,0 +1,10 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "pages": {
+  "2": "The Council's favorable consideration of this legislation is requested. If you have any questions, please contact my office or Jonathan Butler, Director, Department of Housing and Community Development at (301) 883-6511.\n\nSincerely,\n[handwritten signature]\nAisha N. Braveboy\nCounty Executive\n\nEnclosure\n\nWayne K. Curry Administration Building • 1301 McCormick Drive, Largo, MD 20774\nwww.princegeorgescountymd.gov"
+ },
+ "tokens_in": 722,
+ "tokens_out": 151,
+ "cost_usd": 0.000594
+}

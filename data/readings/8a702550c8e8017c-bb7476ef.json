@@ -1,0 +1,121 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Resolution No. CR-073-2024",
+  "date": "2024-10-15",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Jolene Ivey, Chair",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct fifty (50) units of new affordable multi-family rental housing for low-income to moderate-income families, earning fifty percent (50%) and below of the Area Median Income (“AMI”), known as New Carrollton – Affordable – Phase 3 – 9%, located at Pennsy Drive, Route 50 and Corporate Drive, New Carrollton, Maryland 20785, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "proposes to acquire and construct fifty (50) units of new affordable multi-family rental housing",
+    "value": "50 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct fifty (50) units of new affordable multi-family rental housing for low-income to moderate-income families, earning fifty percent (50%) and below of the Area Median Income (“AMI”), known as New Carrollton – Affordable – Phase 3 – 9%, located at Pennsy Drive, Route 50 and Corporate Drive, New Carrollton, Maryland 20785, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "earning fifty percent (50%) and below of the Area Median Income",
+    "value": "50% AMI and below"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "For the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Urban Atlantic Development LLC (the “Owner”).",
+    "page": 1,
+    "wording": "Urban Atlantic Development LLC",
+    "value": "Urban Atlantic Development LLC"
+   },
+   {
+    "topic": "units",
+    "quote": "PROJECT DESCRIPTION: A fifty (50) unit affordable family rental apartment community that will be constructed in New Carrollton, Maryland.",
+    "page": 4,
+    "wording": "A fifty (50) unit affordable family rental apartment community",
+    "value": "50 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "All units will be affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "rents will be restricted for forty (40) years",
+    "value": "restricted for 40 years"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "AFFORDABILITY:   All units will be priced at levels affordable to households earning fifty percent (50%) or less of the Area Median Income (AMI) for forty (40) years",
+    "page": 4,
+    "wording": "All units will be priced at levels affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "AFFORDABILITY:   All units will be priced at levels affordable to households earning fifty percent (50%) or less of the Area Median Income (AMI) for forty (40) years",
+    "page": 4,
+    "wording": "earning fifty percent (50%) or less of the Area Median Income",
+    "value": "50% or less of AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "AFFORDABILITY:   All units will be priced at levels affordable to households earning fifty percent (50%) or less of the Area Median Income (AMI) for forty (40) years",
+    "page": 4,
+    "wording": "for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The New Carrollton – Affordable - Phase 3 – 9% project (the “Project”) is a proposed fifty (50) unit transit-oriented family affordable housing development to be located within the confines of Pennsy Drive, Route 50, and Corporate Drive, New Carrollton, Prince George’s County.",
+    "page": 5,
+    "wording": "fifty (50) unit",
+    "value": "50 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The target population will be families that qualify at less than  fifty percent (50%) of the Area Median Income (AMI).",
+    "page": 5,
+    "wording": "less than  fifty percent (50%) of the Area Median Income (AMI)",
+    "value": "< 50% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Of the fifty (50) units, three (3) units will be set aside for residents with mobility impairments and one (1) unit set aside for a resident with sensory impairments.",
+    "page": 5,
+    "wording": "three (3) units will be set aside for residents with mobility impairments and one (1) unit set aside for a resident with sensory impairments",
+    "value": "4 accessible units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "However, by including high- quality affordable housing early in the master development of New Carrollton Metro Center, this project guarantees housing reserved at fifty percent (50%) of AMI to be included in the center of a much larger development.",
+    "page": 6,
+    "wording": "guarantees housing reserved at fifty percent (50%) of AMI",
+    "value": "50% AMI"
+   }
+  ]
+ },
+ "tokens_in": 4687,
+ "tokens_out": 1659,
+ "cost_usd": 0.005554,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

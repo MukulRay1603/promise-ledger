@@ -1,0 +1,107 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "CR-036-2023 Payments in Lieu of Taxes (\"PILOT\") Agreement for Hamlet Woods Apartments",
+  "date": "2023-06-22",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Thomas E. Dernoga",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct fifty nine (59) units of new affordable townhouse-style multi-family rental housing for low-income to moderate-income families, known as Hamlet Woods, on a 13.3 acre parcel located at 57th Avenue, Bladensburg, Maryland 20710, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (\"Property\"); and",
+    "page": 1,
+    "wording": "fifty nine (59) units",
+    "value": "59 units"
+   },
+   {
+    "topic": "term",
+    "quote": "WHEREAS, Section 7-506.3 of the Tax-Property Article of the Annotated Code of Maryland, as amended, provides that in Prince George's County, real property may be exempt from county property tax if: (a)(2)(i) the real property is owned by a person engaged in constructing or operating housing structures or projects; (a)(2)(ii) the real property is used for a housing structure or project that is constructed or substantially rehabilitated under a federal, State, or local government program that (a)(2)(ii)(1) is acquired, constructed, or rehabilitated under a federal, State, or local government program that (a)(2)(ii)(1)(A) funds construction or rehabilitation or insures the financing of construction or rehabilitation in whole or in part, including a housing investment trust, or (a)(2)(ii)(1)(B) provides interest subsidy, rent subsidy, or rent supplements; or (a)(2)(ii)(2) is acquired under the Right of First Refusal program under Subtitle 13, Division 14 of the Prince George's County Code; (a)(2)(iii) the owner and the governing body of Prince George’s County agree that the owner shall pay a negotiated amount in lieu of the applicable county property tax; and (a)(2)(iv) the owner of the real property: (a)(2)(iv)(1)(A) agrees to continue to maintain the real property as rental housing for lower income persons under the requirements of the government programs described in paragraph (a)(2)(ii) of this subsection; and (a)(2)(iv)(1)(B) agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement; or (a)(2)(iv)(2) enters into an agreement with the governing body of Prince George's County to allow the entire property or the portion of the property that was maintained for lower income persons to remain as housing for lower income persons for a term of at least 5 years;",
+    "page": 1,
+    "wording": "term of at least 5 years",
+    "value": "at least 5 years"
+   },
+   {
+    "topic": "units",
+    "quote": "PROJECT DESCRIPTION: A fifty nine (59) unit rental apartment community that will be constructed in five (5) townhouse-style buildings on a 13.3 acre site in Bladensburg, Maryland.",
+    "page": 4,
+    "wording": "fifty nine (59) unit",
+    "value": "59 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for thirty (30) years.",
+    "page": 4,
+    "wording": "All units will be affordable",
+    "value": "all units"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for thirty (30) years.",
+    "page": 4,
+    "wording": "restricted for thirty (30) years",
+    "value": "30 years"
+   },
+   {
+    "topic": "units",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income (\"AMI\") for thirty (30) years.",
+    "page": 4,
+    "wording": "All units will be priced",
+    "value": "all units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income (\"AMI\") for thirty (30) years.",
+    "page": 4,
+    "wording": "households earning sixty percent (60%) or less of the Area Median Income",
+    "value": "60% AMI or less"
+   },
+   {
+    "topic": "term",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income (\"AMI\") for thirty (30) years.",
+    "page": 4,
+    "wording": "for thirty (30) years",
+    "value": "30 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The Hamlet Woods project (the “Project”) is a proposed fifty nine (59) unit townhouse-style  affordable housing project to be located at the end of 57th Avenue in Bladensburg, Prince George’s  County, Maryland, by a development team consisting of Osprey Property Company II LLC  (“OPC”) and Parallax Development Group, LLC (“PDG”) (together, the “Developer”).",
+    "page": 5,
+    "wording": "fifty nine (59) unit",
+    "value": "59 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The target  population will be families that qualify at sixty percent  (60%) and below of the Area Median  Income (“AMI”).",
+    "page": 5,
+    "wording": "sixty percent  (60%) and below",
+    "value": "60% and below AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Developer is applying for a Prince George’s County Payment in lieu of Taxes (“PILOT”), for  a period of at least thirty (30) years, and a Housing Investment Trust Fund (“HITF”) loan in the  amount of two million, five hundr ed thousand dollars ($2,500,000).",
+    "page": 6,
+    "wording": "Payment in lieu of Taxes (“PILOT”)",
+    "value": "PILOT and HITF loan of $2,500,000"
+   },
+   {
+    "topic": "term",
+    "quote": "The Developer is applying for a Prince George’s County Payment in lieu of Taxes (“PILOT”), for  a period of at least thirty (30) years, and a Housing Investment Trust Fund (“HITF”) loan in the  amount of two million, five hundr ed thousand dollars ($2,500,000).",
+    "page": 6,
+    "wording": "at least thirty (30) years",
+    "value": "at least 30 years"
+   }
+  ]
+ },
+ "tokens_in": 4797,
+ "tokens_out": 1831,
+ "cost_usd": 0.006017,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

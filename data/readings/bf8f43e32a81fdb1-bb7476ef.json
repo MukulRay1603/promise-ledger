@@ -1,0 +1,72 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "A RESOLUTION concerning Payments in Lieu of Taxes (“PILOT”) Agreement for Addison Park Apartments",
+  "date": "2023-06-20",
+  "draft": true,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Thomas E. Dernoga, Chair",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct two hundred ninety three (293) units of new affordable multi-family rental housing for low-income to moderate-income seniors, ages sixty two (62) years and older, known as Addison Park, located at 216 Yolanda Avenue, Capitol Heights, Maryland 20743, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "two hundred ninety three (293) units",
+    "value": "293 units"
+   },
+   {
+    "topic": "units",
+    "quote": "PROJECT DESCRIPTION: A two hundred ninety three (293) unit affordable senior rental apartment community that will be constructed in two buildings on a 4.46 acre site in Capitol Heights, Maryland.",
+    "page": 4,
+    "wording": "two hundred ninety three (293) unit",
+    "value": "293 units"
+   },
+   {
+    "topic": "term",
+    "quote": "PROJECT DESCRIPTION: A two hundred ninety three (293) unit affordable senior rental apartment community that will be constructed in two buildings on a 4.46 acre site in Capitol Heights, Maryland.  All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "restricted for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "AFFORDABILITY:   All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income for forty (40) years",
+    "page": 4,
+    "wording": "sixty percent (60%) or less of the Area Median Income",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "The Addison Park project (the “Project”) is a proposed two hundred ninety three ( 293) unit transit-oriented senior affordable housing development to be located on two scattered sites at 216 Yolanda Avenue, Capitol Heights, Prince George’s County by a development team consisting of Atlantic Pacific Communities  (“APC”) and Cober Johnson Romney (“CJR”) (together, the “Development Team”).",
+    "page": 5,
+    "wording": "proposed",
+    "value": "293 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The target population will be seniors ages sixty two ( 62) and older with household incomes that are sixty percent (60%) or less of the Area Median Income (“AMI”).",
+    "page": 5,
+    "wording": "will be",
+    "value": "60% or less of AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Developer is applying for a Prince George’s County Payment in lieu of Taxes (“PILOT”), for  a period of at least forty  (40) years, and a Housing Investment Trust Fund (“HITF”) loan in the  amount of three million dollars ($3,000,000).",
+    "page": 6,
+    "wording": "applying for",
+    "value": "Payment in lieu of Taxes for at least 40 years and $3,000,000 HITF loan"
+   }
+  ]
+ },
+ "tokens_in": 4917,
+ "tokens_out": 1031,
+ "cost_usd": 0.004053,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

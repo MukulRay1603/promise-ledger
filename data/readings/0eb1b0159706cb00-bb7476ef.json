@@ -1,0 +1,143 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "agreement",
+  "title": "PAYMENTS IN LIEU OF TAXES AGREEMENT",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The new construction of 102 units of affordable multifamily rental housing for families.",
+    "page": 1,
+    "wording": "102 units",
+    "value": "102 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Households earning 70% of less of AMI",
+    "page": 1,
+    "wording": "70% of less of AMI",
+    "value": "70% or less of AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Total Number of Units: 102",
+    "page": 1,
+    "wording": "Total Number of Units",
+    "value": "102"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Affordable Units: 102",
+    "page": 1,
+    "wording": "Number of Affordable Units",
+    "value": "102"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Market Rate Units: 0",
+    "page": 1,
+    "wording": "Number of Market Rate Units",
+    "value": "0"
+   },
+   {
+    "topic": "public_support",
+    "quote": "$66,300 per year or $650 per Affordable Unit per year.",
+    "page": 1,
+    "wording": "$66,300 per year or $650 per Affordable Unit per year",
+    "value": "$66,300 per year"
+   },
+   {
+    "topic": "term",
+    "quote": "Term (in years): 40 years",
+    "page": 1,
+    "wording": "40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Owner will finance the Project with the Project Financing which consist of funds from a qualifying federal, State, or local government program, including a housing investment trust.",
+    "page": 2,
+    "wording": "finance the Project with the Project Financing",
+    "value": "Project Financing from government programs"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Owner submitted a request or application to the County to permit the Owner to make payments in lieu of County real property taxes pursuant to Section 7 -506.3 of the Tax-Property Article of the Annotated Code of Maryland (the “ Act”).",
+    "page": 2,
+    "wording": "payments in lieu of County real property taxes",
+    "value": "PILOT"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "the owner of the real property agrees to (A) continue to commence or continue to maintain the real property as rental housing for lower income persons under the requirements of the governmental programs described in item (2) of this paragraph and agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement or (B) enters into an agreement with the governing body of the county to allow the entire property or the portion of the property which was maintained for lower income persons to remain as housing for lower income persons for a term of at least five years; and",
+    "page": 3,
+    "wording": "the owner of the real property agrees",
+    "value": "owner"
+   },
+   {
+    "topic": "public_support",
+    "quote": "the owner and the governing body of the county where the real property is located agree that the owner shall pay a negotiated amount in lieu of the applicable county property taxes.",
+    "page": 3,
+    "wording": "negotiated amount in lieu of the applicable county property taxes",
+    "value": "negotiated payment in lieu of taxes"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "“Affordability Covenants” means the covenants executed and recorded on the Property, in a form acceptable to the County, that require the Owner and all subsequent owners of the Property to offer for rent at least the Affordable Units to Eligible Households.",
+    "page": 3,
+    "wording": "Owner and all subsequent owners of the Property",
+    "value": "Owner and subsequent owners"
+   },
+   {
+    "topic": "units",
+    "quote": "“Affordable Units” mean those rental units in the Project that will be dedicated to the Eligible Households.",
+    "page": 3,
+    "wording": "rental units in the Project that will be dedicated to the Eligible Households",
+    "value": "Affordable Units dedicated to Eligible Households"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "“Eligible Households” mean the households as described in the Project Facts Section that are eligible to reside in the Project and whose initial annual income is sixty percent (60%) or less of the median income as set from time to time by the United States Department of Housing and Urban Development for Section 8 Programs in the Baltimore Metropolitan Statistical Area.",
+    "page": 4,
+    "wording": "initial annual income is sixty percent (60%) or less of the median income",
+    "value": "60% or less of median income"
+   },
+   {
+    "topic": "public_support",
+    "quote": "This Agreement shall become effective as of the Effective Date and the obligation to pay negotiated payments in lieu of taxes for the Project shall commence as of the Substantial Completion Date and shall remain effective until the Termination Date.",
+    "page": 5,
+    "wording": "payments in lieu of taxes",
+    "value": "PILOT"
+   },
+   {
+    "topic": "public_support",
+    "quote": "During that period commencing with the Substantial Completion Date until the Termination Date, the Project shall be exempt from paying full Prince George’s County real property taxes.",
+    "page": 6,
+    "wording": "exempt from paying full Prince George’s County real property taxes",
+    "value": "real property tax exemption"
+   },
+   {
+    "topic": "public_support",
+    "quote": "For the period from the Substantial Completion Date and until the Termination Date, the Owner shall make Annual Payments to the County for each tax year, subject to increase at the Annual Rate per year after the first full calendar year following Substantial Completion.",
+    "page": 6,
+    "wording": "Annual Payments",
+    "value": "Annual Payments"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Owner agrees to maintain the Property as rental housing for lower income persons under the requirements a federal, State, or local government program and the Owner agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement.",
+    "page": 8,
+    "wording": "rental housing for lower income persons",
+    "value": "lower income persons"
+   }
+  ]
+ },
+ "tokens_in": 8829,
+ "tokens_out": 1795,
+ "cost_usd": 0.007136,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

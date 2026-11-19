@@ -1,0 +1,199 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "agreement",
+  "title": "MASTER PAYMENT IN LIEU OF TAXES AGREEMENT",
+  "date": "",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "The Developer proposes to develop the Property into a mixed -use project totaling approximately 1,462,956 square feet consisting of multifamily, senior living, grocery, retail, parking structure, and day care components (collectively, the “ Project”) which is projected to add at least [100 full-time equivalent jobs upon its completion with 51% of such jobs expected to be held by County residents and is expected to have a combined capital investment of equity and debt of approximately $720,147,331.",
+    "page": 1,
+    "wording": "projected to add at least [100 full-time equivalent jobs",
+    "value": "1,462,956 sq ft mixed-use project with $720,147,331 capital investment"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Pursuant to Council Resolution No. _______________ adopted on or about ____________________, the County Council approved the (i) exemption of the Property from County real property taxes ; (ii) agreements for payments in lieu of taxes for the Phases of the Project; and (iii) authorized the County Executive to enter into such agreements.",
+    "page": 1,
+    "wording": "approved the (i) exemption of the Property from County real property taxes",
+    "value": "Exemption from County real property taxes and PILOT agreements"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The County is entering into this Agreement for the payment of negotiated amounts in lieu of County real property taxes for the parcels identified in each phase of the Project, provided that the Developer complies with the terms of this Agreement.",
+    "page": 2,
+    "wording": "payment of negotiated amounts in lieu of County real property taxes",
+    "value": "Payment in lieu of taxes"
+   },
+   {
+    "topic": "term",
+    "quote": "“PILOT Term” means for each Phase for which the Parties have executed a Phase Commencement Notice , the period commencing on the PILOT Effective Date and continuing for fifteen (15) years thereafter.",
+    "page": 3,
+    "wording": "continuing for fifteen (15) years thereafter",
+    "value": "15 years per phase"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Section 3.01. Application of Payments.  The payments to be made to the County with respect to any Phase provided for herein shall be in lieu of all County real property taxes (except for the dedicated supplemental education property taxes) for such Phase under the Tax-Property Article of the Annotated Code of Maryland, as amended.",
+    "page": 6,
+    "wording": "in lieu of all County real property taxes",
+    "value": "in lieu of County real property taxes"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Section 3.03. Exemption.  Subject to the terms of this Agreement, the Parcels situated in a Phase shall be exempt from County real property taxes during the PILOT Term pursuant to the terms and conditions of this Agreement.",
+    "page": 6,
+    "wording": "shall be exempt from County real property taxes",
+    "value": "exempt from County real property taxes during PILOT Term"
+   },
+   {
+    "topic": "term",
+    "quote": "Developer covenants and agrees that the maximum number of Phases permitted for the Project is six (6).",
+    "page": 6,
+    "wording": "maximum number of Phases permitted for the Project is six (6)",
+    "value": "6 phases"
+   },
+   {
+    "topic": "term",
+    "quote": "For e ach Phase for which the Parties have executed and delivered a Phase Commencement Notice, the right to make payments in lieu of Taxes under this Agreement shall not exceed the PILOT Term, which shall commence on the PILOT Effective Date.",
+    "page": 7,
+    "wording": "shall not exceed the PILOT Term",
+    "value": "PILOT Term"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Section 3.05. Minimum and Maximum Amount of PILOT.  The PILOT payable for a Phase under the Agreement shall (a) at no time be less than the amount established under Section 7-516(b)(2)(i) of the Act; and (b) at no time exceed the amount of County taxes otherwise payable for a Phase based on the then-current assessment for County real property taxes.",
+    "page": 7,
+    "wording": "Minimum and Maximum Amount of PILOT",
+    "value": "Bounded by statutory minimum and current assessment maximum"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Section 4.01. PILOT Amount. The Parties agree that, pursuant to the Act and subject to Section 3.05 (Minimum and Maximum Amount of PILOT) and other terms and conditions of this Agreement, the amount of the Payment in Lieu of Taxes (the “ PILOT Amount ”) under this Agreement during the PILOT Term due to the County with respect to a Phase shall be equal to the sum of the Pre-Use and Occupancy Taxes plus the Incremental Tax for such Phase.",
+    "page": 8,
+    "wording": "equal to the sum of the Pre-Use and Occupancy Taxes plus the Incremental Tax",
+    "value": "Pre-Use and Occupancy Taxes plus Incremental Tax"
+   },
+   {
+    "topic": "remedies",
+    "quote": "If the Developer fails to satisfy all the applicable Conditions with respect to any Phase prior to the applicable deadline set forth in Section 6.02 (Deadlines for PILOT to Take Effect) then the Developer’s right to obtain the PILOT and Refunds for such Phase shall cease and be forfeited immediately.",
+    "page": 9,
+    "wording": "shall cease and be forfeited immediately",
+    "value": "Loss of PILOT and Refunds"
+   },
+   {
+    "topic": "remedies",
+    "quote": "(a) the Developer or its Affiliates fail to make any payment of Taxes required pursuant to this Agreement and such failure continues for at least 60 days following notice thereof from the County pursuant to this Agreement; or",
+    "page": 10,
+    "wording": "fail to make any payment of Taxes",
+    "value": "Default after 60 days"
+   },
+   {
+    "topic": "remedies",
+    "quote": "(b) the Developer or its Affiliates fail to provide the County access to the employment data collected by Developer within sixty (60) days of notice by the County as required pursuant to the provisions of Article VIII of this Agreement; or",
+    "page": 10,
+    "wording": "fail to provide the County access",
+    "value": "Default after 60 days"
+   },
+   {
+    "topic": "remedies",
+    "quote": "(c) the Developer shall breach this Agreement in any respect not described in the foregoing clauses (a) and (b) or Section 5.03 (Developer Default under MBE Plan), and such failure continues for at least thirty (30) days following notice thereof from the County pursuant to this Agreement, provided that if (a) such default is not reasonably capable of being cured within such 30-day period, and (b) Developer promptly shall have commenced curative procedures and thereafter diligently shall prosecute the same to a timely completion, then such cure period shall be extended for such additional period of time as reasonably necessary to cure the same.",
+    "page": 10,
+    "wording": "continues for at least thirty (30) days",
+    "value": "30-day cure period"
+   },
+   {
+    "topic": "remedies",
+    "quote": "Except for Defaults under Section 5.01(a) and Section 5.01(b), if within 30 days of such notice, the Default has not been cured, then the County may terminate this Agreement.",
+    "page": 10,
+    "wording": "County may terminate this Agreement",
+    "value": "Termination of agreement"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "All payments past due under this Agreement shall be considered a lien against the Property.",
+    "page": 11,
+    "wording": "considered a lien against the Property",
+    "value": "Lien against property"
+   },
+   {
+    "topic": "remedies",
+    "quote": "If as of the final completion date of any Phase of the Project the Developer is not in compliance with the MBE Plan for eligible construction costs of such Phase of the Project, then, following such failure, Developer shall not be entitled to receive any disbursement of Refund amounts pertaining to such completed Phase.",
+    "page": 11,
+    "wording": "shall not be entitled to receive any disbursement",
+    "value": "Loss of refund disbursement"
+   },
+   {
+    "topic": "remedies",
+    "quote": "If the County is in default with respect to any payment required under this Agreement, the Developer may declare a default by providing written notice of such default to the County.",
+    "page": 11,
+    "wording": "Developer may declare a default",
+    "value": "Developer default remedy"
+   },
+   {
+    "topic": "term",
+    "quote": "During the Term of this Agreement, the Developer covenants and agrees that it shall not take any action with respect to the Project or a Phase which would change its use as an Economic Development Project within the meaning of the Act, except as expressly permitted in writing by the County.",
+    "page": 12,
+    "wording": "During the Term of this Agreement",
+    "value": "Term of agreement"
+   },
+   {
+    "topic": "public_support",
+    "quote": "(a) Notwithstanding anything in the Act or this Agreement to the contrary, the Developer shall not have any right to secure a PILOT for Phase 1, Phase 2, and Phase 2A if the PILOT Term for such Phase does not commence on or before December 31, 2031.",
+    "page": 12,
+    "wording": "commence on or before December 31, 2031",
+    "value": "PILOT commencement deadline Dec 31 2031"
+   },
+   {
+    "topic": "public_support",
+    "quote": "(b) Notwithstanding anything in the Act or this Agreement to the contrary, the Developer shall not have any right to secure a PILOT for Phases 3 through 6 if the PILOT Term for such Phase does not commence on or before December 31, 2037.",
+    "page": 12,
+    "wording": "commence on or before December 31, 2037",
+    "value": "PILOT commencement deadline Dec 31 2037"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Developer acknowledges and agrees that only 18.5 acres of land in the cumulative out of the total of 20 acres of real property owned by the Developer shall be eligible for a PILOT under this Agreement.",
+    "page": 12,
+    "wording": "only 18.5 acres of land",
+    "value": "18.5 acres eligible for PILOT"
+   },
+   {
+    "topic": "reporting",
+    "quote": "On or before December 1 st of each year, commencing in the commencement of the first PILOT issued under this Agreement, the Developer agrees to supply such information as may be reasonably required by the County in order to comply with its reporting requirements under the Act.",
+    "page": 12,
+    "wording": "On or before December 1 st of each year",
+    "value": "Annual reporting by Dec 1"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Developer agrees to provide the County with the right to access and inspect the Employment Information with respect to the Project collected by the Developer during the Term of this Agreement, subject to any applicable confidentiality or privacy restrictions, within sixty (60) days of notice by the County.",
+    "page": 12,
+    "wording": "provide the County with the right to access",
+    "value": "Access to employment information within 60 days"
+   },
+   {
+    "topic": "term",
+    "quote": "Until the earlier of the end of the Term or the PILOT Term for a Phase, or ratification of any foreclosure sale, this Agreement shall be binding upon and shall inure to the benefit of the parties and their successors and assigns; provided that Developer shall remain entitled to receive and collect any Refund pursuant to the te rms of this Agreement and the Escrow Agreement for the duration of the PILOT Term  of each Phase, and such rights of Developer shall not run with the Property.",
+    "page": 13,
+    "wording": "Until the earlier of the end of the Term or the PILOT Term for a Phase",
+    "value": "End of Term or PILOT Term"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "Until the earlier of the end of the Term or the PILOT Term for a Phase, or ratification of any foreclosure sale, this Agreement shall be binding upon and shall inure to the benefit of the parties and their successors and assigns; provided that Developer shall remain entitled to receive and collect any Refund pursuant to the te rms of this Agreement and the Escrow Agreement for the duration of the PILOT Term  of each Phase, and such rights of Developer shall not run with the Property.",
+    "page": 13,
+    "wording": "binding upon and shall inure to the benefit of the parties and their successors and assigns",
+    "value": "Parties and their successors and assigns"
+   }
+  ]
+ },
+ "tokens_in": 16698,
+ "tokens_out": 3553,
+ "cost_usd": 0.013892,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

@@ -21,7 +21,7 @@ INDEX = ROOT / "data" / "county" / "search-index.json"
 EMBED_MODEL = os.getenv("EMBED_MODEL") or "gemini-embedding-001"
 DIM = 256
 MAX_RESULTS = 12
-MIN_SCORE = 0.62  # Below this, matches were judged unrelated in spot checks; they are not shown.
+MIN_SCORE = 0.73  # Spot checks on the county index (Nov 18): related clauses scored 0.74-0.85, unrelated ones about 0.71.
 _WORD = re.compile(r"[a-z0-9]+")
 _STOP = set("a an and are as at be by for from has have in is it of on or that the this to was were will with which "
             "who what when where how does do any all".split())

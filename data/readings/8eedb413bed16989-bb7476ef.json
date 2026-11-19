@@ -1,0 +1,16 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "other",
+  "title": "EXHIBIT A TAX PARCEL ACCOUNT IDENTIFIERS FOR THE PROPERTY",
+  "date": "2024-07-02",
+  "draft": false,
+  "signatures": [],
+  "candidates": []
+ },
+ "tokens_in": 2549,
+ "tokens_out": 70,
+ "cost_usd": 0.00094,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

@@ -1,0 +1,38 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "PENN PLACE I DEVELOPMENT PLAN",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "income_basis",
+    "quote": "• All units to service 50-60% AMI",
+    "page": 3,
+    "wording": "All units to service 50-60% AMI",
+    "value": "50-60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "• 168 units (1,2,3 bdrm units)",
+    "page": 3,
+    "wording": "168 units",
+    "value": "168 units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The project will fully adhere to all provisions outlined in CB-051-2022 if awarded financial support from the county, ensuring compliance with design, labor, and all regulatory requirements.",
+    "page": 6,
+    "wording": "if awarded financial support from the county",
+    "value": "financial support from the county"
+   }
+  ]
+ },
+ "tokens_in": 3831,
+ "tokens_out": 343,
+ "cost_usd": 0.002007,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

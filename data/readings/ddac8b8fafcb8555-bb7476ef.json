@@ -1,0 +1,121 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "A RESOLUTION concerning Payments in Lieu of Taxes (“PILOT”) Agreement for the Fort Washington by Vintage Project",
+  "date": "2025-11-18",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Edward P. Burroughs, III",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and rehabilitate three hundred four (304) units of affordable multi-family rental housing for low-income to moderate-income households, earning seventy percent (70%) and below of the Area Median Income (“AMI”), known as Fort Washington by Vintage, located at 2428 Corning Avenue, Fort Washington, Maryland 20744, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "three hundred four (304) units",
+    "value": "304 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "WHEREAS, the Owner proposes to acquire and rehabilitate three hundred four (304) units of affordable multi-family rental housing for low-income to moderate-income households, earning seventy percent (70%) and below of the Area Median Income (“AMI”), known as Fort Washington by Vintage, located at 2428 Corning Avenue, Fort Washington, Maryland 20744, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "earning seventy percent (70%) and below of the Area Median Income (“AMI”)",
+    "value": "70% AMI and below"
+   },
+   {
+    "topic": "term",
+    "quote": "(a)(2)(iv)(2) enters into an agreement with the governing body of Prince George's County to allow the entire property or the portion of the property that was maintained for lower income persons to remain as housing for lower income persons for a term of at least 5 years; and",
+    "page": 2,
+    "wording": "for a term of at least 5 years",
+    "value": "at least 5 years"
+   },
+   {
+    "topic": "units",
+    "quote": "PROJECT DESCRIPTION: A three hundred four (304) unit general occupancy rental apartment community will be acquired and rehabilitated.",
+    "page": 4,
+    "wording": "three hundred four (304) unit",
+    "value": "304 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "All units will be affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "restricted for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning seventy percent (70%) or less of the Area Median Income (“AMI”) for forty (40) years",
+    "page": 4,
+    "wording": "All units will be priced",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning seventy percent (70%) or less of the Area Median Income (“AMI”) for forty (40) years",
+    "page": 4,
+    "wording": "earning seventy percent (70%) or less of the Area Median Income",
+    "value": "70% AMI or less"
+   },
+   {
+    "topic": "term",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning seventy percent (70%) or less of the Area Median Income (“AMI”) for forty (40) years",
+    "page": 4,
+    "wording": "for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The Fort Washington by Vintage project (the “Project”) is a three hundred four (304) unit residential community situated at 2428 Corning Avenue in Fort Washington, Maryland slated for acquisition and renovation.",
+    "page": 5,
+    "wording": "is a three hundred four (304) unit",
+    "value": "304 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Project will be income-restricted to households earning at or below seventy percent (70%) of the Area Median Income (“AMI”).",
+    "page": 5,
+    "wording": "earning at or below seventy percent (70%) of the Area Median Income",
+    "value": "70% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Of the three hundred four (304) units, sixteen (16) units will be designated for residents with mobility impairments, and seven (7) units will be reserved for residents with sensory impairments.",
+    "page": 5,
+    "wording": "sixteen (16) units will be designated for residents with mobility impairments, and seven (7) units will be reserved",
+    "value": "16 mobility and 7 sensory units"
+   },
+   {
+    "topic": "units",
+    "quote": "The Project will feature a total of three hundred four (304) residential units, including one hundred thirty nine (139) one (1) bedroom units, one hundred fifty three (153) two (2) bedroom units, and twelve (12) three (3) bedroom units .",
+    "page": 5,
+    "wording": "feature a total of three hundred four (304) residential units",
+    "value": "304 units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Proceeds from Low Income Housing Tax Credits 42,706,797$",
+    "page": 7,
+    "wording": "Proceeds from Low Income Housing Tax Credits",
+    "value": "$42,706,797"
+   }
+  ]
+ },
+ "tokens_in": 5045,
+ "tokens_out": 1658,
+ "cost_usd": 0.005659,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

@@ -1,0 +1,157 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "agreement",
+  "title": "PAYMENTS IN LIEU OF TAXES AGREEMENT",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "income_basis",
+    "quote": "Households earning 70% or less of the Area Median Income (“AMI”)",
+    "page": 1,
+    "wording": "Households earning 70% or less",
+    "value": "70% or less of AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Total Number of Units: 193",
+    "page": 1,
+    "wording": "Total Number of Units",
+    "value": "193 units"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Affordable Units: 193",
+    "page": 1,
+    "wording": "Number of Affordable Units",
+    "value": "193 units"
+   },
+   {
+    "topic": "term",
+    "quote": "40 years (insert specific dates upon approval)",
+    "page": 2,
+    "wording": "40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "X Housing Investment Trust Funds $3,500,000",
+    "page": 2,
+    "wording": "Housing Investment Trust Funds",
+    "value": "$3,500,000"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "A. The Owner has or will acquire the Property located in Prince George’s County, Maryland for the purpose of constructing or rehabilitating the Project to provide housing to Eligible Households.",
+    "page": 3,
+    "wording": "provide housing to Eligible Households",
+    "value": "Eligible Households"
+   },
+   {
+    "topic": "term",
+    "quote": "(3) the owner of the real property agrees to (A) continue to commence or continue to maintain the real property as rental housing for lower income persons under the requirements of the governmental programs described in item (2) of this paragraph and agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement or (B) enters into an agreement with the governing body of the county to allow the entire property or the portion of the property which was maintained for lower income persons to remain as housing for lower income persons for a term of at least five years; and",
+    "page": 3,
+    "wording": "for a term of at least five years",
+    "value": "at least five years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "F. Pursuant to the County Resolution , the County Council of Prince George’s County, Maryland, approved the County entering into an agreement PILOT for the Property and authorized the County to enter into this agreement for negotiated payments in lieu of the payment of Prince George’s County taxes for the Project.",
+    "page": 3,
+    "wording": "approved the County entering into an agreement PILOT",
+    "value": "PILOT"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "“Eligible Households” mean the households as described in the Project Facts Section that are eligible to reside in the Project and whose initial annual income is eight percent (80%) or less of the median income as set from time to time by the United States Department of Housing and Urban Development for Section 8 Programs in the Baltimore Metropolitan Statistical Area.",
+    "page": 5,
+    "wording": "initial annual income is eight percent (80%) or less of the median income",
+    "value": "80% or less of area median income"
+   },
+   {
+    "topic": "units",
+    "quote": "“Low Income Covenants” means the covenants executed and recorded on the Property, in a form acceptable to the County, that require the Owner and all subsequent owners of the Property to offer for rent at least the Affordable Units to Eligible Households.",
+    "page": 5,
+    "wording": "offer for rent at least the Affordable Units",
+    "value": "Affordable Units"
+   },
+   {
+    "topic": "units",
+    "quote": "“Total Units” means the total number of rental units in the Project as set forth in the Project Facts Section.",
+    "page": 6,
+    "wording": "total number of rental units",
+    "value": "Total Units"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "The payments to be made by the Owner to the County, provided for herein with respect to the Project, shall be in lieu of the payment of Prince George’s County taxes on real property under the Tax-Property Article of the Annotated Code of Maryland, as amended.",
+    "page": 6,
+    "wording": "payments to be made by the Owner",
+    "value": "Owner"
+   },
+   {
+    "topic": "public_support",
+    "quote": "During that period commencing with the Substantial Completion Date until the Termination Date, the Project shall be exempt from paying full Prince George’s County real property taxes.",
+    "page": 6,
+    "wording": "exempt from paying full Prince George’s County real property taxes",
+    "value": "Exemption from full real property taxes"
+   },
+   {
+    "topic": "units",
+    "quote": "If the Project consist entirely of Affordable Units, then the Annual Payment shall consist of the Affordable Unit Annual Payment.",
+    "page": 6,
+    "wording": "Project consist entirely of Affordable Units",
+    "value": "Entirely Affordable Units"
+   },
+   {
+    "topic": "units",
+    "quote": "If the Project consist of both Affordable Units and Market Rate Units, the Annual Payment shall consist of the Affordable Unit Annual Payment plus the Market Rate Unit Annual Payment.",
+    "page": 6,
+    "wording": "consist of both Affordable Units and Market Rate Units",
+    "value": "Affordable and Market Rate Units"
+   },
+   {
+    "topic": "reporting",
+    "quote": "By March 31 of each tax year, the Owner shall submit to the County’s Director of Finance and the County’s Director of the Department of Housing and Community Development audited financial statements which shall include any information as may be required by the Director of Finance to administer this Agreement.",
+    "page": 8,
+    "wording": "Owner shall submit... audited financial statements",
+    "value": "Audited financial statements by March 31"
+   },
+   {
+    "topic": "reporting",
+    "quote": "Owner shall submit to the County’s Director of Finance and the County’s Director of the Department of Housing and Community Development, within five (5) business days after execution by Owner, the following documents: entity agreements, including but not limited to, the Operating Agreement or Limited Partnership Agreement, the Low Income Covenants, and any other agreement or documents deemed necessary for submission to the County.",
+    "page": 8,
+    "wording": "Owner shall submit... within five (5) business days",
+    "value": "Entity agreements within 5 business days of execution"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Owner shall provide a copy of the Certificate of Substantial Completion to the County’s Director of Finance and the Director of the Department of Housing and Community Development",
+    "page": 8,
+    "wording": "Owner shall provide a copy of the Certificate of Substantial Completion",
+    "value": "Certificate of Substantial Completion"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Owner agrees to maintain the Property as rental housing for lower income persons under the requirements a federal, State, or local government program and the Owner agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement .",
+    "page": 9,
+    "wording": "Owner agrees",
+    "value": "lower income persons"
+   },
+   {
+    "topic": "term",
+    "quote": "Owner agrees to enter into an agreement with the County , with terms and conditions that are subject to the County’s sole satisfaction, to allow the Property to remain as housing for lower income persons for a term of at least 5 years.",
+    "page": 9,
+    "wording": "for a term of at least 5 years",
+    "value": "at least 5 years"
+   }
+  ]
+ },
+ "tokens_in": 8815,
+ "tokens_out": 2106,
+ "cost_usd": 0.007909,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

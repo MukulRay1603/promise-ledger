@@ -1,0 +1,135 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Payments in Lieu of Taxes (“PILOT”) Agreement for Queens Park Plaza Apartments",
+  "date": "2023-07-05",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Thomas E. Dernoga",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and renovate a ninety four (94) unit garden style apartment community, known as Queens Park Plaza, a portion of which will provide housing for fifty seven (57) low-income to moderate-income residents, located one half (1/2) mile from the West Hyattsville Metro rail transit station along the Yellow Line, at 2500 Queens Chapel Road, Hyattsville, Maryland 20782, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "will provide housing for fifty seven (57) low-income to moderate-income residents",
+    "value": "57 of 94 units"
+   },
+   {
+    "topic": "term",
+    "quote": "(a)(2)(iv)(2) enters into an agreement with the governing body of Prince George's County to allow the entire property or the portion of the property that was maintained for lower income persons to remain as housing for lower income persons for a term of at least 5 years; and",
+    "page": 2,
+    "wording": "for a term of at least 5 years",
+    "value": "at least 5 years"
+   },
+   {
+    "topic": "units",
+    "quote": "PROJECT DESCRIPTION: A ninety four (94) unit garden style apartment community acquired in March 2023 by Queens Park Plaza MD LLC.",
+    "page": 4,
+    "wording": "A ninety four (94) unit garden style apartment community",
+    "value": "94 units"
+   },
+   {
+    "topic": "units",
+    "quote": "Ownership proposes to restrict rents for fifty seven (57) of the units for at least fifteen (15) years.",
+    "page": 4,
+    "wording": "restrict rents for fifty seven (57) of the units",
+    "value": "57 units"
+   },
+   {
+    "topic": "term",
+    "quote": "Ownership proposes to restrict rents for fifty seven (57) of the units for at least fifteen (15) years.",
+    "page": 4,
+    "wording": "for at least fifteen (15) years",
+    "value": "15 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "AFFORDABILITY:   40% or less of the AMI: 5 units",
+    "page": 4,
+    "wording": "40% or less of the AMI",
+    "value": "40% of AMI or less"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "50% or less of the AMI:  19 units",
+    "page": 4,
+    "wording": "50% or less of the AMI",
+    "value": "50% of AMI or less"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "60% or less of the AMI:  33 units",
+    "page": 4,
+    "wording": "60% or less of the AMI",
+    "value": "60% of AMI or less"
+   },
+   {
+    "topic": "units",
+    "quote": "Bensahel Capital and Enrst Equities (the “Developer”) propose to restrict rent levels for fifty seven (57) of the ninety four (94) rental units at Queens Park Plaza Apartments (the “Project”) to serve households with incomes at forty percent (40%), fifty percent (50%) and sixty percent (60%) of the Area Median Income (“AMI”) for a period of at least fifteen (15) years.",
+    "page": 5,
+    "wording": "restrict rent levels for fifty seven (57) of the ninety four (94) rental units",
+    "value": "57 of 94 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Bensahel Capital and Enrst Equities (the “Developer”) propose to restrict rent levels for fifty seven (57) of the ninety four (94) rental units at Queens Park Plaza Apartments (the “Project”) to serve households with incomes at forty percent (40%), fifty percent (50%) and sixty percent (60%) of the Area Median Income (“AMI”) for a period of at least fifteen (15) years.",
+    "page": 5,
+    "wording": "households with incomes at forty percent (40%), fifty percent (50%) and sixty percent (60%) of the Area Median Income",
+    "value": "40%, 50%, and 60% of AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "Bensahel Capital and Enrst Equities (the “Developer”) propose to restrict rent levels for fifty seven (57) of the ninety four (94) rental units at Queens Park Plaza Apartments (the “Project”) to serve households with incomes at forty percent (40%), fifty percent (50%) and sixty percent (60%) of the Area Median Income (“AMI”) for a period of at least fifteen (15) years.",
+    "page": 5,
+    "wording": "restrict rent levels",
+    "value": "restricted for 40%, 50%, and 60% AMI households"
+   },
+   {
+    "topic": "term",
+    "quote": "Bensahel Capital and Enrst Equities (the “Developer”) propose to restrict rent levels for fifty seven (57) of the ninety four (94) rental units at Queens Park Plaza Apartments (the “Project”) to serve households with incomes at forty percent (40%), fifty percent (50%) and sixty percent (60%) of the Area Median Income (“AMI”) for a period of at least fifteen (15) years.",
+    "page": 5,
+    "wording": "for a period of at least fifteen (15) years",
+    "value": "at least 15 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Developer is applying for a Prince George’s County payment in lieu of taxes (“PILOT”) since this subsidy will allow sixty percent (60%) of the Project’s units (57 of the 94 units) to be income - and rent-restricted and ensure the Project is able to adequately service its debt and equity capital.",
+    "page": 5,
+    "wording": "Prince George’s County payment in lieu of taxes (“PILOT”)",
+    "value": "PILOT"
+   },
+   {
+    "topic": "units",
+    "quote": "The Prince George’s County subsidy for the Project consists of a Prince George’s County Payment in lieu of T axes (“PILOT”) and will preserve fifty seven (57) affordable housing units for a period of at least fifteen (15) years in a neighborhood whose residents are at greater risk of displacement.",
+    "page": 6,
+    "wording": "preserve fifty seven (57) affordable housing units",
+    "value": "57 units"
+   },
+   {
+    "topic": "term",
+    "quote": "The Prince George’s County subsidy for the Project consists of a Prince George’s County Payment in lieu of T axes (“PILOT”) and will preserve fifty seven (57) affordable housing units for a period of at least fifteen (15) years in a neighborhood whose residents are at greater risk of displacement.",
+    "page": 6,
+    "wording": "for a period of at least fifteen (15) years",
+    "value": "at least 15 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Prince George’s County subsidy for the Project consists of a Prince George’s County Payment in lieu of T axes (“PILOT”) and will preserve fifty seven (57) affordable housing units for a period of at least fifteen (15) years in a neighborhood whose residents are at greater risk of displacement.",
+    "page": 6,
+    "wording": "Prince George’s County Payment in lieu of T axes (“PILOT”)",
+    "value": "PILOT"
+   }
+  ]
+ },
+ "tokens_in": 4836,
+ "tokens_out": 2109,
+ "cost_usd": 0.006723,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

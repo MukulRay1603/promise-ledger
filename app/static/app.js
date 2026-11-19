@@ -768,10 +768,10 @@ function countyTimeline(rows) {
 
 // Search every checked quote across the county agreements. Results are quotes found word for word on their page.
 const TOPIC_LABEL = { units: "Homes", income_basis: "Income limit", rent_limits: "Rent limits", term: "Term", responsible_party: "Responsible party", reporting: "Reporting", remedies: "Remedies" };
-const SEARCH_EXAMPLES = ["right of first refusal", "annual income certification", "what if the owner sells the property", "rent increases"];
+const SEARCH_EXAMPLES = ["how long must the homes stay affordable", "annual income certification", "what if the owner sells the property", "penalty if the owner defaults"];
 function countySearch() {
   const input = el("input", { type: "search", id: "county-q", maxlength: "200", autocomplete: "off",
-    placeholder: "e.g. right of first refusal", "aria-describedby": "county-search-note" });
+    placeholder: "e.g. how long must the homes stay affordable", "aria-describedby": "county-search-note" });
   const note = el("p", { class: "hint", id: "county-search-note", role: "status" },
     "Finds matching sentences in every agreement's checked quotes, by meaning.");
   const list = el("ol", { class: "search-results" });

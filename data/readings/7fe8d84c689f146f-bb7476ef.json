@@ -1,0 +1,45 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "PRINCE GEORGE'S COUNTY COUNCIL COMMITTEE REPORT Reference No.: CR-077-2024",
+  "date": "2024-10-08",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 1,
+    "wording": "All units will be affordable",
+    "value": "137 units"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 1,
+    "wording": "restricted for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All units will be restricted to renters aged sixty-two (62) or older earning up to sixty percent (60%) of the Area Median Income (AMI).",
+    "page": 1,
+    "wording": "earning up to sixty percent (60%) of the Area Median Income (AMI)",
+    "value": "up to 60% AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Prince George’s County Council Sitting as the Committee of the Whole on October 8, 2024, to consider CR-077-2024 a Payments in Lieu of Taxes (“PILOT”) Agreement for the Highlands Senior Apartments.",
+    "page": 1,
+    "wording": "Payments in Lieu of Taxes (\"PILOT\") Agreement",
+    "value": "PILOT Agreement"
+   }
+  ]
+ },
+ "tokens_in": 1486,
+ "tokens_out": 444,
+ "cost_usd": 0.001556,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

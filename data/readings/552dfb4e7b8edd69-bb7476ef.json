@@ -1,0 +1,58 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "Proposed PILOT Agreement for Flats at Glenridge Station",
+  "date": "2025-09-10",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Aisha N. Braveboy",
+    "quote": "Aisha N. Braveboy",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner, Dominium Inc., will form an entity for the purpose of acquiring land and constructing a two hundred forty-five (245) unit affordable rental housing community for families earning sixty percent (60%) or below of the Area Median Income (\"AMI\"), located at 7011 Chesapeake Road, Hyattsville, Maryland 20784.",
+    "page": 1,
+    "wording": "constructing a two hundred forty-five (245) unit",
+    "value": "245 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner, Dominium Inc., will form an entity for the purpose of acquiring land and constructing a two hundred forty-five (245) unit affordable rental housing community for families earning sixty percent (60%) or below of the Area Median Income (\"AMI\"), located at 7011 Chesapeake Road, Hyattsville, Maryland 20784.",
+    "page": 1,
+    "wording": "earning sixty percent (60%) or below of the Area Median Income",
+    "value": "60% or below of AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require a mandatory annual payment in an amount of no less than approximately one hundred sixty-five thousand, one hundred forty-seven dollars or six hundred seventy-four dollars per unit ($165,147 or $674 per unit) for the first year.",
+    "page": 1,
+    "wording": "mandatory annual payment",
+    "value": "$165,147 in year one"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment for these affordable units will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%)",
+    "value": "2% increase per year"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for forty (40) years, which includes the extended affordability period.",
+    "page": 1,
+    "wording": "remain in effect for forty (40) years",
+    "value": "40 years"
+   }
+  ]
+ },
+ "tokens_in": 1673,
+ "tokens_out": 670,
+ "cost_usd": 0.002177,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

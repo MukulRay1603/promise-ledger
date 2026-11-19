@@ -1,0 +1,16 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "agreement",
+  "title": "",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": []
+ },
+ "tokens_in": 931,
+ "tokens_out": 44,
+ "cost_usd": 0.000389,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

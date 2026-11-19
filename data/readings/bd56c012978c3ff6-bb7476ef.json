@@ -1,0 +1,79 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Payments in Lieu of Taxes (“PILOT”) Agreement for The Highlands Senior Apartments",
+  "date": "2024-10-15",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Jolene Ivey\nChair",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to construct one hundred thirty seven (137) units of new affordable multi-family rental housing for low-income to moderate-income seniors, known as The Highlands Senior Apartments, on a 8.25 acre parcel located at 6801 Sheriff Road, Landover, Maryland 20785, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "construct one hundred thirty seven (137) units",
+    "value": "137 units"
+   },
+   {
+    "topic": "term",
+    "quote": "(a)(2)(iv)(2) enters into an agreement with the governing body of Prince George's County to allow the entire property or the portion of the property that was maintained for lower income persons to remain as housing for lower income persons for a term of at least 5 years; and",
+    "page": 2,
+    "wording": "term of at least 5 years",
+    "value": "at least 5 years"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "All units will be affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "restricted for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income (AMI) for forty (40) years",
+    "page": 4,
+    "wording": "earning sixty percent (60%) or less of the Area Median Income (AMI)",
+    "value": "60% or less of AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income (AMI) for forty (40) years",
+    "page": 4,
+    "wording": "for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The Highlands Senior Apartments is a one hundred thirty seven (137) unit new-construction, senior affordable housing project located on the existing campus of the First Baptist Church of Highland Park (FBCHP) in Landover.",
+    "page": 5,
+    "wording": "one hundred thirty seven (137) unit",
+    "value": "137 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All units will be restricted to renters aged sixty two (62) or older earning up to sixty percent (60%) of the Area Median Income (AMI).",
+    "page": 5,
+    "wording": "earning up to sixty percent (60%) of the Area Median Income (AMI)",
+    "value": "60% AMI"
+   }
+  ]
+ },
+ "tokens_in": 4997,
+ "tokens_out": 1006,
+ "cost_usd": 0.004014,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}
