@@ -652,19 +652,19 @@ function countyTimeline(rows) {
     const at = x(r.term_end);
     let lane = lanes.findIndex((end) => at - end > 7);
     if (lane < 0) { lane = lanes.length; lanes.push(at); } else lanes[lane] = at;
-    return { r, at, lane, soon: Number(r.term_end.slice(0, 4)) - now <= 15 };
+    return { r, at, lane, soon: Number(r.term_end.slice(0, 4)) - now <= 15, est: r.term_end_estimated };
   });
   return el("figure", { class: "county-timeline", style: `--lanes:${Math.max(1, lanes.length)}` },
     el("figcaption", {},
-      el("h2", { id: "county-timeline-title" }, "When the affordability ends"),
-      el("p", { class: "hint" }, "Each mark is one agreement's affordability end date, from its signed term. Amber marks end within 15 years: the window to plan for keeping those homes affordable.")),
+      el("h2", { id: "county-timeline-title" }, "When the stated terms run out"),
+      el("p", { class: "hint" }, "Each mark counts the longest term an agreement's records state (usually the PILOT term) from the Council's adoption date; a solid mark is dated by a signed record. The signed agreement may start later, so the real end is that year or later. Amber marks run out within 15 years: the window to plan for keeping those homes affordable.")),
     el("div", { class: "ct-track", role: "list", "aria-labelledby": "county-timeline-title" },
       el("div", { class: "ct-axis", "aria-hidden": "true" },
         ...ticks.map((y) => el("span", { class: "ct-tick", style: `left:${2 + 96 * (y - now) / span}%` }, String(y)))),
-      ...placed.map(({ r, at, lane, soon }, i) => el("a", {
-        class: `ct-mark${soon ? " ct-soon" : ""}`, role: "listitem", href: `#/deals/${encodeURIComponent(r.id)}`,
+      ...placed.map(({ r, at, lane, soon, est }, i) => el("a", {
+        class: `ct-mark${soon ? " ct-soon" : ""}${est ? " ct-est" : ""}${at > 68 ? " ct-flip" : ""}`, role: "listitem", href: `#/deals/${encodeURIComponent(r.id)}`,
         style: `left:${at}%;--lane:${lane};--i:${i}`,
-        "aria-label": `${r.name}: affordability ends ${formatDate(r.term_end)}${r.homes ? `, ${plural(r.homes, "home")}` : ""}`,
+        "aria-label": `${r.name}: stated term runs to ${est ? "about " + r.term_end.slice(0, 4) + " or later" : formatDate(r.term_end)}${r.homes ? `, ${plural(r.homes, "home")}` : ""}`,
       }, el("span", { class: "ct-dot", "aria-hidden": "true" }),
         el("span", { class: "ct-label", "aria-hidden": "true" }, el("b", {}, r.term_end.slice(0, 4)), " ", r.name)))));
 }
@@ -677,7 +677,7 @@ async function renderCounty() {
   view.replaceChildren(
     el("div", { class: "page-head" },
       el("div", {},
-        el("p", { class: "kicker" }, "Real public records"),
+        el("p", { class: "eyebrow" }, el("span", { class: "real-badge" }, icon("check"), "Real public records")),
         el("h1", { id: "county-title" }, "Prince George's County"),
         el("p", { class: "page-sub" }, "Every payment-in-lieu-of-taxes (PILOT) agreement the County Council considered since 2023, read from the Council's own records. Open any deal to see each commitment's quote and page.")),
       el("div", { class: "page-actions" },
@@ -711,7 +711,8 @@ async function renderCounty() {
       kpi(t.homes ? t.homes.toLocaleString() : "—", "Affordable homes described", t.deals_with_homes ? `in ${plural(t.deals_with_homes, "agreement")} that state a count` : "No counts found yet"),
       kpi(`${t.found.reporting} of ${read.length}`, "Have reporting wording", `${pct(t.found.reporting)}% of agreements read`, t.found.reporting < read.length ? "kpi-warn" : ""),
       kpi(`${t.found.remedies} of ${read.length}`, "Have remedy wording", `${pct(t.found.remedies)}% of agreements read`, t.found.remedies < read.length ? "kpi-warn" : ""),
-      kpi(String(t.ending_by_2040), "Affordability ends by 2040", `of ${plural(t.term_ends_known, "agreement")} with a dated term`)),
+      kpi(String(t.ending_by_2040), "Stated terms run out by 2040", `of ${plural(t.term_ends_known, "agreement")} that state a term`, t.ending_by_2040 ? "kpi-warn" : ""),
+      kpi(String(t.template_text), "Approved text with blanks", "Unfilled template text, like “(insert specific dates)”", t.template_text ? "kpi-warn" : "")),
     countyTimeline(read),
     el("section", { class: "card county-table-card", "aria-labelledby": "county-table-cap" },
       el("div", { class: "card-head" }, el("h2", { id: "county-table-cap" }, "What each agreement's records say"),
@@ -720,18 +721,24 @@ async function renderCounty() {
         el("table", { class: "county-table stack" },
           el("caption", { class: "visually-hidden" }, "County PILOT agreements, newest first"),
           el("thead", {}, el("tr", {},
-            ["Agreement", "Council action", "Homes", "Income limit", "Affordability ends"].map((h) => el("th", { scope: "col" }, h)),
+            ["Agreement", "Council action", "Homes", "Income limits", "Longest stated term"].map((h) => el("th", { scope: "col" }, h)),
             ...OBLIGATIONS.map(([, label, help]) => el("th", { scope: "col", class: "ob-head", title: help }, label)))),
           el("tbody", {}, ...board.deals.map((r) => el("tr", { class: r.records_read ? null : "row-pending" },
             el("th", { scope: "row", "data-label": "Agreement" },
               el("a", { class: "deal-name", href: `#/deals/${encodeURIComponent(r.id)}` }, r.name),
-              el("span", { class: "deal-city" }, r.file, " · ", r.records_read < r.records ? `${r.records_read} of ${r.records} records read` : plural(r.records, "record"))),
+              el("span", { class: "deal-city" }, r.file, " · ", r.records_read < r.records ? `${r.records_read} of ${r.records} records read` : plural(r.records, "record")),
+              r.template_text?.length ? el("a", { class: "tag tag-differs template-flag", href: sourceHref(r.id, r.template_text[0].claim_id),
+                title: `“${r.template_text[0].quote}”` }, "Template blanks in the approved text") : null),
             el("td", { "data-label": "Council action" },
               el("span", {}, r.council_status || "—", r.passed ? ` ${formatDate(r.passed)}` : ""),
               r.source_url ? el("a", { class: "reminder-source", href: r.source_url, target: "_blank", rel: "noopener" }, "Council record", el("span", { class: "visually-hidden" }, ` for ${r.name} (opens the County's site)`)) : null),
             el("td", { "data-label": "Homes", class: "num" }, r.homes ? (r.total_homes ? `${r.homes} of ${r.total_homes}` : String(r.homes)) : el("span", { class: "cell-muted" }, "—")),
             el("td", { "data-label": "Income limit" }, r.income_limit || el("span", { class: "cell-muted" }, "—")),
-            el("td", { "data-label": "Affordability ends" }, r.term_end ? formatDate(r.term_end) : el("span", { class: "cell-muted" }, "—")),
+            el("td", { "data-label": "Longest stated term" }, r.term_end
+              ? [el("span", {}, r.term_years ? `${r.term_years} years` : formatDate(r.term_end)),
+                el("span", { class: "deal-city" }, r.term_end_estimated ? `to about ${r.term_end.slice(0, 4)} or later` : `ends ${formatDate(r.term_end)}`),
+                r.term_claim_id ? el("a", { class: "reminder-source", href: sourceHref(r.id, r.term_claim_id) }, "Quote", el("span", { class: "visually-hidden" }, ` for ${r.name} term`)) : null]
+              : el("span", { class: "cell-muted" }, "—")),
             ...OBLIGATIONS.map(([key, label]) => dot(r.found[key], r, key, label)))))))),
     el("p", { class: "hint county-source" }, `Source: ${board.source}, retrieved by tools/county_import.py. Records are read once and checked word for word; numbers update when new records are added.`),
   );
@@ -926,7 +933,7 @@ async function renderDeal(id, tab, sourceClaim = null, withTour = false) {
       el("span", { class: "real-badge" }, icon("check"), "Real record"), " ",
       src.file ? `Council file ${src.file}` : deal.city,
       src.status ? ` · ${src.status}${src.passed ? ` ${formatDate(src.passed)}` : ""}` : "",
-      src.url ? [" · ", el("a", { href: src.url, target: "_blank", rel: "noopener" }, "County record", el("span", { class: "visually-hidden" }, " (opens the County's site)"))] : null);
+      src.url ? [" · ", el("a", { href: src.url, target: "_blank", rel: "noopener" }, "County record", el("span", { class: "visually-hidden" }, " (opens the County's site)"))] : "");
   }
   renderActions(id, deal);
   renderDocs();
@@ -1840,6 +1847,11 @@ function renderDocs() {
   byId("doc-list").hidden = items.length === 0;
   byId("docs-count").textContent = items.length ? plural(items.length, "file") : "No files yet";
   noClaimsNote({ canShow: false });
+  // Read-only deals fold their file list; anything still reading, failed or uploading keeps it open.
+  const busy = docs.some((doc) => ["queued", "reading", "checking", "failed"].includes(doc.status)) || local.length > 0;
+  const ask = (dealState.review?.next_records || []).length;
+  setCollapsible(byId("docs-card"), { open: !isReadOnly() || busy || !docs.length,
+    summary: `${plural(docs.length, "record")} on file${ask ? ` · ${plural(ask, "record")} to ask for` : ""}` });
 }
 
 // Every file was read and none states a housing commitment: say so, so the page does not look stuck.
@@ -2705,6 +2717,39 @@ function setupDecisionDialog() {
   });
 }
 
+// A card that folds to its heading and a one-line summary. Each deal starts open or folded by `open`; after that the
+// visitor's own choice holds until they open another deal. Nothing is removed: the content is one press away.
+function setCollapsible(section, { open, summary }) {
+  if (!section || !dealState) return;
+  const head = section.querySelector(":scope > .card-head");
+  const body = section.querySelector(":scope > .card-body");
+  if (!head || !body) return;
+  if (section.dataset.forDeal !== dealState.id) {
+    section.dataset.forDeal = dealState.id;
+    section.dataset.open = String(Boolean(open));
+  }
+  body.id ||= `${section.id}-body`;
+  let line = head.querySelector(".fold-summary");
+  if (!line) { line = el("p", { class: "fold-summary" }); head.append(line); }
+  let button = head.querySelector(".fold-toggle");
+  if (!button) {
+    button = el("button", { type: "button", class: "btn btn-ghost btn-small fold-toggle", "aria-controls": body.id,
+      onclick: () => { section.dataset.open = String(section.dataset.open !== "true"); section.foldApply?.(); } });
+    head.append(button);
+  }
+  const apply = () => {
+    const isOpen = section.dataset.open === "true";
+    body.hidden = !isOpen;
+    section.classList.toggle("folded", !isOpen);
+    button.setAttribute("aria-expanded", String(isOpen));
+    button.replaceChildren(isOpen ? "Hide" : "Show", el("span", { class: "visually-hidden" }, ` ${head.querySelector("h2")?.textContent || "details"}`));
+    line.textContent = isOpen ? "" : summary;
+    line.hidden = isOpen || !summary;
+  };
+  section.foldApply = apply; // The button always runs the latest render's summary.
+  apply();
+}
+
 // Progress meter and review log.
 function renderReviewPanel() {
   const panel = byId("review-panel");
@@ -2755,6 +2800,9 @@ function renderReviewPanel() {
         "This is a sample deal. Your review is kept for this browser only, and no one else sees it."),
       d.log.length ? resetControl() : null) : null
   ].filter(Boolean));
+  // Folded until the visitor starts reviewing: the summary line still shows where the review stands.
+  setCollapsible(panel, { open: d.log.length > 0 || !isReadOnly(),
+    summary: `${p.claims_reviewed} of ${p.claims_total} claims reviewed · ${p.flagged_reviewed} of ${p.flagged_total} open questions decided` });
 }
 
 // "Reset my review" on sample deals, with an inline confirm.

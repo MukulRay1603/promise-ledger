@@ -116,6 +116,12 @@ class CountySeeding(unittest.TestCase):
         self.assertEqual(len(docs), 1)
         self.assertEqual(docs[0]["source_url"], "https://example.org/a.pdf")
         submit.assert_not_called()  # Seeding never spends on a live read of a real record.
+        # A record with no saved reading is marked, not queued, so a restart never reads it live either.
+        self.assertEqual(docs[0]["status"], "failed")
+        self.assertIn("Not read yet", docs[0]["error"])
+        with mock.patch.object(deals, "submit") as submit:
+            self.assertEqual(deals.resume_pending(self.store), 0)
+        submit.assert_not_called()
 
     def test_a_file_that_no_longer_matches_its_hash_is_not_used(self):
         with self._fake_download(_pdf("A different file.")):

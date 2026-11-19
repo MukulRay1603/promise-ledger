@@ -1649,7 +1649,7 @@ textarea { font-family: var(--serif); font-size: 1.0625rem; }
 .ct-soon .ct-label b { color: var(--amber-ink); }
 @media (prefers-reduced-motion: no-preference) {
   .ct-mark { animation: ct-in .4s var(--ease) both; animation-delay: calc(var(--i) * 45ms); }
-  @keyframes ct-in { from { opacity: 0; transform: translate(-.3rem, .5rem); } to { opacity: 1; transform: translateX(-.3rem); } }
+  @keyframes ct-in { from { opacity: 0; translate: 0 .5rem; } to { opacity: 1; translate: 0 0; } }
 }
 .county-table-card .card-head { display: block; }
 .county-table-card .card-head h2 { margin: 0 0 .25rem; }
@@ -1684,3 +1684,24 @@ textarea { font-family: var(--serif); font-size: 1.0625rem; }
 .letter-modal input { width: 100%; }
 #letter-note.letter-ok { color: var(--primary-ink); }
 .next-records > .btn { margin-top: .75rem; }
+.ct-est .ct-dot { background: var(--surface); box-shadow: inset 0 0 0 2px var(--primary), 0 0 0 3px var(--surface); }
+.ct-est.ct-soon .ct-dot { box-shadow: inset 0 0 0 2px var(--amber, #D97706), 0 0 0 3px var(--surface); }
+.eyebrow { margin: 0 0 .5rem; }
+/* Folding cards: heading, a one-line summary, and a Show/Hide button. */
+.card-head:has(.fold-toggle) { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem 1rem; }
+.card-head:has(.fold-toggle) h2 { margin-right: auto; }
+.fold-summary { flex-basis: 100%; order: 3; margin: 0; font-size: .875rem; color: var(--muted); }
+.fold-toggle { order: 2; }
+.folded > .card-head { border-bottom: 0; }
+.folded .card-foot { display: none; }
+.folded > .card-head > .hint { display: none; }
+.county-body { grid-template-columns: minmax(0, 1fr); }
+.county-body > * { min-width: 0; }
+.real-badge svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.template-flag { display: inline-flex; margin-top: .375rem; font-size: .6875rem; text-decoration: none; }
+.county-timeline { overflow: hidden; }
+.ct-flip { flex-direction: row-reverse; transform: translateX(calc(-100% + .3rem)); }
+.ct-flip::before { left: auto; right: .3rem; }
+.county-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 860px) { .county-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 420px) { .county-kpis { grid-template-columns: minmax(0, 1fr); } }

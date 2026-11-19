@@ -155,6 +155,8 @@ def list_deals(store: Storage | None = None, session: str | None = None) -> list
 
 # Terms a monitoring office needs on file for every deal (Lincoln Institute 2015 practitioner list; DC Auditor 2024).
 OBLIGATION_TERMS = ("reporting", "remedies", "rent_limits", "income_basis", "term")
+_TEMPLATE = re.compile(r"\(insert\b|\[insert\b|(?-i:\bOR \[)|\[(?:name|date|number|amount)\b|_{5,}", re.I)
+_AMI = re.compile(r"(\d{2,3})\s*(?:%|percent)\s+(?:or less\s+)?(?:of\s+)?(?:the\s+)?(?:area\s+)?(?:median|AMI\b)", re.I)
 
 
 def _homes(claims: list[dict]) -> tuple[int | None, int | None]:
@@ -187,20 +189,42 @@ def county_board(store: Storage | None = None, today: date | None = None) -> dic
         located = {t["key"]: bool(t.get("located")) for t in review["terms"]}
         homes, total = _homes(claims)
         end = term_end(claims, done)
-        income = next((t["values"][-1] for t in review["terms"] if t["key"] == "income_basis" and t.get("values")), None)
         source = deal.get("source") or {}
+        # Council files hold the approved agreement, rarely the executed copy, so a signed end date is often missing.
+        # Then the approved term is counted from the Council's adoption date and marked as an estimate: the signed
+        # agreement may start later (for example at occupancy), never earlier.
+        estimate = None
+        if not (end and end.get("date")) and source.get("passed"):
+            spans = [c for c in claims if c["topic"] == "term" and (_years(c["value"]) or _years(c["quote"]))]
+            if spans:
+                # The longest term the records state (in PILOT records usually the PILOT term), not a judgement of
+                # which clause governs: the board links the quote so a person can check it.
+                pick = max(spans, key=lambda c: (_years(c["value"]) or _years(c["quote"]) or 0, c.get("date") or ""))
+                years = _years(pick["value"]) or _years(pick["quote"])
+                estimate = {"date": _add_years(date.fromisoformat(source["passed"]), years).isoformat(), "years": years,
+                            "claim_id": pick["id"]}
+        # Agreements often set several income tiers; list every share of median income the checked quotes state.
+        tiers = sorted({int(m) for c in claims if c["topic"] == "income_basis"
+                        for m in _AMI.findall(c["quote"]) if 10 <= int(m) <= 150})
+        income = ", ".join(f"{t}%" for t in tiers) + " of area median income" if tiers else None
         rows.append({
             "id": deal["id"], "name": deal["name"], "file": source.get("file"), "council_status": source.get("status"),
             "introduced": source.get("introduced"), "passed": source.get("passed"), "source_url": source.get("url"),
             "votes": source.get("votes") or [],
             "records": len(docs), "records_read": len(done), "claims": len(claims),
             "homes": homes, "total_homes": total, "income_limit": income,
-            "term_end": end["date"].isoformat() if end and end.get("date") else None,
-            "term_years": end.get("years") if end else None,
+            "term_end": end["date"].isoformat() if end and end.get("date") else (estimate or {}).get("date"),
+            "term_end_estimated": bool(estimate),
+            "term_years": (end.get("years") if end and end.get("date") else None) or (estimate or {}).get("years"),
+            "term_claim_id": end["claim"]["id"] if end and end.get("date") else (estimate or {}).get("claim_id"),
             "furthest_stage": review["summary"]["furthest_status"],
             "found": {k: located.get(k, False) for k in OBLIGATION_TERMS},
             "not_found": [k for k in OBLIGATION_TERMS if not located.get(k, False)],
             "terms_differ": review["summary"]["terms_differ"],
+            # Approved text that still holds template blanks or alternatives, e.g. "(insert specific dates upon
+            # approval)" or "OR [Owner agrees ...]". Quoted so a person can see exactly what was left unfilled.
+            "template_text": [{"claim_id": c["id"], "quote": c["quote"][:160], "document": c.get("document_type")}
+                              for c in claims if _TEMPLATE.search(c["quote"])][:5],
         })
     rows.sort(key=lambda r: r["passed"] or r["introduced"] or "", reverse=True)
     read = [r for r in rows if r["records_read"]]
@@ -219,6 +243,7 @@ def county_board(store: Storage | None = None, today: date | None = None) -> dic
             "term_ends_known": len(ends),
             "ending_by_2040": sum(1 for r in ends if r["term_end"] < "2041-01-01"),
             "terms_differ": sum(1 for r in read if r["terms_differ"]),
+            "template_text": sum(1 for r in read if r["template_text"]),
         },
     }
 
@@ -1248,7 +1273,10 @@ def seed_sample(manifest_path: Path, store: Storage, version: str | None = None)
             process_document(deal["id"], doc["id"], store)
         elif not real:
             submit(deal["id"], doc["id"], store)
-        # A real record with no cached reading waits for tools/county_read.py: seeding never spends on live reads.
+        else:
+            # A real record with no saved reading waits for tools/county_read.py. It is marked, not queued, so a
+            # restart never picks it up and spends on a live read.
+            _set(store, deal["id"], doc, status="failed", error="Not read yet: this public record is waiting for its one-time reading.")
     for doc in store.list_documents(deal["id"]):  # Records no longer in the manifest. Visitor uploads go via the sweep.
         if doc["id"] not in keep and not doc.get("demo"):
             store.delete_document(deal["id"], doc["id"])
