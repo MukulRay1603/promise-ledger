@@ -1773,3 +1773,4 @@ textarea { font-family: var(--serif); font-size: 1.0625rem; }
 .ob-unread .ob-text-always { font-size: .75rem; color: var(--muted); white-space: nowrap; }
 @media (max-width: 420px) { .main-nav a { padding: 0 .5rem; } .header-tools .btn { padding: .5rem .375rem; } }
 .hero { overflow-x: clip; }
+.hero-also { margin: -.25rem 0 1.25rem; color: var(--muted); font-size: .9375rem; max-width: 34rem; }

@@ -40,7 +40,10 @@ function formatDate(iso) {
 const daysFromToday = (iso) => Math.round((new Date(`${iso.slice(0, 10)}T00:00:00`) - new Date(new Date().toDateString())) / 86400000);
 const plural = (count, one, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 const stageLabel = (status) => (status ? status[0].toUpperCase() + status.slice(1) : "None yet");
-const sourceShort = (claim) => `${claim.document_type} · ${formatDate(claim.date)} · p. ${claim.page}`;
+// An agreement whose record shows no completed signature says so, so its terms are not read as signed.
+const docLabel = (claim) => (/agreement/i.test(claim.document_type || "") && !["signed", "delivered"].includes(claim.status)
+  ? `${claim.document_type} (not signed)` : claim.document_type);
+const sourceShort = (claim) => `${docLabel(claim)} · ${formatDate(claim.date)} · p. ${claim.page}`;
 const fileSize = (bytes) => (bytes > 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`);
 
 const ICONS = {
