@@ -1069,7 +1069,7 @@ async function renderDeal(id, tab, sourceClaim = null, withTour = false) {
       el("span", { class: "real-badge" }, icon("check"), "Real record"), " ",
       src.file ? `Council file ${src.file}` : deal.city,
       src.status ? ` · ${src.status}${src.passed ? ` ${formatDate(src.passed)}` : ""}` : "",
-      src.url ? [" · ", el("a", { href: src.url, target: "_blank", rel: "noopener" }, "County record", el("span", { class: "visually-hidden" }, " (opens in a new tab)"))] : "");
+      ...(src.url ? [" · ", el("a", { href: src.url, target: "_blank", rel: "noopener" }, "County record", el("span", { class: "visually-hidden" }, " (opens in a new tab)"))] : []));
   }
   renderActions(id, deal);
   renderDocs();

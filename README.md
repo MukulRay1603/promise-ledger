@@ -218,6 +218,8 @@ Uploads are read on a background thread, hence `--no-cpu-throttling`. The servic
 | `GEMINI_MODEL` | `gemini-3.8-flash` | Model for reading records. Use a pinned version, never a `-latest` alias, so every change is measured. |
 | `GEMINI_FALLBACK_MODEL` | `gemini-3.5-flash-lite` | Tried once if the main model is busy, out of quota or times out. |
 | `MAIN_PDF_TIMEOUT_MS` | `60000` | How long the main model gets on one record section before the fallback reads it. |
+| `MAIN_COOLDOWN_SECONDS` | `600` | After the main model is busy or times out, the fallback reads for this long before the main model is tried again. `0` turns it off. |
+| `FEEDBACK_TOKEN` | none | Lets whoever runs the server read tester feedback at `GET /api/feedback` (header `X-Feedback-Token`). Unset, that route answers 404. |
 | `EMBED_MODEL` | `gemini-embedding-001` | Model for county search. |
 | `SCANS_TO_MODEL` | on in demo mode, off with `DEMO_MODE=0` | Send scanned page images to the model for transcription. |
 | `COUNTY_DEALS` | `1` | Seed the real county deals from `data/county/`. `0` leaves them out. |
@@ -263,6 +265,7 @@ Exports open in a preview first, built from the same rows as the files:
 | `GET /api/county` | The real county agreements in one table, with totals |
 | `GET /api/county/search?q=` | Search every checked quote in the county agreements, by meaning (with a key) or keywords |
 | `POST /api/deals/{id}/request-letter` | A records request for what the deal is missing `{polish}`: drafted by code; with `polish: true` the model edits it and code keeps the edit only if it adds no number, date or link and keeps every requested record. Nothing is sent |
+| `POST /api/feedback` | A tester's answers from `#/test` (10 an hour per network). Nothing that identifies them is kept unless they ask to be quoted by name |
 | `GET /api/reminders.ics` | Reminders as a calendar file (`?deal=` for one deal), with heads-ups 5, 3 and 1 years before a term ends |
 | `GET /api/reminders` | Term end dates and yearly certificates due. `days` is positive until the date and negative after it, counted from `as_of` (the deal's file date for samples, otherwise today). The app shows it as "in 243 days, as of Jul 1, 2025" |
 | `GET /api/review` | The reviewed Harbor Walk demo packet (also shipped inside the home page) |
@@ -298,7 +301,7 @@ python -m unittest tests.test_samples         # every gold quote is on its state
 
 - Plain HTML, CSS and JS in `app/static/`, with no framework. pdf.js (pinned, served from `app/static/vendor/`) loads only when a source is opened.
 - Sample deals are read-only: their documents card shows "Sample deals are read-only. Start a new deal to try your own PDFs." with a New deal button in place of the upload box, and they have no Retry button. A failed document on your own deal has Retry.
-- Pages: home `#/`, deals `#/deals`, county `#/county`, deal `#/deals/{id}`, guided tour `#/deals/{id}/tour`, and a read-only receipt at `/r/{token}`. Press Ctrl+K (Cmd+K on a Mac) for the command menu.
+- Pages: home `#/`, deals `#/deals`, county `#/county`, tester page `#/test`, deal `#/deals/{id}`, guided tour `#/deals/{id}/tour`, and a read-only receipt at `/r/{token}`. Press Ctrl+K (Cmd+K on a Mac) for the command menu.
 - `?mock=1` forces `mock.js`, an in-browser copy of the API with made-up deals.
 - Explainer videos are `NN-slug.mp4`, `.vtt` and `.jpg` under `MEDIA_BASE_URL`; `/api/media` reports which are present.
 </details>
