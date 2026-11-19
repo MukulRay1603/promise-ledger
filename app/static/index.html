@@ -309,6 +309,116 @@
 
     <!-- Roadmap: why it matters, where it helps, how it differs, how it works, what is measured, what comes next.
          One panel at a time. Plans past today are kept at the level of outcomes. -->
+    <section class="view container info-page tester" id="view-test" data-view="test" aria-labelledby="test-title" hidden>
+      <div class="page-head"><div>
+        <h1 id="test-title">Help us test Promise Ledger</h1>
+        <p class="page-sub">About 15 minutes. You will look up one real housing deal twice, once on the county's own site and once here, then tell us what worked. Please don't type personal details into the answers.</p>
+      </div></div>
+      <form id="tester-form" class="tester-form" novalidate>
+        <fieldset class="card tester-step">
+          <legend><span class="step-no">1</span> About you</legend>
+          <label for="t-role">Which describes you best?</label>
+          <select id="t-role" name="role" required>
+            <option value="">Choose one</option>
+            <option value="staff">City or county housing staff</option>
+            <option value="council">Council member or aide</option>
+            <option value="nonprofit">Nonprofit or housing advocate</option>
+            <option value="resident">Resident</option>
+            <option value="journalist">Journalist or researcher</option>
+            <option value="student">Student</option>
+            <option value="other">Other</option>
+          </select>
+        </fieldset>
+
+        <fieldset class="card tester-step" data-timed="by_hand">
+          <legend><span class="step-no">2</span> Find it by hand</legend>
+          <p>Press <b>Start</b>, then open the county's record for <b>Holly Place</b> (council file CR-044-2026) and its attachments. Find <b>how many homes are affordable</b> and <b>for how many years</b>. Press <b>Stop</b> when you have both, or after 10 minutes.</p>
+          <p><a href="https://princegeorgescountymd.legistar.com/LegislationDetail.aspx?ID=19210&amp;GUID=B39B7F17-68F1-469B-A59B-0913621F54A1" target="_blank" rel="noopener">Open the county's record for Holly Place<span class="visually-hidden"> (opens in a new tab)</span></a> <span class="hint">On the County's site</span></p>
+          <div class="timer" role="group" aria-label="Timer for finding it by hand"><button type="button" class="btn btn-secondary t-start">Start</button><button type="button" class="btn btn-secondary t-stop" disabled>Stop</button><output class="t-clock" aria-live="off">0:00</output></div>
+          <label for="t-hand-answer">What did you find?</label>
+          <input id="t-hand-answer" name="by_hand_answer" maxlength="300" autocomplete="off" placeholder="e.g. 50 homes, 30 years">
+          <p class="t-found-label" id="t-hand-found-l">Did you find both?</p>
+          <div class="seg" role="radiogroup" aria-labelledby="t-hand-found-l">
+            <label><input type="radio" name="by_hand_found" value="yes"> Yes</label><label><input type="radio" name="by_hand_found" value="partly"> One of them</label><label><input type="radio" name="by_hand_found" value="no"> No</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="card tester-step" data-timed="with_tool">
+          <legend><span class="step-no">3</span> Find it with Promise Ledger</legend>
+          <p>Press <b>Start</b>, then open <b>Holly Place</b> here and find the same two things.</p>
+          <p><a href="#/deals/holly-place-cr-044-2026" target="_blank" rel="noopener">Open Holly Place in Promise Ledger<span class="visually-hidden"> (opens in a new tab)</span></a></p>
+          <div class="timer" role="group" aria-label="Timer for finding it with Promise Ledger"><button type="button" class="btn btn-secondary t-start">Start</button><button type="button" class="btn btn-secondary t-stop" disabled>Stop</button><output class="t-clock" aria-live="off">0:00</output></div>
+          <label for="t-tool-answer">What did you find?</label>
+          <input id="t-tool-answer" name="with_tool_answer" maxlength="300" autocomplete="off">
+          <p class="t-found-label" id="t-tool-found-l">Did you find both?</p>
+          <div class="seg" role="radiogroup" aria-labelledby="t-tool-found-l">
+            <label><input type="radio" name="with_tool_found" value="yes"> Yes</label><label><input type="radio" name="with_tool_found" value="partly"> One of them</label><label><input type="radio" name="with_tool_found" value="no"> No</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="card tester-step" data-timed="county_task">
+          <legend><span class="step-no">4</span> Ask for a missing record</legend>
+          <p>Press <b>Start</b>. On the <a href="#/county" target="_blank" rel="noopener">County page<span class="visually-hidden"> (opens in a new tab)</span></a>, pick an agreement where <b>Reporting</b> says <b>Not found</b>. Open it and use <b>Draft a records request</b>. Press <b>Stop</b> when you have a letter you could send.</p>
+          <div class="timer" role="group" aria-label="Timer for the records request"><button type="button" class="btn btn-secondary t-start">Start</button><button type="button" class="btn btn-secondary t-stop" disabled>Stop</button><output class="t-clock" aria-live="off">0:00</output></div>
+          <p class="t-found-label" id="t-county-found-l">Did you get a letter you could send?</p>
+          <div class="seg" role="radiogroup" aria-labelledby="t-county-found-l">
+            <label><input type="radio" name="county_task_found" value="yes"> Yes</label><label><input type="radio" name="county_task_found" value="partly"> With changes</label><label><input type="radio" name="county_task_found" value="no"> No</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="card tester-step">
+          <legend><span class="step-no">5</span> Ask a question</legend>
+          <p>On Holly Place, open the <b>Ask</b> tab and ask anything about its commitments.</p>
+          <p class="t-found-label" id="t-ask-l">How useful was the answer?</p>
+          <div class="seg scale" role="radiogroup" aria-labelledby="t-ask-l">
+            <label><input type="radio" name="ask_rating" value="1"> 1</label><label><input type="radio" name="ask_rating" value="2"> 2</label><label><input type="radio" name="ask_rating" value="3"> 3</label><label><input type="radio" name="ask_rating" value="4"> 4</label><label><input type="radio" name="ask_rating" value="5"> 5</label>
+          </div>
+          <p class="hint scale-ends"><span>1 not useful</span><span>5 very useful</span></p>
+        </fieldset>
+
+        <fieldset class="card tester-step">
+          <legend><span class="step-no">6</span> What you think</legend>
+          <p class="t-found-label" id="t-easy-l">It was easy to learn.</p>
+          <div class="seg scale" role="radiogroup" aria-labelledby="t-easy-l">
+            <label><input type="radio" name="easy_to_learn" value="1"> 1</label><label><input type="radio" name="easy_to_learn" value="2"> 2</label><label><input type="radio" name="easy_to_learn" value="3"> 3</label><label><input type="radio" name="easy_to_learn" value="4"> 4</label><label><input type="radio" name="easy_to_learn" value="5"> 5</label>
+          </div>
+          <p class="t-found-label" id="t-trust-l">I would trust what it shows, because I can see the source.</p>
+          <div class="seg scale" role="radiogroup" aria-labelledby="t-trust-l">
+            <label><input type="radio" name="trust" value="1"> 1</label><label><input type="radio" name="trust" value="2"> 2</label><label><input type="radio" name="trust" value="3"> 3</label><label><input type="radio" name="trust" value="4"> 4</label><label><input type="radio" name="trust" value="5"> 5</label>
+          </div>
+          <p class="t-found-label" id="t-use-l">I would use it for real work.</p>
+          <div class="seg scale" role="radiogroup" aria-labelledby="t-use-l">
+            <label><input type="radio" name="would_use" value="1"> 1</label><label><input type="radio" name="would_use" value="2"> 2</label><label><input type="radio" name="would_use" value="3"> 3</label><label><input type="radio" name="would_use" value="4"> 4</label><label><input type="radio" name="would_use" value="5"> 5</label>
+          </div>
+          <p class="hint scale-ends"><span>1 strongly disagree</span><span>5 strongly agree</span></p>
+          <label for="t-confusing">What confused you, or slowed you down?</label>
+          <textarea id="t-confusing" name="confusing" rows="3" maxlength="2000"></textarea>
+          <label for="t-useful">What would make it more useful for you?</label>
+          <textarea id="t-useful" name="more_useful" rows="3" maxlength="2000"></textarea>
+        </fieldset>
+
+        <fieldset class="card tester-step">
+          <legend><span class="step-no">7</span> May we quote you?</legend>
+          <div class="seg stacked" role="radiogroup" aria-label="May we quote you?">
+            <label><input type="radio" name="quote" value="no" checked> No</label>
+            <label><input type="radio" name="quote" value="anonymous"> Yes, without my name (e.g. "a county housing staffer")</label>
+            <label><input type="radio" name="quote" value="named"> Yes, with my name</label>
+          </div>
+          <div class="t-named" hidden>
+            <label for="t-name">Name</label><input id="t-name" name="name" maxlength="120" autocomplete="name">
+            <label for="t-title">Role or organization (optional)</label><input id="t-title" name="title" maxlength="120" autocomplete="organization-title">
+          </div>
+          <p class="hint">We keep only what you type here. No IP address or browser details are stored, and a name is kept only if you choose to be quoted with it.</p>
+        </fieldset>
+
+        <p class="form-error" id="t-error" role="alert"></p>
+        <button type="submit" class="btn btn-primary">Send feedback</button>
+      </form>
+      <div class="card tester-thanks" id="tester-thanks" hidden tabindex="-1">
+        <h2>Thank you.</h2>
+        <p>Your answers were saved. They help us make Promise Ledger useful for the people who check these deals.</p>
+      </div>
+    </section>
     <section class="view container info-page" id="view-roadmap" data-view="roadmap" aria-labelledby="roadmap-title" hidden>
       <header class="info-head rm-head">
         <p class="info-eyebrow">Roadmap</p>

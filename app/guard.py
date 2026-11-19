@@ -131,6 +131,7 @@ RULES = [
     ("share", "POST", re.compile(r"^/api/deals/[^/]+/share/?$"), "RATE_LIMIT_SHARES_PER_HOUR", 20, "share links"),
     ("extract", "POST", re.compile(r"^/api/extract/?$"), "RATE_LIMIT_EXTRACTS_PER_HOUR", 30, "text readings"),
     ("ask", "POST", re.compile(r"^/api/deals/[^/]+/ask/?$"), "RATE_LIMIT_ASKS_PER_HOUR", 30, "questions"),
+    ("feedback", "POST", re.compile(r"^/api/feedback/?$"), "RATE_LIMIT_FEEDBACK_PER_HOUR", 10, "feedback forms"),
     ("search", "GET", re.compile(r"^/api/county/search/?$"), "RATE_LIMIT_SEARCHES_PER_HOUR", 60, "searches"),
     ("letter", "POST", re.compile(r"^/api/deals/[^/]+/request-letter/?$"), "RATE_LIMIT_LETTERS_PER_HOUR", 20, "letter drafts"),
     ("retry", "POST", re.compile(r"^/api/deals/[^/]+/documents/[^/]+/retry/?$"), "RATE_LIMIT_RETRIES_PER_HOUR", 10,

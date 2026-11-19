@@ -259,7 +259,7 @@ function withTerm(text, phrase, key) {
 // ---------- Router ----------
 let current = { view: null };
 // Pages that are plain markup in index.html: route name -> title.
-const STATIC_PAGES = { roadmap: "Roadmap", about: "About" };
+const STATIC_PAGES = { roadmap: "Roadmap", about: "About", test: "Help us test" };
 let sampleId = "harbor-walk";
 
 function parseRoute() {
@@ -312,7 +312,7 @@ async function route({ initial = false } = {}) {
     byId("main").focus({ preventScroll: true });
   }
   if (next.view === "home") { document.title = "Promise Ledger"; setupVideos(); if (!hero.running && hero.loops < HERO_LOOPS) heroPlay(); return; }
-  if (STATIC_PAGES[next.view]) { document.title = `${STATIC_PAGES[next.view]} · Promise Ledger`; return; }
+  if (STATIC_PAGES[next.view]) { document.title = `${STATIC_PAGES[next.view]} · Promise Ledger`; if (next.view === "test") setupTester(); return; }
   if (next.view === "deals") return renderDeals();
   if (next.view === "county") return renderCounty();
   if (next.view === "deal") return renderDeal(next.id, next.tab, next.source, next.tour);
@@ -625,6 +625,61 @@ async function renderDeals() {
     : [el("li", { class: "reminder" }, el("p", { class: "reminder-text" }, "Nothing due."))]));
 }
 
+// ---------- Tester page (#/test) ----------
+// Timed tasks and a short form. Times are measured by the page; nothing about the tester is sent unless they type it.
+let testerReady = false;
+function setupTester() {
+  if (testerReady) return;
+  testerReady = true;
+  const form = byId("tester-form");
+  const times = {};
+  const fmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  for (const step of form.querySelectorAll("[data-timed]")) {
+    const key = step.dataset.timed;
+    const start = step.querySelector(".t-start"), stop = step.querySelector(".t-stop"), clock = step.querySelector(".t-clock");
+    let began = 0, tick = null;
+    start.addEventListener("click", () => {
+      began = Date.now();
+      start.disabled = true; stop.disabled = false; stop.focus();
+      clearInterval(tick);
+      tick = setInterval(() => { clock.textContent = fmt(Math.round((Date.now() - began) / 1000)); }, 1000);
+    });
+    stop.addEventListener("click", () => {
+      clearInterval(tick);
+      times[key] = Math.round((Date.now() - began) / 1000);
+      clock.textContent = fmt(times[key]);
+      stop.disabled = true; start.disabled = false; start.textContent = "Start again";
+    });
+  }
+  const named = form.querySelector(".t-named");
+  form.addEventListener("change", (event) => { if (event.target.name === "quote") named.hidden = event.target.value !== "named"; });
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const f = new FormData(form);
+    const err = byId("t-error");
+    if (!f.get("role")) { err.textContent = "Choose which describes you best (step 1)."; byId("t-role").focus(); return; }
+    const num = (k) => (f.get(k) ? Number(f.get(k)) : null);
+    const timed = (k) => ({ seconds: times[k] ?? null, found: f.get(`${k}_found`) || "skipped", answer: (f.get(`${k}_answer`) || "").trim() });
+    const body = { role: f.get("role"), by_hand: timed("by_hand"), with_tool: timed("with_tool"), county_task: timed("county_task"),
+      ask_rating: num("ask_rating"), easy_to_learn: num("easy_to_learn"), trust: num("trust"), would_use: num("would_use"),
+      confusing: (f.get("confusing") || "").trim(), more_useful: (f.get("more_useful") || "").trim(), quote: f.get("quote") || "no",
+      name: (f.get("name") || "").trim(), title: (f.get("title") || "").trim() };
+    const button = form.querySelector('[type="submit"]');
+    button.disabled = true;
+    err.textContent = "";
+    try {
+      await api("/api/feedback", { method: "POST", body });
+      form.hidden = true;
+      byId("tester-thanks").hidden = false;
+      byId("tester-thanks").focus();
+    } catch (e) {
+      err.textContent = `Your answers were not sent. ${e.message} Try again.`;
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
+
 // ---------- County board ----------
 // Every PILOT agreement the Prince George's County Council considered since 2023, from its own records. Each number
 // links back to checked quotes; "not found" means no wording was found in the records read, never a finding about
@@ -774,7 +829,7 @@ async function renderCounty() {
                 title: `“${r.template_text[0].quote}”` }, "Template blanks in the approved text") : null),
             el("td", { "data-label": "Council action" },
               el("span", {}, r.council_status || "—", r.passed ? ` ${formatDate(r.passed)}` : ""),
-              r.source_url ? el("a", { class: "reminder-source", href: r.source_url, target: "_blank", rel: "noopener" }, "Council record", el("span", { class: "visually-hidden" }, ` for ${r.name} (opens the County's site)`)) : null),
+              r.source_url ? el("a", { class: "reminder-source", href: r.source_url, target: "_blank", rel: "noopener" }, "Council record", el("span", { class: "visually-hidden" }, ` for ${r.name} (opens in a new tab)`)) : null),
             el("td", { "data-label": "Homes", class: "num" }, r.homes ? (r.total_homes ? `${r.homes} of ${r.total_homes}` : String(r.homes)) : el("span", { class: "cell-muted" }, "—")),
             el("td", { "data-label": "Income limits" }, r.income_limit || el("span", { class: "cell-muted" }, "—")),
             el("td", { "data-label": "Longest stated term" }, r.term_end
@@ -976,7 +1031,7 @@ async function renderDeal(id, tab, sourceClaim = null, withTour = false) {
       el("span", { class: "real-badge" }, icon("check"), "Real record"), " ",
       src.file ? `Council file ${src.file}` : deal.city,
       src.status ? ` · ${src.status}${src.passed ? ` ${formatDate(src.passed)}` : ""}` : "",
-      src.url ? [" · ", el("a", { href: src.url, target: "_blank", rel: "noopener" }, "County record", el("span", { class: "visually-hidden" }, " (opens the County's site)"))] : "");
+      src.url ? [" · ", el("a", { href: src.url, target: "_blank", rel: "noopener" }, "County record", el("span", { class: "visually-hidden" }, " (opens in a new tab)"))] : "");
   }
   renderActions(id, deal);
   renderDocs();

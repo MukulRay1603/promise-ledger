@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 
 load_dotenv()
 
-from app import ai, ask, deals, guard, identity, ledger, pipeline, request_letter, search  # noqa: E402  (needs env loaded first)
+from app import ai, ask, deals, feedback, guard, identity, ledger, pipeline, request_letter, search  # noqa: E402  (needs env loaded first)
 from app.storage import get_store  # noqa: E402
 
 STATIC = Path(__file__).parent / "static"
@@ -386,6 +386,20 @@ def reminders(request: Request):
 def county(request: Request):
     """The real Prince George's County deals in one table, with county-wide totals."""
     return deals.county_board()
+
+
+@app.post("/api/feedback", status_code=201)
+def post_feedback(body: feedback.FeedbackIn):
+    """A tester's answers from #/test. Nothing that identifies them is kept unless they ask to be quoted by name."""
+    return feedback.save(body)
+
+
+@app.get("/api/feedback")
+def get_feedback(request: Request):
+    """All responses, for whoever runs the server (X-Feedback-Token must match FEEDBACK_TOKEN)."""
+    if not feedback.allowed(request.headers.get("x-feedback-token")):
+        raise HTTPException(404, "Not found.")
+    return feedback.read_all()
 
 
 @app.get("/api/county/search")

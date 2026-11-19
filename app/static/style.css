@@ -1726,3 +1726,23 @@ textarea { font-family: var(--serif); font-size: 1.0625rem; }
   .county-table.stack tbody tr > th { padding-bottom: .5rem; }
 }
 .county-table td.num::before { font-family: var(--sans, inherit); font-variant-numeric: normal; }
+/* Tester page (#/test). */
+.tester-form { display: grid; gap: 1rem; max-width: 46rem; }
+.tester-step { margin: 0; padding: 1.25rem 1.5rem; border: 1px solid var(--border); border-radius: var(--r-lg); display: grid; gap: .5rem; }
+.tester-step legend { display: flex; align-items: center; gap: .625rem; padding: 0 .25rem; font-weight: 700; font-size: 1.0625rem; }
+.step-no { display: inline-grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: 50%; background: var(--primary-soft); color: var(--primary-ink); font-size: .875rem; }
+.tester-step p { margin: 0; }
+.tester-step label { font-weight: 600; font-size: .9375rem; }
+.timer { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.t-clock { min-width: 3.5rem; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 1.25rem; }
+.t-found-label { margin-top: .5rem !important; font-weight: 600; font-size: .9375rem; }
+.seg { display: flex; flex-wrap: wrap; gap: .375rem; }
+.seg label { display: inline-flex; align-items: center; gap: .375rem; padding: .375rem .75rem; border: 1px solid var(--border-strong); border-radius: 999px; font-weight: 500; cursor: pointer; }
+.seg label:has(input:checked) { border-color: var(--primary-line); background: var(--primary-soft); color: var(--primary-ink); }
+.seg label:has(input:focus-visible) { outline: 2px solid var(--primary); outline-offset: 2px; }
+.seg.stacked { flex-direction: column; align-items: flex-start; }
+.seg.scale label { min-width: 2.75rem; justify-content: center; }
+.scale-ends { display: flex; justify-content: space-between; max-width: 18rem; margin: 0 !important; font-size: .75rem; }
+.t-named { display: grid; gap: .375rem; }
+.tester-thanks { max-width: 46rem; padding: 1.5rem; }
+.tester-thanks h2 { margin-top: 0; }

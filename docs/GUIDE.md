@@ -374,15 +374,21 @@ We avoid saying "first" or "only": our search was limited, and parts of this exi
 
 ## 15. Limits and roadmap
 
-**Known limits today:** text-layer PDFs only (scans are flagged, not read); English only; the redactor removes names and home addresses of private people only where the page labels them, not in running prose; scanned pages cannot be redacted, so a staff deployment does not send them to the model unless `SCANS_TO_MODEL=1`; reviewer identity is a typed name, not a sign-in; accuracy is measured on our own development set.
+**Known limits today:** scanned pages are transcribed by the model (up to 10 per record) and a person confirms any signature on one, but handwriting is not read; English only; the redactor removes names and home addresses of private people only where the page labels them, not in running prose; scanned pages cannot be redacted, so a staff deployment does not send them to the model unless `SCANS_TO_MODEL=1`; reviewer identity is a typed name, not a sign-in; accuracy is measured on our own development set.
 
 | Live today | By the Dec 2 final | After |
 |---|---|---|
-| Reads every PDF in a deal’s packet | Find more of each record’s commitments when the fallback model answers (recall rose from 77% to 94% on held-out records and from 39% to between 74% and 94% on the real one) | Drafts records requests and follow-up letters for staff to approve |
-| Quotes checked word for word on their pages | Feedback and a timed task with housing staff | Alerts before a term ends |
-| Pages corrected; unverifiable quotes dropped |  | Spanish and other languages |
-| Stages set by rules, from proposed to delivered |  | Reads handwriting on scanned pages |
-| One-party signing flagged |  | More cities, and a kit to run it in-house |
+| Reads every PDF in a deal’s packet | Feedback and a timed task with housing staff | Spanish and other languages |
+| Quotes checked word for word on their pages | A second county's records | Reads handwriting on scanned pages |
+| Pages corrected; unverifiable quotes dropped |  | Follow-up letters after a request is answered |
+| Stages set by rules, from proposed to delivered |  | Changed end dates and amendments matched across records |
+| One-party signing flagged |  | Cross-checks with HUD's LIHTC data once new projects appear in it (it lags about two years) |
+| Real Prince George's County agreements: 21 deals, 160 council records, read once |  |  |
+| County board: homes, income tiers, longest stated term, obligations found |  |  |
+| Approved text with unfilled template blanks flagged, with the quote |  |  |
+| Search every county agreement by meaning (Gemini embeddings) |  |  |
+| Records-request letters drafted by code, optional checked AI edit |  |  |
+| Calendar export with heads-ups 5, 3 and 1 years before a term ends |  |  |
 | What changed, with word-level edits |  |  |
 | Missing terms and certificates found |  |  |
 | Reminders for term ends and certificates |  |  |
@@ -400,7 +406,6 @@ We avoid saying "first" or "only": our search was limited, and parts of this exi
 | Reads scanned pages; a person confirms any signature on one |  |  |
 | Tested on unseen and adversarial records |  |  |
 | One real public record, checked by hand |  |  |
-| Changed end dates and amendments caught |  |  |
 
 **One rule for every assistant:** it answers only from checked quotes, shows the page, and a person approves anything it sends or saves.
 

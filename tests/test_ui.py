@@ -103,7 +103,7 @@ class Page(unittest.TestCase):
             self.assertIn('rel="noopener"', tag)
             self.assertIn("opens in a new tab", tag)
         script = (STATIC / "app.js").read_text(encoding="utf-8")
-        self.assertIn('const STATIC_PAGES = { roadmap: "Roadmap", about: "About" };', script)
+        self.assertIn('const STATIC_PAGES = { roadmap: "Roadmap", about: "About", test: "Help us test" };', script)
         # The roadmap is six tabbed panels; each tab names the panel it controls.
         roadmap = self.html[self.html.index('id="view-roadmap"'):]
         roadmap = roadmap[:roadmap.index("</section>")]
