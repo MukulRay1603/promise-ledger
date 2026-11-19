@@ -156,6 +156,17 @@ def list_deals(store: Storage | None = None, session: str | None = None) -> list
 # Terms a monitoring office needs on file for every deal (Lincoln Institute 2015 practitioner list; DC Auditor 2024).
 OBLIGATION_TERMS = ("reporting", "remedies", "rent_limits", "income_basis", "term")
 _TEMPLATE = re.compile(r"\(insert\b|\[insert\b|(?-i:\bOR \[)|\[(?:name|date|number|amount)\b|_{5,}", re.I)
+_STATUTE = re.compile(r"governing body of|\(a\)\(\d\)|§|Tax[- ]Property Article|Section 7-50\d", re.I)
+_YEAR_TERM = re.compile(r"\b(\d{1,2})[- ]year (?:term|affordability|compliance|restriction)", re.I)
+
+
+def _term_years(c: dict) -> int | None:
+    m = _YEAR_TERM.search(c["quote"])
+    if m:
+        return int(m.group(1))
+    return (_years(c["value"]) or _years(c["quote"])) if c["topic"] == "term" else None
+
+
 _AMI = re.compile(r"(\d{2,3})\s*(?:%|percent)\s+(?:or less\s+)?(?:of\s+)?(?:the\s+)?(?:area\s+)?(?:median|AMI\b)", re.I)
 
 
@@ -163,6 +174,15 @@ _AMI = re.compile(r"(\d{2,3})\s*(?:%|percent)\s+(?:or less\s+)?(?:of\s+)?(?:the\
 # records one sentence often holds several counts ("Of the 158 units, 128 will be income-restricted, and 30 units
 # will be market-rate"; "16 units will be designated for residents with mobility impairments"), so a looser reading
 # picks the wrong one. Numbers may be written "thirty six (36)"; the digits are used.
+# Most specific first: a count of the restricted homes out of a stated total ("57 of the 94 units", "restrict rents
+# for fifty seven (57) of the units", "affordable housing for fifty seven (57) low-income households").
+_RESTRICTED_COUNT = [
+    re.compile(r"(\d[\d,]*)\)?\s+of\s+the\s+(?:[\w-]+\s+){0,3}?\(?\d[\d,]*\)?\s+(?:[\w-]+\s+)?units?\b", re.I),
+    re.compile(r"affordable housing for\s+(?:[\w-]+\s+){0,3}?\(?(\d[\d,]*)\)?\s+(?:low|moderate|income|households|units|famil)", re.I),
+    re.compile(r"restrict\s+(?:rents?|rent levels)\s+for\s+(?:[\w-]+\s+){0,3}?\(?(\d[\d,]*)\)?\s+(?:of|units|homes)", re.I),
+    re.compile(r"(\d[\d,]*)\)?\s+(?:units?|homes?|apartments?)\s+(?:will|shall|are|to)\s+(?:be\s+)?"
+               r"(?:income[- ]restricted|set[- ]aside|rent[- ]restricted|reserved for (?:families|households))\b", re.I),
+]
 _AFFORDABLE_COUNT = [
     re.compile(r"(\d[\d,]*)\)?\s+(?:new\s+)?(?:affordable|income[- ]restricted|rent[- ]restricted)\b", re.I),
     re.compile(r"(\d[\d,]*)\)?[- ]unit\s+(?:affordable|income[- ]restricted)", re.I),
@@ -172,18 +192,33 @@ _AFFORDABLE_COUNT = [
 ]
 
 
+_ACCESSIBLE = re.compile(r"mobility|sensory|hearing|visual|vision|disabilit|impair|accessib|wheelchair", re.I)
+
+
 def affordable_homes(claims: list[dict]) -> tuple[int | None, str | None]:
-    """The largest count of affordable homes any checked quote states outright, and that claim's id."""
-    best: tuple[int, str] | None = None
-    for c in claims:
-        if c["topic"] not in ("units", "income_basis"):
-            continue
-        for pattern in _AFFORDABLE_COUNT:
-            for m in pattern.finditer(c["quote"]):
-                n = int(m.group(1).replace(",", ""))
-                if 0 < n < 5000 and (best is None or n > best[0]):
-                    best = (n, c["id"])
-    return best if best else (None, None)
+    """The count of affordable homes the records state outright, and that claim's id.
+
+    The largest count that council records state as restricted or affordable ("57 of the 94 units", "a 245-unit
+    affordable community"). Counts of accessible units ("9 units will be set aside for residents with mobility
+    impairments") are not affordability counts and are skipped. A developer's slide is used only when no council
+    record states a count: slides also list the developer's other projects.
+    """
+    def best_in(keep) -> tuple[int, str] | None:
+        best = None
+        for c in claims:
+            if c["topic"] not in ("units", "income_basis") or not keep(c):
+                continue
+            for pattern in (*_RESTRICTED_COUNT, *_AFFORDABLE_COUNT):
+                for m in pattern.finditer(c["quote"]):
+                    if _ACCESSIBLE.search(c["quote"][m.end():m.end() + 90]):
+                        continue
+                    n = int(m.group(1).replace(",", ""))
+                    if 0 < n < 5000 and (best is None or n > best[0]):
+                        best = (n, c["id"])
+        return best
+
+    slide = lambda c: "presentation" in (c.get("document_type") or "").lower()  # noqa: E731
+    return best_in(lambda c: not slide(c)) or best_in(slide) or (None, None)
 
 
 def _homes(claims: list[dict]) -> tuple[int | None, int | None]:
@@ -223,12 +258,17 @@ def county_board(store: Storage | None = None, today: date | None = None) -> dic
         # agreement may start later (for example at occupancy), never earlier.
         estimate = None
         if not (end and end.get("date")) and source.get("passed"):
-            spans = [c for c in claims if c["topic"] == "term" and (_years(c["value"]) or _years(c["quote"]))]
+            # Leave out template options ("OR [Owner agrees ... for a term of at least ...]") and quoted state law
+            # ("enters into an agreement with the governing body of the county ..."): they state minimums, not
+            # this deal's term. "for the 30-year term" counts wherever it is filed.
+            spans = [c for c in claims if (c["topic"] == "term" or _YEAR_TERM.search(c["quote"]))
+                     and not _TEMPLATE.search(c["quote"]) and not _STATUTE.search(c["quote"])
+                     and (_term_years(c))]
             if spans:
                 # The longest term the records state (in PILOT records usually the PILOT term), not a judgement of
                 # which clause governs: the board links the quote so a person can check it.
-                pick = max(spans, key=lambda c: (_years(c["value"]) or _years(c["quote"]) or 0, c.get("date") or ""))
-                years = _years(pick["value"]) or _years(pick["quote"])
+                pick = max(spans, key=lambda c: (_term_years(c) or 0, c.get("date") or ""))
+                years = _term_years(pick)
                 estimate = {"date": _add_years(date.fromisoformat(source["passed"]), years).isoformat(), "years": years,
                             "claim_id": pick["id"]}
         # Agreements often set several income tiers; list every share of median income the checked quotes state.

@@ -233,7 +233,7 @@ def build(matter: dict, download: bool) -> dict | None:
             "status": matter.get("MatterStatusName"),
             "introduced": dates["intro"],
             "passed": dates["passed"],
-            "url": f"{SITE}/LegislationDetail.aspx?ID={mid}&GUID={matter['MatterGuid']}",
+            "url": f"{SITE}/gateway.aspx?M=L&ID={mid}",  # LegislationDetail links answer "Invalid parameters".
             "api": f"{API}/matters/{mid}",
             "votes": votes(histories),
             "retrieved": time.strftime("%Y-%m-%d"),

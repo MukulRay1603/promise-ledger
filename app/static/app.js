@@ -629,7 +629,7 @@ async function renderDeals() {
 // Live totals from the real county agreements, and one real quote of unfilled template text. Hidden if none are loaded.
 let realStripDone = false;
 async function setupRealStrip() {
-  if (realStripDone) return;
+  const first = !realStripDone;
   realStripDone = true;
   const strip = byId("real-strip");
   if (!strip) return;
@@ -641,7 +641,7 @@ async function setupRealStrip() {
   const values = { deals: t.deals_read, homes: t.homes, template_text: t.template_text };
   for (const dd of strip.querySelectorAll("[data-count]")) {
     const end = values[dd.dataset.count] || 0;
-    if (reducedMotion.matches) { dd.textContent = end.toLocaleString(); continue; }
+    if (reducedMotion.matches || !first) { dd.textContent = end.toLocaleString(); continue; }
     const began = performance.now();
     const step = (now) => {
       const k = Math.min(1, (now - began) / 1100);
@@ -773,7 +773,7 @@ function countySearch() {
   const input = el("input", { type: "search", id: "county-q", maxlength: "200", autocomplete: "off",
     placeholder: "e.g. how long must the homes stay affordable", "aria-describedby": "county-search-note" });
   const note = el("p", { class: "hint", id: "county-search-note", role: "status" },
-    "Finds matching sentences in every agreement's checked quotes, by meaning.");
+    "Finds matching sentences in every agreement's checked quotes.");
   const list = el("ol", { class: "search-results" });
   let seq = 0;
   const run = async (q) => {
@@ -800,6 +800,41 @@ function countySearch() {
     el("div", { class: "cs-examples" }, el("span", { class: "hint" }, "Try:"),
       ...SEARCH_EXAMPLES.map((q) => el("button", { type: "button", class: "q-chip", onclick: () => { input.value = q; run(q); } }, q))));
   return el("section", { class: "card county-search-card", "aria-label": "Search" }, form, note, list);
+}
+
+// Quick filters for the table: each shows only the agreements a busy reviewer would look at first.
+const COUNTY_FILTERS = [
+  ["all", "All"],
+  ["no-reporting", "No reporting wording"],
+  ["no-remedies", "No remedy wording"],
+  ["blanks", "Template blanks"],
+  ["soon", "Terms run out by 2040"],
+];
+function countyFlags(r) {
+  if (!r.records_read) return [];
+  return [
+    !r.found.reporting && "no-reporting",
+    !r.found.remedies && "no-remedies",
+    r.template_text?.length && "blanks",
+    r.term_end && r.term_end < "2041-01-01" && "soon",
+  ].filter(Boolean);
+}
+function countyFilters(rows) {
+  const count = (key) => (key === "all" ? rows.length : rows.filter((r) => countyFlags(r).includes(key)).length);
+  const status = el("p", { class: "visually-hidden", role: "status" });
+  const group = el("div", { class: "county-filters", role: "group", "aria-label": "Show agreements" },
+    ...COUNTY_FILTERS.map(([key, label]) => el("button", { type: "button", class: "q-chip", "aria-pressed": String(key === "all"),
+      onclick: (event) => {
+        group.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === event.currentTarget)));
+        let shown = 0;
+        document.querySelectorAll(".county-table tbody tr").forEach((tr) => {
+          const on = key === "all" || (tr.dataset.flags || "").split(" ").includes(key);
+          tr.hidden = !on;
+          shown += on;
+        });
+        status.textContent = `Showing ${plural(shown, "agreement")}.`;
+      } }, `${label} (${count(key)})`)));
+  return [group, status];
 }
 
 async function renderCounty() {
@@ -833,10 +868,12 @@ async function renderCounty() {
   const pct = (n) => (read.length ? Math.round((100 * n) / read.length) : 0);
   const kpi = (value, label, sub, tone = "") => el("div", { class: `kpi county-kpi ${tone}` },
     el("p", { class: "kpi-label" }, label), el("p", { class: "kpi-value" }, value), el("p", { class: "kpi-sub" }, sub));
-  const dot = (found, row, key, label) => el("td", { class: `ob-cell ${found ? "ob-found" : "ob-missing"}`, "data-label": label },
-    el("span", { class: "ob-dot", "aria-hidden": "true" }),
-    el("span", { class: "visually-hidden" }, found ? "Wording found" : "No wording found"),
-    el("span", { class: "ob-text", "aria-hidden": "true" }, found ? "Found" : "Not found"));
+  const dot = (found, row, key, label) => !row.records_read
+    ? el("td", { class: "ob-cell ob-unread", "data-label": label }, el("span", { class: "ob-text-always" }, "Not read yet"))
+    : el("td", { class: `ob-cell ${found ? "ob-found" : "ob-missing"}`, "data-label": label },
+      el("span", { class: "ob-dot", "aria-hidden": "true" }),
+      el("span", { class: "visually-hidden" }, found ? "Wording found" : "No wording found"),
+      el("span", { class: "ob-text", "aria-hidden": "true" }, found ? "Found" : "Not found"));
   body.removeAttribute("aria-busy");
   body.replaceChildren(
     el("div", { class: "kpi-row county-kpis" },
@@ -850,14 +887,18 @@ async function renderCounty() {
     countyTimeline(read),
     el("section", { class: "card county-table-card", "aria-labelledby": "county-table-cap" },
       el("div", { class: "card-head" }, el("h2", { id: "county-table-cap" }, "What each agreement's records say"),
-        el("p", { class: "hint" }, "Found means wording for that term was found and checked on its page in the records read. Not found is a question to ask, not a finding.")),
+        el("p", { class: "hint" }, "Found means wording for that term was found and checked on its page in the records read. Not found is a question to ask, not a finding."),
+        el("p", { class: "ob-legend", "aria-hidden": "true" },
+          el("span", { class: "ob-found" }, el("span", { class: "ob-dot" }), "Found"),
+          el("span", { class: "ob-missing" }, el("span", { class: "ob-dot" }), "Not found")),
+        countyFilters(board.deals)),
       el("div", { class: "county-scroll" },
         el("table", { class: "county-table stack" },
           el("caption", { class: "visually-hidden" }, "County PILOT agreements, newest first"),
           el("thead", {}, el("tr", {},
             ["Agreement", "Council action", "Affordable homes", "Income limits", "Longest stated term"].map((h) => el("th", { scope: "col" }, h)),
             ...OBLIGATIONS.map(([, label, help]) => el("th", { scope: "col", class: "ob-head", title: help }, label)))),
-          el("tbody", {}, ...board.deals.map((r) => el("tr", { class: r.records_read ? null : "row-pending" },
+          el("tbody", {}, ...board.deals.map((r) => el("tr", { class: r.records_read ? null : "row-pending", "data-flags": countyFlags(r).join(" ") },
             el("th", { scope: "row", "data-label": "Agreement" },
               el("a", { class: "deal-name", href: `#/deals/${encodeURIComponent(r.id)}` }, r.name),
               el("span", { class: "deal-city" }, r.file, " · ", r.records_read < r.records ? `${r.records_read} of ${r.records} records read` : plural(r.records, "record")),
@@ -876,7 +917,7 @@ async function renderCounty() {
                 r.term_claim_id ? el("a", { class: "reminder-source", href: sourceHref(r.id, r.term_claim_id) }, "Quote", el("span", { class: "visually-hidden" }, ` for ${r.name} term`)) : null]
               : el("span", { class: "cell-muted" }, "—")),
             ...OBLIGATIONS.map(([key, label]) => dot(r.found[key], r, key, label)))))))),
-    el("p", { class: "hint county-source" }, `Source: ${board.source}, retrieved by tools/county_import.py. Records are read once and checked word for word; numbers update when new records are added.`),
+    el("p", { class: "hint county-source" }, `Source: ${board.source}. Each record is read once and every quote is checked word for word against its page.`),
   );
 }
 

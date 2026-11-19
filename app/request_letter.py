@@ -58,8 +58,14 @@ def draft(deal: dict, review: dict) -> dict:
     project = deal.get("name") or review.get("project") or "this project"
     ref = f"Council file {source['file']}, " if source.get("file") else ""
     subject = f"Public records request: {ref}{project}"
+    from datetime import date as _date
+
+    agency = "Clerk of the County Council, Prince George's County, Maryland" if "Prince George" in (deal.get("county") or "") \
+        else "[Agency name]"
     lines = [
-        "To the custodian of records:",
+        _date.today().strftime("%B %d, %Y").replace(" 0", " "),
+        "",
+        f"To the custodian of records, {agency}:",
         "",
         f"Under {_law(review, deal)}, I request copies of the following records about {project}"
         + (f" ({source['file']})" if source.get("file") else "") + ":",

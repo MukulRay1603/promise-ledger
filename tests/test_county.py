@@ -207,3 +207,32 @@ class SavedScansWithoutKey(unittest.TestCase):
             _, none = vision.fill_scanned({"sha256": "cd" * 32, "scanned_pages": [1]}, [""], load_pdf=lambda: loaded.append(1))
             self.assertEqual(none.mode, "off")
             self.assertEqual(loaded, [])  # No key and nothing saved: the PDF is not even loaded.
+
+
+class CountRulesFromTesting(unittest.TestCase):
+    """Cases found by testing on the real county records (Nov 18)."""
+
+    def claim(self, quote, topic="units", doc="Transmittal letter", cid="c"):
+        return {"topic": topic, "quote": quote, "id": cid, "document_type": doc, "value": "", "date": "2023-05-01"}
+
+    def test_a_slide_bullet_does_not_beat_the_council_records(self):
+        claims = [self.claim("• 370 affordable housing units", doc="Presentation", cid="slide"),
+                  self.claim("57 of the 94 units restricted for 15 years", doc="Presentation", cid="slide2"),
+                  self.claim("will provide affordable housing for fifty seven (57) low-income households", cid="letter")]
+        self.assertEqual(deals.affordable_homes(claims), (57, "letter"))
+
+    def test_accessible_unit_set_asides_are_not_affordability_counts(self):
+        claims = [self.claim("Of the one hundred two (102) units, nine (9) units will be set-aside for residents with "
+                             "mobility impairments", cid="a11y"),
+                  self.claim("PROJECT DESCRIPTION: A one hundred two (102) unit affordable rental apartment community", cid="desc")]
+        self.assertEqual(deals.affordable_homes(claims), (102, "desc"))
+
+    def test_template_options_and_quoted_state_law_do_not_set_the_term(self):
+        template = self.claim("OR [Owner agrees to enter into an agreement with the County to allow the Property to remain "
+                              "as housing for lower income persons for a term of at least 5 years]", topic="term")
+        statute = self.claim("enters into an agreement with the governing body of the county to allow the property to "
+                             "remain for at least 5 years", topic="term")
+        real = self.claim("Under the proposed agreement, for the 30-year term, the Developer will reserve the units")
+        for c in (template, statute):
+            self.assertTrue(deals._TEMPLATE.search(c["quote"]) or deals._STATUTE.search(c["quote"]))
+        self.assertEqual(deals._term_years(real), 30)

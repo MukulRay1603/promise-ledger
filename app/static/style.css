@@ -786,6 +786,8 @@ textarea { font-family: var(--serif); font-size: 1.0625rem; }
   .container { padding-left: 1rem; padding-right: 1rem; }
   .demo-banner { padding: .375rem 1rem; text-align: left; font-size: .8125rem; }
   .main-nav a { padding: 0 .625rem; }
+  .main-nav { overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+  .main-nav::-webkit-scrollbar { display: none; }
   .header-tools .btn { padding: .5rem .5rem; font-size: .8125rem; }
   .hero h1 { font-size: 2.125rem; }
   .lede { font-size: 1.125rem; }
@@ -1764,3 +1766,10 @@ textarea { font-family: var(--serif); font-size: 1.0625rem; }
 .rs-note { color: var(--amber-ink); }
 @media (max-width: 860px) { .real-strip { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 420px) { .rs-stats { grid-template-columns: minmax(0, 1fr); } .rs-stats dd { font-size: 1.75rem; } }
+.county-filters { display: flex; flex-wrap: wrap; gap: .375rem; margin-top: .75rem; }
+.q-chip[aria-pressed="true"] { border-color: var(--primary-line); background: var(--primary-soft); color: var(--primary-ink); font-weight: 600; }
+.ob-legend { display: flex; gap: 1rem; margin: .5rem 0 0; font-size: .8125rem; color: var(--muted); }
+.ob-legend span { display: inline-flex; align-items: center; gap: .375rem; }
+.ob-unread .ob-text-always { font-size: .75rem; color: var(--muted); white-space: nowrap; }
+@media (max-width: 420px) { .main-nav a { padding: 0 .5rem; } .header-tools .btn { padding: .5rem .375rem; } }
+.hero { overflow-x: clip; }

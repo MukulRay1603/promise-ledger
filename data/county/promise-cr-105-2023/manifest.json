@@ -1,7 +1,7 @@
 {
   "notice": "Real public records of Prince George's County, Maryland, from the County Council's Legistar system. Promise Ledger lists what the records say; it does not judge whether any party met an obligation.",
   "real": true,
-  "deal": "Promise",
+  "deal": "The Promise",
   "slug": "promise-cr-105-2023",
   "city": "Prince George's County",
   "county": "Prince George's County, MD",
@@ -14,7 +14,7 @@
     "status": "Adopted",
     "introduced": "2023-10-23",
     "passed": "2023-11-07",
-    "url": "https://princegeorgescountymd.legistar.com/LegislationDetail.aspx?ID=16508&GUID=9A473F3E-B2DD-46A2-A4AF-2B7A98A7E077",
+    "url": "https://princegeorgescountymd.legistar.com/gateway.aspx?M=L&ID=16508",
     "api": "https://webapi.legistar.com/v1/princegeorgescountymd/matters/16508",
     "votes": [
       {
