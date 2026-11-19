@@ -383,7 +383,7 @@ We avoid saying "first" or "only": our search was limited, and parts of this exi
 | Pages corrected; unverifiable quotes dropped |  | Follow-up letters after a request is answered |
 | Stages set by rules, from proposed to delivered |  | Changed end dates and amendments matched across records |
 | One-party signing flagged |  | Cross-checks with HUD's LIHTC data once new projects appear in it (it lags about two years) |
-| Real Prince George's County agreements: 21 deals, 160 council records, read once |  |  |
+| Real Prince George's County agreements: 21 deals, 156 council records, read once |  |  |
 | County board: homes, income tiers, longest stated term, obligations found |  |  |
 | Approved text with unfilled template blanks flagged, with the quote |  |  |
 | Search every county agreement by meaning (Gemini embeddings) |  |  |

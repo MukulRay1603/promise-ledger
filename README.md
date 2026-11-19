@@ -86,7 +86,7 @@ Readings are cached in `data/readings/` by file hash and prompt version, so seed
 
 ## Real records: Prince George's County
 
-The County page (`#/county`) runs the same pipeline on every payment-in-lieu-of-taxes (PILOT) agreement the Prince George's County Council considered since 2023: 21 agreements and 160 council records (transmittal letters, legislative summaries, the agreements themselves, fiscal notes, committee reports, resolutions as adopted and signed).
+The County page (`#/county`) runs the same pipeline on every payment-in-lieu-of-taxes (PILOT) agreement the Prince George's County Council considered since 2023: 21 agreements and 156 council records (transmittal letters, legislative summaries, the agreements themselves, fiscal notes, committee reports, resolutions as adopted and signed).
 
 - **Where the records come from.** `tools/county_import.py` reads the Council's public [Legistar Web API](https://webapi.legistar.com/Home/Examples): each matter, its official vote history and its attachments. Word attachments are converted to PDF with Word and committed; PDFs are not committed. Each manifest keeps every record's official URL and SHA-256, and the app downloads and checks the file when it seeds the deal, so a changed file is never read as the one we checked.
 - **Read once, never live.** `tools/county_read.py` reads each record once and saves the reading in `data/readings/`. The app seeds these deals only from saved readings; a record without one is marked "not read yet", so a restart never spends on a live read.

@@ -208,12 +208,12 @@ def transcribe(data: bytes, numbers: list[int], sha: str | None = None, call=Non
         return ScanResult(mode="off")
     if not scans_to_model():  # Checked here as well as in fill_scanned, so no caller can send a page image.
         return ScanResult(mode="withheld")
-    if call is None and not os.getenv("GEMINI_API_KEY"):
-        return ScanResult(mode="off")
-    if use_cache and sha:
+    if use_cache and sha:  # A saved transcription is used with or without a key: nothing is sent to read it.
         hit = _cached(sha, numbers)
         if hit:
             return hit
+    if call is None and not os.getenv("GEMINI_API_KEY"):
+        return ScanResult(mode="off")
     if call is None and not ai._allow_live_call():
         return ScanResult(mode="limited")
     try:
@@ -250,8 +250,10 @@ def fill_scanned(doc: dict, pages: list[str], load_pdf, call=None, use_cache: bo
     """
     allowed = sorted(doc.get("scanned_pages") or [])[:VISION_MAX_PAGES]
     todo = [n for n in allowed if 1 <= n <= len(pages) and len(pages[n - 1].strip()) < pipeline.MIN_PAGE_CHARS]
-    if not todo or (call is None and not os.getenv("GEMINI_API_KEY")):
+    if not todo:
         return pages, ScanResult(mode="off")
+    if call is None and not os.getenv("GEMINI_API_KEY") and not (doc.get("sha256") and _cached(doc["sha256"], todo)):
+        return pages, ScanResult(mode="off")  # No key and nothing saved: the PDF is not even loaded.
     if not scans_to_model():  # No image is sent and no attempt is counted. The pages keep their open question.
         return pages, ScanResult(mode="withheld")
     if int(doc.get("scan_attempts") or 0) >= MAX_SCAN_ATTEMPTS:

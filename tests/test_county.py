@@ -187,3 +187,23 @@ class AffordableCount(unittest.TestCase):
                                     "(128) units will be income-restricted, and thirty (30) units will be market-rate."), 128)
         self.assertIsNone(self.count("Of the three hundred four (304) units, sixteen (16) units will be designated for "
                                      "residents with mobility impairments"))
+
+
+class SavedScansWithoutKey(unittest.TestCase):
+    """A scan transcribed once (with a key) is used later without one; nothing is sent to read it."""
+
+    def test_a_saved_transcription_fills_scanned_pages_without_a_key(self):
+        from app import vision
+
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(pipeline, "READINGS_DIR", Path(tmp)), \
+                mock.patch.object(pipeline, "READINGS_WRITE_DIR", None), \
+                mock.patch.dict("os.environ", {"GEMINI_API_KEY": "", "SCANS_TO_MODEL": "1"}):
+            vision._save("ab" * 32, [1], vision.ScanResult(mode="live", pages={1: "The Owner shall rent 12 units."}))
+            doc = {"sha256": "ab" * 32, "scanned_pages": [1]}
+            filled, result = vision.fill_scanned(doc, [""], load_pdf=lambda: b"%PDF-1.4 stub")
+            self.assertEqual(result.mode, "cache")
+            self.assertIn("12 units", filled[0])
+            loaded = []
+            _, none = vision.fill_scanned({"sha256": "cd" * 32, "scanned_pages": [1]}, [""], load_pdf=lambda: loaded.append(1))
+            self.assertEqual(none.mode, "off")
+            self.assertEqual(loaded, [])  # No key and nothing saved: the PDF is not even loaded.

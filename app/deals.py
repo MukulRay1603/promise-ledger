@@ -1155,7 +1155,7 @@ def shared_review(token: str, store: Storage | None = None) -> dict | None:
 REFRESH_LOCK = "sample-refresh"
 REFRESH_LOCK_TTL = 600  # Seconds before a lock left by a crashed instance is ignored.
 # Code that shapes stored claims. When it changes, sample deals are re-checked from the cached readings.
-_PIPELINE_FILES = [ROOT / "app" / "pipeline.py", ROOT / "app" / "deals.py"]
+_PIPELINE_FILES = [ROOT / "app" / "pipeline.py", ROOT / "app" / "deals.py", ROOT / "app" / "vision.py"]
 
 
 def _manifest(path: Path) -> dict | None:
