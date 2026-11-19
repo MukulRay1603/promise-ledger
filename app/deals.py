@@ -1179,6 +1179,8 @@ def sample_version(manifest_path: Path) -> str:
         h.update(path.name.encode())
         if entry.get("sha256"):  # Real records: the checked hash stands for the file, present on disk or not.
             h.update(str(entry["sha256"]).encode())
+            # A record seeded before its saved reading existed is re-seeded once the reading arrives.
+            h.update(b"read" if pipeline.cached_reading(str(entry["sha256"])) else b"unread")
         else:
             h.update(path.read_bytes() if path.is_file() else b"missing")
     h.update(pipeline.PROMPT_ID.encode())
