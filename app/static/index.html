@@ -52,7 +52,7 @@
         <div class="hero-mesh" aria-hidden="true"></div>
         <div class="container hero-inner">
           <div class="hero-copy">
-            <h1 id="home-title">Public support should come with a receipt.</h1>
+            <h1 id="home-title">Public support should come with a <span class="hl-word">receipt.</span></h1>
             <p class="lede"><strong>For city housing staff:</strong> check the affordable-housing commitments a developer made in exchange for a tax break or other public support, with the source page one click away.</p>
             <p class="hero-also">Residents, reporters and council members can read the same receipts, every claim with its page.</p>
             <div class="hero-actions">
@@ -88,9 +88,12 @@
         </div>
       </div>
 
-      <section class="container real-strip" id="real-strip" aria-labelledby="real-strip-title" hidden>
+      <div class="container">
+      <section class="real-strip" id="real-strip" aria-labelledby="real-strip-title" hidden>
+        <div class="rs-glow" aria-hidden="true"></div>
         <div class="rs-copy">
-          <h2 id="real-strip-title"><span class="real-badge-static">Real records</span> Prince George's County, read by Promise Ledger</h2>
+          <p class="rs-live"><span class="rs-pulse" aria-hidden="true"></span>Live from public records</p>
+          <h2 id="real-strip-title">Prince George's County, read by Promise Ledger</h2>
           <dl class="rs-stats">
             <div><dt>Agreements read</dt><dd data-count="deals">0</dd></div>
             <div><dt>Affordable homes stated</dt><dd data-count="homes">0</dd></div>
@@ -103,6 +106,7 @@
           <figcaption id="rs-quote-cite"></figcaption>
         </figure>
       </section>
+      </div>
 
       <section class="container section reveal" aria-labelledby="problem-title">
         <p class="kicker">The problem</p>
@@ -248,10 +252,10 @@
       <section class="container section reveal" aria-labelledby="who-title">
         <p class="kicker">Who it’s for</p>
         <h2 class="section-title" id="who-title">One record everyone can read.</h2>
-        <ul class="chips">
-          <li class="chip"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M8 9V7a4 4 0 0 1 8 0v2M12 13v3"/></svg>City housing staff</li>
-          <li class="chip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 4l9 6"/><path d="M5 10v9M9 10v9M15 10v9M19 10v9M3 20h18"/></svg>Council members</li>
-          <li class="chip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>Residents</li>
+        <ul class="who-cards">
+          <li class="who-card"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M8 9V7a4 4 0 0 1 8 0v2M12 13v3"/></svg><h3>City housing staff</h3><p>Check every commitment against its page before a deal moves on.</p></li>
+          <li class="who-card"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 4l9 6"/><path d="M5 10v9M9 10v9M15 10v9M19 10v9M3 20h18"/></svg><h3>Council members</h3><p>See what changed between the staff report and the signed agreement.</p></li>
+          <li class="who-card"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg><h3>Residents</h3><p>Read what was promised for your neighborhood, with the page it came from.</p></li>
         </ul>
       </section>
 

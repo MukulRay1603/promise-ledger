@@ -25,7 +25,7 @@ class Page(unittest.TestCase):
         cls.html = cls.client.get("/").text
 
     def test_hero_and_actions(self):
-        self.assertIn("Public support should come with a receipt.", self.html)
+        self.assertIn("Public support should come with a receipt.", re.sub(r"<[^>]+>", "", self.html))
         self.assertIn("Open a sample deal", self.html)
         self.assertIn("Start a new deal", self.html)
         self.assertIn("check the affordable-housing commitments a developer made in exchange for a tax break or other public support, with the source page one click away.", self.html)

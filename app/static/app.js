@@ -726,41 +726,56 @@ const OBLIGATIONS = [
 ];
 
 function countyTimeline(rows) {
-  // Affordability end dates on one line from this year to the latest end, so expiring homes stand out.
+  // One bar per agreement from the Council's adoption to the end of its longest stated term, soonest first, so the
+  // terms that run out first sit at the top. Amber bars end within 15 years: the window to plan for keeping them.
   const dated = rows.filter((r) => r.term_end).sort((a, b) => a.term_end.localeCompare(b.term_end));
   if (!dated.length) return null;
   const now = new Date().getFullYear();
-  const last = Math.max(now + 20, ...dated.map((r) => Number(r.term_end.slice(0, 4)) + 2));
-  const span = last - now;
-  const x = (iso) => 2 + 96 * Math.min(1, Math.max(0, (Number(iso.slice(0, 4)) + Number(iso.slice(5, 7)) / 12 - now) / span));
+  const yr = (iso) => Number(iso.slice(0, 4)) + (Number(iso.slice(5, 7)) - 1) / 12;
+  const startOf = (r) => (r.passed ? yr(r.passed) : r.term_years ? yr(r.term_end) - r.term_years : now);
+  const first = Math.floor(Math.min(now, ...dated.map(startOf)) / 5) * 5;
+  const latest = Math.max(...dated.map((r) => yr(r.term_end)));
+  const cap = Math.min(Math.ceil(latest / 10) * 10, Math.max(now + 50, 2080));
+  const x = (y) => (100 * (Math.min(y, cap) - first)) / (cap - first);
   const ticks = [];
-  for (let y = Math.ceil(now / 10) * 10; y <= last; y += 10) ticks.push(y);
-  // Each label takes about 16% of the track to the right of its mark, or to the left when it is flipped near the
-  // right edge. A mark goes on the lowest lane where its label overlaps no other.
-  const LABEL = 16;
-  const lanes = [];
-  const placed = dated.map((r) => {
-    const at = x(r.term_end);
-    const flip = at > 68;
-    const span = flip ? [at - LABEL, at + 1] : [at - 1, at + LABEL];
-    let lane = lanes.findIndex((used) => used.every(([a, b]) => span[1] <= a || span[0] >= b));
-    if (lane < 0) { lane = lanes.length; lanes.push([]); }
-    lanes[lane].push(span);
-    return { r, at, lane, flip, soon: Number(r.term_end.slice(0, 4)) - now <= 15, est: r.term_end_estimated };
-  });
-  return el("figure", { class: "county-timeline", style: `--lanes:${Math.max(1, lanes.length)}` },
-    el("figcaption", {},
-      el("h2", { id: "county-timeline-title" }, "When the stated terms run out"),
-      el("p", { class: "hint" }, "Each mark counts the longest term an agreement's records state (usually the PILOT term) from the Council's adoption date; a solid mark is dated by a signed record. The signed agreement may start later, so the real end is that year or later. Amber marks run out within 15 years: the window to plan for keeping those homes affordable.")),
-    el("div", { class: "ct-track", role: "list", "aria-labelledby": "county-timeline-title" },
-      el("div", { class: "ct-axis", "aria-hidden": "true" },
-        ...ticks.map((y) => el("span", { class: "ct-tick", style: `left:${2 + 96 * (y - now) / span}%` }, String(y)))),
-      ...placed.map(({ r, at, lane, flip, soon, est }, i) => el("a", {
-        class: `ct-mark${soon ? " ct-soon" : ""}${est ? " ct-est" : ""}${flip ? " ct-flip" : ""}`, role: "listitem", href: `#/deals/${encodeURIComponent(r.id)}`,
-        style: `left:${at}%;--lane:${lane};--i:${i}`,
-        "aria-label": `${r.name}: stated term runs to ${est ? "about " + r.term_end.slice(0, 4) + " or later" : formatDate(r.term_end)}${r.homes ? `, ${plural(r.homes, "home")}` : ""}`,
-      }, el("span", { class: "ct-dot", "aria-hidden": "true" }),
-        el("span", { class: "ct-label", "aria-hidden": "true" }, el("b", {}, r.term_end.slice(0, 4)), " ", r.name)))));
+  for (let y = Math.ceil(first / 10) * 10; y <= cap; y += 10) ticks.push(y);
+  const soonEnd = now + 15;
+  const fig = el("figure", { class: "runway" },
+    el("figcaption", { class: "rw-head" },
+      el("div", {},
+        el("h2", { id: "county-timeline-title" }, "How long each agreement's homes stay affordable"),
+        el("p", { class: "hint" }, "Each bar runs from the Council's adoption to the end of the longest term the records state. A year with + is counted from adoption, so the real end is then or later. Amber bars run out within 15 years.")),
+      el("a", { class: "btn btn-secondary btn-small", href: "/api/reminders.ics?county=1", download: "prince-georges-terms.ics" }, icon("calendar"), "Add end dates to a calendar")),
+    el("div", { class: "rw-chart" },
+      el("div", { class: "rw-grid", "aria-hidden": "true" },
+        el("span", { class: "rw-window", style: `left:${x(now)}%;width:${x(soonEnd) - x(now)}%` }, el("span", {}, "Next 15 years")),
+        ...ticks.map((y) => el("span", { class: `rw-tick${y % 20 ? " rw-minor" : ""}`, style: `left:${x(y)}%` }, el("span", {}, String(y)))),
+        el("span", { class: "rw-today", style: `left:${x(now)}%` }, el("span", {}, "Today"))),
+      el("ol", { class: "rw-rows", "aria-labelledby": "county-timeline-title" },
+        ...dated.map((r, i) => {
+          const endY = yr(r.term_end);
+          const soon = Number(r.term_end.slice(0, 4)) <= soonEnd;
+          const est = r.term_end_estimated;
+          const over = endY > cap;
+          const left = x(startOf(r));
+          const label = `${r.term_end.slice(0, 4)}${est ? "+" : ""}`;
+          return el("li", { class: `rw-row${soon ? " rw-soon" : ""}${est ? " rw-est" : ""}${over ? " rw-over" : ""}`, style: `--i:${i}` },
+            el("a", { class: "rw-name", href: `#/deals/${encodeURIComponent(r.id)}`, title: r.name,
+              "aria-label": `${r.name}: ${r.term_years ? `${r.term_years}-year term, ` : ""}runs to ${est ? `about ${r.term_end.slice(0, 4)} or later` : formatDate(r.term_end)}${r.homes ? `, ${plural(r.homes, "affordable home")}` : ""}` }, r.name.replace(/\s+-\s+Affordable\s+-\s+/i, " · ")),
+            el("span", { class: "rw-track", "aria-hidden": "true" },
+              el("span", { class: "rw-bar", style: `left:${left}%;width:${Math.max(1, x(endY) - left)}%` }),
+              el("span", { class: "rw-end", style: `left:${x(endY)}%` }, over ? `${label} →` : label)));
+        }))));
+  if (!reducedMotion.matches && "IntersectionObserver" in window) {
+    fig.classList.add("rw-wait");
+    const seen = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      fig.classList.add("rw-go");
+      seen.disconnect();
+    }, { threshold: 0.15 });
+    requestAnimationFrame(() => seen.observe(fig));
+  }
+  return fig;
 }
 
 // Search every checked quote across the county agreements. Results are quotes found word for word on their page.
@@ -845,8 +860,7 @@ async function renderCounty() {
         el("p", { class: "eyebrow" }, el("span", { class: "real-badge" }, icon("check"), "Real public records")),
         el("h1", { id: "county-title" }, "Prince George's County"),
         el("p", { class: "page-sub" }, "Every payment-in-lieu-of-taxes (PILOT) agreement the County Council considered since 2023, read from the Council's own records. Open any deal to see each commitment's quote and page.")),
-      el("div", { class: "page-actions" },
-        el("a", { class: "btn", href: "/api/reminders.ics?county=1", download: "prince-georges-terms.ics" }, icon("calendar"), "Add term end dates to a calendar"))),
+    ),
     body);
   let board;
   try {
@@ -863,8 +877,16 @@ async function renderCounty() {
     return;
   }
   const pct = (n) => (read.length ? Math.round((100 * n) / read.length) : 0);
-  const kpi = (value, label, sub, tone = "") => el("div", { class: `kpi county-kpi ${tone}` },
-    el("p", { class: "kpi-label" }, label), el("p", { class: "kpi-value" }, value), el("p", { class: "kpi-sub" }, sub));
+  const counters = [];
+  const kpi = (value, label, sub, tone = "", of = 0) => {
+    const n = el("span", { class: "kv-n" }, typeof value === "number" ? value.toLocaleString() : value);
+    if (typeof value === "number") counters.push([n, value]);
+    return el("div", { class: `kpi county-kpi ${tone}` },
+      el("p", { class: "kpi-label" }, label),
+      el("p", { class: "kpi-value" }, n, of ? el("span", { class: "kv-of" }, ` of ${of}`) : null),
+      of ? el("span", { class: "kpi-mini frac", "aria-hidden": "true", style: `--f:${value / of}` }, el("span")) : null,
+      el("p", { class: "kpi-sub" }, sub));
+  };
   const dot = (found, row, key, label) => !row.records_read
     ? el("td", { class: "ob-cell ob-unread", "data-label": label }, el("span", { class: "ob-text-always" }, "Not read yet"))
     : el("td", { class: `ob-cell ${found ? "ob-found" : "ob-missing"}`, "data-label": label },
@@ -874,12 +896,12 @@ async function renderCounty() {
   body.removeAttribute("aria-busy");
   body.replaceChildren(
     el("div", { class: "kpi-row county-kpis" },
-      kpi(String(t.deals), "Agreements", `${t.records_read} of ${t.records} council records read`),
-      kpi(t.homes ? t.homes.toLocaleString() : "—", "Affordable homes stated", t.deals_with_homes ? `in the ${plural(t.deals_with_homes, "agreement")} whose records state a count outright` : "No counts found yet"),
-      kpi(`${t.found.reporting} of ${read.length}`, "Have reporting wording", `${pct(t.found.reporting)}% of agreements read`, t.found.reporting < read.length ? "kpi-warn" : ""),
-      kpi(`${t.found.remedies} of ${read.length}`, "Have remedy wording", `${pct(t.found.remedies)}% of agreements read`, t.found.remedies < read.length ? "kpi-warn" : ""),
-      kpi(String(t.ending_by_2040), "Stated terms run out by 2040", `of ${plural(t.term_ends_known, "agreement")} that state a term`, t.ending_by_2040 ? "kpi-warn" : ""),
-      kpi(String(t.template_text), "Approved text with blanks", "Unfilled template text, like “(insert specific dates)”", t.template_text ? "kpi-warn" : "")),
+      kpi(t.deals, "Agreements", `${t.records_read} of ${t.records} council records read`, "kpi-hero"),
+      kpi(t.homes || "—", "Affordable homes stated", t.deals_with_homes ? `in the ${plural(t.deals_with_homes, "agreement")} whose records state a count` : "No counts found yet", "kpi-hero"),
+      kpi(t.found.reporting, "Have reporting wording", `${pct(t.found.reporting)}% of agreements read`, t.found.reporting < read.length ? "kpi-warn" : "", read.length),
+      kpi(t.found.remedies, "Have remedy wording", `${pct(t.found.remedies)}% of agreements read`, t.found.remedies < read.length ? "kpi-warn" : "", read.length),
+      kpi(t.ending_by_2040, "Terms run out by 2040", `of ${plural(t.term_ends_known, "agreement")} that state a term`, t.ending_by_2040 ? "kpi-warn" : ""),
+      kpi(t.template_text, "Approved with blanks", "Unfilled template text, like “(insert specific dates)”", t.template_text ? "kpi-warn" : "")),
     countySearch(),
     countyTimeline(read),
     el("section", { class: "card county-table-card", "aria-labelledby": "county-table-cap" },
@@ -902,7 +924,7 @@ async function renderCounty() {
               r.template_text?.length ? el("a", { class: "tag tag-differs template-flag", href: sourceHref(r.id, r.template_text[0].claim_id),
                 title: `“${r.template_text[0].quote}”` }, "Template blanks in the approved text") : null),
             el("td", { "data-label": "Council action" },
-              el("span", {}, r.council_status || "—", r.passed ? ` ${formatDate(r.passed)}` : ""),
+              el("span", { class: "ca-status" }, r.council_status || "—"), r.passed ? el("span", { class: "ca-date" }, formatDate(r.passed)) : null,
               r.source_url ? el("a", { class: "reminder-source", href: r.source_url, target: "_blank", rel: "noopener" }, "Council record", el("span", { class: "visually-hidden" }, ` for ${r.name} (opens in a new tab)`)) : null),
             el("td", { "data-label": "Affordable homes", class: "num" }, r.homes
               ? [el("span", {}, String(r.homes)), r.homes_claim_id ? el("a", { class: "reminder-source", href: sourceHref(r.id, r.homes_claim_id) }, "Quote", el("span", { class: "visually-hidden" }, ` for ${r.name} homes`)) : null]
@@ -916,6 +938,8 @@ async function renderCounty() {
             ...OBLIGATIONS.map(([key, label]) => dot(r.found[key], r, key, label)))))))),
     el("p", { class: "hint county-source" }, `Source: ${board.source}. Each record is read once and every quote is checked word for word against its page.`),
   );
+  for (const [node, value] of counters) animateNumber(node, value, 900, (v) => Math.round(v).toLocaleString());
+  riseIn(body);
 }
 
 function rememberSample(deals) {
@@ -1112,6 +1136,7 @@ async function renderDeal(id, tab, sourceClaim = null, withTour = false) {
   renderActions(id, deal);
   renderDocs();
   renderReview({ tab: sourceClaim ? null : tab });
+  if (!sourceClaim && !withTour) riseIn(view);
   if (sourceClaim) openSourceFromLink(sourceClaim);
   if (withTour) {
     history.replaceState(null, "", `#/deals/${encodeURIComponent(id)}`);
@@ -2521,6 +2546,43 @@ function countStat(node) {
   animateNumber(node, Number(node.dataset.count), 900, (v) => v.toFixed(decimals));
 }
 
+// Cards on rendered views rise in as they come into view, a few at a time. Content is never hidden without script:
+// the class that hides it is added here and removed when the card is seen (or at once with reduced motion).
+const RISE = ".card, .kpi, .runway, .county-search-card, .county-table-card, .tile, .summary-box, .stepper-wrap, .deal-row";
+let riseObserver = null;
+function riseIn(root) {
+  if (!root || reducedMotion.matches || !("IntersectionObserver" in window)) return;
+  riseObserver ||= new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add("rise-in");
+      entry.target.classList.remove("rise-wait");
+      riseObserver.unobserve(entry.target);
+    }
+  }, { threshold: 0.08, rootMargin: "0px 0px -4% 0px" });
+  let i = 0;
+  for (const node of root.querySelectorAll(RISE)) {
+    if (node.closest(".rise-wait") || node.dataset.risen) continue;
+    node.dataset.risen = "1";
+    node.style.setProperty("--rise", String(i++ % 6));
+    node.classList.add("rise-wait");
+    riseObserver.observe(node);
+  }
+}
+
+function setupSpotlight() {
+  // A soft light follows the pointer across cards: decoration only, mouse and pen only.
+  if (reducedMotion.matches || !window.matchMedia("(hover: hover)").matches) return;
+  const SEL = ".card, .kpi, .tile, .bento-tile, .runway, .summary-box, .real-strip, .who-card";
+  document.addEventListener("pointermove", (event) => {
+    const card = event.target.closest?.(SEL);
+    if (!card) return;
+    const box = card.getBoundingClientRect();
+    card.style.setProperty("--mx", `${event.clientX - box.left}px`);
+    card.style.setProperty("--my", `${event.clientY - box.top}px`);
+  }, { passive: true });
+}
+
 function setupReveal() {
   const sections = [...document.querySelectorAll(".reveal")];
   const reveal = (section) => {
@@ -3233,6 +3295,7 @@ setupExportDialog();
 setupViewer();
 setupDecisionDialog();
 setupReveal();
+setupSpotlight();
 setupHeroMotion();
 setupPageTabs();
 ready = detectMode();
