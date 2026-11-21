@@ -25,15 +25,18 @@ try {
     // Scroll through the page the way a reader would.
     const h = await page.evaluate(() => document.documentElement.scrollHeight);
     for (let y = 0; y < h; y += 500) { await page.evaluate((v) => window.scrollTo(0, v), y); await sleep(120); }
-    await sleep(1500);
+    await sleep(4500);
     const r = await page.evaluate(() => ({
       waiting: [...document.querySelectorAll(".rise-wait")].map((n) => n.className).slice(0, 5),
       waitingCount: document.querySelectorAll(".rise-wait").length,
       runway: document.querySelector(".runway")?.className || null,
       kpis: [...document.querySelectorAll(".county-kpi .kpi-value")].map((n) => n.textContent),
       strip: [...document.querySelectorAll("#real-strip [data-count]")].map((n) => n.textContent),
+      // Decorations that fade in must end visible (a fade that ends on a hidden "waiting" state never shows).
+      hidden: [...document.querySelectorAll(".m3-cap, .rs-found, .rs-blank")]
+        .filter((n) => n.closest("[hidden]") === null && n.getClientRects().length && Number(getComputedStyle(n).opacity) < 0.3).length,
     }));
-    const ok = r.waitingCount === 0 && (!r.runway || r.runway.includes("rw-go"));
+    const ok = r.waitingCount === 0 && r.hidden === 0 && (!r.runway || r.runway.includes("rw-go"));
     if (!ok) bad++;
     console.log(ok ? "ok  " : "FAIL", route, JSON.stringify(r));
   }

@@ -672,7 +672,7 @@ async function setupRealStrip() {
         page.classList.add("rs-wait");
         const seen = new IntersectionObserver(([entry]) => {
           if (!entry.isIntersecting) return;
-          page.classList.add("rs-go"); seen.disconnect();
+          page.classList.add("rs-go"); page.classList.remove("rs-wait"); seen.disconnect();
         }, { threshold: 0.4 });
         seen.observe(page);
       }
@@ -960,7 +960,7 @@ function countyMap(board) {
     fig.classList.add("m3-wait");
     const io = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
-      fig.classList.add("m3-go"); io.disconnect();
+      fig.classList.add("m3-go"); fig.classList.remove("m3-wait"); io.disconnect();
     }, { threshold: 0.2 });
     requestAnimationFrame(() => io.observe(fig));
   }
