@@ -86,6 +86,21 @@ Promise Ledger reads a deal's PDFs and builds **one checked receipt**:
 
 **Records to ask for next.** Under the documents, a short list names the records that would fill the deal's gaps: a signed agreement when nothing is signed, the full agreement and exhibits when a signed record leaves terms out, a staff report or affordability exhibit for missing homes, income or rent limits, council minutes when nothing shows a vote, and a certificate of occupancy or compliance report when nothing shows the homes were delivered. Each item lists the terms it would usually show. The list is decided by rules from the review; no model is asked.
 
+**County (real records).** Every PILOT agreement the Prince George's County Council considered since 2023: 21 agreements, 156 council records, 811 pages, read once and checked. The page shows:
+- **Figures.** Six of them, then a strip comparing about 27 hours of reading by hand (at 2 minutes a page, an estimate) with $0.59 to read everything here once.
+- **The map.** A night view with a column of light at each address the records state, as tall as the affordable homes stated, and amber when the term ends by 2040. Agreements whose records give no street address are listed beside it.
+- **Search.** Meaning search across all 588 checked quotes.
+- **Term chart.** One bar per agreement, from adoption to the end of its stated term.
+- **The table.** Which key terms each agreement's records contain.
+- **Calendar export.** Every term end, with heads-ups before it.
+
+**Ask the county.** A chat on the Home and County pages answers one question across all 21 agreements. The model sees code-computed county summaries, one line per agreement and the closest checked quotes. Code checks every sentence as in Ask a deal, and each one links to its agreement or page.
+
+**On every county agreement:**
+- **Share** copies a link (`/s/<deal>`) that unfurls with the agreement's numbers.
+- **Print brief** prints one page for a council packet.
+- **Draft a records request** writes the public records request for what is missing.
+
 **Starting a new deal:** name it, drop in PDFs, and watch each one move from *Reading* to *Checked*. On the public demo, sample deals are read-only and visitor uploads are deleted after 24 hours.
 
 ## 5. How it works: the pipeline
@@ -343,6 +358,13 @@ Uploads are read on a background thread, hence `--no-cpu-throttling`. Health che
 | `POST /api/deals/{id}/ask` | Ask a question `{question, audience: "staff" or "resident"}`; answers cite checked quotes; nothing stored |
 | `POST /api/extract` | Read pasted text; nothing stored |
 | `GET /api/media` | Which explainer videos are present |
+| `GET /api/county` | The county board: every real agreement, totals, map data |
+| `GET /api/county/search?q=` | Meaning search over checked county quotes (keywords without a key) |
+| `POST /api/county/ask` | One question across all county agreements `{question, audience}`; nothing stored |
+| `POST /api/deals/{id}/request-letter` | Draft a public records request `{polish}`; nothing sent or stored |
+| `GET /api/reminders.ics?county=1` | Calendar of stated term ends with heads-ups |
+| `POST /api/feedback`, `GET /api/feedback` | Tester answers; reading them needs `X-Feedback-Token` |
+| `GET /s/{deal}` | Share page with link-preview tags, then the agreement |
 | `GET /api/health` | Health check |
 
 Visitor requests carry an `X-Demo-Session` header (a random id the browser keeps); decisions also send `X-Reviewer-Name`.
@@ -350,12 +372,20 @@ Visitor requests carry an `X-Demo-Session` header (a random id the browser keeps
 ## 13. Testing
 
 ```bash
-python -m unittest discover -s tests -t .   # 258 tests
+python -m unittest discover -s tests -t .   # 467 tests
 python -m app.ledger                        # every demo quote is on its cited page
 python evals/run_pdf_evals.py               # score the pipeline (cached; at most 30 live calls)
 ```
 
-The 14 test files cover the API, deals, decisions, the demo guard, hardening (sandbox, limits, headers), stage rules, sample PDFs and gold quotes, the interface's rules (no record text inserted as HTML, neutral wording, reduced motion, video captions) and the About and Roadmap pages.
+Browser checks in `tools/a11y` (Node, system Chrome):
+- `check.mjs`: axe on every view;
+- `motion-check.mjs`: animations finish visible;
+- `perf-check.mjs`: low-end phone and desktop load;
+- `lite-check.mjs`: slow-device mode;
+- `chat-check.mjs`: Ask the county, including axe on the open panel;
+- `brief-check.mjs`: every brief fits one page.
+
+The test files cover the API, deals, decisions, the demo guard, hardening (sandbox, limits, headers), stage rules, sample PDFs and gold quotes, the interface's rules (no record text inserted as HTML, neutral wording, reduced motion, video captions) and the About and Roadmap pages.
 
 ## 14. What is new here
 
@@ -379,7 +409,11 @@ We avoid saying "first" or "only": our search was limited, and parts of this exi
 | Live today | By the Dec 2 final | After |
 |---|---|---|
 | Reads every PDF in a deal’s packet | Feedback and a timed task with housing staff | Spanish and other languages |
-| Quotes checked word for word on their pages | A second county's records | Reads handwriting on scanned pages |
+| Quotes checked word for word on their pages |  | A second county's records |
+| County map at the addresses the records state |  | Reads handwriting on scanned pages |
+| Ask the county: one question across all agreements |  |  |
+| Share links with previews; one-page council briefs |  |  |
+| Light on low-end phones; looping effects pause off screen |  |  |
 | Pages corrected; unverifiable quotes dropped |  | Follow-up letters after a request is answered |
 | Stages set by rules, from proposed to delivered |  | Changed end dates and amendments matched across records |
 | One-party signing flagged |  | Cross-checks with HUD's LIHTC data once new projects appear in it (it lags about two years) |
