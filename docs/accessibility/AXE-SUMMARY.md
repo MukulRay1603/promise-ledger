@@ -33,7 +33,7 @@ axe-core 4.10.3, WCAG 2.0/2.1 A and AA rules, run 2026-11-21 in Chrome by `tools
 | `#/about` | desktop | dark | none | 25 | 2 |
 | `#/` | phone | light | none | 26 | 85 |
 | `#/deals` | phone | light | none | 26 | 45 |
-| `#/county` | phone | light | none | 31 | 473 |
+| `#/county` | phone | light | none | 31 | 456 |
 | `#/deals/harbor-walk` | phone | light | none | 30 | 42 |
 | `#/deals/harbor-walk/changes` | phone | light | none | 28 | 79 |
 | `#/deals/harbor-walk/questions` | phone | light | none | 29 | 42 |
@@ -45,7 +45,7 @@ axe-core 4.10.3, WCAG 2.0/2.1 A and AA rules, run 2026-11-21 in Chrome by `tools
 | `#/about` | phone | light | none | 25 | 2 |
 | `#/` | phone | dark | none | 26 | 86 |
 | `#/deals` | phone | dark | none | 26 | 45 |
-| `#/county` | phone | dark | none | 31 | 473 |
+| `#/county` | phone | dark | none | 31 | 456 |
 | `#/deals/harbor-walk` | phone | dark | none | 30 | 42 |
 | `#/deals/harbor-walk/changes` | phone | dark | none | 28 | 79 |
 | `#/deals/harbor-walk/questions` | phone | dark | none | 29 | 42 |
