@@ -812,88 +812,157 @@ function svgEl(tag, attrs = {}, ...kids) {
   return node;
 }
 function countyMap(board) {
-  const shapes = board.map?.shapes;
+  // A tilted night view of the county: the land as a raised slab, the highways people navigate by, and a column of
+  // light at each agreement, as tall as the affordable homes its records state. Pins come only from addresses the
+  // records state; nothing here is placed by guess.
+  const m = board.map;
   const placed = board.deals.filter((r) => r.location?.lat);
-  if (!shapes || !placed.length) return null;
-  // Frame the area the agreements sit in (with room around it), not the whole county: pins stay readable.
+  if (!m?.shapes || !placed.length) return null;
+  const TILT = 0.6, W = 760, TOP = 120, DEPTH = 14;
   const lons = placed.map((r) => r.location.lon), lats = placed.map((r) => r.location.lat);
-  const padLon = Math.max(0.04, 0.22 * (Math.max(...lons) - Math.min(...lons)));
-  const padLat = Math.max(0.03, 0.22 * (Math.max(...lats) - Math.min(...lats)));
+  const padLon = Math.max(0.05, 0.3 * (Math.max(...lons) - Math.min(...lons)));
+  const padLat = Math.max(0.04, 0.3 * (Math.max(...lats) - Math.min(...lats)));
   const [minLon, maxLon, minLat, maxLat] = [Math.min(...lons) - padLon, Math.max(...lons) + padLon, Math.min(...lats) - padLat, Math.max(...lats) + padLat];
   const k = Math.cos(((minLat + maxLat) / 2) * Math.PI / 180);
-  const W = 560, scale = W / ((maxLon - minLon) * k), H = Math.round((maxLat - minLat) * scale);
-  const pt = (lon, lat) => [((lon - minLon) * k * scale).toFixed(1), ((maxLat - lat) * scale).toFixed(1)];
-  const path = (rings) => rings.map((ring) => "M" + ring.map(([x, y]) => pt(x, y).join(",")).join("L") + "Z").join("");
+  const scale = W / ((maxLon - minLon) * k);
+  const H = Math.round(TOP + (maxLat - minLat) * scale * TILT + 24);
+  const P = (lon, lat) => [(lon - minLon) * k * scale, TOP + (maxLat - lat) * scale * TILT];
+  const d = (rings, dy = 0) => rings.map((ring) => "M" + ring.map(([x, y]) => { const [a, b] = P(x, y); return `${a.toFixed(1)},${(b + dy).toFixed(1)}`; }).join("L") + "Z").join("");
+  const line = (pts) => "M" + pts.map(([x, y]) => P(x, y).map((v) => v.toFixed(1)).join(",")).join("L");
+  const county = m.shapes["Prince George's County"] || [], dc = m.shapes["Washington, DC"] || [];
   const maxHomes = Math.max(1, ...placed.map((r) => r.homes || 0));
-  const now = new Date().getFullYear();
-  // Agreements at the same address (phases of one site) fan out around it.
+  const uid = `m${Math.random().toString(36).slice(2, 7)}`;
+
+  // Grid lines every 0.02 degrees, clipped to the county top face.
+  const grid = [];
+  for (let lon = Math.ceil(minLon / 0.02) * 0.02; lon < maxLon; lon += 0.02) grid.push(line([[lon, minLat - 0.2], [lon, maxLat + 0.2]]));
+  for (let lat = Math.ceil(minLat / 0.02) * 0.02; lat < maxLat; lat += 0.02) grid.push(line([[minLon - 0.2, lat], [maxLon + 0.2, lat]]));
+
+  const roads = Object.entries(m.roads || {}).map(([name, r]) => ({ name, kind: r.kind, d: r.lines.map(line).join("") }));
+  // One shield per route, on its longest stretch inside the frame.
+  const inView = ([x, y]) => x > 40 && x < W - 40 && y > TOP + 10 && y < H - 30;
+  const inside = ([lon, lat], rings) => rings.some((ring) => {
+    let hit = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i], [xj, yj] = ring[j];
+      if ((yi > lat) !== (yj > lat) && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) hit = !hit;
+    }
+    return hit;
+  });
+  const shields = Object.entries(m.roads || {}).filter(([, r]) => r.kind !== "state").map(([name, r]) => {
+    const pts = r.lines.flat().filter((pt) => !inside(pt, dc)).map(([x, y]) => P(x, y)).filter(inView);
+    return pts.length > 6 ? { name, kind: r.kind, at: pts[Math.floor(pts.length / 2)] } : null;
+  }).filter(Boolean);
+  let places = Object.entries(m.places || {}).map(([name, [lon, lat]]) => ({ name, at: P(lon, lat) })).filter((p) => inView(p.at));
+
+  // Agreements at the same site fan out; beams are drawn back to front.
   const seen = {};
   const pins = placed.map((r, i) => {
     const key = `${r.location.lat.toFixed(3)},${r.location.lon.toFixed(3)}`;
     const n = (seen[key] = (seen[key] || 0) + 1) - 1;
-    let [x, y] = pt(r.location.lon, r.location.lat).map(Number);
-    if (n) { x += 11 * Math.cos(n * 2.1); y += 11 * Math.sin(n * 2.1); }
-    const soon = r.term_end && Number(r.term_end.slice(0, 4)) <= 2040;
-    return { r, x, y, i, soon, rad: 5 + 10 * Math.sqrt((r.homes || 0) / maxHomes) };
-  }).sort((a, b) => b.rad - a.rad); // Small pins on top, so every pin can be pointed at.
-  const detail = el("div", { class: "mp-detail", "aria-live": "polite" });
+    let [x, y] = P(r.location.lon, r.location.lat);
+    if (n) { x += 12 * Math.cos(n * 2.1); y += 7 * Math.sin(n * 2.1); }
+    return { r, x, y, i, soon: Boolean(r.term_end && r.term_end < "2041-01-01"), h: 18 + 92 * Math.sqrt((r.homes || 0) / maxHomes) };
+  }).sort((a, b) => a.y - b.y);
+  // Labels never sit under a column or on top of each other: a town label is dropped near a site, and a home count
+  // shows only where it fits (largest first); every count still shows on hover or focus.
+  places = places.filter((pl) => pins.every((p) => Math.abs(pl.at[0] + 28 - p.x) > 34 || pl.at[1] < p.y - p.h - 12 || pl.at[1] > p.y + 10));
+  const taken = [];
+  for (const p of [...pins].sort((a, b) => (b.r.homes || 0) - (a.r.homes || 0))) {
+    const box = [p.x - 13, p.y - p.h - 20, p.x + 13, p.y - p.h - 6];
+    p.label = !taken.some((t) => box[0] < t[2] && box[2] > t[0] && box[1] < t[3] && box[3] > t[1]);
+    if (p.label) taken.push(box);
+  }
+
+  const hud = el("div", { class: "m3-hud", "aria-live": "polite" });
+  let svg;
   const show = (p) => {
     const r = p.r, loc = r.location;
-    detail.replaceChildren(
-      el("p", { class: "mp-d-name" }, r.name),
-      el("p", { class: "mp-d-addr" }, `${loc.address}${loc.city ? `, ${loc.city}` : ""}`, loc.approx ? " (street located; building approximate)" : ""),
-      el("dl", { class: "mp-d-facts" },
-        el("div", {}, el("dt", {}, "Affordable homes"), el("dd", {}, r.homes ? String(r.homes) : "Not stated")),
-        el("div", {}, el("dt", {}, "Stated term to"), el("dd", { class: p.soon ? "mp-soon" : "" }, r.term_end ? `${r.term_end.slice(0, 4)}${r.term_end_estimated ? "+" : ""}` : "Not stated")),
-        el("div", {}, el("dt", {}, "Council file"), el("dd", { class: "mp-file" }, r.file || "—"))),
-      el("p", { class: "mp-d-src" }, `Address from ${loc.record}, p. ${loc.page}.`),
-      el("a", { class: "btn btn-small", href: `#/deals/${encodeURIComponent(r.id)}` }, "Open the agreement", icon("arrow")));
-    svg.querySelectorAll(".mp-pin").forEach((g) => g.classList.toggle("on", g === p.node));
+    hud.replaceChildren(
+      el("p", { class: "m3-hud-kicker" }, p.soon ? "Term ends by 2040" : "Agreement"),
+      el("p", { class: "m3-hud-name" }, r.name),
+      el("p", { class: "m3-hud-addr" }, `${loc.address}${loc.city ? `, ${loc.city}` : ""}`, loc.approx ? " · street located" : ""),
+      el("dl", { class: "m3-hud-facts" },
+        el("div", {}, el("dt", {}, "Affordable homes"), el("dd", {}, r.homes ? r.homes.toLocaleString() : "Not stated")),
+        el("div", {}, el("dt", {}, "Stated term to"), el("dd", { class: p.soon ? "m3-amber" : "" }, r.term_end ? `${r.term_end.slice(0, 4)}${r.term_end_estimated ? "+" : ""}` : "Not stated")),
+        el("div", {}, el("dt", {}, "Key terms found"), el("dd", {}, `${Object.values(r.found).filter(Boolean).length} of ${Object.keys(r.found).length}`))),
+      el("p", { class: "m3-hud-src" }, `Council file ${r.file || "—"} · address from ${loc.record}, p. ${loc.page}`),
+      el("a", { class: "m3-hud-go", href: `#/deals/${encodeURIComponent(r.id)}` }, "Open the agreement", icon("arrow")));
+    svg?.querySelectorAll(".m3-pin").forEach((g) => g.classList.toggle("on", g === p.node));
   };
-  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "mp-svg", role: "group", "aria-labelledby": "county-map-title" },
-    svgEl("path", { class: "mp-dc", d: path(shapes["Washington, DC"] || []), "aria-hidden": "true" }),
-    svgEl("path", { class: "mp-county", d: path(shapes["Prince George's County"] || []), pathLength: "1", "aria-hidden": "true" }),
-    (() => { const [, y] = pt(minLon, 38.873); return svgEl("text", { class: "mp-label", x: 8, y, "text-anchor": "start", "aria-hidden": "true" }, "Washington, DC"); })(),
+
+  svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "m3-svg", role: "group", "aria-labelledby": "county-map-title" },
+    svgEl("defs", {},
+      svgEl("linearGradient", { id: `${uid}-beam`, x1: "0", y1: "1", x2: "0", y2: "0" },
+        svgEl("stop", { offset: "0", "stop-color": "#5EEAD4", "stop-opacity": ".95" }), svgEl("stop", { offset: "1", "stop-color": "#5EEAD4", "stop-opacity": "0" })),
+      svgEl("linearGradient", { id: `${uid}-beam-soon`, x1: "0", y1: "1", x2: "0", y2: "0" },
+        svgEl("stop", { offset: "0", "stop-color": "#FBBF24", "stop-opacity": ".95" }), svgEl("stop", { offset: "1", "stop-color": "#FBBF24", "stop-opacity": "0" })),
+      svgEl("linearGradient", { id: `${uid}-land`, x1: "0", y1: "0", x2: "1", y2: "1" },
+        svgEl("stop", { offset: "0", "stop-color": "#123B44" }), svgEl("stop", { offset: "1", "stop-color": "#0C2530" })),
+      svgEl("filter", { id: `${uid}-glow`, x: "-100%", y: "-100%", width: "300%", height: "300%" },
+        svgEl("feGaussianBlur", { stdDeviation: "3", result: "b" }), svgEl("feMerge", {}, svgEl("feMergeNode", { in: "b" }), svgEl("feMergeNode", { in: "SourceGraphic" }))),
+      svgEl("clipPath", { id: `${uid}-clip` }, svgEl("path", { d: d(county) }))),
+    svgEl("g", { class: "m3-terrain", "aria-hidden": "true" },
+      svgEl("path", { class: "m3-dc", d: d(dc) }),
+      svgEl("path", { class: "m3-side", d: d(county, DEPTH) }),
+      svgEl("path", { class: "m3-land", d: d(county), fill: `url(#${uid}-land)` }),
+      svgEl("g", { "clip-path": `url(#${uid}-clip)` }, svgEl("path", { class: "m3-grid", d: grid.join("") })),
+      svgEl("path", { class: "m3-edge", d: d(county), pathLength: "1" }),
+      ...roads.map((r) => svgEl("path", { class: `m3-road m3-${r.kind}`, d: r.d, pathLength: "1" })),
+      ...places.map((p) => svgEl("g", { class: "m3-place" }, svgEl("circle", { cx: p.at[0].toFixed(1), cy: p.at[1].toFixed(1), r: "1.8" }),
+        svgEl("text", { x: (p.at[0] + 5).toFixed(1), y: (p.at[1] + 3).toFixed(1) }, p.name.toUpperCase()))),
+      ...shields.map((s) => svgEl("g", { class: `m3-shield m3-${s.kind}`, transform: `translate(${s.at[0].toFixed(1)} ${s.at[1].toFixed(1)})` },
+        svgEl("rect", { x: -16, y: -8, width: 32, height: 16, rx: s.kind === "interstate" ? 4 : 8 }),
+        svgEl("text", { y: 3.5, "text-anchor": "middle" }, s.name))),
+      (() => { const [x, y] = P(minLon + 0.012, 38.9); return svgEl("text", { class: "m3-dc-label", x: x.toFixed(1), y: y.toFixed(1) }, "WASHINGTON, DC"); })()),
     ...pins.map((p) => {
-      const g = svgEl("a", { class: `mp-pin${p.soon ? " mp-pin-soon" : ""}${p.r.location.approx ? " mp-pin-approx" : ""}`, href: `#/deals/${encodeURIComponent(p.r.id)}`,
+      const g = svgEl("a", { class: `m3-pin${p.soon ? " m3-soon" : ""}${p.r.location.approx ? " m3-approx" : ""}`, href: `#/deals/${encodeURIComponent(p.r.id)}`,
         style: `--i:${p.i}`,
         "aria-label": `${p.r.name}: ${p.r.homes ? plural(p.r.homes, "affordable home") : "home count not stated"}, ${p.r.location.address}${p.r.term_end ? `, stated term to ${p.r.term_end.slice(0, 4)}` : ""}` },
-        p.soon ? svgEl("circle", { class: "mp-ping", r: p.rad.toFixed(1) }) : null,
-        svgEl("circle", { class: "mp-dot", r: p.rad.toFixed(1) }),
-        svgEl("circle", { class: "mp-core", r: "1.8" }));
+        svgEl("ellipse", { class: "m3-ring", rx: 13, ry: 13 * TILT }),
+        svgEl("ellipse", { class: "m3-base", rx: 7, ry: 7 * TILT }),
+        svgEl("rect", { class: "m3-beam", x: -3, y: -p.h, width: 6, height: p.h, rx: 3, fill: `url(#${uid}-beam${p.soon ? "-soon" : ""})` }),
+        svgEl("circle", { class: "m3-cap", cy: -p.h, r: 4.2, filter: `url(#${uid}-glow)` }),
+        p.r.homes ? svgEl("text", { class: `m3-num${p.label ? "" : " m3-num-hide"}`, y: -p.h - 9, "text-anchor": "middle" }, p.r.homes.toLocaleString()) : null,
+        svgEl("ellipse", { class: "m3-hit", rx: 14, ry: 14, cy: -p.h / 2, "fill-opacity": 0 }));
       p.node = g;
       g.addEventListener("mouseenter", () => show(p));
       g.addEventListener("focus", () => show(p));
       return svgEl("g", { transform: `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})` }, g);
     }));
+
+  show(pins.reduce((a, b) => ((b.r.homes || 0) > (a.r.homes || 0) ? b : a)));
   const missing = board.deals.filter((r) => !r.location?.lat);
-  show(pins[0]);
-  const fig = el("section", { class: "card county-map", "aria-labelledby": "county-map-title" },
-    el("div", { class: "rw-head" },
+  const fig = el("section", { class: "county-map m3", "aria-labelledby": "county-map-title" },
+    el("div", { class: "m3-head" },
       el("div", {},
+        el("p", { class: "m3-kicker" }, el("span", { class: "m3-live", "aria-hidden": "true" }), "Prince George's County · live from public records"),
         el("h2", { id: "county-map-title" }, "Where the homes are"),
-        el("p", { class: "hint" }, `${placed.length} of ${board.deals.length} agreements at the property address their own records state. Larger pins state more affordable homes; amber terms run out by 2040. Point at a pin for its record.`))),
-    el("div", { class: "mp-body" },
-      el("div", { class: "mp-stage" }, svg,
-        el("p", { class: "mp-legend", "aria-hidden": "true" },
-          el("span", { class: "mp-key" }, el("i", { class: "k-teal" }), "Term past 2040"),
-          el("span", { class: "mp-key" }, el("i", { class: "k-amber" }), "Term ends by 2040"),
-          el("span", { class: "mp-key" }, el("i", { class: "k-approx" }), "Street located")),
-        el("p", { class: "mp-credit" }, "Addresses from the records. Located with the U.S. Census Geocoder",
-          placed.some((r) => r.location.geocoder?.includes("OpenStreetMap")) ? "; street-level ones with OpenStreetMap (© OpenStreetMap contributors)" : "",
-          ". Outlines: U.S. Census Bureau.")),
-      el("div", { class: "mp-side" }, detail,
-        missing.length ? el("div", { class: "mp-missing" },
-          el("p", { class: "mp-m-title" }, `Not on the map (${missing.length})`),
-          el("p", { class: "hint" }, "Their records state no street address, so they are not placed by guess."),
-          el("ul", {}, ...missing.map((r) => el("li", {}, el("a", { href: `#/deals/${encodeURIComponent(r.id)}` }, r.name))))) : null)));
+        el("p", { class: "m3-sub" }, `${placed.length} of ${board.deals.length} agreements at the address their own records state. Each column of light is as tall as the affordable homes stated; amber terms end by 2040.`)),
+      el("p", { class: "m3-total", "aria-hidden": "true" }, el("span", {}, placed.reduce((s, p) => s + (p.homes || 0), 0).toLocaleString()), " homes on the map")),
+    el("div", { class: "m3-body" },
+      el("div", { class: "m3-stage" }, svg,
+        el("span", { class: "m3-sweep", "aria-hidden": "true" }),
+        el("p", { class: "m3-legend", "aria-hidden": "true" },
+          el("span", {}, el("i", { class: "k-teal" }), "Term past 2040"),
+          el("span", {}, el("i", { class: "k-amber" }), "Term ends by 2040"),
+          el("span", {}, el("i", { class: "k-road" }), "Interstate"),
+          el("span", {}, el("i", { class: "k-approx" }), "Street located"))),
+      el("div", { class: "m3-side-col" }, hud,
+        missing.length ? el("div", { class: "m3-missing" },
+          el("p", { class: "m3-m-title" }, `Not on the map (${missing.length})`),
+          el("p", {}, "Their records state no street address, so they are not placed by guess."),
+          el("ul", {}, ...missing.map((r) => el("li", {}, el("a", { href: `#/deals/${encodeURIComponent(r.id)}` }, r.name))))) : null)),
+    el("p", { class: "m3-credit" }, "Addresses from the records. Located with the U.S. Census Geocoder",
+      placed.some((r) => r.location.geocoder?.includes("OpenStreetMap")) ? "; street-level ones with OpenStreetMap (© OpenStreetMap contributors)" : "",
+      ". Outlines, highways and places: U.S. Census Bureau."));
   if (!reducedMotion.matches && "IntersectionObserver" in window) {
-    fig.classList.add("mp-wait");
-    const seen2 = new IntersectionObserver(([entry]) => {
+    fig.classList.add("m3-wait");
+    const io = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
-      fig.classList.add("mp-go"); seen2.disconnect();
+      fig.classList.add("m3-go"); io.disconnect();
     }, { threshold: 0.2 });
-    requestAnimationFrame(() => seen2.observe(fig));
+    requestAnimationFrame(() => io.observe(fig));
   }
   return fig;
 }
