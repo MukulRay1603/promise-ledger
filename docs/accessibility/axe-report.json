@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-20",
+  "date": "2026-11-21",
   "axe": "4.10.3",
   "base": "http://localhost:8780",
   "results": [
@@ -12,7 +12,7 @@
       "incomplete": [
         {
           "id": "color-contrast",
-          "count": 81
+          "count": 88
         }
       ]
     },
@@ -34,11 +34,11 @@
       "size": "desktop",
       "theme": "light",
       "violations": [],
-      "passes": 29,
+      "passes": 31,
       "incomplete": [
         {
           "id": "color-contrast",
-          "count": 325
+          "count": 360
         }
       ]
     },
@@ -163,7 +163,7 @@
       "incomplete": [
         {
           "id": "color-contrast",
-          "count": 82
+          "count": 89
         }
       ]
     },
@@ -185,11 +185,11 @@
       "size": "desktop",
       "theme": "dark",
       "violations": [],
-      "passes": 29,
+      "passes": 31,
       "incomplete": [
         {
           "id": "color-contrast",
-          "count": 325
+          "count": 360
         }
       ]
     },
@@ -314,7 +314,7 @@
       "incomplete": [
         {
           "id": "color-contrast",
-          "count": 79
+          "count": 85
         }
       ]
     },
@@ -336,11 +336,11 @@
       "size": "phone",
       "theme": "light",
       "violations": [],
-      "passes": 29,
+      "passes": 31,
       "incomplete": [
         {
           "id": "color-contrast",
-          "count": 417
+          "count": 450
         }
       ]
     },
@@ -465,7 +465,7 @@
       "incomplete": [
         {
           "id": "color-contrast",
-          "count": 80
+          "count": 86
         }
       ]
     },
@@ -487,11 +487,11 @@
       "size": "phone",
       "theme": "dark",
       "violations": [],
-      "passes": 29,
+      "passes": 31,
       "incomplete": [
         {
           "id": "color-contrast",
-          "count": 417
+          "count": 450
         }
       ]
     },

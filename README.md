@@ -95,6 +95,10 @@ The County page (`#/county`) runs the same pipeline on every payment-in-lieu-of-
 - **What real records taught us.** Several approved agreements still hold template text, such as "Term (in years): 30 years (insert specific dates upon approval)" and bracketed alternatives like "OR [Owner agrees …]". The page flags them with the quote. Council files hold the approved agreement, rarely the executed copy, so end dates are counted from the adoption date and labelled "or later".
 - **Search every agreement.** `tools/county_index.py` embeds each checked quote with Gemini (`gemini-embedding-001`, 256 dimensions); at query time only the question is embedded. Without a key, search falls back to keywords and says so.
 - **Calendar.** `/api/reminders.ics` exports term ends with heads-ups 5, 3 and 1 years before, the window to plan for keeping the homes affordable.
+- **Map.** `tools/county_locate.py` takes each property address from the agreement's own records (the record and page are kept). It geocodes the address with the U.S. Census Geocoder, or with OpenStreetMap at street level when the Census has no match. It writes `data/county/locations.json`. Deals whose records state no street address are listed beside the map, never placed by guess. County and DC outlines come from Census TIGERweb (`tools/county_boundary.py`).
+- **Share cards.** Each agreement has a link, `/s/<deal>`, that unfurls with its numbers in Slack, LinkedIn and X. `tools/share_cards.py` draws the 1200×630 cards into `app/static/og/`. They are static files, so the server needs no imaging library; re-run it after a county re-read.
+- **One-page brief.** "Print brief" on a county agreement prints one sheet for a council packet: the stated figures with their pages, which key terms the records contain, approved text still holding blanks, and the questions to ask. `tools/a11y/brief-check.mjs` checks that every brief fits on one page.
+- **By hand vs here.** 811 pages of council records: about 27 hours to read by hand at 2 minutes a page (an estimate, labelled as one), against $0.59 total model cost to read them once.
 
 ## Results
 

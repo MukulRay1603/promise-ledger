@@ -70,6 +70,8 @@ const UI_ICONS = {
   file: [["path", { d: "M6 3h8l4 4v14H6z" }], ["path", { d: "M14 3v4h4M9 13h6M9 17h6" }]],
   link: [["path", { d: "M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" }], ["path", { d: "M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" }]],
   plus: [["path", { d: "M12 5v14M5 12h14" }]],
+  arrow: [["path", { d: "M5 12h14M13 6l6 6-6 6" }]],
+  share: [["circle", { cx: 18, cy: 5, r: 2.5 }], ["circle", { cx: 6, cy: 12, r: 2.5 }], ["circle", { cx: 18, cy: 19, r: 2.5 }], ["path", { d: "M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4" }]],
   print: [["path", { d: "M7 9V3h10v6M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" }], ["rect", { x: 7, y: 14, width: 10, height: 7 }]],
   calendar: [["rect", { x: 3, y: 5, width: 18, height: 16, rx: 2 }], ["path", { d: "M3 10h18M8 3v4M16 3v4" }]],
   docq: [["path", { d: "M6 3h8l4 4v14H6z" }], ["path", { d: "M10.3 11a1.8 1.8 0 1 1 2.4 1.7c-.5.2-.7.6-.7 1.1M12 17v.1" }]],
@@ -647,6 +649,13 @@ async function setupRealStrip() {
     if (!first) { dd.textContent = end.toLocaleString(); continue; }
     animateNumber(dd, end, 1100, (v) => Math.round(v).toLocaleString());
   }
+  const effort = byId("rs-effort");
+  if (effort && t.pages && t.cost_usd != null) {
+    effort.replaceChildren(el("strong", {}, `${t.pages.toLocaleString()} pages`), " of council records: about ",
+      el("strong", {}, `${Math.round((t.pages * PAGE_MINUTES) / 60)} hours`), ` to read by hand at ${PAGE_MINUTES} minutes a page, `,
+      el("strong", { class: "rs-cost" }, `$${t.cost_usd.toFixed(2)}`), " to read them all here once.");
+    effort.hidden = false;
+  }
   const pick = board.deals.find((r) => r.template_text?.length);
   if (pick) {
     const q = pick.template_text[0];
@@ -655,6 +664,19 @@ async function setupRealStrip() {
       el("a", { href: sourceHref(pick.id, q.claim_id) }, pick.name), `, ${q.document || "record"}${q.page ? `, p. ${q.page}` : ""} · council file ${pick.file}. `,
       el("span", { class: "rs-note" }, "Approved text that still holds a template blank."));
     byId("rs-quote").hidden = false;
+    // The real page of that quote, when it is the agreement the picture was made from (tools: element-shot.mjs).
+    const page = byId("rs-page");
+    if (page && page.dataset.deal === pick.id) {
+      page.hidden = false;
+      if (!reducedMotion.matches && "IntersectionObserver" in window) {
+        page.classList.add("rs-wait");
+        const seen = new IntersectionObserver(([entry]) => {
+          if (!entry.isIntersecting) return;
+          page.classList.add("rs-go"); seen.disconnect();
+        }, { threshold: 0.4 });
+        seen.observe(page);
+      }
+    }
   }
 }
 
@@ -776,6 +798,126 @@ function countyTimeline(rows) {
     requestAnimationFrame(() => seen.observe(fig));
   }
   return fig;
+}
+
+// ---------- County map ----------
+// Each agreement at the property address its own records state (record and page shown), sized by the affordable
+// homes stated, amber when the stated term runs out by 2040. Deals whose records state no street address are listed,
+// never placed by guess.
+const SVGNS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs = {}, ...kids) {
+  const node = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) if (v != null) node.setAttribute(k, v);
+  node.append(...kids.filter((k) => k != null));
+  return node;
+}
+function countyMap(board) {
+  const shapes = board.map?.shapes;
+  const placed = board.deals.filter((r) => r.location?.lat);
+  if (!shapes || !placed.length) return null;
+  // Frame the area the agreements sit in (with room around it), not the whole county: pins stay readable.
+  const lons = placed.map((r) => r.location.lon), lats = placed.map((r) => r.location.lat);
+  const padLon = Math.max(0.04, 0.22 * (Math.max(...lons) - Math.min(...lons)));
+  const padLat = Math.max(0.03, 0.22 * (Math.max(...lats) - Math.min(...lats)));
+  const [minLon, maxLon, minLat, maxLat] = [Math.min(...lons) - padLon, Math.max(...lons) + padLon, Math.min(...lats) - padLat, Math.max(...lats) + padLat];
+  const k = Math.cos(((minLat + maxLat) / 2) * Math.PI / 180);
+  const W = 560, scale = W / ((maxLon - minLon) * k), H = Math.round((maxLat - minLat) * scale);
+  const pt = (lon, lat) => [((lon - minLon) * k * scale).toFixed(1), ((maxLat - lat) * scale).toFixed(1)];
+  const path = (rings) => rings.map((ring) => "M" + ring.map(([x, y]) => pt(x, y).join(",")).join("L") + "Z").join("");
+  const maxHomes = Math.max(1, ...placed.map((r) => r.homes || 0));
+  const now = new Date().getFullYear();
+  // Agreements at the same address (phases of one site) fan out around it.
+  const seen = {};
+  const pins = placed.map((r, i) => {
+    const key = `${r.location.lat.toFixed(3)},${r.location.lon.toFixed(3)}`;
+    const n = (seen[key] = (seen[key] || 0) + 1) - 1;
+    let [x, y] = pt(r.location.lon, r.location.lat).map(Number);
+    if (n) { x += 11 * Math.cos(n * 2.1); y += 11 * Math.sin(n * 2.1); }
+    const soon = r.term_end && Number(r.term_end.slice(0, 4)) <= 2040;
+    return { r, x, y, i, soon, rad: 5 + 10 * Math.sqrt((r.homes || 0) / maxHomes) };
+  }).sort((a, b) => b.rad - a.rad); // Small pins on top, so every pin can be pointed at.
+  const detail = el("div", { class: "mp-detail", "aria-live": "polite" });
+  const show = (p) => {
+    const r = p.r, loc = r.location;
+    detail.replaceChildren(
+      el("p", { class: "mp-d-name" }, r.name),
+      el("p", { class: "mp-d-addr" }, `${loc.address}${loc.city ? `, ${loc.city}` : ""}`, loc.approx ? " (street located; building approximate)" : ""),
+      el("dl", { class: "mp-d-facts" },
+        el("div", {}, el("dt", {}, "Affordable homes"), el("dd", {}, r.homes ? String(r.homes) : "Not stated")),
+        el("div", {}, el("dt", {}, "Stated term to"), el("dd", { class: p.soon ? "mp-soon" : "" }, r.term_end ? `${r.term_end.slice(0, 4)}${r.term_end_estimated ? "+" : ""}` : "Not stated")),
+        el("div", {}, el("dt", {}, "Council file"), el("dd", { class: "mp-file" }, r.file || "—"))),
+      el("p", { class: "mp-d-src" }, `Address from ${loc.record}, p. ${loc.page}.`),
+      el("a", { class: "btn btn-small", href: `#/deals/${encodeURIComponent(r.id)}` }, "Open the agreement", icon("arrow")));
+    svg.querySelectorAll(".mp-pin").forEach((g) => g.classList.toggle("on", g === p.node));
+  };
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "mp-svg", role: "group", "aria-labelledby": "county-map-title" },
+    svgEl("path", { class: "mp-dc", d: path(shapes["Washington, DC"] || []), "aria-hidden": "true" }),
+    svgEl("path", { class: "mp-county", d: path(shapes["Prince George's County"] || []), pathLength: "1", "aria-hidden": "true" }),
+    (() => { const [, y] = pt(minLon, 38.873); return svgEl("text", { class: "mp-label", x: 8, y, "text-anchor": "start", "aria-hidden": "true" }, "Washington, DC"); })(),
+    ...pins.map((p) => {
+      const g = svgEl("a", { class: `mp-pin${p.soon ? " mp-pin-soon" : ""}${p.r.location.approx ? " mp-pin-approx" : ""}`, href: `#/deals/${encodeURIComponent(p.r.id)}`,
+        style: `--i:${p.i}`,
+        "aria-label": `${p.r.name}: ${p.r.homes ? plural(p.r.homes, "affordable home") : "home count not stated"}, ${p.r.location.address}${p.r.term_end ? `, stated term to ${p.r.term_end.slice(0, 4)}` : ""}` },
+        p.soon ? svgEl("circle", { class: "mp-ping", r: p.rad.toFixed(1) }) : null,
+        svgEl("circle", { class: "mp-dot", r: p.rad.toFixed(1) }),
+        svgEl("circle", { class: "mp-core", r: "1.8" }));
+      p.node = g;
+      g.addEventListener("mouseenter", () => show(p));
+      g.addEventListener("focus", () => show(p));
+      return svgEl("g", { transform: `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})` }, g);
+    }));
+  const missing = board.deals.filter((r) => !r.location?.lat);
+  show(pins[0]);
+  const fig = el("section", { class: "card county-map", "aria-labelledby": "county-map-title" },
+    el("div", { class: "rw-head" },
+      el("div", {},
+        el("h2", { id: "county-map-title" }, "Where the homes are"),
+        el("p", { class: "hint" }, `${placed.length} of ${board.deals.length} agreements at the property address their own records state. Larger pins state more affordable homes; amber terms run out by 2040. Point at a pin for its record.`))),
+    el("div", { class: "mp-body" },
+      el("div", { class: "mp-stage" }, svg,
+        el("p", { class: "mp-legend", "aria-hidden": "true" },
+          el("span", { class: "mp-key" }, el("i", { class: "k-teal" }), "Term past 2040"),
+          el("span", { class: "mp-key" }, el("i", { class: "k-amber" }), "Term ends by 2040"),
+          el("span", { class: "mp-key" }, el("i", { class: "k-approx" }), "Street located")),
+        el("p", { class: "mp-credit" }, "Addresses from the records. Located with the U.S. Census Geocoder",
+          placed.some((r) => r.location.geocoder?.includes("OpenStreetMap")) ? "; street-level ones with OpenStreetMap (© OpenStreetMap contributors)" : "",
+          ". Outlines: U.S. Census Bureau.")),
+      el("div", { class: "mp-side" }, detail,
+        missing.length ? el("div", { class: "mp-missing" },
+          el("p", { class: "mp-m-title" }, `Not on the map (${missing.length})`),
+          el("p", { class: "hint" }, "Their records state no street address, so they are not placed by guess."),
+          el("ul", {}, ...missing.map((r) => el("li", {}, el("a", { href: `#/deals/${encodeURIComponent(r.id)}` }, r.name))))) : null)));
+  if (!reducedMotion.matches && "IntersectionObserver" in window) {
+    fig.classList.add("mp-wait");
+    const seen2 = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      fig.classList.add("mp-go"); seen2.disconnect();
+    }, { threshold: 0.2 });
+    requestAnimationFrame(() => seen2.observe(fig));
+  }
+  return fig;
+}
+
+// Reading the council records by hand, next to what one read here cost. Pages and cost are counted; the hours are
+// an estimate at a stated pace, labeled as such.
+const PAGE_MINUTES = 2;
+function countyEffort(t) {
+  if (!t.pages || t.cost_usd == null) return null;
+  const hours = Math.round((t.pages * PAGE_MINUTES) / 60);
+  const counters = [];
+  const fact = (value, fmt, label, sub, tone = "") => {
+    const n = el("span", { class: "ef-n" }, fmt(value));
+    counters.push([n, value, fmt]);
+    return el("div", { class: `ef-fact ${tone}` }, el("p", { class: "ef-v" }, n), el("p", { class: "ef-l" }, label), el("p", { class: "ef-s" }, sub));
+  };
+  const box = el("section", { class: "effort", "aria-label": "By hand compared with Promise Ledger" },
+    fact(t.pages, (v) => Math.round(v).toLocaleString(), "pages of council records", `${t.records} records, ${t.deals} agreements`),
+    el("span", { class: "ef-arrow", "aria-hidden": "true" }, "→"),
+    fact(hours, (v) => `≈${Math.round(v)} h`, "to read them by hand", `at ${PAGE_MINUTES} minutes a page (an estimate)`, "ef-hand"),
+    el("span", { class: "ef-arrow", "aria-hidden": "true" }, "vs"),
+    fact(t.cost_usd, (v) => `$${v.toFixed(2)}`, "to read them all here, once", "total model cost; every quote then checked by code", "ef-tool"));
+  requestAnimationFrame(() => { for (const [n, v, f] of counters) animateNumber(n, v, 1100, f); });
+  return box;
 }
 
 // Search every checked quote across the county agreements. Results are quotes found word for word on their page.
@@ -902,6 +1044,8 @@ async function renderCounty() {
       kpi(t.found.remedies, "Have remedy wording", `${pct(t.found.remedies)}% of agreements read`, t.found.remedies < read.length ? "kpi-warn" : "", read.length),
       kpi(t.ending_by_2040, "Terms run out by 2040", `of ${plural(t.term_ends_known, "agreement")} that state a term`, t.ending_by_2040 ? "kpi-warn" : ""),
       kpi(t.template_text, "Approved with blanks", "Unfilled template text, like “(insert specific dates)”", t.template_text ? "kpi-warn" : "")),
+    countyEffort(t),
+    countyMap(board),
     countySearch(),
     countyTimeline(read),
     el("section", { class: "card county-table-card", "aria-labelledby": "county-table-cap" },
@@ -1134,6 +1278,7 @@ async function renderDeal(id, tab, sourceClaim = null, withTour = false) {
       ...(src.url ? [" · ", el("a", { href: src.url, target: "_blank", rel: "noopener" }, "County record", el("span", { class: "visually-hidden" }, " (opens in a new tab)"))] : []));
   }
   renderActions(id, deal);
+  if (dealIsReal) { addShareButton(id, deal.name); addBriefButton(id); }
   renderDocs();
   renderReview({ tab: sourceClaim ? null : tab });
   if (!sourceClaim && !withTour) riseIn(view);
@@ -2080,6 +2225,75 @@ function renderNextRecords() {
     body,
     items.length ? el("button", { type: "button", class: "btn btn-small", onclick: (event) => openLetter(event.currentTarget) },
       icon("docq"), "Draft a records request") : null));
+}
+
+// ---------- Share a county agreement ----------
+// The /s/ link carries a link preview (name, homes, term, card image) and opens the agreement.
+function addShareButton(id, name) {
+  const actions = byId("deal-actions");
+  if (!actions || actions.querySelector(".share-card-btn")) return;
+  const url = `${location.origin}/s/${encodeURIComponent(id)}`;
+  actions.prepend(el("button", { type: "button", class: "btn share-card-btn", onclick: async () => {
+    if (navigator.share && matchMedia("(pointer: coarse)").matches) {
+      try { await navigator.share({ title: `${name} · Promise Ledger`, url }); return; } catch { /* Fall back to copying. */ }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast("Link copied. It shows a preview card with this agreement's numbers.");
+    } catch {
+      toast(`Copy this link: ${url}`);
+    }
+  } }, icon("share"), "Share"));
+}
+
+// ---------- One-page brief (county agreements) ----------
+// What a council member or staffer needs on one sheet: the stated figures with their pages, which key terms the records
+// contain, approved text still holding blanks, and the questions to ask. Built from the county board and this review.
+function addBriefButton(id) {
+  const actions = byId("deal-actions");
+  if (!actions || actions.querySelector(".brief-btn")) return;
+  actions.prepend(el("button", { type: "button", class: "btn brief-btn", onclick: () => printBrief(id) }, icon("print"), "Print brief"));
+}
+
+async function printBrief(id) {
+  let board;
+  try { board = await api("/api/county"); } catch (err) { toast(`The brief did not load. ${err.message}`, { kind: "error" }); return; }
+  const r = board.deals.find((d) => d.id === id);
+  const review = dealState?.review;
+  if (!r || !review) return;
+  const claims = new Map(review.claims.map((c) => [c.id, c]));
+  const at = (claimId) => { const c = claims.get(claimId); return c ? ` (${docLabel(c)}, p. ${c.page})` : ""; };
+  const row = (label, value, note = "") => el("tr", {}, el("th", { scope: "row" }, label), el("td", {}, value || "Not stated", note ? el("span", { class: "pb-note" }, note) : null));
+  const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  const sheet = el("section", { id: "print-brief", "aria-hidden": "true" },
+    el("header", { class: "pb-head" },
+      el("p", { class: "pb-kicker" }, "Promise Ledger brief · real public records · Prince George's County, MD"),
+      el("h1", {}, r.name),
+      el("p", { class: "pb-meta" }, [r.file && `Council file ${r.file}`, r.council_status && `${r.council_status}${r.passed ? ` ${formatDate(r.passed)}` : ""}`,
+        `${r.records_read} of ${r.records} records read`, `printed ${today}`].filter(Boolean).join(" · "))),
+    el("table", { class: "pb-figs" }, el("tbody", {},
+      row("Affordable homes", r.homes ? String(r.homes) : "", r.homes_claim_id ? at(r.homes_claim_id) : ""),
+      row("Income limits", r.income_limit || ""),
+      row("Longest stated term", r.term_years ? `${r.term_years} years, to ${r.term_end_estimated ? `about ${r.term_end.slice(0, 4)} or later` : formatDate(r.term_end)}` : "",
+        r.term_claim_id ? at(r.term_claim_id) : ""),
+      row("Furthest stage on record", stageLabel(r.furthest_stage)),
+      r.location ? row("Property", `${r.location.address}${r.location.city ? `, ${r.location.city}` : ""}`, ` (from ${r.location.record}, p. ${r.location.page})`) : null)),
+    el("h2", {}, "Key terms in the records"),
+    el("ul", { class: "pb-terms" }, ...OBLIGATIONS.map(([key, label, help]) => el("li", { class: r.found[key] ? "pb-yes" : "pb-no" },
+      el("b", {}, r.found[key] ? "Found" : "Not found"), ` ${label}: ${help[0].toLowerCase()}${help.slice(1)}.`))),
+    r.template_text?.length ? [el("h2", {}, "Approved text still holding blanks"),
+      el("ul", { class: "pb-blanks" }, ...r.template_text.slice(0, 2).map((t) => el("li", {}, `“${t.quote}”`, el("span", { class: "pb-note" }, ` (${t.document || "record"}${t.page ? `, p. ${t.page}` : ""})`))))] : null,
+    el("h2", {}, "Questions to ask"),
+    el("ol", { class: "pb-qs" }, ...review.questions.slice(0, 6).map((q) => el("li", {}, q.text))),
+    el("footer", { class: "pb-foot" },
+      el("p", {}, `Every quote was found word for word on its cited page. "Not found" means no wording was found in the records read: a question to ask, not a finding.`),
+      el("p", {}, `Open each quote and page: ${location.origin}/s/${id}`)));
+  byId("print-brief")?.remove();
+  document.body.append(sheet);
+  document.body.classList.add("printing-brief");
+  const done = () => { document.body.classList.remove("printing-brief"); window.removeEventListener("afterprint", done); };
+  window.addEventListener("afterprint", done);
+  window.print();
 }
 
 // ---------- Records request letter ----------

@@ -443,12 +443,47 @@ def _page_with(data: dict) -> str:
     return _template().replace(DATA_SLOT, DATA_SLOT.replace("></script>", f">{raw}</script>"))
 
 
+def _base(request: Request) -> str:
+    return (os.getenv("PUBLIC_BASE_URL") or str(request.base_url)).rstrip("/")
+
+
 @app.get("/", response_class=HTMLResponse)
-def index():
-    # The home page ships the reviewed demo, which never changes while the process runs (P13).
+def index(request: Request):
+    # The home page ships the reviewed demo, which never changes while the process runs (P13). Link previews need an
+    # absolute image address, so the site card's address is filled in per host.
     if "home" not in _page_cache:
         _page_cache["home"] = _page_with(review())
-    return HTMLResponse(_page_cache["home"], headers={"Cache-Control": "no-cache"})
+    page = _page_cache["home"].replace('content="/static/og/site.png"', f'content="{_base(request)}/static/og/site.png"')
+    return HTMLResponse(page, headers={"Cache-Control": "no-cache"})
+
+
+@app.get("/s/{deal_id}", response_class=HTMLResponse)
+def share_card(deal_id: str, request: Request):
+    """A shareable link to one county agreement: link-preview tags (title, numbers, card image), then the agreement.
+    Only real county agreements have cards; everything shown is from the county board's checked quotes."""
+    from html import escape
+    if not _ID.fullmatch(deal_id):
+        raise HTTPException(404, "Deal not found.")
+    row = next((r for r in deals.county_board()["deals"] if r["id"] == deal_id), None)
+    if not row:
+        raise HTTPException(404, "Deal not found.")
+    base = _base(request)
+    target = f"{base}/#/deals/{quote(deal_id)}"
+    image = f"{base}/static/og/{quote(deal_id)}.png" if (STATIC / "og" / f"{deal_id}.png").is_file() else f"{base}/static/og/site.png"
+    facts = [f"{row['homes']:,} affordable homes stated" if row.get("homes") else None,
+             f"stated term runs to {row['term_end'][:4]}{'+' if row.get('term_end_estimated') else ''}" if row.get("term_end") else None,
+             f"Council file {row['file']}" if row.get("file") else None]
+    title = f"{row['name']} · Promise Ledger"
+    desc = "Prince George's County, MD, real public records: " + "; ".join(f for f in facts if f) + ". Every number opens its quote and page."
+    t, d, i, u = (escape(x, quote=True) for x in (title, desc, image, target))
+    page = f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><title>{t}</title>
+<meta name="description" content="{d}"><meta property="og:type" content="article"><meta property="og:site_name" content="Promise Ledger">
+<meta property="og:title" content="{t}"><meta property="og:description" content="{d}"><meta property="og:url" content="{u}">
+<meta property="og:image" content="{i}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{t}"><meta name="twitter:description" content="{d}">
+<meta name="twitter:image" content="{i}"><meta http-equiv="refresh" content="0; url={u}"><link rel="canonical" href="{u}"></head>
+<body><p><a href="{u}">Open {escape(row['name'])} in Promise Ledger</a></p><script>location.replace({json.dumps(target)})</script></body></html>"""
+    return HTMLResponse(page, headers={"Cache-Control": "public, max-age=300"})
 
 
 app.mount("/static", StaticFiles(directory=STATIC), name="static")

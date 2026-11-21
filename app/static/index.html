@@ -7,6 +7,14 @@
   <meta name="description" content="One checked record of the affordable-housing promises made in exchange for public support. AI reads, code checks, people decide. Made-up demo data.">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#0F766E">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Promise Ledger">
+  <meta property="og:title" content="Promise Ledger: public support should come with a receipt">
+  <meta property="og:description" content="Real Prince George's County records, read and checked: every affordable-housing commitment with its exact quote and page. AI reads, code checks, people decide.">
+  <meta property="og:image" content="/static/og/site.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <script src="/static/boot.js"></script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230F766E'/%3E%3Cpath d='M10 8h12v17l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5z' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linejoin='round'/%3E%3Cpath d='M13 13h6M13 17h4' stroke='%23fff' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -99,9 +107,16 @@
             <div><dt>Affordable homes stated</dt><dd data-count="homes">0</dd></div>
             <div><dt>Approved with blank template text</dt><dd data-count="template_text" class="rs-warn">0</dd></div>
           </dl>
+          <p class="rs-effort" id="rs-effort" hidden></p>
           <a class="btn btn-primary" href="#/county">See every agreement<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
         <figure class="rs-quote" id="rs-quote" hidden>
+          <div class="rs-page" id="rs-page" data-deal="national-view-cr-097-2024" hidden>
+            <img src="/static/media/real-page.jpg" width="760" height="1002" alt="" loading="lazy" decoding="async">
+            <span class="rs-scan" aria-hidden="true"></span>
+            <span class="rs-found" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg>Quote found · p. 1</span>
+            <span class="rs-blank" aria-hidden="true">Template blank</span>
+          </div>
           <blockquote id="rs-quote-text"></blockquote>
           <figcaption id="rs-quote-cite"></figcaption>
         </figure>

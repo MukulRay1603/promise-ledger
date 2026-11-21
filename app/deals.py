@@ -232,6 +232,15 @@ def _homes(claims: list[dict]) -> tuple[int | None, int | None]:
     return best["homes"]["count"], total
 
 
+def _county_json(name: str):
+    """A small JSON file shipped with the county records (locations, outline), or None when it is missing."""
+    path = COUNTY_DIR / name
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
 def county_board(store: Storage | None = None, today: date | None = None) -> dict:
     """Every real county deal in one table, plus county-wide totals.
 
@@ -241,6 +250,8 @@ def county_board(store: Storage | None = None, today: date | None = None) -> dic
     store = store or get_store()
     today = today or date.today()
     rows = []
+    # Each location is the property address as a record states it (record and page kept), geocoded once.
+    places = _county_json("locations.json") or {}
     for deal in store.list_deals():
         if not deal.get("real"):
             continue
@@ -280,6 +291,11 @@ def county_board(store: Storage | None = None, today: date | None = None) -> dic
             "introduced": source.get("introduced"), "passed": source.get("passed"), "source_url": source.get("url"),
             "votes": source.get("votes") or [],
             "records": len(docs), "records_read": len(done), "claims": len(claims),
+            "pages": sum(int(d.get("pages") or d.get("page_count") or 0) for d in done),
+            "cost_usd": round(sum(float(d.get("cost_usd") or 0) for d in done), 4),
+            "location": ({k: places[deal["id"]].get(k) for k in ("address", "city", "lat", "lon", "approx", "geocoder")}
+                         | {"record": places[deal["id"]]["source"].get("record"), "page": places[deal["id"]]["source"].get("page")})
+            if deal["id"] in places else None,
             "homes": homes, "homes_claim_id": homes_claim, "total_homes": total, "income_limit": income,
             "term_end": end["date"].isoformat() if end and end.get("date") else (estimate or {}).get("date"),
             "term_end_estimated": bool(estimate),
@@ -303,7 +319,10 @@ def county_board(store: Storage | None = None, today: date | None = None) -> dic
         "source": "Prince George's County Council records (Legistar)",
         "as_of": today.isoformat(),
         "deals": rows,
+        "map": _county_json("boundary.json"),
         "totals": {
+            "pages": sum(r["pages"] for r in rows), "located": sum(1 for r in rows if r["location"]),
+            "cost_usd": round(sum(r["cost_usd"] for r in rows), 2),
             "deals": len(rows), "deals_read": len(read),
             "records": sum(r["records"] for r in rows), "records_read": sum(r["records_read"] for r in rows),
             "homes": sum(r["homes"] or 0 for r in read), "deals_with_homes": sum(1 for r in read if r["homes"]),
