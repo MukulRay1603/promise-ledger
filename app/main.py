@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 
 load_dotenv()
 
-from app import ai, ask, deals, feedback, guard, identity, ledger, pipeline, request_letter, search  # noqa: E402  (needs env loaded first)
+from app import ai, ask, county_ask, deals, feedback, guard, identity, ledger, pipeline, request_letter, search  # noqa: E402  (needs env loaded first)
 from app.storage import get_store  # noqa: E402
 
 STATIC = Path(__file__).parent / "static"
@@ -400,6 +400,13 @@ def get_feedback(request: Request):
     if not feedback.allowed(request.headers.get("x-feedback-token")):
         raise HTTPException(404, "Not found.")
     return feedback.read_all()
+
+
+@app.post("/api/county/ask")
+def ask_county(body: ask.Question):
+    """One question across every county agreement, answered only from checked records. Nothing is saved; the question
+    is not logged."""
+    return county_ask.answer(body.question, body.audience)
 
 
 @app.get("/api/county/search")

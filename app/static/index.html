@@ -112,7 +112,7 @@
         </div>
         <figure class="rs-quote" id="rs-quote" hidden>
           <div class="rs-page" id="rs-page" data-deal="national-view-cr-097-2024" hidden>
-            <img src="/static/media/real-page.jpg" width="760" height="1002" alt="" loading="lazy" decoding="async">
+            <picture><source srcset="/static/media/real-page.webp" type="image/webp"><img src="/static/media/real-page.jpg" width="760" height="1002" alt="" loading="lazy" decoding="async"></picture>
             <span class="rs-scan" aria-hidden="true"></span>
             <span class="rs-found" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg>Quote found · p. 1</span>
             <span class="rs-blank" aria-hidden="true">Template blank</span>
@@ -214,7 +214,7 @@
         </div>
         <div class="overview">
           <div class="overview-frame" id="overview-frame">
-            <img src="/static/media/overview.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <picture><source srcset="/static/media/overview.webp" type="image/webp"><img src="/static/media/overview.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async"></picture>
             <button type="button" class="overview-play" id="overview-play" aria-label="Play the Promise Ledger overview, 2 minutes 20 seconds. Loads from YouTube.">
               <span class="overview-btn" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
               <span class="video-len" aria-hidden="true">2:20</span>
@@ -308,7 +308,7 @@
           <span class="monogram" aria-hidden="true">MR</span>
           <div class="person-body">
             <h2 class="person-name">Mukul Rayana</h2>
-            <p class="person-role">Creator</p>
+            <p class="person-role">Designed and built Promise Ledger</p>
             <ul class="person-links" aria-label="Mukul Rayana's links">
               <li><a href="https://mukulray1603.github.io" target="_blank" rel="noopener">Portfolio<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="visually-hidden"> (opens in a new tab)</span></a></li>
               <li><a href="https://www.linkedin.com/in/mukul-rayana/" target="_blank" rel="noopener">LinkedIn<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="visually-hidden"> (opens in a new tab)</span></a></li>
@@ -320,7 +320,7 @@
           <span class="monogram" aria-hidden="true">KR</span>
           <div class="person-body">
             <h2 class="person-name">Karthik Ramanathan</h2>
-            <p class="person-role">Creator</p>
+            <p class="person-role">Cloud and deployment</p>
             <ul class="person-links" aria-label="Karthik Ramanathan's links">
               <li><a href="https://github.com/Karthik0803" target="_blank" rel="noopener">GitHub<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="visually-hidden"> (opens in a new tab)</span></a></li>
               <li><a href="https://www.linkedin.com/in/karthik-ramanathan-4902471b3/" target="_blank" rel="noopener">LinkedIn<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="visually-hidden"> (opens in a new tab)</span></a></li>
@@ -337,8 +337,30 @@
           <div><dt>Final</dt><dd>Dec 2, 2026</dd></div>
           <div><dt>License</dt><dd>Code Apache-2.0 · docs and demo data CC BY 4.0</dd></div>
           <div><dt>Source</dt><dd><a href="https://github.com/MukulRay1603/promise-ledger" target="_blank" rel="noopener">github.com/MukulRay1603/promise-ledger<span class="visually-hidden"> (opens in a new tab)</span></a></dd></div>
-          <div><dt>Data</dt><dd>Every city, project, company, person and number in the demo is made up.</dd></div>
+          <div><dt>Data</dt><dd>The sample deals are made up. The County page reads real public records of Prince George's County, Maryland.</dd></div>
+          <div><dt>Cost</dt><dd>Reading all 811 pages of the county records once cost $0.59 in model use, about $0.73 per 1,000 pages. Each record is read once and cached.</dd></div>
         </dl>
+      </section>
+
+      <section class="info-block" aria-labelledby="about-privacy-title">
+        <h2 id="about-privacy-title">What we keep, and what we don't</h2>
+        <ul class="info-list">
+          <li><strong>Not kept:</strong> questions asked in Ask a deal and Ask the county are not saved or logged.</li>
+          <li><strong>Kept:</strong> deals and records you upload to the public demo (deleted after 24 hours), reviewer decisions with the name and note you enter, and answers to the tester form.</li>
+          <li><strong>Before the model sees text:</strong> phone numbers, email addresses and Social Security numbers are removed.</li>
+          <li><strong>No accounts and no ads.</strong> Fonts load from Google Fonts; the overview video loads from YouTube only when you press play.</li>
+        </ul>
+      </section>
+
+      <section class="info-block" aria-labelledby="about-limits-title">
+        <h2 id="about-limits-title">Known limits</h2>
+        <ul class="info-list">
+          <li>Council files usually hold the approved agreement, not the signed copy, so most county end dates are counted from the Council's adoption and read "or later".</li>
+          <li>"Not found" means no wording was found in the records read. It is a question to ask, never a finding that a term is missing.</li>
+          <li>Five county agreements state no street address, so they are listed beside the map, not placed on it. Four sites are located to the street only.</li>
+          <li>Scanned pages are transcribed by AI and marked; their quotes should be checked against the PDF.</li>
+          <li>English records only, for now.</li>
+        </ul>
         <p class="info-next"><a class="btn btn-secondary" href="#/roadmap">See the roadmap<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
       </section>
     </section>
@@ -599,11 +621,11 @@
       <!-- What's next -->
       <div class="rm-panel" role="tabpanel" id="rmp-next" aria-labelledby="rmt-next" tabindex="0" hidden>
         <h2 class="rm-title">Built today, and where it goes next</h2>
-        <p class="rm-count"><b>31</b> features live today · <b>463</b> automated tests · <b>1</b> more by the Dec 2 final</p>
+        <p class="rm-count"><b>33</b> features live today · <b>467</b> automated tests · <b>1</b> more by the Dec 2 final</p>
         <ol class="rm-time">
           <li class="tl-now">
             <h3>Live today</h3>
-            <ul><li>Reads every PDF in a deal’s packet</li><li>Quotes checked word for word on their pages</li><li>Pages corrected; unverifiable quotes dropped</li><li>Stages set by rules, from proposed to delivered</li><li>One-party signing flagged</li><li>What changed, with word-level edits</li><li>Missing terms and certificates found</li><li>Reminders for term ends and certificates</li><li>Reviewer decisions with name, note and time</li><li>Printable receipt with a review stamp</li><li>Read-only share links for residents</li><li>Excel and CSV export with a preview</li><li>Guided tour and 8 captioned explainers</li><li>Redaction, injection guard, sandboxed PDFs</li><li>Runs without a key; about $0.002 per PDF</li><li>Keyboard, contrast, larger text, dark mode</li><li>Names the records to ask for next</li><li>Ask a deal, for staff and for residents: answers only from checked quotes</li><li>Ask and listen by voice</li><li>Reads scanned pages; a person confirms any signature on one</li><li>Tested on unseen and adversarial records: recall up to 94%, all 8 planted attacks held</li><li>21 real Prince George&rsquo;s County agreements, read from the Council&rsquo;s own records</li><li>County board: homes, income tiers, stated terms and which obligations each agreement contains</li><li>Approved text with unfilled template blanks flagged, with the quote</li><li>Search every county agreement by meaning</li><li>Records-request letters for staff to check and send</li><li>Calendar export with heads-ups 5, 3 and 1 years before a term ends</li><li>County map: each agreement at the address its records state, as tall as the homes it states</li><li>Share links that unfurl with an agreement&rsquo;s numbers</li><li>One-page brief for a council packet</li><li>811 pages: about 27 hours by hand, $0.59 to read here once</li></ul>
+            <ul><li>Reads every PDF in a deal’s packet</li><li>Quotes checked word for word on their pages</li><li>Pages corrected; unverifiable quotes dropped</li><li>Stages set by rules, from proposed to delivered</li><li>One-party signing flagged</li><li>What changed, with word-level edits</li><li>Missing terms and certificates found</li><li>Reminders for term ends and certificates</li><li>Reviewer decisions with name, note and time</li><li>Printable receipt with a review stamp</li><li>Read-only share links for residents</li><li>Excel and CSV export with a preview</li><li>Guided tour and 8 captioned explainers</li><li>Redaction, injection guard, sandboxed PDFs</li><li>Runs without a key; about $0.002 per PDF</li><li>Keyboard, contrast, larger text, dark mode</li><li>Names the records to ask for next</li><li>Ask a deal, for staff and for residents: answers only from checked quotes</li><li>Ask and listen by voice</li><li>Reads scanned pages; a person confirms any signature on one</li><li>Tested on unseen and adversarial records: recall up to 94%, all 8 planted attacks held</li><li>21 real Prince George&rsquo;s County agreements, read from the Council&rsquo;s own records</li><li>County board: homes, income tiers, stated terms and which obligations each agreement contains</li><li>Approved text with unfilled template blanks flagged, with the quote</li><li>Search every county agreement by meaning</li><li>Records-request letters for staff to check and send</li><li>Calendar export with heads-ups 5, 3 and 1 years before a term ends</li><li>County map: each agreement at the address its records state, as tall as the homes it states</li><li>Share links that unfurl with an agreement&rsquo;s numbers</li><li>One-page brief for a council packet</li><li>811 pages: about 27 hours by hand, $0.59 to read here once</li><li>Ask the county: one question across all 21 agreements, answered only from checked records</li><li>Light on low-end phones: looping effects pause off screen and switch off on slower devices</li></ul>
           </li>
           <li class="tl-next">
             <h3>Dec 2 final</h3>

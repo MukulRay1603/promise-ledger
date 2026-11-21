@@ -71,6 +71,7 @@ const UI_ICONS = {
   link: [["path", { d: "M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" }], ["path", { d: "M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" }]],
   plus: [["path", { d: "M12 5v14M5 12h14" }]],
   arrow: [["path", { d: "M5 12h14M13 6l6 6-6 6" }]],
+  ask: [["path", { d: "M4 5h16v11H9l-5 4z" }], ["path", { d: "M9 10h6M9 13h4" }]],
   share: [["circle", { cx: 18, cy: 5, r: 2.5 }], ["circle", { cx: 6, cy: 12, r: 2.5 }], ["circle", { cx: 18, cy: 19, r: 2.5 }], ["path", { d: "M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4" }]],
   print: [["path", { d: "M7 9V3h10v6M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" }], ["rect", { x: 7, y: 14, width: 10, height: 7 }]],
   calendar: [["rect", { x: 3, y: 5, width: 18, height: 16, rx: 2 }], ["path", { d: "M3 10h18M8 3v4M16 3v4" }]],
@@ -289,6 +290,7 @@ function showView(view) {
   for (const section of document.querySelectorAll(".view")) section.hidden = section.dataset.view !== view;
   document.documentElement.classList.toggle("route-shared", view === "shared");
   document.documentElement.classList.toggle("route-app", view !== "home" && view !== "shared");
+  document.documentElement.classList.toggle("cc-on", view === "home" || view === "county");
   for (const link of document.querySelectorAll("[data-nav]")) {
     const on = link.dataset.nav === view || (view === "deal" && link.dataset.nav === (dealIsReal ? "county" : "deals"));
     if (on) link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
@@ -907,6 +909,7 @@ function countyMap(board) {
       svgEl("path", { class: "m3-side", d: d(county, DEPTH) }),
       svgEl("path", { class: "m3-land", d: d(county), fill: `url(#${uid}-land)` }),
       svgEl("g", { "clip-path": `url(#${uid}-clip)` }, svgEl("path", { class: "m3-grid", d: grid.join("") })),
+      svgEl("path", { class: "m3-edge-glow", d: d(county) }),
       svgEl("path", { class: "m3-edge", d: d(county), pathLength: "1" }),
       ...roads.map((r) => svgEl("path", { class: `m3-road m3-${r.kind}`, d: r.d, pathLength: "1" })),
       ...places.map((p) => svgEl("g", { class: "m3-place" }, svgEl("circle", { cx: p.at[0].toFixed(1), cy: p.at[1].toFixed(1), r: "1.8" }),
@@ -922,7 +925,8 @@ function countyMap(board) {
         svgEl("ellipse", { class: "m3-ring", rx: 13, ry: 13 * TILT }),
         svgEl("ellipse", { class: "m3-base", rx: 7, ry: 7 * TILT }),
         svgEl("rect", { class: "m3-beam", x: -3, y: -p.h, width: 6, height: p.h, rx: 3, fill: `url(#${uid}-beam${p.soon ? "-soon" : ""})` }),
-        svgEl("circle", { class: "m3-cap", cy: -p.h, r: 4.2, filter: `url(#${uid}-glow)` }),
+        svgEl("circle", { class: "m3-halo", cy: -p.h, r: 8 }),
+        svgEl("circle", { class: "m3-cap", cy: -p.h, r: 4.2 }),
         p.r.homes ? svgEl("text", { class: `m3-num${p.label ? "" : " m3-num-hide"}`, y: -p.h - 9, "text-anchor": "middle" }, p.r.homes.toLocaleString()) : null,
         svgEl("ellipse", { class: "m3-hit", rx: 14, ry: 14, cy: -p.h / 2, "fill-opacity": 0 }));
       p.node = g;
@@ -2365,6 +2369,72 @@ async function printBrief(id) {
   window.print();
 }
 
+// ---------- Ask the county (chat) ----------
+// One question across every county agreement. Answers come only from checked records; every sentence links to the
+// agreement or the page it rests on. Nothing is saved, and the conversation lives only in this page.
+const COUNTY_QUESTIONS = ["Which agreements have no remedy wording?", "What income limits do the senior projects use?",
+  "Which terms run out soonest?", "How many affordable homes are stated in total?"];
+let ccAudience = "staff";
+function setupCountyChat() {
+  const launch = el("button", { type: "button", class: "cc-launch", "aria-expanded": "false", "aria-controls": "cc-panel" },
+    el("span", { class: "cc-dot", "aria-hidden": "true" }), icon("ask"), el("span", {}, "Ask the county"));
+  const thread = el("ol", { class: "cc-thread", "aria-live": "polite", "aria-label": "Conversation" },
+    el("li", { class: "cc-msg cc-bot" }, el("p", {}, "Ask anything about the 21 Prince George's County agreements. I answer only from their checked records, and every sentence links to its source.")));
+  const input = el("input", { type: "text", id: "cc-q", maxlength: "300", minlength: "3", required: true, autocomplete: "off",
+    placeholder: "e.g. Which agreements have no reporting wording?", "aria-label": "Your question" });
+  const send = el("button", { type: "submit", class: "cc-send", "aria-label": "Send" }, icon("arrow"));
+  const suggest = el("div", { class: "cc-suggest" }, ...COUNTY_QUESTIONS.map((q) => el("button", { type: "button", class: "cc-chip",
+    onclick: () => { input.value = q; form.requestSubmit(); } }, q)));
+  const audience = el("div", { class: "cc-aud", role: "group", "aria-label": "Answer style" },
+    ...[["staff", "Staff"], ["resident", "Plain language"]].map(([key, label]) => el("button", { type: "button", "aria-pressed": String(key === ccAudience),
+      onclick: (event) => { ccAudience = key; audience.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === event.currentTarget))); } }, label)));
+  const form = el("form", { class: "cc-form", onsubmit: async (event) => {
+    event.preventDefault();
+    const q = input.value.trim();
+    if (q.length < 3) return;
+    input.value = "";
+    suggest.hidden = true;
+    thread.append(el("li", { class: "cc-msg cc-me" }, el("p", {}, q)));
+    const pending = el("li", { class: "cc-msg cc-bot cc-pending" }, el("span", { class: "cc-typing", "aria-label": "Checking the records" }, el("i"), el("i"), el("i")));
+    thread.append(pending);
+    thread.scrollTop = thread.scrollHeight;
+    send.disabled = true;
+    try {
+      const res = await rawApi("/api/county/ask", { method: "POST", body: { question: q, audience: ccAudience } });
+      const src = res.sources || {};
+      const chip = (id) => {
+        const s = src[id];
+        if (!s) return null;
+        if (!s.deal_id) return el("span", { class: "cc-src" }, "County summary");
+        const href = s.claim_id ? sourceHref(s.deal_id, s.claim_id) : `#/deals/${encodeURIComponent(s.deal_id)}`;
+        return el("a", { class: "cc-src", href, onclick: () => closeChat(false) }, s.deal, s.page ? `, p. ${s.page}` : "");
+      };
+      pending.replaceWith(el("li", { class: "cc-msg cc-bot" },
+        res.sentences.length ? el("ul", { class: "cc-answer" }, ...res.sentences.map((s) => el("li", { class: s.quote ? "cc-quote" : null },
+          el("p", {}, s.text), el("span", { class: "cc-srcs" }, ...s.claim_ids.map(chip))))) : null,
+        el("p", { class: "cc-note" }, res.notice)));
+    } catch (err) {
+      pending.replaceWith(el("li", { class: "cc-msg cc-bot" }, el("p", { class: "cc-note" },
+        err.status === 422 ? "Enter a question between 3 and 300 characters." : `The answer did not load. ${err.message}`)));
+    } finally {
+      send.disabled = false;
+      thread.scrollTop = thread.scrollHeight;
+      input.focus();
+    }
+  } }, input, send);
+  const panel = el("section", { class: "cc-panel", id: "cc-panel", role: "dialog", "aria-modal": "false", "aria-labelledby": "cc-title", hidden: true },
+    el("header", { class: "cc-head" },
+      el("div", {}, el("p", { class: "cc-kicker" }, "Answers only from checked records"), el("h2", { id: "cc-title" }, "Ask the county")),
+      el("button", { type: "button", class: "cc-close", "aria-label": "Close", onclick: () => closeChat(true) }, "×")),
+    audience, thread, suggest, form,
+    el("p", { class: "cc-foot" }, "Code checks every number, date and stage word. Nothing is saved. Not legal advice."));
+  function openChat() { panel.hidden = false; launch.setAttribute("aria-expanded", "true"); launch.hidden = true; input.focus(); }
+  function closeChat(focusBack) { panel.hidden = true; launch.setAttribute("aria-expanded", "false"); launch.hidden = false; if (focusBack) launch.focus(); }
+  launch.addEventListener("click", openChat);
+  panel.addEventListener("keydown", (event) => { if (event.key === "Escape") { event.stopPropagation(); closeChat(true); } });
+  document.body.append(launch, panel);
+}
+
 // ---------- Records request letter ----------
 // Code drafts the letter from the review; "Make it read better" asks the model to edit it, and the server keeps the
 // edit only if it adds no number, date or link and keeps every requested record. Nothing is sent from here.
@@ -2853,9 +2923,22 @@ function riseIn(root) {
   }
 }
 
+// Looping decoration (glows, sweeps, pulses) pauses while its section is off screen, so it costs nothing there.
+function setupOffscreenPause() {
+  if (!("IntersectionObserver" in window)) return;
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) e.target.classList.toggle("is-off", !e.isIntersecting);
+  }, { rootMargin: "100px" });
+  const watch = () => document.querySelectorAll(".hero, .real-strip, .m3, .cta-band, .effort").forEach((n) => {
+    if (!n.dataset.watched) { n.dataset.watched = "1"; io.observe(n); }
+  });
+  watch();
+  new MutationObserver(watch).observe(document.querySelector("main") || document.body, { childList: true, subtree: true });
+}
+
 function setupSpotlight() {
   // A soft light follows the pointer across cards: decoration only, mouse and pen only.
-  if (reducedMotion.matches || !window.matchMedia("(hover: hover)").matches) return;
+  if (reducedMotion.matches || document.documentElement.classList.contains("lite") || !window.matchMedia("(hover: hover)").matches) return;
   const SEL = ".card, .kpi, .tile, .bento-tile, .runway, .summary-box, .real-strip, .who-card";
   document.addEventListener("pointermove", (event) => {
     const card = event.target.closest?.(SEL);
@@ -3579,6 +3662,8 @@ setupViewer();
 setupDecisionDialog();
 setupReveal();
 setupSpotlight();
+setupOffscreenPause();
+setupCountyChat();
 setupHeroMotion();
 setupPageTabs();
 ready = detectMode();
