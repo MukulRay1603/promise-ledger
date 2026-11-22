@@ -2512,3 +2512,25 @@ html.text-large { font-size: clamp(112.5%, calc((100% + (100vw - 1440px) * .004)
    had turned the sticky offset into an 88px push.) */
 .deals-layout > .reminders { position: sticky; top: 5.5rem; }
 @media (max-width: 1280px) { .deals-layout > .reminders { position: relative; top: auto; } }
+
+/* Page heads: the text takes the room, the actions never squeeze into it. */
+.page-head > :first-child { flex: 1 1 28rem; min-width: 0; }
+.page-head > .page-actions { flex: 0 1 auto; max-width: 100%; align-self: flex-end; }
+.page-head > .btn { flex: none; align-self: flex-end; }
+
+/* ---------- Roadmap: each group in its own colour ---------- */
+.rm-group { --acc: var(--primary); position: relative; overflow: hidden; border-top: 3px solid var(--acc);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--acc) 9%, var(--subtle)) 0, var(--subtle) 4.5rem); }
+.rm-group.g1 { --acc: #14B8A6; } .rm-group.g2 { --acc: #3B82F6; } .rm-group.g3 { --acc: #8B5CF6; }
+.rm-group.g4 { --acc: #EC4899; } .rm-group.g5 { --acc: #22C55E; } .rm-group.g6 { --acc: #F59E0B; }
+.rm-group h3 svg { stroke: var(--acc); }
+.rm-group li::before { background: var(--acc); opacity: .85; }
+.rm-n { background: color-mix(in srgb, var(--acc) 20%, transparent); color: var(--ink); }
+.rm-group { transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
+.rm-group:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -14px color-mix(in srgb, var(--acc) 60%, transparent); }
+.rm-next { align-items: start; }
+.rm-card.next { border-top: 3px solid var(--amber); }
+.rm-card.later { border-top: 3px dashed var(--border-strong); }
+/* Section numbers are written in the markup: lazily drawn sections (content-visibility) scope CSS counters, which
+   numbered every section "01". */
+#view-home .kicker[data-n]::before { counter-increment: none; content: attr(data-n) "  "; }
