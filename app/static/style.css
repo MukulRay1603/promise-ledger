@@ -2445,3 +2445,47 @@ a.cc-src:hover { background: rgb(94 234 212 / .12); }
 .net-banner svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 2; }
 .recover { padding-top: 4rem; }
 .menu-open .cc-launch { display: none !important; }
+
+/* ---------- Roadmap v2: live features in compact groups ---------- */
+.rm-sub { display: flex; align-items: center; gap: .5rem; margin: 0 0 .875rem; font-size: 1.125rem; }
+.rm-dot { width: .75rem; height: .75rem; border-radius: 50%; border: 2px solid var(--primary); flex: none; }
+.rm-dot.now { background: var(--primary); box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 18%, transparent); }
+.rm-dot.dec { border-color: var(--amber); }
+.rm-dot.later { border-color: var(--border-strong); border-style: dashed; }
+.rm-groups { columns: 3 17rem; column-gap: 1rem; }
+.rm-group { break-inside: avoid; margin: 0 0 1rem; padding: .875rem 1rem .75rem; border: 1px solid var(--border); border-radius: var(--r-md, 12px);
+  background: var(--subtle); }
+.rm-group h3 { display: flex; align-items: center; gap: .5rem; margin: 0 0 .5rem; font-size: .9375rem; letter-spacing: -.005em; }
+.rm-group h3 svg { width: 1.125rem; height: 1.125rem; flex: none; fill: none; stroke: var(--primary); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.rm-n { margin-left: auto; padding: 0 .45rem; border-radius: 999px; background: color-mix(in srgb, var(--primary) 14%, transparent); color: var(--primary-ink);
+  font: 700 .75rem/1.6 var(--mono, monospace); }
+.rm-group ul, .rm-card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .25rem; }
+.rm-group li { position: relative; padding-left: 1.125rem; font-size: .875rem; line-height: 1.4; color: var(--ink-2); }
+.rm-group li::before { content: ""; position: absolute; left: .125rem; top: .5rem; width: .4rem; height: .4rem; border-radius: 50%; background: var(--primary); opacity: .7; }
+.rm-next { display: grid; grid-template-columns: 1fr 1.4fr; gap: 1rem; margin-top: .5rem; }
+.rm-card { padding: .875rem 1rem; border-radius: var(--r-md, 12px); border: 1px solid var(--amber-line, var(--border)); background: var(--amber-soft); }
+.rm-card.later { border-style: dashed; border-color: var(--border-strong); background: transparent; }
+.rm-card h3 { display: flex; align-items: center; gap: .5rem; margin: 0 0 .5rem; font-size: .9375rem; }
+.rm-card li { font-size: .875rem; line-height: 1.4; color: var(--ink-2); }
+.rm-card.later ul { grid-template-columns: 1fr 1fr; gap: .25rem 1rem; }
+.rm-card.later li { position: relative; padding-left: 1rem; }
+.rm-card.later li { padding-left: 1.25rem; }
+.rm-card.later li::before { content: "→"; position: absolute; left: 0; color: var(--muted); }
+#rmp-next .rm-title { margin-bottom: 1.25rem; }
+#rmp-next .rm-count { margin: -.75rem 0 1.5rem; font-size: .9375rem; }
+#rmp-next .rm-foot { margin-top: 1.25rem; font-size: .875rem; }
+@media (max-width: 720px) {
+  .rm-next { grid-template-columns: 1fr; }
+  .rm-card.later ul { grid-template-columns: 1fr; }
+}
+
+/* ---------- Density pass: less text weight on every page ---------- */
+body { font-size: 1rem; line-height: 1.5; }
+.section { padding-top: 4rem; }
+.lede { font-size: 1.125rem; }
+.page-sub { font-size: 1rem; }
+.rm-panel { padding: 2rem; font-size: 1rem; }
+.rm-title { margin-bottom: 1.25rem; }
+.rm-foot { font-size: .9375rem; }
+@media (max-width: 720px) { .section { padding-top: 2.75rem; } .lede { font-size: 1.0625rem; } }
+@media (max-width: 900px) { .rm-card.later ul { grid-template-columns: 1fr; } }

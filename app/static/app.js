@@ -1009,7 +1009,7 @@ function countyMap(board) {
       el("div", {},
         el("p", { class: "m3-kicker" }, el("span", { class: "m3-live", "aria-hidden": "true" }), "Prince George's County · live from public records"),
         el("h2", { id: "county-map-title" }, "Where the homes are"),
-        el("p", { class: "m3-sub" }, `${placed.length} of ${board.deals.length} agreements at the address their own records state. Each column of light is as tall as the affordable homes stated; amber terms end by 2040.`)),
+        el("p", { class: "m3-sub" }, `${placed.length} of ${board.deals.length} agreements at the address their records state. Taller column, more affordable homes; amber means the term ends by 2040.`)),
       el("p", { class: "m3-total", "aria-hidden": "true" }, el("span", {}, placed.reduce((s, p) => s + (p.homes || 0), 0).toLocaleString()), " homes on the map")),
     el("div", { class: "m3-body" },
       el("div", { class: "m3-stage" }, svg,
@@ -1141,7 +1141,7 @@ async function renderCounty() {
       el("div", {},
         el("p", { class: "eyebrow" }, el("span", { class: "real-badge" }, icon("check"), "Real public records")),
         el("h1", { id: "county-title" }, "Prince George's County"),
-        el("p", { class: "page-sub" }, "Every payment-in-lieu-of-taxes (PILOT) agreement the County Council considered since 2023, read from the Council's own records. Open any deal to see each commitment's quote and page.")),
+        el("p", { class: "page-sub" }, "Every PILOT (payment in lieu of taxes) agreement the County Council has considered since 2023, from its own records. Open one to see each commitment's quote and page.")),
     ),
     body);
   let board;
@@ -1180,7 +1180,7 @@ async function renderCounty() {
   body.replaceChildren(
     el("div", { class: "kpi-row county-kpis" },
       kpi(t.deals, "Agreements", `${t.records_read} of ${t.records} council records read`, "kpi-hero"),
-      kpi(t.homes || "—", "Affordable homes stated", t.deals_with_homes ? `in the ${plural(t.deals_with_homes, "agreement")} whose records state a count` : "No counts found yet", "kpi-hero"),
+      kpi(t.homes || "—", "Affordable homes stated", t.deals_with_homes ? `in ${plural(t.deals_with_homes, "agreement")} that state a count` : "No counts found yet", "kpi-hero"),
       kpi(t.found.reporting, "Have reporting wording", `${pct(t.found.reporting)}% of agreements read`, t.found.reporting < read.length ? "kpi-warn" : "", read.length),
       kpi(t.found.remedies, "Have remedy wording", `${pct(t.found.remedies)}% of agreements read`, t.found.remedies < read.length ? "kpi-warn" : "", read.length),
       kpi(t.ending_by_2040, "Terms run out by 2040", `of ${plural(t.term_ends_known, "agreement")} that state a term`, t.ending_by_2040 ? "kpi-warn" : ""),

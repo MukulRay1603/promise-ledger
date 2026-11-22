@@ -13,8 +13,8 @@ axe-core 4.10.3, WCAG 2.0/2.1 A and AA rules, run 2026-11-22 in Chrome by `tools
 | `#/deals/harbor-walk` | desktop | light | none | 29 | 42 |
 | `#/deals/harbor-walk/changes` | desktop | light | none | 29 | 70 |
 | `#/deals/harbor-walk/questions` | desktop | light | none | 28 | 42 |
-| `#/deals/harbor-walk/receipt` | desktop | light | none | 29 | 44 |
-| `#/deals/harbor-walk/ask` | desktop | light | none | 30 | 49 |
+| `#/deals/harbor-walk/receipt` | desktop | light | none | 29 | 43 |
+| `#/deals/harbor-walk/ask` | desktop | light | none | 30 | 42 |
 | `#/deals/holly-place-cr-044-2026` | desktop | light | none | 29 | 34 |
 | `#/test` | desktop | light | none | 25 | 96 |
 | `#/roadmap` | desktop | light | none | 25 | 1 |
@@ -25,13 +25,13 @@ axe-core 4.10.3, WCAG 2.0/2.1 A and AA rules, run 2026-11-22 in Chrome by `tools
 | `#/deals/harbor-walk` | desktop | dark | none | 29 | 42 |
 | `#/deals/harbor-walk/changes` | desktop | dark | none | 29 | 70 |
 | `#/deals/harbor-walk/questions` | desktop | dark | none | 28 | 42 |
-| `#/deals/harbor-walk/receipt` | desktop | dark | none | 29 | 44 |
-| `#/deals/harbor-walk/ask` | desktop | dark | none | 30 | 49 |
+| `#/deals/harbor-walk/receipt` | desktop | dark | none | 29 | 43 |
+| `#/deals/harbor-walk/ask` | desktop | dark | none | 30 | 42 |
 | `#/deals/holly-place-cr-044-2026` | desktop | dark | none | 29 | 34 |
 | `#/test` | desktop | dark | none | 25 | 96 |
 | `#/roadmap` | desktop | dark | none | 25 | 1 |
 | `#/about` | desktop | dark | none | 25 | 3 |
-| `#/` | phone | light | none | 26 | 92 |
+| `#/` | phone | light | none | 26 | 95 |
 | `#/deals` | phone | light | none | 26 | 45 |
 | `#/county` | phone | light | none | 31 | 469 |
 | `#/deals/harbor-walk` | phone | light | none | 30 | 42 |
@@ -43,7 +43,7 @@ axe-core 4.10.3, WCAG 2.0/2.1 A and AA rules, run 2026-11-22 in Chrome by `tools
 | `#/test` | phone | light | none | 25 | 95 |
 | `#/roadmap` | phone | light | none | 26 | 0 |
 | `#/about` | phone | light | none | 25 | 2 |
-| `#/` | phone | dark | none | 26 | 93 |
+| `#/` | phone | dark | none | 26 | 96 |
 | `#/deals` | phone | dark | none | 26 | 45 |
 | `#/county` | phone | dark | none | 31 | 469 |
 | `#/deals/harbor-walk` | phone | dark | none | 30 | 42 |
