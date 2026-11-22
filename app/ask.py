@@ -288,7 +288,35 @@ def generate(prompt: str, system: str, model: str) -> tuple[AskReply, float]:
     usage = getattr(response, "usage_metadata", None)
     tokens_in = getattr(usage, "prompt_token_count", 0) or 0
     tokens_out = (getattr(usage, "candidates_token_count", 0) or 0) + (getattr(usage, "thoughts_token_count", 0) or 0)
-    return AskReply.model_validate_json(response.text), ai.cost_usd(model, tokens_in, tokens_out)
+    cost = ai.cost_usd(model, tokens_in, tokens_out)
+    _record_spend(cost)
+    return AskReply.model_validate_json(response.text), cost
+
+
+# A daily ceiling on what answers may spend, per server (DAILY_AI_BUDGET_USD, default $2, about 1,300 answers).
+# Past it, answers come from code and exact quotes until the next UTC day. 0 turns AI answers off.
+DAILY_AI_BUDGET_USD = float(os.getenv("DAILY_AI_BUDGET_USD") or 2.0)
+_spend = {"day": "", "usd": 0.0}
+
+
+def _today() -> str:
+    from datetime import datetime, timezone
+    return datetime.now(timezone.utc).date().isoformat()
+
+
+def budget_ok() -> bool:
+    if _spend["day"] != _today():
+        _spend.update(day=_today(), usd=0.0)
+    return _spend["usd"] < DAILY_AI_BUDGET_USD
+
+
+def spent_today() -> float:
+    return round(_spend["usd"], 4) if _spend["day"] == _today() else 0.0
+
+
+def _record_spend(usd: float) -> None:
+    budget_ok()  # rolls the day over
+    _spend["usd"] += usd
 
 
 def generate_with_fallback(prompt: str, system: str) -> tuple[AskReply, str, float]:
@@ -370,6 +398,8 @@ def answer(review: dict, question: str, audience: Audience = "staff") -> dict:
     hit = CACHE.get(cache_key)
     if hit:  # The same question on the same checked quotes: no new call.
         return {**hit, "cached": True}
+    if not budget_ok():
+        return _quotes_only(question, review, "Today's AI answer budget is used up.")
     if not ai._allow_live_call():
         return _quotes_only(question, review, "The AI answer limit was reached for this minute.")
     prompt = f"<records>\n{_records_block(review)}\n</records>\n<question>\n{_data(question)}\n</question>"

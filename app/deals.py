@@ -318,7 +318,7 @@ def county_board(store: Storage | None = None, today: date | None = None) -> dic
         rows.append({
             "id": deal["id"], "name": deal["name"], "file": source.get("file"), "council_status": source.get("status"),
             "introduced": source.get("introduced"), "passed": source.get("passed"), "source_url": source.get("url"),
-            "votes": source.get("votes") or [],
+            "votes": source.get("votes") or [], "retrieved": source.get("retrieved"),
             "records": len(docs), "records_read": len(done), "claims": len(claims),
             "pages": sum(int(d.get("pages") or d.get("page_count") or 0) for d in done),
             "cost_usd": round(sum(float(d.get("cost_usd") or 0) for d in done), 4),
@@ -346,6 +346,8 @@ def county_board(store: Storage | None = None, today: date | None = None) -> dic
     ends = [r for r in read if r["term_end"]]
     return {
         "county": "Prince George's County, Maryland",
+        # When the records were last fetched from the Council's system and checked against their hashes.
+        "retrieved": max((r.get("retrieved") or "" for r in rows), default="") or None,
         "source": "Prince George's County Council records (Legistar)",
         "as_of": today.isoformat(),
         "deals": rows,

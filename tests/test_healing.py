@@ -191,6 +191,26 @@ class CheaperAnswers(unittest.TestCase):
         self.assertIn("text/html", res.headers["content-type"])
         self.assertIn("#/county", res.text)
 
+    def test_counting_agreements_is_code(self):
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "k"}), mock.patch.object(ask, "generate") as gen:
+            res = county_ask.answer("How many agreements are there?", board=BOARD)
+        gen.assert_not_called()
+        self.assertTrue(res["sentences"][0]["text"].startswith("Agreements: 2,"))
+
+    def test_other_languages_get_a_note(self):
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": ""}), \
+                mock.patch.object(county_ask, "_quote_records", return_value=({}, "keywords")):
+            res = county_ask.answer("¿Cuántas viviendas asequibles hay en total?", board=BOARD)
+        self.assertIn("Answers are in English", res["notice"])
+
+    def test_the_daily_budget_stops_ai_answers(self):
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "k"}), mock.patch.object(ask, "DAILY_AI_BUDGET_USD", 0.0), \
+                mock.patch.object(county_ask, "_quote_records", return_value=({}, "keywords")), \
+                mock.patch.object(ask, "generate") as gen:
+            res = county_ask.answer("Why does Alpha Place matter?", board=BOARD)
+        gen.assert_not_called()
+        self.assertIn("budget is used up", res["notice"])
+
     def test_answers_use_the_lite_model_first(self):
         self.assertEqual(ask.ask_model(), os.getenv("ASK_MODEL") or county_ask.ai.FALLBACK_MODEL)
 

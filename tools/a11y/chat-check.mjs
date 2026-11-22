@@ -14,7 +14,7 @@ try {
   page.on("pageerror", (e) => console.log("pageerror", e.message));
   await page.setViewport({ width: Number(width), height: 860, deviceScaleFactor: 1.5, isMobile: Number(width) < 500 });
   await page.goto(`${base}/#/county`, { waitUntil: "networkidle0" });
-  await page.click(".cc-launch");
+  await page.click((await page.$(".nav-ask")) && (await page.$eval(".nav-ask", (n) => !!n.offsetParent)) ? ".nav-ask" : ".cc-launch");
   await page.waitForSelector(".cc-panel:not([hidden])");
   const focused = await page.evaluate(() => document.activeElement?.id);
   await page.click(".cc-topic, .cc-chip");

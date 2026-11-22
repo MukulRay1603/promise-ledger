@@ -82,6 +82,8 @@ def _summary_records(board: dict, agreements: dict[str, dict]) -> dict[str, dict
     lines.append(f"Stated terms that run out by 2040: {len(soon)} of {n}: " + ("; ".join(f"{r['name']} (about {r['term_end'][:4]})" for r in soon) or "none") + ".")
     blanks = [r for r in read if r.get("template_text")]
     lines.append(f"Approved text still holding template blanks in {len(blanks)} of {n} agreements: {names(blanks)}.")
+    lines.append(f"Agreements: {n}, from {sum(r['records_read'] for r in read)} council records and "
+                 f"{sum(r.get('pages') or 0 for r in read):,} pages.")
     homes = [r for r in read if r.get("homes")]
     lines.append(f"Affordable homes stated across {len(homes)} agreements that state a count: {sum(r['homes'] for r in homes):,}.")
     return {f"S{i}": {"id": f"S{i}", "quote": text, "status": "supported", "topic": f"summary{i}", "deal_id": None,
@@ -180,6 +182,8 @@ def _summary_answer(question: str, summaries: dict[str, dict]) -> list[dict]:
         picked.append(line("Stated terms that run out by 2040"))
     if _ASKS_BLANKS.search(question):
         picked.append(line("Approved text still holding template blanks"))
+    if _ASKS_COUNT.search(question):
+        picked.append(line("Agreements: "))
     if _ASKS_HOMES.search(question) and not picked:
         picked.append(line("Affordable homes stated across"))
     return list({p["id"]: p for p in picked if p}.values())[:2]
@@ -266,6 +270,9 @@ def _quotes_only(quotes: dict[str, dict], reason: str, summary: list[dict] | Non
 _OPEN = re.compile(r"\b(why|explain|describe|compare|summari[sz]e|tell me about|what happens|what does|how does|how do|say about)\b", re.I)
 _LISTY = re.compile(r"\b(which|how many|list|count|total|soonest|by 2040|in total)\b", re.I)
 _FIELD = re.compile(r"\b(how many (?:affordable )?homes|how many units|how long|term|income limits?|when does|when do)\b", re.I)
+_ASKS_COUNT = re.compile(r"\bhow many\s+(?:\w+\s+)?(agreements|deals|projects|pilots?|records|pages)\b", re.I)
+# A question in another language is answered in English: the checks on every sentence read English.
+_NOT_ENGLISH = re.compile(r"[¿¡ñáéíóúü]|\b(cu[aá]nt[oa]s|qu[eé]|d[oó]nde|cu[aá]l|viviendas|acuerdos|l[ií]mites)\b", re.I)
 _COMPUTED_OBLIGATIONS = ("reporting", "remedies", "rent limits")  # yes/no per agreement; income needs the values
 
 
@@ -287,6 +294,8 @@ def _computed(question: str, named: set[str], agreements: dict, summaries: dict)
         picked.append(next((c for c in summaries.values() if c["quote"].startswith("Stated terms")), None))
     if _ASKS_BLANKS.search(question):
         picked.append(next((c for c in summaries.values() if "template blanks" in c["quote"]), None))
+    if _ASKS_COUNT.search(question):
+        picked.append(next((c for c in summaries.values() if c["quote"].startswith("Agreements: ")), None))
     if _ASKS_HOMES.search(question) and not picked:
         picked.append(next((c for c in summaries.values() if c["quote"].startswith("Affordable homes")), None))
     return list({p["id"]: p for p in picked if p}.values())[:2]
@@ -347,6 +356,13 @@ def _fallback(question: str, quotes: dict, reason: str, summary: list[dict], boa
 
 
 def answer(question: str, audience: ask.Audience = "staff", board: dict | None = None) -> dict:
+    result = _answer(question, audience, board)
+    if _NOT_ENGLISH.search(question) and result.get("notice"):
+        result = {**result, "notice": "Answers are in English, because the checks on each sentence read English. " + result["notice"]}
+    return result
+
+
+def _answer(question: str, audience: ask.Audience = "staff", board: dict | None = None) -> dict:
     question = ai.redact(" ".join(question.split()))[:ask.MAX_QUESTION_CHARS]
     board = board or deals.county_board()
     agreements = _board_records(board)
@@ -374,6 +390,8 @@ def answer(question: str, audience: ask.Audience = "staff", board: dict | None =
         else _summary_answer(question, summaries)
     if not os.getenv("GEMINI_API_KEY"):
         return _fallback(question, quotes, "AI answers are off.", summary, board, agreements)
+    if not ask.budget_ok():
+        return _fallback(question, quotes, "Today's AI answer budget is used up.", summary, board, agreements)
     if not ai._allow_live_call():
         return _fallback(question, quotes, "The AI answer limit was reached for this minute.", summary, board, agreements)
     recs = _prompt_records(question, summaries, agreements, quotes)

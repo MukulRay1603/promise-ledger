@@ -335,11 +335,16 @@ async function route({ initial = false } = {}) {
     current = next;
     return;
   }
+  if (current.view === "deal" && next.view !== "deal") {
+    byId("view-deal").replaceChildren();
+    dealState = null;
+  }
   current = next;
   stopPolling();
   for (const dialog of document.querySelectorAll("dialog[open]")) dialog.close();
   dealIsReal = false; // renderDeal sets it once the deal has loaded.
   setBanner(next.view === "county");
+  document.querySelector(".demo-banner")?.classList.toggle("banner-pending", next.view === "deal");
   showView(next.view);
   if (!initial) {
     window.scrollTo(0, 0);
@@ -403,6 +408,10 @@ function setupOverview() {
     const frame = el("iframe", { src: OVERVIEW_EMBED, title: "Promise Ledger overview video", allow: "autoplay; encrypted-media; picture-in-picture; fullscreen",
       allowfullscreen: true, referrerpolicy: "strict-origin-when-cross-origin" });
     byId("overview-frame").replaceChildren(frame);
+    // Some networks and embedded browsers block YouTube players; the same video is one click away on YouTube.
+    byId("overview-frame").after(el("p", { class: "overview-alt" }, "Not playing? ",
+      el("a", { href: "https://www.youtube.com/watch?v=aD03n_4KfFc", target: "_blank", rel: "noopener" }, "Watch it on YouTube",
+        el("span", { class: "visually-hidden" }, " (opens in a new tab)"))));
     frame.focus();
   });
 }
@@ -428,6 +437,7 @@ async function setupVideos() {
     const open = el("button", { type: "button", class: "video-play", "aria-haspopup": "dialog",
       "aria-label": `Play ${video.title}${video.secs ? `, ${clock(video.secs)}` : ""}` },
       el("span", { class: "video-len" }, svg("0 0 24 24", [["path", { d: "M8 5v14l11-7z" }]]), video.secs ? clock(video.secs) : "Play"));
+    (viewer.tiles ||= [])[index] = open;
     open.addEventListener("click", () => openViewer(index, open));
     card.classList.add("is-ready");
     card.querySelector(".video-frame").replaceChildren(
@@ -508,13 +518,18 @@ function setupViewer() {
     if (event.target.closest?.("video") || event.altKey || event.ctrlKey || event.metaKey) return;
     if (event.key === "ArrowRight" && viewer.index < viewer.list.length - 1) { event.preventDefault(); showVideo(viewer.index + 1, true); }
     if (event.key === "ArrowLeft" && viewer.index > 0) { event.preventDefault(); showVideo(viewer.index - 1, true); }
+    if (event.key === " " && !event.target.closest?.("button, a, input, textarea")) {
+      event.preventDefault();
+      const player = byId("vv-stage").querySelector("video");
+      if (player) { if (player.paused) player.play().catch(() => {}); else player.pause(); }
+    }
   });
   dialog.addEventListener("close", () => {
     // Stop the download as well as the sound.
     const player = byId("vv-stage").querySelector("video");
     if (player) { player.pause(); player.removeAttribute("src"); player.replaceChildren(); player.load(); }
     byId("vv-stage").replaceChildren();
-    viewer.opener?.focus();
+    (viewer.tiles?.[viewer.index] || viewer.opener)?.focus();
   });
 }
 
@@ -1221,7 +1236,7 @@ async function renderCounty() {
                 r.term_claim_id ? el("a", { class: "reminder-source", href: sourceHref(r.id, r.term_claim_id) }, "Quote", el("span", { class: "visually-hidden" }, ` for ${r.name} term`)) : null]
               : el("span", { class: "cell-muted" }, "—")),
             ...OBLIGATIONS.map(([key, label]) => dot(r.found[key], r, key, label)))))))),
-    el("p", { class: "hint county-source" }, `Source: ${board.source}. Each record is read once and every quote is checked word for word against its page.`),
+    el("p", { class: "hint county-source" }, `Source: ${board.source}${board.retrieved ? `, retrieved ${formatDate(board.retrieved)}` : ""}. Each record is read once and every quote is checked word for word against its page.`),
   );
   for (const [node, value] of counters) animateNumber(node, value, 900, (v) => Math.round(v).toLocaleString());
   riseIn(body);
@@ -1294,7 +1309,7 @@ const DEAL_TEMPLATE = `
     <div class="card-head"><h2 id="docs-title">Documents</h2><p class="hint" id="docs-count"></p></div>
     <div class="card-body">
       <ul class="doc-list" id="doc-list" aria-live="polite"></ul>
-      <div class="dropzone" id="dropzone">
+      <div class="dropzone" id="dropzone" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg>
         <p><strong>Drag PDFs here</strong> or</p>
         <button type="button" class="btn btn-secondary" id="choose-files">Choose PDFs</button>
@@ -1394,6 +1409,7 @@ async function renderDeal(id, tab, sourceClaim = null, withTour = false) {
   } catch (err) {
     if (current.view !== "deal" || current.id !== id) return;
     document.title = `${err.status === 404 ? "Deal not found" : "Deal did not load"} · Promise Ledger`;
+    document.querySelector(".demo-banner")?.classList.remove("banner-pending");
     view.replaceChildren(el("div", { class: "empty" },
       el("h1", { id: "deal-title" }, err.status === 404 ? "Deal not found" : "The deal did not load"),
       el("p", {}, err.status === 404 ? "There is no deal at this address." : `${navigator.onLine === false ? "You're offline. It loads again by itself when you reconnect." : `${err.message} Reload the page to try again.`}`),
@@ -1405,6 +1421,7 @@ async function renderDeal(id, tab, sourceClaim = null, withTour = false) {
   document.title = `${deal.name} · Promise Ledger`;
   dealIsReal = Boolean(deal.real);
   setBanner(dealIsReal);
+  document.querySelector(".demo-banner")?.classList.remove("banner-pending");
   showView("deal"); // Re-marks the nav: a real deal belongs to County.
   byId("crumb-name").textContent = deal.name;
   byId("deal-title").textContent = deal.name;
@@ -1420,7 +1437,7 @@ async function renderDeal(id, tab, sourceClaim = null, withTour = false) {
       ...(src.url ? [" · ", el("a", { href: src.url, target: "_blank", rel: "noopener" }, "County record", el("span", { class: "visually-hidden" }, " (opens in a new tab)"))] : []));
   }
   renderActions(id, deal);
-  if (dealIsReal) { addShareButton(id, deal.name); addBriefButton(id); }
+  if (dealIsReal) { addShareButton(id, deal.name); addBriefButton(id); byId("share-btn")?.remove(); }
   renderDocs();
   renderReview({ tab: sourceClaim ? null : tab });
   if (!sourceClaim && !withTour) riseIn(view);
@@ -1760,13 +1777,14 @@ function renderScene() {
         s.status === "signed" && s.claim && dealState.review.summary.signed_by_developer_only ? " · signed by the developer only" : "")),
     s.claim ? viewSourceButton(s.claim, "Quote") : null)));
   steps.addEventListener("mouseleave", () => show(data.furthest.status));
-  const label = `${data.promised} of ${data.total} homes${data.totalStated ? "" : " (total not stated)"} promised as affordable; furthest stage ${SCENE_STAGE_TEXT[data.furthest.status]}.`;
+  const label = `${data.totalStated ? `${data.promised} of ${data.total} homes` : `${data.promised} homes (building total not stated)`} promised as affordable; furthest stage ${SCENE_STAGE_TEXT[data.furthest.status]}.`;
   const facts = sceneFacts(data, dealState.review);
   host.replaceChildren(
     el("div", { class: "scene-visual", role: "img", "aria-label": label }, figure),
     el("div", { class: "scene-text" },
       el("p", { class: "kicker" }, "The promise, pictured"),
-      el("h2", { id: "scene-title", class: "scene-title" }, el("span", { class: "scene-big" }, String(data.promised)), ` of ${data.total} homes`),
+      el("h2", { id: "scene-title", class: "scene-title" }, el("span", { class: "scene-big" }, String(data.promised)),
+        data.totalStated ? ` of ${data.total} homes` : " affordable homes stated"),
       el("p", { class: "scene-lede" }, data.totalStated
         ? `Each window is one home. Lit windows are the homes described as affordable, in the color of the furthest stage a record reached. Point at a stage to see what that record promised.`
         : `Each window is one home described as affordable; no record states the building's total.`),
@@ -2519,15 +2537,19 @@ function setupCountyChat() {
     if (event.key === "ArrowUp" && !input.value && asked.length) { event.preventDefault(); input.value = asked[asked.length - 1]; resize(); }
   });
 
+  function contextCards() {
+    return [
+      { icon: "calendar", title: "Stated term", q: `How long is the stated term of ${context.name}?` },
+      { icon: "home", title: "Income limits", q: `What income limits does ${context.name} state?` },
+      { icon: "docq", title: "Remedies", q: `What does ${context.name} say about remedies?` },
+      { icon: "file", title: "Reporting", q: `What does ${context.name} say about reporting?` },
+    ];
+  }
+  const topicButton = (t) => el("button", { type: "button", class: "cc-topic", onclick: () => askNow(t.q) },
+    el("span", { class: "cc-topic-ico", "aria-hidden": "true" }, icon(t.icon)),
+    el("span", { class: "cc-topic-text" }, el("b", {}, t.title), el("span", {}, t.q)));
   function welcome() {
-    const cards = (context ? [
-      { icon: "calendar", title: context.name, q: `How long is ${context.name}'s stated term?` },
-      { icon: "home", title: context.name, q: `What income limits does ${context.name} state?` },
-      { icon: "docq", title: context.name, q: `What does ${context.name} say about remedies?` },
-      CC_TOPICS[1],
-    ] : CC_TOPICS).map((t) => el("button", { type: "button", class: "cc-topic", onclick: () => askNow(t.q) },
-      el("span", { class: "cc-topic-ico", "aria-hidden": "true" }, icon(t.icon)),
-      el("span", { class: "cc-topic-text" }, el("b", {}, t.title), el("span", {}, t.q))));
+    const cards = (context ? contextCards() : CC_TOPICS).map(topicButton);
     return el("li", { class: "cc-welcome" },
       el("p", { class: "cc-hello" }, context
         ? `Ask about ${context.name}, or any of the 21 county agreements.`
@@ -2677,7 +2699,8 @@ function setupCountyChat() {
     if (!document.documentElement.classList.contains("cc-on") || !panel.hidden) return;
     if (event.target.closest?.("input, textarea, select, [contenteditable='true']")) return;
     event.preventDefault();
-    openChat(launch);
+    const headerAsk = document.querySelector(".nav-ask");
+    openChat(headerAsk?.offsetParent ? headerAsk : launch);
   });
   reset();
   document.body.append(launch, panel);
@@ -2686,7 +2709,17 @@ function setupCountyChat() {
     setContext(next) {
       const changed = (next?.id || null) !== (context?.id || null);
       context = next;
-      if (changed && !asked.length) reset();
+      const label = launch.querySelector(".cc-label");
+      label.textContent = context ? `Ask about ${shortDealName(context.name)}` : "Ask the county";
+      if (!changed) return;
+      if (!asked.length) { reset(); return; }
+      // Mid-conversation: keep it, and offer this agreement's questions at the end of it.
+      thread.querySelector(".cc-context")?.remove();
+      if (context) {
+        thread.append(el("li", { class: "cc-welcome cc-context" },
+          el("p", { class: "cc-hello" }, `Now on ${context.name}`),
+          el("div", { class: "cc-topics" }, ...contextCards().map(topicButton))));
+      }
     },
   };
 }
@@ -3334,6 +3367,7 @@ function renderCommands() {
   });
   byId("cmdk-list").replaceChildren(...rows);
   byId("cmdk-empty").hidden = cmd.shown.length > 0;
+  byId("cmdk-empty").textContent = query ? "No matches." : "Loading pages and deals…";
   markActive();
 }
 
