@@ -241,7 +241,8 @@ def transcribe(data: bytes, numbers: list[int], sha: str | None = None, call=Non
     return result
 
 
-def fill_scanned(doc: dict, pages: list[str], load_pdf, call=None, use_cache: bool = True) -> tuple[list[str], ScanResult]:
+def fill_scanned(doc: dict, pages: list[str], load_pdf, call=None, use_cache: bool = True,
+                 cached_only: bool = False) -> tuple[list[str], ScanResult]:
     """(pages with transcribed text filled in, result). Sets doc["transcribed_pages"] when any page was filled.
 
     Only pages flagged as scanned at upload and still without text are sent, only the first VISION_MAX_PAGES of
@@ -252,6 +253,8 @@ def fill_scanned(doc: dict, pages: list[str], load_pdf, call=None, use_cache: bo
     todo = [n for n in allowed if 1 <= n <= len(pages) and len(pages[n - 1].strip()) < pipeline.MIN_PAGE_CHARS]
     if not todo:
         return pages, ScanResult(mode="off")
+    if cached_only and call is None and not (doc.get("sha256") and _cached(doc["sha256"], todo)):
+        return pages, ScanResult(mode="off")  # Seeding saved records never pays: only saved transcriptions are used.
     if call is None and not os.getenv("GEMINI_API_KEY") and not (doc.get("sha256") and _cached(doc["sha256"], todo)):
         return pages, ScanResult(mode="off")  # No key and nothing saved: the PDF is not even loaded.
     if not scans_to_model():  # No image is sent and no attempt is counted. The pages keep their open question.

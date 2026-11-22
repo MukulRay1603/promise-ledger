@@ -79,6 +79,17 @@ class RealRecordBytes(unittest.TestCase):
             self.assertIsNone(deals.real_record_bytes(self.entry, self.folder, store, {self.sha: {"file_key": "k"}}))
 
 
+class SeedingIsFree(unittest.TestCase):
+    def test_a_scanned_page_with_no_saved_transcription_is_not_sent_while_seeding(self):
+        from app import vision
+        doc = {"sha256": "0" * 64, "scanned_pages": [1]}
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "k"}), mock.patch.object(vision, "transcribe") as transcribe:
+            pages, result = vision.fill_scanned(doc, [""], lambda: b"%PDF", cached_only=True)
+        transcribe.assert_not_called()
+        self.assertEqual(result.mode, "off")
+        self.assertEqual(pages, [""])
+
+
 class ServiceUnavailable(Exception):
     pass
 

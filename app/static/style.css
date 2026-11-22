@@ -2489,3 +2489,10 @@ body { font-size: 1rem; line-height: 1.5; }
 .rm-foot { font-size: .9375rem; }
 @media (max-width: 720px) { .section { padding-top: 2.75rem; } .lede { font-size: 1.0625rem; } }
 @media (max-width: 900px) { .rm-card.later ul { grid-template-columns: 1fr; } }
+
+/* ---------- Scale with the screen ----------
+   Laptops, tablets and phones keep 16px. Above 1440px wide everything grows smoothly (type, spacing, the page width,
+   since they are all in rem) up to 20px on 27-inch and 4K screens. Larger text multiplies on top. */
+html { font-size: clamp(100%, calc(100% + (100vw - 1440px) * .004), 125%); }
+html.text-large { font-size: clamp(112.5%, calc((100% + (100vw - 1440px) * .004) * 1.125), 140%); }
+@media (min-width: 1920px) { .container { max-width: 84rem; } }

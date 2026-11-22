@@ -427,7 +427,7 @@ def page_texts(deal_id: str, doc_id: str, store: Storage) -> list[str]:
 
 
 def process_document(deal_id: str, doc_id: str, store: Storage | None = None, reader=None,
-                     use_cache: bool = True, transcriber=None) -> dict | None:
+                     use_cache: bool = True, transcriber=None, cached_only: bool = False) -> dict | None:
     """Read, check and save one document. Never raises; failures are recorded on the document."""
     store = store or get_store()
     doc = store.get_document(deal_id, doc_id)
@@ -437,7 +437,7 @@ def process_document(deal_id: str, doc_id: str, store: Storage | None = None, re
         pages = page_texts(deal_id, doc_id, store)
         # Scanned pages are transcribed first (app/vision.py); the text takes the page's place from here on.
         filled, scan = vision.fill_scanned(doc, pages, lambda: store.get_blob(doc["file_key"]), call=transcriber,
-                                           use_cache=use_cache)
+                                           use_cache=use_cache, cached_only=cached_only)
         if filled != pages:
             pages = filled
             store.put_blob(f"deals/{deal_id}/{doc_id}.pages.json", json.dumps(pages, ensure_ascii=False).encode(),
@@ -1413,7 +1413,9 @@ def seed_sample(manifest_path: Path, store: Storage, version: str | None = None)
             doc["source_url"] = entry["url"]
             store.put_document(deal["id"], doc)
         if pipeline.cached_reading(doc["sha256"]):
-            process_document(deal["id"], doc["id"], store)
+            # Seeding from a saved reading never calls the model: a deploy costs nothing and always gives the same
+            # figures. Scanned pages without a saved transcription stay open questions.
+            process_document(deal["id"], doc["id"], store, cached_only=True)
         elif not real:
             submit(deal["id"], doc["id"], store)
         else:
