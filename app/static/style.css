@@ -2429,6 +2429,16 @@ a.cc-src:hover { background: rgb(94 234 212 / .12); }
 }
 @media (max-width: 380px) { .brand-name { display: none; } }
 @media print { .nav-progress, .mobile-menu, .menu-btn, .nav-ask { display: none !important; } }
+/* Larger text: the tool labels fold into tooltips sooner, so the header keeps one row. */
+@media (max-width: 1600px) {
+  .text-large .btn-icon .tool-label, .text-large .btn-icon .theme-label, .text-large .nav-ask .tool-label {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .text-large .cmdk-label, .text-large .cmdk-open .kbd { display: none; }
+  .text-large .main-nav a { padding: 0 .625rem; }
+}
+@media (max-width: 1280px) { .text-large .nav-live { display: none; } }
+/* While the chat is open, toasts sit on the left so they never cover the send button. */
+.cc-open .toasts { right: auto; left: 1.25rem; }
 .net-banner { position: sticky; top: 0; z-index: 70; display: flex; align-items: center; justify-content: center; gap: .5rem; padding: .5rem 1rem;
   background: #7C2D12; color: #FFEDD5; font-size: .875rem; font-weight: 600; }
 .net-banner[hidden] { display: none; }

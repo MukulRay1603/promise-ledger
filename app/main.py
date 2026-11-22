@@ -480,11 +480,14 @@ def share_card(deal_id: str, request: Request):
     """A shareable link to one county agreement: link-preview tags (title, numbers, card image), then the agreement.
     Only real county agreements have cards; everything shown is from the county board's checked quotes."""
     from html import escape
-    if not _ID.fullmatch(deal_id):
-        raise HTTPException(404, "Deal not found.")
-    row = next((r for r in deals.county_board()["deals"] if r["id"] == deal_id), None)
-    if not row:
-        raise HTTPException(404, "Deal not found.")
+    row = next((r for r in deals.county_board()["deals"] if r["id"] == deal_id), None) if _ID.fullmatch(deal_id) else None
+    if not row:  # A person opened this link: a page with a way on, not raw JSON.
+        return HTMLResponse(
+            '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+            '<title>Link not found · Promise Ledger</title><meta name="robots" content="noindex"></head>'
+            '<body style="font:16px/1.5 system-ui,sans-serif;max-width:36rem;margin:4rem auto;padding:0 1rem;color:#0B1F3A">'
+            '<h1>This link does not match an agreement</h1><p>It may be mistyped or out of date.</p>'
+            '<p><a href="/#/county">See every Prince George\'s County agreement</a></p></body></html>', status_code=404)
     base = _base(request)
     target = f"{base}/#/deals/{quote(deal_id)}"
     image = f"{base}/static/og/{quote(deal_id)}.png" if (STATIC / "og" / f"{deal_id}.png").is_file() else f"{base}/static/og/site.png"

@@ -119,6 +119,31 @@ class CheaperAnswers(unittest.TestCase):
         self.assertEqual(county_ask._named("park place at addison road homes", agreements), {"p2"})
         self.assertEqual(county_ask._named("Which promises were kept?", agreements), set())
 
+    def test_numbers_written_as_words_are_checked_too(self):
+        agreements = county_ask._board_records(BOARD)
+        reply = ask.AskReply(in_scope=True, sentences=[
+            ask.AnswerSentence(text="Alpha Place states one hundred affordable homes.", claim_ids=["A1"]),
+            ask.AnswerSentence(text="Alpha Place states seventy affordable homes.", claim_ids=["A1"])])
+        kept, removed = ask.check(reply, agreements, extra=county_ask._county_ok(BOARD), echo_ok=False)
+        self.assertEqual([k["text"] for k in kept], ["Alpha Place states one hundred affordable homes."])
+        self.assertEqual(removed, 1)
+
+    def test_without_the_model_a_named_agreement_gets_its_own_line(self):
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": ""}), \
+                mock.patch.object(county_ask, "_quote_records", return_value=({}, "keywords")):
+            res = county_ask.answer("What does Beta Homes say about remedies?", board=BOARD)
+        self.assertEqual(res["mode"], "computed")
+        self.assertTrue(res["sentences"][0]["text"].startswith("Beta Homes"))
+        self.assertEqual([r["name"] for r in res["related"]], ["Beta Homes"])
+
+    def test_a_dead_share_link_is_a_page(self):
+        from fastapi.testclient import TestClient
+        from app.main import app
+        res = TestClient(app).get("/s/no-such-agreement")
+        self.assertEqual(res.status_code, 404)
+        self.assertIn("text/html", res.headers["content-type"])
+        self.assertIn("#/county", res.text)
+
     def test_answers_use_the_lite_model_first(self):
         self.assertEqual(ask.ask_model(), os.getenv("ASK_MODEL") or county_ask.ai.FALLBACK_MODEL)
 

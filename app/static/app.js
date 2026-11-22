@@ -642,7 +642,8 @@ async function renderDeals() {
   try {
     [deals, reminders] = await Promise.all([api("/api/deals"), api("/api/reminders").catch(() => [])]);
   } catch (err) {
-    tbody.replaceChildren(el("tr", {}, el("td", { colspan: 5 }, `The deals did not load. ${err.message} Reload the page to try again.`)));
+    routeFailed = true; // Reconnecting reloads the page (setupConnectivity).
+    tbody.replaceChildren(el("tr", {}, el("td", { colspan: 5 }, `The deals did not load. ${navigator.onLine === false ? "You're offline. It loads again by itself when you reconnect." : `${err.message} Reload the page to try again.`}`)));
     reminderList.replaceChildren();
     return;
   }
@@ -1147,7 +1148,8 @@ async function renderCounty() {
   try {
     board = await api("/api/county");
   } catch (err) {
-    body.replaceChildren(el("p", {}, `The county records did not load. ${err.message} Reload the page to try again.`));
+    routeFailed = true;
+    body.replaceChildren(el("p", {}, `The county records did not load. ${navigator.onLine === false ? "You're offline. It loads again by itself when you reconnect." : `${err.message} Reload the page to try again.`}`));
     return;
   }
   if (current.view !== "county") return;
@@ -1394,7 +1396,7 @@ async function renderDeal(id, tab, sourceClaim = null, withTour = false) {
     document.title = `${err.status === 404 ? "Deal not found" : "Deal did not load"} · Promise Ledger`;
     view.replaceChildren(el("div", { class: "empty" },
       el("h1", { id: "deal-title" }, err.status === 404 ? "Deal not found" : "The deal did not load"),
-      el("p", {}, err.status === 404 ? "There is no deal at this address." : `${err.message} Reload the page to try again.`),
+      el("p", {}, err.status === 404 ? "There is no deal at this address." : `${navigator.onLine === false ? "You're offline. It loads again by itself when you reconnect." : `${err.message} Reload the page to try again.`}`),
       el("a", { class: "btn btn-primary", href: "#/deals" }, "Go to deals")));
     return;
   }
@@ -2465,6 +2467,19 @@ function linkNames(text, mentions, onLink) {
   return out;
 }
 
+// The clipboard API, and if the browser refuses it (no focus, older browsers, some embedded views) a hidden text area.
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch { /* fall through */ }
+  const area = el("textarea", { "aria-hidden": "true", style: "position:fixed;left:-9999px;top:0;opacity:0" });
+  area.value = text;
+  document.body.append(area);
+  area.select();
+  let ok = false;
+  try { ok = document.execCommand("copy"); } catch { ok = false; }
+  area.remove();
+  return ok;
+}
+
 function ccModeBadge(res) {
   if (res.cached) return el("span", { class: "cc-badge cc-b-cache" }, icon("refresh"), "Answered before · no new cost");
   if (res.mode === "computed") return el("span", { class: "cc-badge cc-b-code" }, icon("code"), "Answered by code · no AI cost");
@@ -2540,9 +2555,10 @@ function setupCountyChat() {
     const plain = ccAudience === "staff";
     const actions = el("div", { class: "cc-actions" },
       res.sentences?.length ? el("button", { type: "button", class: "cc-act", title: "Copy the answer and its sources", onclick: async (event) => {
+        const button = event.currentTarget; // null after the await
         const text = res.sentences.map((s) => `- ${s.text}`).join("\n") + `\n\n${res.notice || ""}`;
-        try { await navigator.clipboard.writeText(`Q: ${q}\n${text}`); event.currentTarget.classList.add("done"); toast("Answer copied."); }
-        catch { toast("Copy did not work in this browser.", { kind: "warn" }); }
+        if (await copyText(`Q: ${q}\n${text}`)) { button.classList.add("done"); toast("Answer copied."); }
+        else toast("Copy did not work in this browser. Select the answer and copy it.", { kind: "warn" });
       } }, icon("copy"), "Copy") : null,
       res.sentences?.length && res.mode !== "computed" ? el("button", { type: "button", class: "cc-act", title: plain ? "Ask again for residents, in plain words" : "Ask again for staff",
         onclick: () => { setAudience(plain ? "resident" : "staff"); askNow(q); } }, icon("refresh"), plain ? "Plain words" : "Staff version") : null);
@@ -2563,10 +2579,13 @@ function setupCountyChat() {
       body, el("p", { class: "cc-note" }, res.notice), actions, related, follow);
   }
 
+  let inFlight = false;
   const form = el("form", { class: "cc-form", onsubmit: async (event) => {
     event.preventDefault();
     const q = input.value.trim();
+    if (inFlight) return; // Enter while an answer is pending waits for it
     if (q.length < 3) { input.focus(); return; }
+    inFlight = true;
     input.value = ""; resize();
     thread.querySelector(".cc-welcome")?.remove();
     asked.push(q);
@@ -2587,6 +2606,7 @@ function setupCountyChat() {
             : navigator.onLine === false ? "You're offline. Reconnect and try again." : `The answer did not load. ${err.message}`),
         err.status === 422 || err.status === 429 ? null : el("div", { class: "cc-actions" }, retry)));
     } finally {
+      inFlight = false;
       send.disabled = false;
       thread.lastElementChild?.scrollIntoView({ block: "nearest" });
       if (thread.scrollHeight > thread.clientHeight) thread.scrollTop = thread.lastElementChild.offsetTop - 8;
@@ -2604,6 +2624,7 @@ function setupCountyChat() {
   const iconBtn = (name, label, onclick, extra = {}) => el("button", { type: "button", class: "cc-icon", "aria-label": label, title: label, onclick, ...extra }, icon(name));
   const expand = iconBtn("expand", "Expand", () => {
     const wide = panel.classList.toggle("cc-wide");
+    fitPanel();
     expand.setAttribute("aria-label", wide ? "Shrink" : "Expand");
     expand.title = wide ? "Shrink" : "Expand";
     expand.replaceChildren(icon(wide ? "shrink" : "expand"));
@@ -2622,9 +2643,19 @@ function setupCountyChat() {
     el("p", { class: "cc-foot" }, el("kbd", { class: "kbd" }, "Enter"), " send · ", el("kbd", { class: "kbd" }, "↑"), " last question · ",
       el("kbd", { class: "kbd" }, "Esc"), " close. Nothing is saved. Not legal advice."));
   let opener = launch;
+  function fitPanel() {
+    if (panel.hidden || window.innerWidth <= 560) { panel.style.maxHeight = ""; return; }
+    const header = document.querySelector(".site-header")?.getBoundingClientRect();
+    const top = Math.max(0, header ? header.bottom : 0);
+    panel.style.maxHeight = `${Math.max(320, window.innerHeight - top - 28)}px`;
+  }
+  window.addEventListener("resize", fitPanel, { passive: true });
+  window.addEventListener("scroll", () => { if (!panel.hidden) fitPanel(); }, { passive: true });
   function openChat(from) {
     opener = from instanceof HTMLElement ? from : launch;
     panel.hidden = false;
+    document.documentElement.classList.add("cc-open");
+    fitPanel();
     launch.setAttribute("aria-expanded", "true");
     launch.hidden = true;
     document.querySelectorAll("[data-open-chat]").forEach((b) => b.setAttribute("aria-expanded", "true"));
@@ -2632,6 +2663,7 @@ function setupCountyChat() {
   }
   function closeChat(focusBack) {
     panel.hidden = true;
+    document.documentElement.classList.remove("cc-open");
     launch.setAttribute("aria-expanded", "false");
     launch.hidden = false;
     document.querySelectorAll("[data-open-chat]").forEach((b) => b.setAttribute("aria-expanded", "false"));
@@ -3022,6 +3054,7 @@ function setupToggles() {
     root.classList.toggle("text-large");
     try { localStorage.setItem("pl-text", root.classList.contains("text-large") ? "large" : "normal"); } catch (err) { /* This visit only. */ }
     syncText();
+    requestAnimationFrame(placeNavIndicator);
   });
   syncText();
 }
@@ -3069,6 +3102,7 @@ function setupNav() {
     });
   };
   window.addEventListener("scroll", onScroll, { passive: true });
+  if ("ResizeObserver" in window) new ResizeObserver(onScroll).observe(document.body);
   window.addEventListener("resize", () => { placeNavIndicator(); if (window.innerWidth > 1100) setMenu(false, { focus: false }); }, { passive: true });
   document.fonts?.ready.then(placeNavIndicator);
   nav.button?.addEventListener("click", () => setMenu(nav.menu.hidden));

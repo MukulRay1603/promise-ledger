@@ -99,7 +99,14 @@ def _clean(text: str) -> str:
     removed, look-alike letters mapped, and number words read as digits."""
     text = unicodedata.normalize("NFKC", text)
     text = _INVISIBLE.sub("", text).translate(_LOOKALIKE)
-    return pipeline.numeric(text)
+    text = pipeline.numeric(text)
+    # "one hundred twelve" reads as "1 hundred 12": join it into 112 so it is checked as one number.
+    text = _HUNDREDS.sub(lambda m: str(int(m.group(1)) * 100 + int(m.group(2) or 0)), text)
+    return _THOUSANDS.sub(lambda m: str(int(m.group(1)) * 1000 + int(m.group(2) or 0)), text)
+
+
+_HUNDREDS = re.compile(r"\b(\d{1,2}) hundred(?:\s+and)?(?:\s+(\d{1,2})\b)?", re.I)
+_THOUSANDS = re.compile(r"\b(\d{1,3}) thousand(?:\s+and)?(?:\s+(\d{1,3})\b)?", re.I)
 
 
 def _iso(month: str, day: str, year: str) -> str:

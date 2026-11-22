@@ -35,6 +35,9 @@ Rules:
 - Use only facts in the cited records. Do not add numbers, names, dates or terms that are not in them.
 - To count or list agreements, cite the [S..] line that has that count or list.
 - Do not say any agreement is signed or that homes were delivered: these records show Council action only.
+- When a line says "no wording found" for a term, say exactly that ("no wording was found for income limits in the
+  records read"), never that the agreement has none.
+- Write in English, and write numbers as digits.
 - Lead with the direct answer. Keep it to at most 6 sentences.
 - If the records do not answer the question, return no sentences. Do not guess.
 - If the question is not about these agreements' affordable-housing commitments, set in_scope to false.
@@ -248,7 +251,7 @@ def _quotes_only(quotes: dict[str, dict], reason: str, summary: list[dict] | Non
         [{"text": f"“{c['quote']}”", "claim_ids": [c["id"]], "quote": True} for c in picked]
     lead = "This count was computed by code from the checked records; open an agreement to read its quotes." \
         if summary else "These are the closest checked quotes, word for word."
-    return {"mode": "quotes", "in_scope": True, "removed": 0, "sentences": sentences,
+    return {"mode": "computed" if summary else "quotes", "in_scope": True, "removed": 0, "sentences": sentences, "cost_usd": 0.0,
             "sources": {c["id"]: _source(c) for c in summary + picked},
             "notice": f"{reason} {lead}" if sentences
             else f"{reason} No checked quote matched. Try naming a term, such as homes, income limits or years."}
@@ -310,7 +313,9 @@ def _recommend(question: str, result: dict, board: dict, agreements: dict) -> di
     mentioned = [r for r in rows.values() if r["name"].lower() in text or _short(r["name"]) in text]
     cited = [rows[s["deal_id"]] for s in result.get("sources", {}).values() if s.get("deal_id") in rows]
     related = list({r["id"]: r for r in cited + mentioned}.values())
-    if not related:  # Nothing cited: suggest the agreements the question's topic points to.
+    if not related:  # Nothing cited: the agreements the question names, else the ones its topic points to.
+        related = [rows[d] for d in _named(question, agreements) if d in rows]
+    if not related:
         if _ASKS_TERMS.search(question):
             related = sorted((r for r in rows.values() if r.get("term_end")), key=lambda r: r["term_end"])
         elif _ASKS_BLANKS.search(question):
@@ -325,7 +330,7 @@ def _recommend(question: str, result: dict, board: dict, agreements: dict) -> di
     nxt = []
     if cards:
         top = cards[0]["name"]
-        nxt += [f"How long is {top}'s stated term?", f"What income limits does {top} state?"]
+        nxt += [f"How long is the stated term of {top}?", f"What income limits does {top} state?"]
     nxt += GOOD_QUESTIONS
     follow = [q for q in dict.fromkeys(nxt) if _norm(q) != asked][:3]
     return {"related": cards, "mentions": [{"id": r["id"], "name": r["name"]} for r in mentioned], "follow_ups": follow}
@@ -334,6 +339,11 @@ def _recommend(question: str, result: dict, board: dict, agreements: dict) -> di
 def _board_key(board: dict) -> str:
     t = board.get("totals") or {}
     return f"{t.get('deals')}-{t.get('records_read')}-{t.get('homes')}-{t.get('pages')}"
+
+
+def _fallback(question: str, quotes: dict, reason: str, summary: list[dict], board: dict, agreements: dict) -> dict:
+    result = _quotes_only(quotes, reason, summary)
+    return result | _recommend(question, result, board, agreements)
 
 
 def answer(question: str, audience: ask.Audience = "staff", board: dict | None = None) -> dict:
@@ -359,19 +369,20 @@ def answer(question: str, audience: ask.Audience = "staff", board: dict | None =
         ask.CACHE.put(cache_key, result)
         return result
     quotes, search_mode = _quote_records(question, board)
-    summary = _summary_answer(question, summaries)
+    # Without the model, a question about one agreement gets that agreement's line; a county-wide one its count.
+    summary = [a for a in agreements.values() if a["deal_id"] in named][:1] if len(named) == 1 \
+        else _summary_answer(question, summaries)
     if not os.getenv("GEMINI_API_KEY"):
-        return _quotes_only(quotes, "AI answers are off.", summary) | _recommend(question, {}, board, agreements)
+        return _fallback(question, quotes, "AI answers are off.", summary, board, agreements)
     if not ai._allow_live_call():
-        return _quotes_only(quotes, "The AI answer limit was reached for this minute.", summary) | \
-            _recommend(question, {}, board, agreements)
+        return _fallback(question, quotes, "The AI answer limit was reached for this minute.", summary, board, agreements)
     recs = _prompt_records(question, summaries, agreements, quotes)
     prompt = f"<records>\n{_block(recs)}\n</records>\n<question>\n{ask._data(question)}\n</question>"
     try:
         reply, model, cost = ask.generate_with_fallback(prompt, SYSTEM_PROMPT + "\n" + ask.AUDIENCE_STYLE[audience])
     except Exception as err:  # The question itself is never logged.
         print(f"County ask fell back to quotes: {type(err).__name__}")
-        return _quotes_only(quotes, "The AI answer did not finish.", summary) | _recommend(question, {}, board, agreements)
+        return _fallback(question, quotes, "The AI answer did not finish.", summary, board, agreements)
     if not reply.in_scope:
         return {"mode": "live", "in_scope": False, "sentences": [], "sources": {}, "removed": 0, "model": model,
                 "cost_usd": round(cost, 6), "related": [], "mentions": [], "follow_ups": GOOD_QUESTIONS[:3],
