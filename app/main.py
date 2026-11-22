@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -77,6 +77,12 @@ class NewDeal(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     city: str = Field(min_length=1, max_length=120)
     developer: str | None = Field(default=None, max_length=120)
+
+
+@app.get("/robots.txt", include_in_schema=False)
+def robots():
+    """Pages may be indexed; the API may not (answers cost money, and the data is on the pages already)."""
+    return PlainTextResponse("User-agent: *\nAllow: /\nDisallow: /api/\n", headers={"Cache-Control": "public, max-age=86400"})
 
 
 # Cloud Run reserves paths ending in "z" (such as /healthz), so the health check is /api/health.

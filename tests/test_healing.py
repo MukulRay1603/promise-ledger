@@ -240,3 +240,12 @@ class CheaperAnswers(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Robots(unittest.TestCase):
+    def test_robots_lets_pages_be_indexed_but_not_the_api(self):
+        from fastapi.testclient import TestClient
+        from app.main import app
+        res = TestClient(app).get("/robots.txt")
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("Disallow: /api/", res.text)
