@@ -243,22 +243,102 @@ def _records_block(review: dict) -> str:
     return "\n".join(lines)
 
 
-def _call(prompt: str, audience: Audience, model: str) -> AskReply:
+# Answers are short and every sentence is checked by code, so the model needs little hidden reasoning. Measured on
+# Nov 21, 2026 with the county chat's questions: the main model with default thinking spent about $0.0068 an answer
+# (thinking was most of its output); gemini-3.5-flash-lite at thinking level MINIMAL about $0.0015, with as many
+# sentences kept by the checks. gemini-3.5-flash-lite refuses thinking_budget=0, so the level is used instead.
+# ASK_MODEL picks the answer model; reading records keeps GEMINI_MODEL. ASK_THINKING_LEVEL="" sends no setting.
+ASK_THINKING_LEVEL = os.getenv("ASK_THINKING_LEVEL", "MINIMAL")
+ASK_MAX_OUTPUT_TOKENS = int(os.getenv("ASK_MAX_OUTPUT_TOKENS") or 1024)
+
+
+def ask_model() -> str:
+    """The model to try first for answers: ASK_MODEL, unless it is the main model and that is resting after being busy."""
+    model = os.getenv("ASK_MODEL") or ai.FALLBACK_MODEL
+    return ai.first_model() if model == ai.MODEL else model
+
+
+def other_model(model: str) -> str:
+    return ai.MODEL if model != ai.MODEL else ai.FALLBACK_MODEL
+
+
+def generate(prompt: str, system: str, model: str) -> tuple[AskReply, float]:
+    """One structured answer and what it cost. If a model refuses the thinking setting, it is asked once without it."""
     from google.genai import types
 
     client = ai._client(os.environ["GEMINI_API_KEY"], TIMEOUT_MS)
-    response = client.models.generate_content(
-        model=model,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=SYSTEM_PROMPT + "\n" + AUDIENCE_STYLE[audience],
-            response_mime_type="application/json",
-            response_schema=AskReply,
-            temperature=0,
-            max_output_tokens=4096,
-        ),
-    )
-    return AskReply.model_validate_json(response.text)
+    config = dict(system_instruction=system, response_mime_type="application/json", response_schema=AskReply,
+                  temperature=0, max_output_tokens=ASK_MAX_OUTPUT_TOKENS)
+    if ASK_THINKING_LEVEL:
+        config["thinking_config"] = types.ThinkingConfig(thinking_level=ASK_THINKING_LEVEL)
+    try:
+        response = client.models.generate_content(model=model, contents=prompt, config=types.GenerateContentConfig(**config))
+    except Exception as err:  # A model that rejects the setting answers 400 INVALID_ARGUMENT, which costs nothing.
+        if "thinking_config" not in config or not ("thinking" in str(err).lower() or "INVALID_ARGUMENT" in str(err)):
+            raise
+        config.pop("thinking_config")
+        response = client.models.generate_content(model=model, contents=prompt, config=types.GenerateContentConfig(**config))
+    usage = getattr(response, "usage_metadata", None)
+    tokens_in = getattr(usage, "prompt_token_count", 0) or 0
+    tokens_out = (getattr(usage, "candidates_token_count", 0) or 0) + (getattr(usage, "thoughts_token_count", 0) or 0)
+    return AskReply.model_validate_json(response.text), ai.cost_usd(model, tokens_in, tokens_out)
+
+
+def generate_with_fallback(prompt: str, system: str) -> tuple[AskReply, str, float]:
+    """The answer model, then one try on the other model if it is busy, out of quota or replies badly."""
+    model = ask_model()
+    try:
+        reply, cost = generate(prompt, system, model)
+    except Exception as err:
+        if not ai._allow_live_call():  # The second call counts too.
+            raise
+        if ai._is_busy(err):
+            ai.note_busy(model)
+        model = other_model(model)
+        reply, cost = generate(prompt, system, model)
+    return reply, model, cost
+
+
+class AnswerCache:
+    """Recent answers by question, so a question asked again costs nothing. In memory, per server; entries expire."""
+
+    def __init__(self, size: int = 300, ttl: float = 6 * 3600):
+        import threading
+        from collections import OrderedDict
+        self.size, self.ttl, self._lock, self._items = size, ttl, threading.Lock(), OrderedDict()
+
+    @staticmethod
+    def key(*parts) -> str:
+        return "|".join(" ".join(re.findall(r"[a-z0-9%]+", str(p).lower())) for p in parts)
+
+    def get(self, key: str):
+        import time
+        with self._lock:
+            item = self._items.get(key)
+            if not item or time.monotonic() - item[0] > self.ttl:
+                self._items.pop(key, None)
+                return None
+            self._items.move_to_end(key)
+            return item[1]
+
+    def clear(self) -> None:
+        with self._lock:
+            self._items.clear()
+
+    def put(self, key: str, value) -> None:
+        import time
+        with self._lock:
+            self._items[key] = (time.monotonic(), value)
+            self._items.move_to_end(key)
+            while len(self._items) > self.size:
+                self._items.popitem(last=False)
+
+
+CACHE = AnswerCache()
+
+
+def _call(prompt: str, audience: Audience, model: str) -> AskReply:
+    return generate(prompt, SYSTEM_PROMPT + "\n" + AUDIENCE_STYLE[audience], model)[0]
 
 
 def _quotes_only(question: str, review: dict, reason: str) -> dict:
@@ -277,19 +357,25 @@ def answer(review: dict, question: str, audience: Audience = "staff") -> dict:
                 "notice": "This deal has no checked quotes yet, so there is nothing to answer from."}
     if not os.getenv("GEMINI_API_KEY"):
         return _quotes_only(question, review, "AI answers are off.")
+    import hashlib
+    signature = hashlib.sha256("".join(f"{c['id']}{c['quote']}" for c in review["claims"]).encode()).hexdigest()[:16]
+    cache_key = CACHE.key("deal", signature, audience, question)
+    hit = CACHE.get(cache_key)
+    if hit:  # The same question on the same checked quotes: no new call.
+        return {**hit, "cached": True}
     if not ai._allow_live_call():
         return _quotes_only(question, review, "The AI answer limit was reached for this minute.")
     prompt = f"<records>\n{_records_block(review)}\n</records>\n<question>\n{_data(question)}\n</question>"
-    model = ai.first_model()
+    model = ask_model()
     try:
         try:
             reply = _call(prompt, audience, model)
-        except Exception as err:  # Busy, out of quota, a server error or a malformed reply: one try on the fallback.
-            if model == ai.FALLBACK_MODEL or not ai._allow_live_call():  # The second call counts too.
+        except Exception as err:  # Busy, out of quota, a server error or a malformed reply: one try on the other model.
+            if not ai._allow_live_call():  # The second call counts too.
                 raise
             if ai._is_busy(err):
                 ai.note_busy(model)
-            model = ai.FALLBACK_MODEL
+            model = other_model(model)
             reply = _call(prompt, audience, model)
     except Exception as err:  # The question itself is never logged.
         print(f"Ask fell back to quotes: {type(err).__name__}")
@@ -307,6 +393,8 @@ def answer(review: dict, question: str, audience: Audience = "staff") -> dict:
         hint = f" A {nxt['record'].lower()} may answer it." if nxt else ""
         return {"mode": "live", "in_scope": True, "sentences": [], "removed": removed, "model": model,
                 "notice": "The records on file do not answer this." + hint}
-    return {"mode": "live", "in_scope": True, "sentences": kept, "removed": removed, "model": model,
-            "notice": f"Written by {model} from this deal's checked quotes. Code checked each sentence's numbers, dates "
-                      "and stage words against the quotes it cites."}
+    result = {"mode": "live", "in_scope": True, "sentences": kept, "removed": removed, "model": model,
+              "notice": f"Written by {model} from this deal's checked quotes. Code checked each sentence's numbers, dates "
+                        "and stage words against the quotes it cites."}
+    CACHE.put(cache_key, result)
+    return result

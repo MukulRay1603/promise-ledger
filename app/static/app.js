@@ -82,6 +82,17 @@ const UI_ICONS = {
   info: [["circle", { cx: 12, cy: 12, r: 9 }], ["path", { d: "M12 11v5M12 8v.1" }]],
   prev: [["path", { d: "M15 6l-6 6 6 6" }]],
   next: [["path", { d: "M9 6l6 6-6 6" }]],
+  home: [["path", { d: "M3 11 12 4l9 7" }], ["path", { d: "M5 10v10h14V10" }], ["path", { d: "M10 20v-5h4v5" }]],
+  refresh: [["path", { d: "M20 11a8 8 0 1 0-2.3 5.7" }], ["path", { d: "M20 5v6h-6" }]],
+  code: [["path", { d: "M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14" }]],
+  spark: [["path", { d: "M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" }], ["path", { d: "M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z" }]],
+  copy: [["rect", { x: 9, y: 9, width: 11, height: 11, rx: 2 }], ["path", { d: "M5 15V5a1 1 0 0 1 1-1h10" }]],
+  expand: [["path", { d: "M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" }]],
+  shrink: [["path", { d: "M20 10h-6V4M4 14h6v6M14 10l7-7M10 14l-7 7" }]],
+  x: [["path", { d: "M6 6l12 12M18 6 6 18" }]],
+  menu: [["path", { d: "M4 7h16M4 12h16M4 17h16" }]],
+  map: [["path", { d: "M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z" }], ["path", { d: "M9 4v14M15 6v14" }]],
+  road: [["path", { d: "M4 20 8 4M20 20 16 4M12 6v2M12 11v2M12 16v2" }]],
 };
 const icon = (name) => svg("0 0 24 24", UI_ICONS[name]);
 
@@ -176,7 +187,18 @@ async function rawApi(path, { method = "GET", body = null, onProgress = null, re
   const headers = { Accept: "application/json", "X-Demo-Session": demoSession() };
   if (body) headers["Content-Type"] = "application/json";
   if (reviewer) headers["X-Reviewer-Name"] = encodeURIComponent(reviewer); // Read by current_reviewer() on the server.
-  const res = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : null });
+  // Self-healing: a read that hits a dropped connection or a busy server (502, 503, 504) is tried again twice,
+  // after 0.4 s and 1.2 s. Writes are never repeated, so nothing is sent twice.
+  let res;
+  for (const wait of method === "GET" ? [400, 1200, null] : [null]) {
+    try {
+      res = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : null });
+      if (wait === null || ![502, 503, 504].includes(res.status)) break;
+    } catch (err) {
+      if (wait === null) throw new ApiError(0, navigator.onLine === false ? "You're offline." : "The server could not be reached.");
+    }
+    await new Promise((r) => setTimeout(r, wait));
+  }
   const type = res.headers.get("content-type") || "";
   if (!res.ok) {
     let message = `The server returned ${res.status}.`;
@@ -291,11 +313,15 @@ function showView(view) {
   for (const section of document.querySelectorAll(".view")) section.hidden = section.dataset.view !== view;
   document.documentElement.classList.toggle("route-shared", view === "shared");
   document.documentElement.classList.toggle("route-app", view !== "home" && view !== "shared");
-  document.documentElement.classList.toggle("cc-on", view === "home" || view === "county");
+  // The county chat is offered on Home, County and every real county agreement, where it starts with that agreement.
+  document.documentElement.classList.toggle("cc-on", view === "home" || view === "county" || (view === "deal" && dealIsReal));
+  countyChat?.setContext(view === "deal" && dealIsReal && dealState?.deal ? { id: dealState.id, name: dealState.deal.name } : null);
   for (const link of document.querySelectorAll("[data-nav]")) {
     const on = link.dataset.nav === view || (view === "deal" && link.dataset.nav === (dealIsReal ? "county" : "deals"));
     if (on) link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
   }
+  placeNavIndicator();
+  setMenu(false, { focus: false });
 }
 
 async function route({ initial = false } = {}) {
@@ -326,6 +352,38 @@ async function route({ initial = false } = {}) {
   if (next.view === "deal") return renderDeal(next.id, next.tab, next.source, next.tour);
   if (next.view === "shared") return renderShared(next.token);
   document.title = "Page not found · Promise Ledger";
+}
+
+// ---------- Recovery ----------
+// A view that throws while rendering shows a card that says so, with Try again, instead of a blank page. If the
+// browser is offline it tries again by itself when the connection returns.
+let routeFailed = false;
+async function safeRoute(options) {
+  try {
+    routeFailed = false;
+    await route(options);
+  } catch (err) {
+    routeFailed = true;
+    console.error(err);
+    const view = document.querySelector(".view:not([hidden])") || byId("view-missing");
+    const again = el("button", { type: "button", class: "btn btn-primary", onclick: () => safeRoute() }, "Try again");
+    view.replaceChildren(el("div", { class: "empty recover" },
+      el("h1", {}, "This page did not load"),
+      el("p", {}, navigator.onLine === false ? "You're offline. It will load again as soon as you reconnect." : "Something went wrong while drawing it. Trying again usually fixes it."),
+      el("div", { class: "page-actions" }, again, el("a", { class: "btn btn-secondary", href: "#/" }, "Go home"))));
+    view.hidden = false;
+  }
+}
+function setupConnectivity() {
+  const bar = el("div", { class: "net-banner", role: "status", hidden: true }, icon("warn"), "You're offline. What's on screen stays; anything new loads when you reconnect.");
+  document.body.prepend(bar);
+  window.addEventListener("offline", () => { bar.hidden = false; });
+  window.addEventListener("online", () => {
+    bar.hidden = true;
+    toast("Back online.");
+    if (routeFailed || document.querySelector(".view:not([hidden]) .empty .btn")) safeRoute();
+  });
+  if (navigator.onLine === false) bar.hidden = false;
 }
 
 // ---------- Home ----------
@@ -2380,73 +2438,225 @@ async function printBrief(id) {
 
 // ---------- Ask the county (chat) ----------
 // One question across every county agreement. Answers come only from checked records; every sentence links to the
-// agreement or the page it rests on. Nothing is saved, and the conversation lives only in this page.
-const COUNTY_QUESTIONS = ["Which agreements have no remedy wording?", "What income limits do the senior projects use?",
-  "Which terms run out soonest?", "How many affordable homes are stated in total?"];
+// agreement or the page it rests on. The server answers from code when it can (no AI cost), reuses an answer it gave
+// before, and only then asks the model. Beside each answer it recommends, by code, the agreements the answer rests on
+// and next questions the records can answer. Nothing is saved; the conversation lives only in this page.
+const CC_TOPICS = [
+  { icon: "home", title: "Homes", q: "How many affordable homes are stated in total?" },
+  { icon: "calendar", title: "Terms ending", q: "Which terms run out soonest?" },
+  { icon: "docq", title: "Missing wording", q: "Which agreements have no remedy wording?" },
+  { icon: "file", title: "Template blanks", q: "Which approved agreements still hold template blanks?" },
+];
 let ccAudience = "staff";
+let countyChat = null;
+
+// Agreement names in an answer become links to the agreement.
+function linkNames(text, mentions, onLink) {
+  const found = (mentions || []).map((m) => ({ ...m, at: text.indexOf(m.name) })).filter((m) => m.at >= 0)
+    .sort((a, b) => a.at - b.at || b.name.length - a.name.length);
+  const out = [];
+  let i = 0;
+  for (const m of found) {
+    if (m.at < i) continue;
+    out.push(text.slice(i, m.at), el("a", { class: "cc-name", href: `#/deals/${encodeURIComponent(m.id)}`, onclick: onLink }, m.name));
+    i = m.at + m.name.length;
+  }
+  out.push(text.slice(i));
+  return out;
+}
+
+function ccModeBadge(res) {
+  if (res.cached) return el("span", { class: "cc-badge cc-b-cache" }, icon("refresh"), "Answered before · no new cost");
+  if (res.mode === "computed") return el("span", { class: "cc-badge cc-b-code" }, icon("code"), "Answered by code · no AI cost");
+  if (res.mode === "live") {
+    const cost = typeof res.cost_usd === "number" ? ` · $${res.cost_usd < 0.001 ? res.cost_usd.toFixed(5) : res.cost_usd.toFixed(4)}` : "";
+    return el("span", { class: "cc-badge cc-b-ai" }, icon("spark"), `AI, checked by code${cost}`);
+  }
+  if (res.mode === "quotes") return el("span", { class: "cc-badge cc-b-quote" }, icon("file"), "Exact quotes");
+  return null;
+}
+
 function setupCountyChat() {
-  const launch = el("button", { type: "button", class: "cc-launch", "aria-expanded": "false", "aria-controls": "cc-panel" },
-    el("span", { class: "cc-dot", "aria-hidden": "true" }), icon("ask"), el("span", { class: "cc-label" }, "Ask the county"));
+  const launch = el("button", { type: "button", class: "cc-launch", "aria-expanded": "false", "aria-controls": "cc-panel",
+    "aria-keyshortcuts": "/" }, el("span", { class: "cc-dot", "aria-hidden": "true" }), icon("ask"), el("span", { class: "cc-label" }, "Ask the county"));
   // Once the reader scrolls, the button folds to a round icon so it covers less of the page; hover or focus opens it out.
-  // The label stays in the accessibility tree either way.
   const fold = () => launch.classList.toggle("cc-compact", window.scrollY > 160);
   window.addEventListener("scroll", fold, { passive: true });
-  const thread = el("ol", { class: "cc-thread", "aria-live": "polite", "aria-label": "Conversation", tabindex: "0" },
-    el("li", { class: "cc-msg cc-bot" }, el("p", {}, "Ask anything about the 21 Prince George's County agreements. I answer only from their checked records, and every sentence links to its source.")));
-  const input = el("input", { type: "text", id: "cc-q", maxlength: "300", minlength: "3", required: true, autocomplete: "off",
-    placeholder: "e.g. Which agreements have no reporting wording?", "aria-label": "Your question" });
-  const send = el("button", { type: "submit", class: "cc-send", "aria-label": "Send" }, icon("arrow"));
-  const suggest = el("div", { class: "cc-suggest" }, ...COUNTY_QUESTIONS.map((q) => el("button", { type: "button", class: "cc-chip",
-    onclick: () => { input.value = q; form.requestSubmit(); } }, q)));
-  const audience = el("div", { class: "cc-aud", role: "group", "aria-label": "Answer style" },
-    ...[["staff", "Staff"], ["resident", "Plain language"]].map(([key, label]) => el("button", { type: "button", "aria-pressed": String(key === ccAudience),
-      onclick: (event) => { ccAudience = key; audience.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === event.currentTarget))); } }, label)));
+
+  const thread = el("ol", { class: "cc-thread", "aria-live": "polite", "aria-label": "Conversation", tabindex: "0" });
+  const input = el("textarea", { id: "cc-q", rows: "1", maxlength: "300", required: true, autocomplete: "off",
+    placeholder: "Ask a question…", "aria-label": "Your question", "aria-describedby": "cc-count" });
+  const count = el("span", { class: "cc-count", id: "cc-count", "aria-live": "off" }, "0/300");
+  const send = el("button", { type: "submit", class: "cc-send", "aria-label": "Send question", title: "Send (Enter)" }, icon("arrow"));
+  let asked = [];
+  let context = null; // { id, name } when a real county agreement is open.
+
+  const askNow = (q) => { input.value = q; resize(); form.requestSubmit(); };
+  const leave = () => closeChat(false);
+  const resize = () => {
+    input.style.height = "";
+    if (input.value) { input.style.height = "auto"; input.style.height = `${Math.max(44, Math.min(input.scrollHeight + 2, 120))}px`; }
+    count.textContent = `${input.value.length}/300`;
+  };
+  input.addEventListener("input", resize);
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey && !event.isComposing) { event.preventDefault(); form.requestSubmit(); }
+    if (event.key === "ArrowUp" && !input.value && asked.length) { event.preventDefault(); input.value = asked[asked.length - 1]; resize(); }
+  });
+
+  function welcome() {
+    const cards = (context ? [
+      { icon: "calendar", title: context.name, q: `How long is ${context.name}'s stated term?` },
+      { icon: "home", title: context.name, q: `What income limits does ${context.name} state?` },
+      { icon: "docq", title: context.name, q: `What does ${context.name} say about remedies?` },
+      CC_TOPICS[1],
+    ] : CC_TOPICS).map((t) => el("button", { type: "button", class: "cc-topic", onclick: () => askNow(t.q) },
+      el("span", { class: "cc-topic-ico", "aria-hidden": "true" }, icon(t.icon)),
+      el("span", { class: "cc-topic-text" }, el("b", {}, t.title), el("span", {}, t.q))));
+    return el("li", { class: "cc-welcome" },
+      el("p", { class: "cc-hello" }, context
+        ? `Ask about ${context.name}, or any of the 21 county agreements.`
+        : "Ask anything about the 21 Prince George's County agreements."),
+      el("p", { class: "cc-sub" }, "I answer only from their checked records. Counts come straight from code; every sentence links to its source."),
+      el("div", { class: "cc-topics" }, ...cards));
+  }
+  function reset() { asked = []; thread.replaceChildren(welcome()); input.value = ""; resize(); }
+
+  function answerCard(q, res) {
+    const src = res.sources || {};
+    const chip = (id) => {
+      const s = src[id];
+      if (!s) return null;
+      if (!s.deal_id) return el("a", { class: "cc-src", href: "#/county", onclick: () => { leave(); setTimeout(() => document.querySelector(".county-table-card")?.scrollIntoView({ block: "start" }), 300); } },
+        icon("sheet"), "County table");
+      const href = s.claim_id ? sourceHref(s.deal_id, s.claim_id) : `#/deals/${encodeURIComponent(s.deal_id)}`;
+      return el("a", { class: "cc-src", href, onclick: leave }, icon("file"), s.deal, s.page ? `, p. ${s.page}` : "");
+    };
+    const body = res.sentences?.length
+      ? el("ul", { class: "cc-answer" }, ...res.sentences.map((s) => el("li", { class: s.quote ? "cc-quote" : null },
+        el("p", {}, ...(s.quote ? [s.text] : linkNames(s.text, res.mentions, leave))),
+        el("span", { class: "cc-srcs" }, ...s.claim_ids.map(chip)))))
+      : null;
+    const plain = ccAudience === "staff";
+    const actions = el("div", { class: "cc-actions" },
+      res.sentences?.length ? el("button", { type: "button", class: "cc-act", title: "Copy the answer and its sources", onclick: async (event) => {
+        const text = res.sentences.map((s) => `- ${s.text}`).join("\n") + `\n\n${res.notice || ""}`;
+        try { await navigator.clipboard.writeText(`Q: ${q}\n${text}`); event.currentTarget.classList.add("done"); toast("Answer copied."); }
+        catch { toast("Copy did not work in this browser.", { kind: "warn" }); }
+      } }, icon("copy"), "Copy") : null,
+      res.sentences?.length && res.mode !== "computed" ? el("button", { type: "button", class: "cc-act", title: plain ? "Ask again for residents, in plain words" : "Ask again for staff",
+        onclick: () => { setAudience(plain ? "resident" : "staff"); askNow(q); } }, icon("refresh"), plain ? "Plain words" : "Staff version") : null);
+    const related = res.related?.length ? el("div", { class: "cc-related" },
+      el("p", { class: "cc-label-sm" }, res.sentences?.length ? "Agreements in this answer" : "Agreements to look at"),
+      el("div", { class: "cc-cards" }, ...res.related.map((r) => el("a", { class: `cc-card${r.soon ? " soon" : ""}`, href: `#/deals/${encodeURIComponent(r.id)}`, onclick: leave },
+        el("b", {}, r.name),
+        el("span", { class: "cc-card-stats" },
+          el("span", {}, r.homes ? `${r.homes.toLocaleString()}${r.homes_approx ? "+" : ""} homes` : "Homes not stated"),
+          el("span", {}, r.term_end ? `to ${r.term_end}${r.term_estimated ? "+" : ""}` : "Term not stated"),
+          el("span", {}, `${r.found}/${r.of} terms`)),
+        r.blanks ? el("span", { class: "cc-flag" }, "Template blanks") : null)))) : null;
+    const next = (res.follow_ups || []).filter((f) => !asked.includes(f));
+    const follow = next.length ? el("div", { class: "cc-next" }, el("p", { class: "cc-label-sm" }, "Ask next"),
+      ...next.map((f) => el("button", { type: "button", class: "cc-chip", onclick: () => askNow(f) }, f, icon("next")))) : null;
+    return el("li", { class: "cc-msg cc-bot" },
+      el("div", { class: "cc-meta" }, ccModeBadge(res), res.removed ? el("span", { class: "cc-removed", title: "Sentences the code could not back were removed before you saw them" }, `${res.removed} removed by checks`) : null),
+      body, el("p", { class: "cc-note" }, res.notice), actions, related, follow);
+  }
+
   const form = el("form", { class: "cc-form", onsubmit: async (event) => {
     event.preventDefault();
     const q = input.value.trim();
-    if (q.length < 3) return;
-    input.value = "";
-    suggest.hidden = true;
+    if (q.length < 3) { input.focus(); return; }
+    input.value = ""; resize();
+    thread.querySelector(".cc-welcome")?.remove();
+    asked.push(q);
     thread.append(el("li", { class: "cc-msg cc-me" }, el("p", {}, q)));
-    const pending = el("li", { class: "cc-msg cc-bot cc-pending" }, el("span", { class: "cc-typing", "aria-label": "Checking the records" }, el("i"), el("i"), el("i")));
+    const pending = el("li", { class: "cc-msg cc-bot cc-pending" }, el("span", { class: "cc-typing", role: "status", "aria-label": "Checking the records" }, el("i"), el("i"), el("i")),
+      el("span", { class: "cc-pending-text" }, "Checking the records…"));
     thread.append(pending);
     thread.scrollTop = thread.scrollHeight;
     send.disabled = true;
     try {
       const res = await rawApi("/api/county/ask", { method: "POST", body: { question: q, audience: ccAudience } });
-      const src = res.sources || {};
-      const chip = (id) => {
-        const s = src[id];
-        if (!s) return null;
-        // A county-wide count: link to the table it is computed from.
-        if (!s.deal_id) return el("a", { class: "cc-src", href: "#/county", onclick: () => { closeChat(false); setTimeout(() => document.querySelector(".county-table-card")?.scrollIntoView({ block: "start" }), 300); } }, "County table (counted by code)");
-        const href = s.claim_id ? sourceHref(s.deal_id, s.claim_id) : `#/deals/${encodeURIComponent(s.deal_id)}`;
-        return el("a", { class: "cc-src", href, onclick: () => closeChat(false) }, s.deal, s.page ? `, p. ${s.page}` : "");
-      };
-      pending.replaceWith(el("li", { class: "cc-msg cc-bot" },
-        res.sentences.length ? el("ul", { class: "cc-answer" }, ...res.sentences.map((s) => el("li", { class: s.quote ? "cc-quote" : null },
-          el("p", {}, s.text), el("span", { class: "cc-srcs" }, ...s.claim_ids.map(chip))))) : null,
-        el("p", { class: "cc-note" }, res.notice)));
+      pending.replaceWith(answerCard(q, res));
     } catch (err) {
+      const retry = el("button", { type: "button", class: "cc-act", onclick: () => { retry.closest("li").remove(); askNow(q); } }, icon("refresh"), "Try again");
       pending.replaceWith(el("li", { class: "cc-msg cc-bot" }, el("p", { class: "cc-note" },
-        err.status === 422 ? "Enter a question between 3 and 300 characters." : `The answer did not load. ${err.message}`)));
+        err.status === 422 ? "Enter a question between 3 and 300 characters."
+          : err.status === 429 ? "Too many questions from this network this hour. Try again later."
+            : navigator.onLine === false ? "You're offline. Reconnect and try again." : `The answer did not load. ${err.message}`),
+        err.status === 422 || err.status === 429 ? null : el("div", { class: "cc-actions" }, retry)));
     } finally {
       send.disabled = false;
-      thread.scrollTop = thread.scrollHeight;
+      thread.lastElementChild?.scrollIntoView({ block: "nearest" });
+      if (thread.scrollHeight > thread.clientHeight) thread.scrollTop = thread.lastElementChild.offsetTop - 8;
       input.focus();
     }
-  } }, input, send);
+  } }, el("div", { class: "cc-input" }, input, count), send);
+
+  const audience = el("div", { class: "cc-aud", role: "group", "aria-label": "Answer style" },
+    ...[["staff", "Staff"], ["resident", "Plain words"]].map(([key, label]) => el("button", { type: "button", "data-aud": key, "aria-pressed": String(key === ccAudience),
+      onclick: () => setAudience(key) }, label)));
+  function setAudience(key) {
+    ccAudience = key;
+    audience.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.aud === key)));
+  }
+  const iconBtn = (name, label, onclick, extra = {}) => el("button", { type: "button", class: "cc-icon", "aria-label": label, title: label, onclick, ...extra }, icon(name));
+  const expand = iconBtn("expand", "Expand", () => {
+    const wide = panel.classList.toggle("cc-wide");
+    expand.setAttribute("aria-label", wide ? "Shrink" : "Expand");
+    expand.title = wide ? "Shrink" : "Expand";
+    expand.replaceChildren(icon(wide ? "shrink" : "expand"));
+  });
   const panel = el("section", { class: "cc-panel", id: "cc-panel", role: "dialog", "aria-modal": "false", "aria-labelledby": "cc-title", hidden: true },
     el("header", { class: "cc-head" },
-      el("div", {}, el("p", { class: "cc-kicker" }, "Answers only from checked records"), el("h2", { id: "cc-title" }, "Ask the county")),
-      el("button", { type: "button", class: "cc-close", "aria-label": "Close", onclick: () => closeChat(true) }, "×")),
-    audience, thread, suggest, form,
-    el("p", { class: "cc-foot" }, "Code checks every number, date and stage word. Nothing is saved. Not legal advice."));
-  function openChat() { panel.hidden = false; launch.setAttribute("aria-expanded", "true"); launch.hidden = true; input.focus(); }
-  function closeChat(focusBack) { panel.hidden = true; launch.setAttribute("aria-expanded", "false"); launch.hidden = false; if (focusBack) launch.focus(); }
-  launch.addEventListener("click", openChat);
+      el("span", { class: "cc-avatar", "aria-hidden": "true" }, icon("ask")),
+      el("div", { class: "cc-titles" }, el("h2", { id: "cc-title" }, "Ask the county"),
+        el("p", { class: "cc-status" }, el("span", { class: "cc-dot", "aria-hidden": "true" }), "Checked by code · 21 agreements")),
+      el("div", { class: "cc-tools" },
+        iconBtn("plus", "New conversation", () => { reset(); input.focus(); }),
+        expand,
+        iconBtn("x", "Close", () => closeChat(true)))),
+    el("div", { class: "cc-bar" }, el("span", { class: "cc-label-sm" }, "Answer for"), audience),
+    thread, form,
+    el("p", { class: "cc-foot" }, el("kbd", { class: "kbd" }, "Enter"), " send · ", el("kbd", { class: "kbd" }, "↑"), " last question · ",
+      el("kbd", { class: "kbd" }, "Esc"), " close. Nothing is saved. Not legal advice."));
+  let opener = launch;
+  function openChat(from) {
+    opener = from instanceof HTMLElement ? from : launch;
+    panel.hidden = false;
+    launch.setAttribute("aria-expanded", "true");
+    launch.hidden = true;
+    document.querySelectorAll("[data-open-chat]").forEach((b) => b.setAttribute("aria-expanded", "true"));
+    input.focus();
+  }
+  function closeChat(focusBack) {
+    panel.hidden = true;
+    launch.setAttribute("aria-expanded", "false");
+    launch.hidden = false;
+    document.querySelectorAll("[data-open-chat]").forEach((b) => b.setAttribute("aria-expanded", "false"));
+    if (focusBack) (opener?.isConnected && opener.offsetParent ? opener : launch).focus();
+  }
+  launch.addEventListener("click", () => openChat(launch));
   panel.addEventListener("keydown", (event) => { if (event.key === "Escape") { event.stopPropagation(); closeChat(true); } });
+  // "/" opens the chat from anywhere it is offered, unless the reader is typing.
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (!document.documentElement.classList.contains("cc-on") || !panel.hidden) return;
+    if (event.target.closest?.("input, textarea, select, [contenteditable='true']")) return;
+    event.preventDefault();
+    openChat(launch);
+  });
+  reset();
   document.body.append(launch, panel);
+  return {
+    open: openChat, close: closeChat,
+    setContext(next) {
+      const changed = (next?.id || null) !== (context?.id || null);
+      context = next;
+      if (changed && !asked.length) reset();
+    },
+  };
 }
 
 // ---------- Records request letter ----------
@@ -2814,6 +3024,65 @@ function setupToggles() {
     syncText();
   });
   syncText();
+}
+
+// ---------- Navigation ----------
+// The header tightens and gains a shadow once the page scrolls, a thin bar shows how far down the page you are, and an
+// indicator slides to the current section. Below 1100px the links move into a menu. Every effect is skipped with
+// reduced motion, and the menu closes on Escape, on a click outside it, and when the route changes.
+const nav = { header: null, ind: null, menu: null, button: null };
+function placeNavIndicator() {
+  const { ind } = nav;
+  const on = document.querySelector('.main-nav a[aria-current="page"]');
+  if (!ind) return;
+  if (!on || !on.offsetParent) { ind.style.opacity = "0"; return; }
+  ind.style.opacity = "1";
+  ind.style.width = `${on.offsetWidth}px`;
+  ind.style.transform = `translateX(${on.offsetLeft}px)`;
+}
+function setMenu(open, { focus = true } = {}) {
+  if (!nav.menu) return;
+  nav.menu.hidden = !open;
+  nav.button.setAttribute("aria-expanded", String(open));
+  nav.button.setAttribute("aria-label", open ? "Close menu" : "Menu");
+  nav.header.classList.toggle("menu-open", open);
+  document.documentElement.classList.toggle("menu-open", open);
+  if (open && focus) (nav.menu.querySelector('[aria-current="page"]') || nav.menu.querySelector("a"))?.focus();
+  else if (!open && focus && nav.menu.contains(document.activeElement)) nav.button.focus();
+}
+function setupNav() {
+  nav.header = document.querySelector(".site-header");
+  nav.ind = document.querySelector(".nav-ind");
+  nav.menu = byId("mobile-menu");
+  nav.button = byId("menu-btn");
+  const bar = document.querySelector(".nav-progress span");
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      const y = window.scrollY;
+      nav.header.classList.toggle("scrolled", y > 8);
+      const room = document.documentElement.scrollHeight - window.innerHeight;
+      if (bar) bar.style.transform = `scaleX(${room > 0 ? Math.min(1, y / room) : 0})`;
+    });
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", () => { placeNavIndicator(); if (window.innerWidth > 1100) setMenu(false, { focus: false }); }, { passive: true });
+  document.fonts?.ready.then(placeNavIndicator);
+  nav.button?.addEventListener("click", () => setMenu(nav.menu.hidden));
+  nav.menu?.addEventListener("click", (event) => { if (event.target.closest("a")) setMenu(false, { focus: false }); });
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && nav.menu && !nav.menu.hidden) setMenu(false); });
+  document.addEventListener("click", (event) => {
+    if (nav.menu && !nav.menu.hidden && !nav.menu.contains(event.target) && !nav.button.contains(event.target)) setMenu(false, { focus: false });
+  });
+  nav.button?.setAttribute("aria-expanded", "false");
+  for (const button of document.querySelectorAll("[data-open-chat]")) {
+    button.setAttribute("aria-expanded", "false");
+    button.addEventListener("click", () => { setMenu(false, { focus: false }); countyChat?.open(button); });
+  }
+  onScroll();
 }
 
 // ---------- Receipt printer ----------
@@ -3666,6 +3935,7 @@ function setupPageTabs() {
 }
 
 setupToggles();
+setupNav();
 setupGlossaryPopovers();
 setupNewDeal();
 setupSourceDialog();
@@ -3677,12 +3947,13 @@ setupDecisionDialog();
 setupReveal();
 setupSpotlight();
 setupOffscreenPause();
-setupCountyChat();
+countyChat = setupCountyChat();
 setupHeroMotion();
 setupPageTabs();
 ready = detectMode();
-window.addEventListener("hashchange", () => route());
-route({ initial: true });
+window.addEventListener("hashchange", () => safeRoute());
+setupConnectivity();
+safeRoute({ initial: true });
 ready.then(async () => {
   if (current.view === "shared") return; // A shared link needs nothing beyond its receipt.
   try {

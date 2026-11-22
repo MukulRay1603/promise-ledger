@@ -39,18 +39,32 @@
         <span class="brand-name">Promise Ledger</span>
       </a>
       <nav class="main-nav" aria-label="Main">
+        <span class="nav-ind" aria-hidden="true"></span>
         <a href="#/" data-nav="home">Home</a>
         <a href="#/deals" data-nav="deals">Deals</a>
-        <a href="#/county" data-nav="county">County</a>
+        <a href="#/county" data-nav="county">County<span class="nav-live" aria-hidden="true">Live</span></a>
         <a href="#/roadmap" data-nav="roadmap">Roadmap</a>
         <a href="#/about" data-nav="about">About</a>
       </nav>
       <div class="header-tools">
-        <button type="button" class="btn btn-ghost cmdk-open" id="cmdk-open" aria-label="Search" aria-keyshortcuts="Control+K Meta+K"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span class="cmdk-label">Search</span><kbd class="kbd" aria-hidden="true">Ctrl K</kbd></button>
-        <button type="button" class="btn btn-ghost btn-toggle" id="text-toggle">Larger text</button>
-        <button type="button" class="btn btn-ghost theme-btn" id="theme-toggle"><svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg><svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="theme-label">Dark mode</span></button>
+        <button type="button" class="btn btn-ghost cmdk-open" id="cmdk-open" aria-label="Search" aria-keyshortcuts="Control+K Meta+K" data-tip="Search (Ctrl K)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span class="cmdk-label">Search</span><kbd class="kbd" aria-hidden="true">Ctrl K</kbd></button>
+        <button type="button" class="btn nav-ask" data-open-chat aria-controls="cc-panel" aria-keyshortcuts="/" data-tip="Ask the county ( / )"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg><span class="tool-label">Ask</span></button>
+        <button type="button" class="btn btn-ghost btn-icon" id="text-toggle" data-tip="Larger text"><span class="aa" aria-hidden="true">Aa</span><span class="tool-label">Larger text</span></button>
+        <button type="button" class="btn btn-ghost theme-btn btn-icon" id="theme-toggle" data-tip="Switch theme"><svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg><svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="theme-label">Dark mode</span></button>
+        <button type="button" class="btn btn-ghost btn-icon menu-btn" id="menu-btn" aria-controls="mobile-menu" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="mb-top" d="M4 7h16"/><path class="mb-mid" d="M4 12h16"/><path class="mb-bot" d="M4 17h16"/></svg></button>
       </div>
     </div>
+    <nav class="mobile-menu" id="mobile-menu" aria-label="Menu" hidden>
+      <div class="container mm-inner">
+        <a href="#/" data-nav="home"><b>Home</b><span>What Promise Ledger is, in two minutes</span></a>
+        <a href="#/deals" data-nav="deals"><b>Deals</b><span>Sample deals and your own uploads</span></a>
+        <a href="#/county" data-nav="county"><b>County <span class="nav-live" aria-hidden="true">Live</span></b><span>21 real Prince George's County agreements</span></a>
+        <a href="#/roadmap" data-nav="roadmap"><b>Roadmap</b><span>What is live and what comes next</span></a>
+        <a href="#/about" data-nav="about"><b>About</b><span>Who built it, what it keeps, its limits</span></a>
+        <button type="button" class="btn btn-primary mm-ask" data-open-chat aria-controls="cc-panel">Ask the county</button>
+      </div>
+    </nav>
+    <div class="nav-progress" aria-hidden="true"><span></span></div>
   </header>
 
   <main id="main" tabindex="-1">
@@ -621,11 +635,11 @@
       <!-- What's next -->
       <div class="rm-panel" role="tabpanel" id="rmp-next" aria-labelledby="rmt-next" tabindex="0" hidden>
         <h2 class="rm-title">Built today, and where it goes next</h2>
-        <p class="rm-count"><b>33</b> features live today · <b>474</b> automated tests · <b>1</b> more by the Dec 2 final</p>
+        <p class="rm-count"><b>36</b> features live today · <b>483</b> automated tests · <b>1</b> more by the Dec 2 final</p>
         <ol class="rm-time">
           <li class="tl-now">
             <h3>Live today</h3>
-            <ul><li>Reads every PDF in a deal’s packet</li><li>Quotes checked word for word on their pages</li><li>Pages corrected; unverifiable quotes dropped</li><li>Stages set by rules, from proposed to delivered</li><li>One-party signing flagged</li><li>What changed, with word-level edits</li><li>Missing terms and certificates found</li><li>Reminders for term ends and certificates</li><li>Reviewer decisions with name, note and time</li><li>Printable receipt with a review stamp</li><li>Read-only share links for residents</li><li>Excel and CSV export with a preview</li><li>Guided tour and 8 captioned explainers</li><li>Redaction, injection guard, sandboxed PDFs</li><li>Runs without a key; about $0.002 per PDF</li><li>Keyboard, contrast, larger text, dark mode</li><li>Names the records to ask for next</li><li>Ask a deal, for staff and for residents: answers only from checked quotes</li><li>Ask and listen by voice</li><li>Reads scanned pages; a person confirms any signature on one</li><li>Tested on unseen and adversarial records: recall up to 94%, all 8 planted attacks held</li><li>21 real Prince George&rsquo;s County agreements, read from the Council&rsquo;s own records</li><li>County board: homes, income tiers, stated terms and which obligations each agreement contains</li><li>Approved text with unfilled template blanks flagged, with the quote</li><li>Search every county agreement by meaning</li><li>Records-request letters for staff to check and send</li><li>Calendar export with heads-ups 5, 3 and 1 years before a term ends</li><li>County map: each agreement at the address its records state, as tall as the homes it states</li><li>Share links that unfurl with an agreement&rsquo;s numbers</li><li>One-page brief for a council packet</li><li>811 pages: about 27 hours by hand, $0.61 to read here once</li><li>Ask the county: one question across all 21 agreements, answered only from checked records</li><li>Light on low-end phones: looping effects pause off screen and switch off on slower devices</li></ul>
+            <ul><li>Reads every PDF in a deal’s packet</li><li>Quotes checked word for word on their pages</li><li>Pages corrected; unverifiable quotes dropped</li><li>Stages set by rules, from proposed to delivered</li><li>One-party signing flagged</li><li>What changed, with word-level edits</li><li>Missing terms and certificates found</li><li>Reminders for term ends and certificates</li><li>Reviewer decisions with name, note and time</li><li>Printable receipt with a review stamp</li><li>Read-only share links for residents</li><li>Excel and CSV export with a preview</li><li>Guided tour and 8 captioned explainers</li><li>Redaction, injection guard, sandboxed PDFs</li><li>Runs without a key; about $0.002 per PDF</li><li>Keyboard, contrast, larger text, dark mode</li><li>Names the records to ask for next</li><li>Ask a deal, for staff and for residents: answers only from checked quotes</li><li>Ask and listen by voice</li><li>Reads scanned pages; a person confirms any signature on one</li><li>Tested on unseen and adversarial records: recall up to 94%, all 8 planted attacks held</li><li>21 real Prince George&rsquo;s County agreements, read from the Council&rsquo;s own records</li><li>County board: homes, income tiers, stated terms and which obligations each agreement contains</li><li>Approved text with unfilled template blanks flagged, with the quote</li><li>Search every county agreement by meaning</li><li>Records-request letters for staff to check and send</li><li>Calendar export with heads-ups 5, 3 and 1 years before a term ends</li><li>County map: each agreement at the address its records state, as tall as the homes it states</li><li>Share links that unfurl with an agreement&rsquo;s numbers</li><li>One-page brief for a council packet</li><li>811 pages: about 27 hours by hand, $0.61 to read here once</li><li>Ask the county: one question across all 21 agreements, answered only from checked records</li><li>Light on low-end phones: looping effects pause off screen and switch off on slower devices</li><li>Cheapest path first: counts answered by code, repeat questions from memory, the light model only when needed</li><li>Chat that recommends: the agreements behind each answer and the next questions the records can answer</li><li>Self-healing: stuck readings retried, missing data restored, dropped connections retried, offline handled</li></ul>
           </li>
           <li class="tl-next">
             <h3>Dec 2 final</h3>

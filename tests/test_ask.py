@@ -75,6 +75,7 @@ class Answer(unittest.TestCase):
         self.assertIn("No checked quote matched", out["notice"])
 
     def live(self, fake, question="How many homes?"):
+        ask.CACHE.clear()
         with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "test"}), mock.patch.object(ask, "_call", fake), \
                 mock.patch.object(ask.ai, "_allow_live_call", return_value=True):
             return ask.answer(REVIEW, question)

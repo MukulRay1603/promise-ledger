@@ -11,7 +11,7 @@
 
 **Full guide:** [docs/GUIDE.md](docs/GUIDE.md), covering the product, pipeline, AI, stack, evaluation, safety, deployment and API in one place.
 
-**User manual (PDF):** [docs/Promise-Ledger-User-Manual.pdf](docs/Promise-Ledger-User-Manual.pdf), 23 illustrated pages for staff and administrators: quick start, every page and tab, asking questions, privacy, troubleshooting, install and configuration.
+**User manual (PDF):** [docs/Promise-Ledger-User-Manual.pdf](docs/Promise-Ledger-User-Manual.pdf), 26 illustrated pages for staff and administrators: quick start, every page and tab, asking questions, privacy, troubleshooting, install and configuration.
 
 For city and county housing staff, compliance officers and council aides. Shared receipts are read-only, so residents can see them too. The demo deals are made up; the **County** page reads real public records of Prince George's County, Maryland. Nothing here makes legal findings. Built for GDG AI for Good 2026: Housing by Liyue Housing Association, a two-person student team.
 
@@ -120,6 +120,16 @@ The County page (`#/county`) runs the same pipeline on every payment-in-lieu-of-
 **What these numbers do and don't show.** This is our development set: 3 made-up deals we wrote (`tools/make_samples.py`) and labeled ourselves, and the code rules were tuned on the same set. It shows the pipeline works end to end and that code-checked stages don't drift. It is not a held-out test. The saved readings came from the fallback model (`gemini-flash-lite-latest`, 8 PDFs) and `gemini-3.5-flash` (3 PDFs), and a claim counts as matched when its quote overlaps the labeled quote. The samples were read again on November 11, 2026 with a wider prompt; before that the same set scored 96.3% / 98.1%.
 
 **Other sets** ([evals/RESULTS.md](evals/RESULTS.md)). On 3 held-out fictional deals, precision is 95.7% and recall 93.6%, up from 94.7% and 76.6% on the run made before anyone had seen them. That set has since been seen and the rules widened, so it is no longer a blind test. On 5 records with 8 planted attacks (fake adoption lines, fake signatures, hidden instructions, invented commitments), all 8 are now held: no injected claim is kept and no record gets the wrong stage. The rules were written after reading these attacks, so this is not a blind result; what is still open is listed in [evals/RESULTS.md](evals/RESULTS.md). One real county record, checked by hand, is in [docs/REAL-RECORD.md](docs/REAL-RECORD.md): it now finds 29 of 31 labeled commitments when the main model answers and 23 of 31 when the fallback answers alone, up from 15 and 11, and 97% of what it keeps is right. On every set, nothing was marked signed or delivered in error and no quote was off its cited page. The app's samples remain fictional.
+
+## Cheapest path first, and self-healing
+
+**Answers spend tokens only when they must** (`app/county_ask.py`, `app/ask.py`):
+1. **Code.** A count, a list or one agreement's stated figure ("Which terms run out soonest?", "How long is Holly Place's stated term?") is read straight from the county board. No model call, no cost.
+2. **Memory.** The same question on the same records returns the earlier answer for 6 hours. Query embeddings are kept too.
+3. **The light model, on a short prompt.** Only the records the question needs (its topics' summary lines, the agreements it names or its closest quotes come from), `gemini-3.5-flash-lite` at thinking level MINIMAL. Measured on Nov 21, 2026: about $0.0015 an answer, against $0.0068 for the main model with its default thinking and the full prompt. The main model is the one fallback.
+Each chat answer says which path it took: "Answered by code · no AI cost", "Answered before", or "AI, checked by code · $0.0016".
+
+**Self-healing.** A watchdog (`app/healing.py`, every 5 minutes) queues readings that stalled when an instance died (at most 3 tries, then marked failed for a person), re-seeds the county agreements if storage lost them, and reloads the search index. Cloud storage calls that hit a transient error are retried twice. In the browser, reads retry dropped connections and busy servers, an offline banner appears and the page reloads its data when the connection returns, and a view that fails to draw shows Try again instead of a blank page. `/api/health?deep=1` shows the latest report.
 
 ## Safety and accessibility
 
@@ -230,6 +240,10 @@ Uploads are read on a background thread, hence `--no-cpu-throttling`. The servic
 | `MAIN_COOLDOWN_SECONDS` | `600` | After the main model is busy or times out, the fallback reads for this long before the main model is tried again. `0` turns it off. |
 | `FEEDBACK_TOKEN` | none | Lets whoever runs the server read tester feedback at `GET /api/feedback` (header `X-Feedback-Token`). Unset, that route answers 404. |
 | `EMBED_MODEL` | `gemini-embedding-001` | Model for county search. |
+| `ASK_MODEL` | `gemini-3.5-flash-lite` | Model that writes Ask answers. Every sentence is checked by code, so the light model is enough; the main model is the one fallback. |
+| `ASK_THINKING_LEVEL` | `MINIMAL` | Thinking for answers. Measured: about $0.0015 an answer against $0.0068 with the main model's default thinking. Empty sends no setting. |
+| `HEAL_INTERVAL_SECONDS` | `300` | How often the watchdog checks for stuck readings, missing county data and the search index. `0` turns it off. |
+| `HEAL_MAX_RETRIES` | `3` | Automatic tries for a stuck reading before it is marked failed for a person to retry. |
 | `SCANS_TO_MODEL` | on in demo mode, off with `DEMO_MODE=0` | Send scanned page images to the model for transcription. |
 | `COUNTY_DEALS` | `1` | Seed the real county deals from `data/county/`. `0` leaves them out. |
 | `STORAGE` | `local` | `local` (files under `data/runtime/`) or `gcp` (Firestore and Cloud Storage). |
@@ -281,7 +295,7 @@ Exports open in a preview first, built from the same rows as the files:
 | `POST /api/deals/{id}/ask` | Ask a question `{question, audience}` (`staff` or `resident`, up to 300 characters). Each answer sentence cites checked quotes; code removes any sentence its quotes do not back. Nothing is stored |
 | `POST /api/extract` | Read pasted text `{text}` (up to 4,000 characters): candidate quotes, each checked word for word; nothing is stored |
 | `GET /api/media` | Which explainer videos are present, and where they are served from |
-| `GET /api/health` | Health check |
+| `GET /api/health` | Health check; `?deep=1` adds the self-healing report (storage, stuck readings, county data, search index, model breaker, retries, cached answers) |
 
 ## Sample data
 

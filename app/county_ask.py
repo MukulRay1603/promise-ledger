@@ -182,6 +182,37 @@ def _summary_answer(question: str, summaries: dict[str, dict]) -> list[dict]:
     return list({p["id"]: p for p in picked if p}.values())[:2]
 
 
+_CROSS = re.compile(r"\b(which|list|compare|lowest|highest|most|least|largest|smallest|every|all|any)\b", re.I)
+
+
+def _named(question: str, agreements: dict[str, dict]) -> set[str]:
+    low = question.lower()
+    return {a["deal_id"] for a in agreements.values() if _short(a["deal"]) in low}
+
+
+def _prompt_records(question: str, summaries: dict, agreements: dict, quotes: dict) -> dict:
+    """Only the records a question needs, so each answer costs fewer tokens:
+    - summary lines for the topics it names (all of them when it names none);
+    - agreement lines for the agreements it names, or that its closest quotes come from; every agreement line when it
+      compares across agreements ("which projects serve the lowest incomes?").
+    Ids keep their numbers, so a cited id always means the same record."""
+    topics = [label for label, words in _OBLIGATION_WORDS.items() if re.search(rf"\b(?:{words})", question, re.I)]
+    keep_s = {k: c for k, c in summaries.items()
+              if any(label in c["quote"] for label in topics)
+              or (_ASKS_TERMS.search(question) and c["quote"].startswith("Stated terms"))
+              or (_ASKS_BLANKS.search(question) and "template blanks" in c["quote"])
+              or (_ASKS_HOMES.search(question) and c["quote"].startswith("Affordable homes"))}
+    named = _named(question, agreements)
+    if named:
+        wanted = named | {q["deal_id"] for q in quotes.values()}
+    elif _CROSS.search(question):
+        wanted = {a["deal_id"] for a in agreements.values()}
+    else:
+        wanted = {q["deal_id"] for q in quotes.values()}
+    keep_a = {k: a for k, a in agreements.items() if a["deal_id"] in wanted} or agreements
+    return (keep_s or summaries) | keep_a | quotes
+
+
 def _quotes_only(quotes: dict[str, dict], reason: str, summary: list[dict] | None = None) -> dict:
     summary = summary or []
     picked = [] if summary else list(quotes.values())[:ask.MAX_FALLBACK_QUOTES]  # a count answers it; quotes add noise
@@ -195,55 +226,140 @@ def _quotes_only(quotes: dict[str, dict], reason: str, summary: list[dict] | Non
             else f"{reason} No checked quote matched. Try naming a term, such as homes, income limits or years."}
 
 
+# ---------------------------------------------------------------------------
+# Answering in the cheapest way that is still right:
+#   1. Code: a count, a list, or one agreement's stated figure is read straight off the board. No model, no cost.
+#   2. Cache: the same question on the same board returns the earlier answer. No new call.
+#   3. Model: only the records the question needs, thinking off, the answer model first (app/ask.py).
+
+_OPEN = re.compile(r"\b(why|explain|describe|compare|summari[sz]e|tell me about|what happens|what does|how does|how do|say about)\b", re.I)
+_LISTY = re.compile(r"\b(which|how many|list|count|total|soonest|by 2040|in total)\b", re.I)
+_FIELD = re.compile(r"\b(how many (?:affordable )?homes|how many units|how long|term|income limits?|when does|when do)\b", re.I)
+_COMPUTED_OBLIGATIONS = ("reporting", "remedies", "rent limits")  # yes/no per agreement; income needs the values
+
+
+def _computed(question: str, named: set[str], agreements: dict, summaries: dict) -> list[dict]:
+    if _OPEN.search(question):
+        return []
+    if len(named) == 1 and _FIELD.search(question):
+        return [a for a in agreements.values() if a["deal_id"] in named][:1]
+    if named or not _LISTY.search(question):
+        return []
+    if re.search(rf"\b(?:{_OBLIGATION_WORDS['income limits']})", question, re.I):
+        return []  # "Which projects serve the lowest incomes?" needs the values: the model reads the agreement lines.
+    picked = []
+    for label in _COMPUTED_OBLIGATIONS:
+        if re.search(rf"\b(?:{_OBLIGATION_WORDS[label]})", question, re.I):
+            picked.append(next((c for c in summaries.values() if c["quote"].startswith(
+                f"No wording found for {label}" if _ASKS_NONE.search(question) else f"Wording found for {label}")), None))
+    if _ASKS_TERMS.search(question):
+        picked.append(next((c for c in summaries.values() if c["quote"].startswith("Stated terms")), None))
+    if _ASKS_BLANKS.search(question):
+        picked.append(next((c for c in summaries.values() if "template blanks" in c["quote"]), None))
+    if _ASKS_HOMES.search(question) and not picked:
+        picked.append(next((c for c in summaries.values() if c["quote"].startswith("Affordable homes")), None))
+    return list({p["id"]: p for p in picked if p}.values())[:2]
+
+
+# Questions we know the records answer well, offered as next steps.
+GOOD_QUESTIONS = [
+    "Which agreements have no remedy wording?", "Which agreements have no reporting wording?",
+    "Which terms run out soonest?", "How many affordable homes are stated in total?",
+    "Which approved agreements still hold template blanks?", "Which agreements have rent limit wording?",
+    "What income limits do the senior projects use?", "Which projects serve the lowest incomes?",
+]
+
+
+def _norm(text: str) -> str:
+    return " ".join(re.findall(r"[a-z0-9]+", text.lower()))
+
+
+def _recommend(question: str, result: dict, board: dict, agreements: dict) -> dict:
+    """What to show beside an answer, all decided by code: the agreements it rests on (with their figures), names in
+    the answer to link, and next questions that the records can answer."""
+    rows = {r["id"]: r for r in board["deals"] if r.get("records_read")}
+    text = " ".join(s["text"] for s in result.get("sentences", [])).lower()
+    mentioned = [r for r in rows.values() if r["name"].lower() in text or _short(r["name"]) in text]
+    cited = [rows[s["deal_id"]] for s in result.get("sources", {}).values() if s.get("deal_id") in rows]
+    related = list({r["id"]: r for r in cited + mentioned}.values())
+    if not related:  # Nothing cited: suggest the agreements the question's topic points to.
+        if _ASKS_TERMS.search(question):
+            related = sorted((r for r in rows.values() if r.get("term_end")), key=lambda r: r["term_end"])
+        elif _ASKS_BLANKS.search(question):
+            related = [r for r in rows.values() if r.get("template_text")]
+        else:
+            related = sorted(rows.values(), key=lambda r: -(r.get("homes") or 0))
+    cards = [{"id": r["id"], "name": r["name"], "homes": r.get("homes"), "homes_approx": r.get("homes_approx", False),
+              "term_end": (r.get("term_end") or "")[:4] or None, "term_estimated": r.get("term_end_estimated", False),
+              "found": sum(1 for v in r["found"].values() if v), "of": len(r["found"]), "blanks": bool(r.get("template_text")),
+              "soon": bool(r.get("term_end") and r["term_end"] < "2041-01-01")} for r in related[:4]]
+    asked = _norm(question)
+    nxt = []
+    if cards:
+        top = cards[0]["name"]
+        nxt += [f"How long is {top}'s stated term?", f"What income limits does {top} state?"]
+    nxt += GOOD_QUESTIONS
+    follow = [q for q in dict.fromkeys(nxt) if _norm(q) != asked][:3]
+    return {"related": cards, "mentions": [{"id": r["id"], "name": r["name"]} for r in mentioned], "follow_ups": follow}
+
+
+def _board_key(board: dict) -> str:
+    t = board.get("totals") or {}
+    return f"{t.get('deals')}-{t.get('records_read')}-{t.get('homes')}-{t.get('pages')}"
+
+
 def answer(question: str, audience: ask.Audience = "staff", board: dict | None = None) -> dict:
     question = ai.redact(" ".join(question.split()))[:ask.MAX_QUESTION_CHARS]
     board = board or deals.county_board()
     agreements = _board_records(board)
     if not agreements:
-        return {"mode": "none", "in_scope": True, "sentences": [], "sources": {}, "removed": 0,
-                "notice": "No county agreements are loaded on this server yet."}
-    quotes, search_mode = _quote_records(question, board)
+        return {"mode": "none", "in_scope": True, "sentences": [], "sources": {}, "removed": 0, "related": [],
+                "mentions": [], "follow_ups": [], "notice": "No county agreements are loaded on this server yet."}
     summaries = _summary_records(board, agreements)
+    named = _named(question, agreements)
+    cache_key = ask.CACHE.key("county", _board_key(board), audience, question)
+    hit = ask.CACHE.get(cache_key)
+    if hit:
+        return {**hit, "cached": True, "cost_usd": 0.0}
+    computed = _computed(question, named, agreements, summaries)
+    if computed:
+        result = {"mode": "computed", "in_scope": True, "removed": 0, "cost_usd": 0.0,
+                  "sentences": [{"text": c["quote"], "claim_ids": [c["id"]]} for c in computed],
+                  "sources": {c["id"]: _source(c) for c in computed},
+                  "notice": "Answered by code from the checked records, with no AI call. Open an agreement to read its quotes."}
+        result |= _recommend(question, result, board, agreements)
+        ask.CACHE.put(cache_key, result)
+        return result
+    quotes, search_mode = _quote_records(question, board)
     summary = _summary_answer(question, summaries)
     if not os.getenv("GEMINI_API_KEY"):
-        return _quotes_only(quotes, "AI answers are off.", summary)
+        return _quotes_only(quotes, "AI answers are off.", summary) | _recommend(question, {}, board, agreements)
     if not ai._allow_live_call():
-        return _quotes_only(quotes, "The AI answer limit was reached for this minute.", summary)
-    recs = summaries | agreements | quotes
+        return _quotes_only(quotes, "The AI answer limit was reached for this minute.", summary) | \
+            _recommend(question, {}, board, agreements)
+    recs = _prompt_records(question, summaries, agreements, quotes)
     prompt = f"<records>\n{_block(recs)}\n</records>\n<question>\n{ask._data(question)}\n</question>"
-    from google.genai import types
-
-    def call(model: str) -> ask.AskReply:
-        client = ai._client(os.environ["GEMINI_API_KEY"], ask.TIMEOUT_MS)
-        res = client.models.generate_content(model=model, contents=prompt, config=types.GenerateContentConfig(
-            system_instruction=SYSTEM_PROMPT + "\n" + ask.AUDIENCE_STYLE[audience], response_mime_type="application/json",
-            response_schema=ask.AskReply, temperature=0, max_output_tokens=4096))
-        return ask.AskReply.model_validate_json(res.text)
-
-    model = ai.first_model()
     try:
-        try:
-            reply = call(model)
-        except Exception as err:  # Busy, out of quota, a server error or a malformed reply: one try on the fallback.
-            if model == ai.FALLBACK_MODEL or not ai._allow_live_call():
-                raise
-            if ai._is_busy(err):
-                ai.note_busy(model)
-            model = ai.FALLBACK_MODEL
-            reply = call(model)
+        reply, model, cost = ask.generate_with_fallback(prompt, SYSTEM_PROMPT + "\n" + ask.AUDIENCE_STYLE[audience])
     except Exception as err:  # The question itself is never logged.
         print(f"County ask fell back to quotes: {type(err).__name__}")
-        return _quotes_only(quotes, "The AI answer did not finish.", summary)
+        return _quotes_only(quotes, "The AI answer did not finish.", summary) | _recommend(question, {}, board, agreements)
     if not reply.in_scope:
         return {"mode": "live", "in_scope": False, "sentences": [], "sources": {}, "removed": 0, "model": model,
+                "cost_usd": round(cost, 6), "related": [], "mentions": [], "follow_ups": GOOD_QUESTIONS[:3],
                 "notice": "Ask about the county agreements' affordable-housing commitments, such as homes, income limits, terms or reporting."}
     kept, removed = ask.check(reply, recs, extra=_county_ok(board), echo_ok=False)
     used = {i for s in kept for i in s["claim_ids"]}
     if not kept:
-        return {"mode": "live", "in_scope": True, "sentences": [], "sources": {}, "removed": removed, "model": model,
-                "notice": "The checked records do not answer this. Try the search above for related quotes."}
-    return {"mode": "live", "in_scope": True, "sentences": kept, "removed": removed, "model": model,
-            "sources": {i: _source(recs[i]) for i in used},
-            "notice": f"Written by {model} from the county's checked records ({'meaning' if search_mode == 'meaning' else 'keyword'} "
-                      f"search for quotes). Code checked every number, date and stage word in each sentence"
-                      + (f" and removed {removed} that it could not back" if removed else "") + "."}
+        result = {"mode": "live", "in_scope": True, "sentences": [], "sources": {}, "removed": removed, "model": model,
+                  "cost_usd": round(cost, 6),
+                  "notice": "The checked records do not answer this. Try one of the questions below, or the search on the County page."}
+        return result | _recommend(question, result, board, agreements)
+    result = {"mode": "live", "in_scope": True, "sentences": kept, "removed": removed, "model": model, "cost_usd": round(cost, 6),
+              "sources": {i: _source(recs[i]) for i in used},
+              "notice": f"Written by {model} from the county's checked records ({'meaning' if search_mode == 'meaning' else 'keyword'} "
+                        f"search for quotes). Code checked every number, date and stage word in each sentence"
+                        + (f" and removed {removed} that it could not back" if removed else "") + "."}
+    result |= _recommend(question, result, board, agreements)
+    ask.CACHE.put(cache_key, result)
+    return result

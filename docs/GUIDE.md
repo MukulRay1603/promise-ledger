@@ -94,7 +94,7 @@ Promise Ledger reads a deal's PDFs and builds **one checked receipt**:
 - **The table.** Which key terms each agreement's records contain.
 - **Calendar export.** Every term end, with heads-ups before it.
 
-**Ask the county.** A chat on the Home and County pages answers one question across all 21 agreements. The model sees code-computed county summaries, one line per agreement and the closest checked quotes. Code checks every sentence as in Ask a deal, and each one links to its agreement or page.
+**Ask the county.** A chat on Home, County and every real agreement (open it with Ask in the header, the floating button or `/`) answers one question across all 21 agreements. On an agreement it starts with questions about that agreement. Beside each answer, code recommends the agreements it rests on (homes, term, terms found) and next questions the records can answer; agreement names in the answer link to their pages, and an answer can be copied or asked again in plain words. The model sees code-computed county summaries, one line per agreement and the closest checked quotes. Code checks every sentence as in Ask a deal, and each one links to its agreement or page.
 
 **On every county agreement:**
 - **Share** copies a link (`/s/<deal>`) that unfurls with the agreement's numbers.
@@ -168,6 +168,8 @@ Only step 3, and the transcription of scanned pages in step 1, use AI. Every oth
 Text is normalized first (compatibility characters, invisible characters and look-alike letters), so circled digits, a word split by an invisible character, or "sıgned" with a look-alike letter are all caught. These are checks on numbers, dates and stage words, not a proof that a sentence is true; each sentence links to its quote so a person can read it. Angle brackets in questions and quotes are neutralized, so neither can close the block it sits in.
 
 A sentence that says a term is in no record cites a special `not-located` id, which can back no number or stage. Questions off this deal's affordable-housing commitments are refused, and instructions inside a question or a record are ignored. The question is redacted, capped at 300 characters, and neither stored nor logged. With no key, at the rate limit or if the call fails, the matching checked quotes are returned word for word and labeled. An answer costs about as much as reading one sample PDF.
+
+**Answer cost.** Ask answers take the cheapest path that is still right: code first (counts, lists and one agreement's stated figures, no model call), then answers already given (6 hours), then `gemini-3.5-flash-lite` at thinking level MINIMAL on only the records the question needs. Measured on Nov 21, 2026: about $0.0015 an answer, against $0.0068 for the main model with default thinking and the full prompt. The chat shows which path each answer took and its cost.
 
 **Cost:** about $0.003 per sample PDF; all 11 sample PDFs cost about $0.03. Sample PDFs are 1 to 4 pages. A longer record is one call per 4 pages: the two real records (26 pages, 8 calls) cost $0.02 when the fallback model answered and $0.06 when the main model did.
 
@@ -337,6 +339,8 @@ gcloud run deploy promise-ledger --source . --region us-central1 --allow-unauthe
 
 Uploads are read on a background thread, hence `--no-cpu-throttling`. Health check: `/api/health`. The full list of settings is in the [README](../README.md#deploy-cloud-run).
 
+**Self-healing.** A watchdog (`app/healing.py`, every `HEAL_INTERVAL_SECONDS`, default 300) queues readings that stalled when an instance died (at most `HEAL_MAX_RETRIES`, then marked failed for a person to retry), re-seeds the county agreements if storage lost them, reloads the search index, and reports the model breaker, storage retries and cached answers at `/api/health?deep=1`. Cloud storage calls that hit a transient error are retried twice; locks are not. The browser retries reads after a dropped connection or a busy server, shows an offline banner and reloads when the connection returns, and replaces a view that fails to draw with Try again.
+
 **Short link.** `promise-ledger.web.app` is a Firebase Hosting redirect (302) to the Cloud Run URL. It keeps the path and the `#/…` part, so `promise-ledger.web.app/#/deals/harbor-walk` works. No code change is needed, and rate limits still see each visitor's own address because traffic is not proxied.
 
 **Running cost.** Cloud Run scales to zero when idle. A demo of this size fits in the Firestore, Cloud Storage and Firebase Hosting free tiers. Model cost is about $0.003 per short PDF, cached by file hash.
@@ -365,14 +369,14 @@ Uploads are read on a background thread, hence `--no-cpu-throttling`. Health che
 | `GET /api/reminders.ics?county=1` | Calendar of stated term ends with heads-ups |
 | `POST /api/feedback`, `GET /api/feedback` | Tester answers; reading them needs `X-Feedback-Token` |
 | `GET /s/{deal}` | Share page with link-preview tags, then the agreement |
-| `GET /api/health` | Health check |
+| `GET /api/health` | Health check; `?deep=1` adds the self-healing report (storage, stuck readings, county data, search index, model breaker, retries, cached answers) |
 
 Visitor requests carry an `X-Demo-Session` header (a random id the browser keeps); decisions also send `X-Reviewer-Name`.
 
 ## 13. Testing
 
 ```bash
-python -m unittest discover -s tests -t .   # 474 tests
+python -m unittest discover -s tests -t .   # 483 tests
 python -m app.ledger                        # every demo quote is on its cited page
 python evals/run_pdf_evals.py               # score the pipeline (cached; at most 30 live calls)
 ```

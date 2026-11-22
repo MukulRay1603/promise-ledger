@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 
 load_dotenv()
 
-from app import ai, ask, county_ask, deals, feedback, guard, identity, ledger, pipeline, request_letter, search  # noqa: E402  (needs env loaded first)
+from app import ai, ask, county_ask, deals, feedback, guard, healing, identity, ledger, pipeline, request_letter, search  # noqa: E402  (needs env loaded first)
 from app.storage import get_store  # noqa: E402
 
 STATIC = Path(__file__).parent / "static"
@@ -47,6 +47,8 @@ async def lifespan(_app: FastAPI):
         _startup_seed()
     elif mode != "0":
         threading.Thread(target=_startup_seed, name="startup-seed", daemon=True).start()
+    if mode != "sync":  # Tests run passes themselves (healing.run_once); a server keeps a watchdog.
+        healing.start()
     yield
 
 
@@ -79,11 +81,20 @@ class NewDeal(BaseModel):
 
 # Cloud Run reserves paths ending in "z" (such as /healthz), so the health check is /api/health.
 @app.get("/api/health")
-def healthz():
+def healthz(deep: int = 0):
+    """Liveness for Cloud Run. With ?deep=1, the watchdog's latest report (app/healing.py): storage, stuck documents,
+    county data, search index, the model breaker, storage retries and cached answers. Counts only, no secrets."""
     checks = ledger.build_review()["checks"]
     model = ai.MODEL if os.getenv("GEMINI_API_KEY") else "saved output"
-    return {"ok": not checks["problems"], "model": model, "claims": checks["total"],
-            "storage": (os.getenv("STORAGE") or "local").lower()}
+    out = {"ok": not checks["problems"], "model": model, "claims": checks["total"],
+           "storage": (os.getenv("STORAGE") or "local").lower()}
+    if deep:
+        report = healing.status()
+        if not report["runs"]:
+            healing.run_once()
+            report = healing.status()
+        out["self_healing"] = report
+    return out
 
 
 @app.get("/api/review")

@@ -17,8 +17,8 @@ try {
   await page.click(".cc-launch");
   await page.waitForSelector(".cc-panel:not([hidden])");
   const focused = await page.evaluate(() => document.activeElement?.id);
-  await page.click(".cc-chip");
-  await page.waitForFunction(() => !document.querySelector(".cc-pending") && document.querySelectorAll(".cc-bot").length > 1, { timeout: 90000 });
+  await page.click(".cc-topic, .cc-chip");
+  await page.waitForFunction(() => !document.querySelector(".cc-pending") && document.querySelectorAll(".cc-bot:not(.cc-pending)").length >= 1, { timeout: 90000 });
   const info = await page.evaluate(() => ({ sentences: document.querySelectorAll(".cc-answer > li").length, links: document.querySelectorAll("a.cc-src").length,
     note: document.querySelector(".cc-bot:last-child .cc-note")?.textContent }));
   await page.evaluate(axeSource);

@@ -57,6 +57,14 @@ def _public(item: dict, score: float) -> dict:
         "score": round(score, 3)}
 
 
+@lru_cache(maxsize=512)
+def query_vector(q: str) -> tuple[float, ...]:
+    """A question's embedding, kept so the same question (or a chat answer and a search for it) is embedded once."""
+    qv = embed([q], "RETRIEVAL_QUERY")[0]
+    norm = math.sqrt(sum(x * x for x in qv)) or 1.0
+    return tuple(x / norm for x in qv)
+
+
 def search(q: str) -> dict:
     q = " ".join(q.split())[:200]
     index = load_index()
@@ -65,9 +73,7 @@ def search(q: str) -> dict:
         return {"mode": "none", "query": q, "results": [], "notice": "Nothing to search yet."}
     if os.getenv("GEMINI_API_KEY") and index.get("model") and ai._allow_live_call():
         try:
-            qv = embed([q], "RETRIEVAL_QUERY")[0]
-            norm = math.sqrt(sum(x * x for x in qv)) or 1.0
-            qv = [x / norm for x in qv]
+            qv = query_vector(q.lower())
             scored = sorted(((sum(a * b for a, b in zip(qv, it["_v"])), it) for it in items), key=lambda p: -p[0])
             hits = [_public(it, s) for s, it in scored[:MAX_RESULTS] if s >= MIN_SCORE]
             return {"mode": "meaning", "query": q, "results": hits,
