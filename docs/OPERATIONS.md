@@ -12,6 +12,15 @@ DIGEST=$(gcloud artifacts docker images describe "$IMG" --format='value(image_su
 gcloud run deploy promise-ledger --region us-central1 --image "$DIGEST"   # keeps the service's settings and secrets
 ```
 
+Then make sure the new revision takes the traffic, and check it is the build you meant:
+
+```bash
+gcloud run services update-traffic promise-ledger --region us-central1 --to-latest
+curl -s https://promise-ledger-1071927289312.us-central1.run.app/api/health   # "version" and "revision" name the live build
+```
+
+After a deploy the county records load in the background: `/#/county` reaches 156 of 156 records within a couple of minutes. An agreement still short is reloaded on the next start, and by the watchdog within the hour.
+
 Roll back in one command, to the revision before:
 
 ```bash

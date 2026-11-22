@@ -85,6 +85,10 @@ def robots():
     return PlainTextResponse("User-agent: *\nAllow: /\nDisallow: /api/\n", headers={"Cache-Control": "public, max-age=86400"})
 
 
+# Shown by /api/health with Cloud Run's revision name, so anyone can check which build is live.
+APP_VERSION = "1.2.0 (2026-11-22)"
+
+
 # Cloud Run reserves paths ending in "z" (such as /healthz), so the health check is /api/health.
 @app.get("/api/health")
 def healthz(deep: int = 0):
@@ -92,7 +96,8 @@ def healthz(deep: int = 0):
     county data, search index, the model breaker, storage retries and cached answers. Counts only, no secrets."""
     checks = ledger.build_review()["checks"]
     model = ai.MODEL if os.getenv("GEMINI_API_KEY") else "saved output"
-    out = {"ok": not checks["problems"], "model": model, "claims": checks["total"],
+    out = {"ok": not checks["problems"], "version": APP_VERSION, "revision": os.getenv("K_REVISION"), "model": model,
+           "claims": checks["total"],
            "storage": (os.getenv("STORAGE") or "local").lower()}
     if deep:
         report = healing.status()

@@ -150,8 +150,10 @@ def start() -> None:
         return
 
     def loop():
+        wait = min(60, HEAL_INTERVAL_SECONDS)  # the first pass soon after start, then every interval
         while True:
-            time.sleep(HEAL_INTERVAL_SECONDS)
+            time.sleep(wait)
+            wait = HEAL_INTERVAL_SECONDS
             try:
                 run_once()
             except Exception as err:

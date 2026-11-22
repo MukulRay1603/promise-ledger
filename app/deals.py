@@ -1326,6 +1326,9 @@ def stale_samples(store: Storage, manifests: list[Path]) -> list[tuple[Path, str
             continue  # Never touch a deal that is not a sample.
         if not existing or existing.get("sample_version") != version:
             out.append((path, version))
+        elif manifest.get("real") and len(store.list_documents(slug)) < len(manifest.get("documents") or []):
+            # A record could not be fetched when this deal was last seeded: try again on this start.
+            out.append((path, version))
     return out
 
 

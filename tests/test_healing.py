@@ -242,6 +242,23 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class ShortDealsReseedOnStart(unittest.TestCase):
+    def test_a_real_deal_missing_records_is_stale_even_with_the_same_version(self):
+        import json as _json
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp) / "alpha"
+            folder.mkdir()
+            path = folder / "manifest.json"
+            path.write_text(_json.dumps({"slug": "alpha", "real": True, "documents": [{"id": "r01"}, {"id": "r02"}]}))
+            version = deals.sample_version(path)
+            store = mock.Mock()
+            store.get_deal.return_value = {"id": "alpha", "sample_slug": "alpha", "sample_version": version, "real": True}
+            store.list_documents.return_value = [{"id": "r01"}]
+            self.assertEqual([v for _, v in deals.stale_samples(store, [path])], [version])
+            store.list_documents.return_value = [{"id": "r01"}, {"id": "r02"}]
+            self.assertEqual(deals.stale_samples(store, [path]), [])
+
+
 class Robots(unittest.TestCase):
     def test_robots_lets_pages_be_indexed_but_not_the_api(self):
         from fastapi.testclient import TestClient
@@ -249,3 +266,4 @@ class Robots(unittest.TestCase):
         res = TestClient(app).get("/robots.txt")
         self.assertEqual(res.status_code, 200)
         self.assertIn("Disallow: /api/", res.text)
+        self.assertIn("version", TestClient(app).get("/api/health").json())
