@@ -90,6 +90,28 @@ class SeedingIsFree(unittest.TestCase):
         self.assertEqual(pages, [""])
 
 
+class ShortAgreements(unittest.TestCase):
+    def test_an_agreement_missing_records_is_reloaded_once_an_hour(self):
+        import json as _json
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp) / "alpha"
+            folder.mkdir()
+            (folder / "manifest.json").write_text(_json.dumps({"slug": "alpha", "real": True,
+                                                               "documents": [{"id": "r01"}, {"id": "r02"}]}))
+            store = mock.Mock()
+            store.list_documents.return_value = [{"id": "r01"}]
+            with mock.patch.dict(os.environ, {"COUNTY_DEALS": "1"}), \
+                    mock.patch.object(deals, "COUNTY_DIR", Path(tmp)), mock.patch.object(deals, "seed_sample") as reseed, \
+                    mock.patch.object(healing, "_last_record_scan", -1e9), mock.patch.dict(healing._reloaded_at, clear=True):
+                first = healing.heal_county_data(store, [{"id": "alpha", "real": True}])
+                healing._last_record_scan = -1e9  # the next pass scans again, but the hour has not passed for alpha
+                second = healing.heal_county_data(store, [{"id": "alpha", "real": True}])
+        self.assertEqual(first["reloaded"], ["alpha"])
+        self.assertEqual(second["reloaded"], [])
+        self.assertEqual(reseed.call_count, 1)
+        self.assertFalse(first["ok"])
+
+
 class ServiceUnavailable(Exception):
     pass
 

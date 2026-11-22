@@ -22,6 +22,8 @@ HEAL_MAX_RETRIES = int(os.getenv("HEAL_MAX_RETRIES") or 3)
 _status: dict = {"runs": 0, "last_run": None, "checks": {}, "repairs": []}
 _lock = threading.Lock()
 _thread: threading.Thread | None = None
+_reloaded_at: dict[str, float] = {}  # agreement -> when the watchdog last reloaded it
+_last_record_scan = -1e9
 
 
 def _note(repair: str) -> None:
@@ -64,7 +66,30 @@ def heal_county_data(store, all_deals: list[dict] | None = None) -> dict:
         seeded = deals.seed(store)
         _note(f"County agreements were missing; seeded {len(seeded)} again")
         return {"ok": True, "expected": expected, "present": present, "reseeded": len(seeded)}
-    return {"ok": present >= expected, "expected": expected, "present": present}
+    # An agreement can come up short when a record could not be fetched during a deploy (the county's server was
+    # slow or busy). Reload just that agreement: free (saved readings only), at most once an hour each.
+    short, reloaded = [], []
+    global _last_record_scan
+    if time.monotonic() - _last_record_scan < 3600:  # an hourly scan keeps Firestore reads inside the free tier
+        return {"ok": present >= expected, "expected": expected, "present": present, "records": "checked hourly"}
+    _last_record_scan = time.monotonic()
+    for manifest_path in sorted(deals.COUNTY_DIR.glob("*/manifest.json")):
+        manifest = deals._manifest(manifest_path) or {}
+        slug = deals.sample_slug(manifest, manifest_path.parent)
+        want = len(manifest.get("documents") or [])
+        have = len(store.list_documents(slug))
+        if have >= want:
+            continue
+        short.append(f"{slug}: {have} of {want}")
+        if time.monotonic() - _reloaded_at.get(slug, -1e9) < 3600:
+            continue
+        _reloaded_at[slug] = time.monotonic()
+        deals.seed_sample(manifest_path, store)
+        after = len(store.list_documents(slug))
+        reloaded.append(slug)
+        _note(f"{slug} had {have} of {want} records; reloaded, now {after}")
+    return {"ok": present >= expected and not short, "expected": expected, "present": present,
+            "short": short, "reloaded": reloaded}
 
 
 def heal_search_index() -> dict:
