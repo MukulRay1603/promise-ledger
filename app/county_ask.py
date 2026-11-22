@@ -276,6 +276,148 @@ _NOT_ENGLISH = re.compile(r"[¿¡ñáéíóúü]|\b(cu[aá]nt[oa]s|qu[eé]|d[oó
 _COMPUTED_OBLIGATIONS = ("reporting", "remedies", "rent limits")  # yes/no per agreement; income needs the values
 
 
+def _line(text: str) -> dict:
+    """A county-wide line code wrote for this one question."""
+    return {"id": "S0", "quote": text, "status": "supported", "topic": "summary0", "deal_id": None,
+            "deal": "All county agreements", "claim_id": None}
+
+
+_NUM_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
+              "fifteen": 15, "twenty": 20, "twenty-five": 25, "thirty": 30, "forty": 40, "fifty": 50}
+_WINDOW = re.compile(r"\b(?:next|coming|within(?: the next)?)\s+(\d{1,2}|[a-z]+(?:-[a-z]+)?)\s+years?\b"
+                     r"|\b(by|before|until|through)\s+(20\d\d)\b", re.I)
+_ENDS = re.compile(r"\b(expir\w*|end(?:s|ing)?|run(?:s)? out|lapse\w*|soon\w*|terms?)\b", re.I)
+
+
+def _term_window(question: str, board: dict) -> dict | None:
+    """'Which agreements expire in the next five years?': the stated terms that end by that year, counted by code."""
+    m = _WINDOW.search(question)
+    if not m or not _ENDS.search(question):
+        return None
+    if m.group(1):
+        n = int(m.group(1)) if m.group(1).isdigit() else _NUM_WORDS.get(m.group(1).lower())
+        if not n:
+            return None
+        year = date.today().year + n
+    else:
+        year = int(m.group(3)) - (1 if m.group(2).lower() == "before" else 0)
+    read = [r for r in board["deals"] if r.get("records_read")]
+    stated = sorted((r for r in read if r.get("term_end")), key=lambda r: r["term_end"])
+    hits = [r for r in stated if r["term_end"] < f"{year + 1}-01-01"]
+    head = f"Stated terms that run out by {year}: "
+    if hits:
+        return _line(head + f"{len(hits)} of {len(read)}: " + "; ".join(f"{r['name']} (about {r['term_end'][:4]})" for r in hits) + ".")
+    soonest = f" The soonest stated end is {stated[0]['name']} (about {stated[0]['term_end'][:4]})." if stated else ""
+    return _line(head + f"none of {len(read)}.{soonest}")
+
+
+_ASKS_RANK = re.compile(r"\b(most|largest|biggest|fewest|least|smallest)\b[^?]*\b(homes?|units?)\b"
+                        r"|\b(homes?|units?)\b[^?]*\b(most|largest|biggest|fewest|least|smallest)\b", re.I)
+
+
+def _homes_rank(question: str, board: dict) -> dict | None:
+    m = _ASKS_RANK.search(question)
+    if not m:
+        return None
+    rows = [r for r in board["deals"] if r.get("records_read") and r.get("homes")]
+    if not rows:
+        return None
+    few = (m.group(1) or m.group(4) or "").lower() in ("fewest", "least", "smallest")
+    rows.sort(key=lambda r: r["homes"], reverse=not few)
+    show = lambda r: f"{r['name']} ({'about ' if r.get('homes_approx') else ''}{r['homes']:,})"
+    return _line(f"{'Fewest' if few else 'Most'} affordable homes stated: " + "; ".join(show(r) for r in rows[:3])
+                 + f". Of {len(rows)} agreements that state a count.")
+
+
+def _cities(board: dict) -> dict[str, str]:
+    out = {}
+    for r in board["deals"]:
+        city = ((r.get("location") or {}).get("city") or "").strip()
+        if city:
+            out[city.lower()] = city
+    return out
+
+
+_ASKS_PLACE = re.compile(r"\b(is there|are there|any|which|list|how many|homes?|units?|near|around|in)\b", re.I)
+_TOPIC = re.compile(r"\b(income|ami|median|rents?|report\w*|remed\w*|default|term|years?|expir\w*|blanks?)\b", re.I)
+
+
+def _by_city(question: str, board: dict) -> dict | None:
+    """'Is there affordable housing near Hyattsville?': the agreements whose records state that city."""
+    low = question.lower()
+    city = next((c for k, c in _cities(board).items() if re.search(rf"\b{re.escape(k)}\b", low)), None)
+    if not city or not _ASKS_PLACE.search(question) or _TOPIC.search(question):
+        return None
+    rows = [r for r in board["deals"] if r.get("records_read") and ((r.get("location") or {}).get("city") or "") == city]
+    if not rows:
+        return None
+    read = sum(1 for r in board["deals"] if r.get("records_read"))
+    homes = sum(r.get("homes") or 0 for r in rows)
+    each = "; ".join(f"{r['name']} ({r['homes']:,} affordable homes stated)" if r.get("homes") else r["name"] for r in rows)
+    return _line(f"Agreements read in {city}: {len(rows)} of {read}: {each}. Affordable homes stated there: {homes:,}.")
+
+
+_PROPER = re.compile(r"\b(?:in|at|for|does|of|is)\s+((?:the\s+)?[A-Z][\w'&.-]*(?:\s+[A-Z0-9][\w'&.-]*){0,4})")
+_KNOWN_WORDS = {"the", "county", "prince", "george's", "georges", "council", "pilot", "pilots", "ami", "promise", "ledger",
+                "maryland", "md", "area", "median", "income", "affordable", "homes", "housing"}
+
+
+def _unknown_name(question: str, board: dict, agreements: dict) -> str | None:
+    """A name the question asks about that is not one of the agreements: say so rather than answer for the county."""
+    if not (_FIELD.search(question) or _ASKS_HOMES.search(question)):
+        return None
+    cities = {w for c in _cities(board) for w in c.split()}
+    names = [_name_tokens(a["deal"]) for a in agreements.values()]
+    for m in _PROPER.finditer(question):
+        phrase = m.group(1).rstrip("?.!,'")
+        words = {w for w in re.findall(r"[a-z0-9']+", phrase.lower()) if w not in _KNOWN_WORDS}
+        # Known when one agreement's name holds every word ("New Carrollton"), or it is a city the records state.
+        if words and not words <= cities and not any(words <= n for n in names):
+            return re.sub(r"^the\s+", "", phrase, flags=re.I)
+    return None
+
+
+def _group(question: str, board: dict, agreements: dict) -> list[dict]:
+    """'How many homes does New Carrollton have?': several agreements share that name, so answer for all of them."""
+    rows = [r for r in board["deals"] if r.get("records_read")]
+    bases: dict[str, list[dict]] = {}
+    for r in rows:
+        if " - " in r["name"]:
+            bases.setdefault(r["name"].split(" - ")[0].strip(), []).append(r)
+    low = question.lower()
+    base, members = next(((b, m) for b, m in bases.items() if len(m) >= 2 and b.lower() in low), (None, None))
+    if not base:
+        return []
+    members.sort(key=lambda r: r["name"])
+    if _TOPIC.search(question) or re.search(r"\bhow long|when\b", question, re.I):
+        ids = {r["id"] for r in members}
+        return [a for a in agreements.values() if a["deal_id"] in ids][:4]
+    each = "; ".join(f"{r['name'][len(base):].strip(' -')} ({r['homes']:,} affordable homes stated)" if r.get("homes")
+                     else r["name"][len(base):].strip(" -") for r in members)
+    total = sum(r.get("homes") or 0 for r in members)
+    return [_line(f"{base} agreements: {len(members)} of {len(rows)}: {each}. Affordable homes stated across them: {total:,}.")]
+
+
+_ASKS_MEANING = re.compile(r"\b(what(?:'s| is| are| does)|define|definition|meaning|mean|stand for)\b", re.I)
+_GLOSSARY = [
+    (re.compile(r"\bpilots?\b", re.I),
+     "PILOT means payment in lieu of taxes. The county lowers a project's property taxes, and the agreement states what "
+     "the owner commits to in return, such as affordable homes, income limits and how many years they last."),
+    (re.compile(r"\bami\b|\barea median income\b", re.I),
+     "AMI means area median income: the middle household income for the region, published each year by HUD. A limit of "
+     "60% of AMI means a home is for households earning up to 60% of that figure."),
+]
+
+
+def _definition(question: str, named: set[str]) -> dict | None:
+    if named or not _ASKS_MEANING.search(question) or len(question) > 80:
+        return None
+    for pattern, text in _GLOSSARY:
+        if pattern.search(question):
+            return _line(text)
+    return None
+
+
 def _computed(question: str, named: set[str], agreements: dict, summaries: dict) -> list[dict]:
     if _OPEN.search(question):
         return []
@@ -375,12 +517,25 @@ def _answer(question: str, audience: ask.Audience = "staff", board: dict | None 
     hit = ask.CACHE.get(cache_key)
     if hit:
         return {**hit, "cached": True, "cost_usd": 0.0}
-    computed = _computed(question, named, agreements, summaries)
+    notice = "Answered by code from the checked records, with no AI call. Open an agreement to read its quotes."
+    definition = _definition(question, named)
+    unknown = None if named or definition else _unknown_name(question, board, agreements)
+    if unknown:
+        n = sum(1 for r in board["deals"] if r.get("records_read"))
+        result = {"mode": "computed", "in_scope": True, "removed": 0, "cost_usd": 0.0, "sentences": [], "sources": {},
+                  "notice": f"None of the {n} county agreements read is named “{unknown}”. The County page lists them all; "
+                            "the largest are below."}
+        return result | _recommend("", result, board, agreements)
+    special = None if named else (_term_window(question, board) or _homes_rank(question, board) or _by_city(question, board))
+    group = [] if named or special or definition or _OPEN.search(question) else _group(question, board, agreements)
+    computed = [definition] if definition else [special] if special else group or _computed(question, named, agreements, summaries)
+    if definition:
+        notice = "A plain definition from Promise Ledger, not a quote from a record."
     if computed:
         result = {"mode": "computed", "in_scope": True, "removed": 0, "cost_usd": 0.0,
                   "sentences": [{"text": c["quote"], "claim_ids": [c["id"]]} for c in computed],
                   "sources": {c["id"]: _source(c) for c in computed},
-                  "notice": "Answered by code from the checked records, with no AI call. Open an agreement to read its quotes."}
+                  "notice": notice}
         result |= _recommend(question, result, board, agreements)
         ask.CACHE.put(cache_key, result)
         return result
@@ -393,7 +548,8 @@ def _answer(question: str, audience: ask.Audience = "staff", board: dict | None 
     if not ask.budget_ok():
         return {**_fallback(question, quotes, "", summary, board, agreements), "notice": ask.PAUSED_NOTE}
     if not ai._allow_live_call():
-        return _fallback(question, quotes, "The AI answer limit was reached for this minute.", summary, board, agreements)
+        return _fallback(question, quotes, "AI answers are busy right now, so this one comes straight from the records.",
+                         summary, board, agreements)
     recs = _prompt_records(question, summaries, agreements, quotes)
     prompt = f"<records>\n{_block(recs)}\n</records>\n<question>\n{ask._data(question)}\n</question>"
     try:

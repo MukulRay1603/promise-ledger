@@ -86,7 +86,7 @@ def robots():
 
 
 # Shown by /api/health with Cloud Run's revision name, so anyone can check which build is live.
-APP_VERSION = "1.2.0 (2026-11-22)"
+APP_VERSION = "1.2.1 (2026-11-22)"
 
 
 # Cloud Run reserves paths ending in "z" (such as /healthz), so the health check is /api/health.

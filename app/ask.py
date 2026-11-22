@@ -403,7 +403,7 @@ def answer(review: dict, question: str, audience: Audience = "staff") -> dict:
     if not budget_ok():
         return {**_quotes_only(question, review, ""), "notice": PAUSED_NOTE}
     if not ai._allow_live_call():
-        return _quotes_only(question, review, "The AI answer limit was reached for this minute.")
+        return _quotes_only(question, review, "AI answers are busy right now, so this one comes straight from the records.")
     prompt = f"<records>\n{_records_block(review)}\n</records>\n<question>\n{_data(question)}\n</question>"
     model = ask_model()
     try:

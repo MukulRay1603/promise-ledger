@@ -101,3 +101,65 @@ class Route(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RealQuestions(unittest.TestCase):
+    """Questions from the live use test on Nov 22, answered by code."""
+    board = {"deals": [dict(_row(1, "Alpha Place", 100, ALL), location={"city": "Hyattsville"}),
+                       dict(_row(2, "Beta Homes", 50, dict(ALL, remedies=False), "2038-01-01", True), location={"city": "Bowie"})]}
+
+    def ask(self, q):
+        ask.CACHE.clear()
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": ""}):
+            return county_ask.answer(q, board=self.board)
+
+    def text(self, q):
+        return " ".join(s["text"] for s in self.ask(q)["sentences"])
+
+    def test_a_window_of_years_counts_from_today(self):
+        from datetime import date
+        y = date.today().year
+        self.assertIn(f"run out by {y + 5}: none of 2. The soonest stated end is Beta Homes (about 2038)",
+                      self.text("Which agreements expire in the next five years?"))
+        self.assertIn("by 2040: 1 of 2: Beta Homes", self.text("Which terms end by 2040?"))
+        self.assertIn("by 2037: none", self.text("Any terms that run out before 2038?"))
+
+    def test_most_and_fewest_homes(self):
+        self.assertTrue(self.text("Which agreement has the most affordable homes?").startswith("Most affordable homes stated: Alpha Place (100); Beta Homes (50)"))
+        self.assertTrue(self.text("Which deal has the fewest homes?").startswith("Fewest affordable homes stated: Beta Homes (50)"))
+
+    def test_a_city_lists_its_agreements(self):
+        t = self.text("is there affordable housing near hyattsville")
+        self.assertIn("Agreements read in Hyattsville: 1 of 2: Alpha Place (100 affordable homes stated)", t)
+        self.assertNotIn("Beta", t)
+
+    def test_a_name_that_is_not_an_agreement_is_said_so(self):
+        res = self.ask("How many homes are in Atlantis Towers?")
+        self.assertEqual(res["sentences"], [])
+        self.assertIn("named “Atlantis Towers”", res["notice"])
+        self.assertTrue(self.text("How many homes are in Prince George's County in total?").startswith("Affordable homes stated across"))
+        self.assertIn("Alpha Place", self.text("How many homes are in Alpha Place?"))
+
+    def test_plain_definitions(self):
+        res = self.ask("what does PILOT mean")
+        self.assertIn("payment in lieu of taxes", res["sentences"][0]["text"])
+        self.assertIn("plain definition", res["notice"])
+        self.assertIn("area median income", self.text("What is AMI?"))
+
+
+class SharedNames(unittest.TestCase):
+    board = {"deals": [_row(1, "New Carrollton - Affordable - Phase 1", 112, ALL), _row(2, "New Carrollton - Affordable - Phase 2", 102, ALL),
+                       _row(3, "Cottage City Towers Apartments", 100, ALL)]}
+
+    def ask(self, q):
+        ask.CACHE.clear()
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": ""}):
+            return county_ask.answer(q, board=self.board)
+
+    def test_a_shared_name_answers_for_each_phase(self):
+        t = self.ask("How many homes does New Carrollton have?")["sentences"][0]["text"]
+        self.assertIn("New Carrollton agreements: 2 of 3: Affordable - Phase 1 (112 affordable homes stated)", t)
+        self.assertIn("across them: 214", t)
+
+    def test_one_word_of_a_real_name_does_not_make_a_name_known(self):
+        self.assertIn("named “Atlantis Towers”", self.ask("How many homes are in Atlantis Towers?")["notice"])
