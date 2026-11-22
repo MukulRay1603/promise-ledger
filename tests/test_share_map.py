@@ -69,3 +69,22 @@ class CountyMapData(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+class BoardFigures(unittest.TestCase):
+    """Figures read from the real county records, checked against what the records say."""
+
+    def test_corrections_counts_and_income(self):
+        from app import deals
+        rows = {r["id"]: r for r in deals.county_board()["deals"]}
+        park = rows.get("park-place-at-addison-road-apartments-cr-044-2023")
+        if not park:
+            self.skipTest("county records not seeded")
+        # A fiscal note: "listed as being for 99 years in Attachment B ..., but ... is for 40 years as confirmed".
+        self.assertEqual(park["term_years"], 40)
+        # "an average income of around twenty three percent (23%)" describes residents; it is not a limit.
+        self.assertNotIn("23%", rows["bowie-commons-apartments-cr-034-2024"]["income_limit"] or "")
+        # "over 100 affordable units" is a floor, shown as such.
+        self.assertTrue(rows["promise-cr-105-2023"]["homes_approx"])
+        self.assertIn("70%", rows["new-carrollton-affordable-phase-1-cr-028-2025"]["income_limit"] or "")

@@ -28,7 +28,12 @@ try {
     await page.evaluate(() => document.body.classList.add("printing-brief"));
     await page.emulateMediaType("print");
     const pdf = await page.pdf({ path: join(out, `${id}.pdf`), format: "Letter", printBackground: false });
-    const pages = (pdf.toString("latin1").match(/\/Type\s*\/Page[^s]/g) || []).length;
+    // Newer Chrome writes page objects inside compressed object streams, so count with the pages tree when it is
+    // visible, else from the printed sheet's height (Letter at 0.5in margins: 10in of 96px).
+    const raw = pdf.toString("latin1");
+    const seen = (raw.match(/\/Type\s*\/Page[^s]/g) || []).length || Number((raw.match(/\/Type\s*\/Pages[^>]*\/Count\s+(\d+)/) || [])[1] || 0);
+    const tall = await page.evaluate(() => document.getElementById("print-brief").getBoundingClientRect().height);
+    const pages = seen || Math.max(1, Math.ceil(tall / 960));
     worst = Math.max(worst, pages);
     console.log(`${pages === 1 ? "ok  " : "OVER"} ${pages} page(s)  ${id}`);
     await page.emulateMediaType(null);

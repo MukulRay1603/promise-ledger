@@ -65,7 +65,7 @@ def deal_card(r, totals):
         d.text((64, y), line, font=font("bold", 66), fill=INK); y += 78
     y = max(y + 18, 380)
     soon = r.get("term_end") and r["term_end"] < "2041-01-01"
-    stat(d, 64, y, f"{r['homes']:,}" if r.get("homes") else "Not stated", "affordable homes", TEAL_INK if r.get("homes") else MUTED)
+    stat(d, 64, y, f"{r['homes']:,}{'+' if r.get('homes_approx') else ''}" if r.get("homes") else "Not stated", "affordable homes", TEAL_INK if r.get("homes") else MUTED)
     term = f"{r['term_end'][:4]}{'+' if r.get('term_end_estimated') else ''}" if r.get("term_end") else "—"
     stat(d, 460, y, term, "stated term runs to", AMBER if soon else TEAL_INK)
     found = sum(1 for v in r["found"].values() if v)

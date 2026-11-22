@@ -11,6 +11,8 @@
 
 **Full guide:** [docs/GUIDE.md](docs/GUIDE.md), covering the product, pipeline, AI, stack, evaluation, safety, deployment and API in one place.
 
+**User manual (PDF):** [docs/Promise-Ledger-User-Manual.pdf](docs/Promise-Ledger-User-Manual.pdf), 23 illustrated pages for staff and administrators: quick start, every page and tab, asking questions, privacy, troubleshooting, install and configuration.
+
 For city and county housing staff, compliance officers and council aides. Shared receipts are read-only, so residents can see them too. The demo deals are made up; the **County** page reads real public records of Prince George's County, Maryland. Nothing here makes legal findings. Built for GDG AI for Good 2026: Housing by Liyue Housing Association, a two-person student team.
 
 <table>
@@ -91,7 +93,7 @@ The County page (`#/county`) runs the same pipeline on every payment-in-lieu-of-
 - **Where the records come from.** `tools/county_import.py` reads the Council's public [Legistar Web API](https://webapi.legistar.com/Home/Examples): each matter, its official vote history and its attachments. Word attachments are converted to PDF with Word and committed; PDFs are not committed. Each manifest keeps every record's official URL and SHA-256, and the app downloads and checks the file when it seeds the deal, so a changed file is never read as the one we checked.
 - **Read once, never live.** `tools/county_read.py` reads each record once and saves the reading in `data/readings/`. The app seeds these deals only from saved readings; a record without one is marked "not read yet", so a restart never spends on a live read.
 - **What the page shows.** For each agreement: homes described, every income tier stated as a share of area median income, the longest term the records state, and whether wording was found for reporting, remedies, rent limits, income limits and term. "Not found" means no wording was found in the records read: a question to ask, not a finding.
-- **What the records show (read Nov 18, 2026).** All 156 records read; 2,999 affordable homes stated outright in 19 of the 21 agreements. Wording was found for yearly reporting in 15 agreements and for remedies in 10; rent limits in only 1. Six approved agreements still hold template blanks. One fiscal note itself flags that an agreement's Attachment B lists a 99-year affordability period while staff confirmed 40 years. Each figure links to the quote it comes from.
+- **What the records show (read Nov 18, 2026).** All 156 records read; 2,999 affordable homes stated in 19 of the 21 agreements (one record says "over 100", counted as 100). Wording was found for yearly reporting in 15 agreements and for remedies in 10; rent limits in only 1. Six approved agreements still hold template blanks. One fiscal note itself flags that an agreement's Attachment B lists a 99-year affordability period while staff confirmed 40 years. Each figure links to the quote it comes from.
 - **What real records taught us.** Several approved agreements still hold template text, such as "Term (in years): 30 years (insert specific dates upon approval)" and bracketed alternatives like "OR [Owner agrees …]". The page flags them with the quote. Council files hold the approved agreement, rarely the executed copy, so end dates are counted from the adoption date and labelled "or later".
 - **Search every agreement.** `tools/county_index.py` embeds each checked quote with Gemini (`gemini-embedding-001`, 256 dimensions); at query time only the question is embedded. Without a key, search falls back to keywords and says so.
 - **Calendar.** `/api/reminders.ics` exports term ends with heads-ups 5, 3 and 1 years before, the window to plan for keeping the homes affordable.
@@ -100,7 +102,7 @@ The County page (`#/county`) runs the same pipeline on every payment-in-lieu-of-
 - **One-page brief.** "Print brief" on a county agreement prints one sheet for a council packet: the stated figures with their pages, which key terms the records contain, approved text still holding blanks, and the questions to ask. `tools/a11y/brief-check.mjs` checks that every brief fits on one page.
 - **Ask the county.** A chat on the Home and County pages answers one question across all 21 agreements (`POST /api/county/ask`). The model sees code-computed county summaries, one line per agreement, and the closest checked quotes. It may only write sentences that cite them; code checks every number, date and stage word, as in Ask a deal. Questions are not saved or logged. Without a key it shows the matching quotes.
 - **Light on any device.** Looping effects pause off screen and switch off on devices with 4 or fewer cores, 4 GB or less memory, or data saver. Counters and tiles re-lay out only themselves, and lower cards skip layout until near view. Measured with `tools/a11y/perf-check.mjs`: on a low-end phone profile (4x slower CPU, slow 4G), Home paints in about 1.4 s and County in about 0.9 s.
-- **By hand vs here.** 811 pages of council records: about 27 hours to read by hand at 2 minutes a page (an estimate, labelled as one), against $0.59 total model cost to read them once.
+- **By hand vs here.** 811 pages of council records: about 27 hours to read by hand at 2 minutes a page (an estimate, labelled as one), against $0.61 total model cost to read them once.
 
 ## Results
 

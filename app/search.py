@@ -79,7 +79,7 @@ def search(q: str) -> dict:
     scored = []
     for it in items:
         text = it["quote"].lower()
-        hits = sum(1 for w in words if w in text)
+        hits = sum(1 for w in words if re.search(rf"\b{re.escape(w)}(?:s|es|ed|ing|al)?\b", text))  # "rent", "rental"; not "renew"
         if hits:
             scored.append((hits / len(words), it))
     scored.sort(key=lambda p: -p[0])

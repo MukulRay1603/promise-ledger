@@ -160,14 +160,36 @@ _STATUTE = re.compile(r"governing body of|\(a\)\(\d\)|§|Tax[- ]Property Article
 _YEAR_TERM = re.compile(r"\b(\d{1,2})[- ]year (?:term|affordability|compliance|restriction)", re.I)
 
 
+# A record that corrects another states the corrected term after "but": "is listed as being for 99 years in
+# Attachment B ..., but the Agreement's affordability period is for 40 years as confirmed by DHCD staff."
+_CORRECTED_YEARS = re.compile(r"\bbut\b[^.;]*?\b(\d{1,2})\)?[- ]years?\b", re.I)
+
+
 def _term_years(c: dict) -> int | None:
+    fixed = _CORRECTED_YEARS.search(c["quote"])
+    if fixed:
+        return int(fixed.group(1))
     m = _YEAR_TERM.search(c["quote"])
     if m:
         return int(m.group(1))
     return (_years(c["value"]) or _years(c["quote"])) if c["topic"] == "term" else None
 
 
-_AMI = re.compile(r"(\d{2,3})\s*(?:%|percent)\s+(?:or less\s+)?(?:of\s+)?(?:the\s+)?(?:area\s+)?(?:median|AMI\b)", re.I)
+# "60% of AMI", "seventy percent (70%) or below of the Area Median Income", "70% or less than AMI".
+_AMI = re.compile(r"(\d{2,3})\s*(?:%|percent)\)?\s+(?:or (?:less|below)\s+)?(?:(?:of|than)\s+)?(?:the\s+)?(?:area\s+)?"
+                  r"(?:median|AMI\b)", re.I)
+# A count the record gives only as a floor or an estimate: "over 100 affordable units".
+_DESCRIPTIVE_AMI = re.compile(r"\b(average|median of residents|around|currently earn)\b[^.]{0,60}$", re.I)
+
+
+def _ami_limits(quote: str) -> set[int]:
+    """Shares of median income a quote states as a limit. "An average income of around 23% of AMI" describes
+    today's residents, not a limit, and is left out."""
+    return {int(m.group(1)) for m in _AMI.finditer(quote)
+            if 10 <= int(m.group(1)) <= 150 and not _DESCRIPTIVE_AMI.search(quote[max(0, m.start() - 70):m.start()])}
+
+
+_APPROX_COUNT = re.compile(r"\b(?:over|more than|at least|approximately|about|nearly|roughly|up to)\s+$", re.I)
 
 
 # A count is taken as affordable homes only when the number sits right next to words that say so. In real county
@@ -283,8 +305,15 @@ def county_board(store: Storage | None = None, today: date | None = None) -> dic
                 estimate = {"date": _add_years(date.fromisoformat(source["passed"]), years).isoformat(), "years": years,
                             "claim_id": pick["id"]}
         # Agreements often set several income tiers; list every share of median income the checked quotes state.
-        tiers = sorted({int(m) for c in claims if c["topic"] == "income_basis"
-                        for m in _AMI.findall(c["quote"]) if 10 <= int(m) <= 150})
+        tiers = sorted({t for c in claims if c["topic"] == "income_basis" for t in _ami_limits(c["quote"])})
+        homes_quote = next((c["quote"] for c in claims if c["id"] == homes_claim), "") if homes else ""
+        if not tiers and homes_quote:
+            # The sentence that states the home count often states who the homes are for, too ("112 units ... for
+            # seniors earning seventy percent (70%) or below of the Area Median Income"). Only that sentence is used:
+            # other unit quotes (developer slides) can list a different phase's tiers.
+            tiers = sorted(_ami_limits(homes_quote))
+        at = re.search(rf"\b{homes:,}\b|\b{homes}\b", homes_quote) if homes else None
+        homes_approx = bool(at and _APPROX_COUNT.search(homes_quote[max(0, at.start() - 20):at.start()]))
         income = ", ".join(f"{t}%" for t in tiers) + " of area median income" if tiers else None
         rows.append({
             "id": deal["id"], "name": deal["name"], "file": source.get("file"), "council_status": source.get("status"),
@@ -296,7 +325,8 @@ def county_board(store: Storage | None = None, today: date | None = None) -> dic
             "location": ({k: places[deal["id"]].get(k) for k in ("address", "city", "lat", "lon", "approx", "geocoder")}
                          | {"record": places[deal["id"]]["source"].get("record"), "page": places[deal["id"]]["source"].get("page")})
             if deal["id"] in places else None,
-            "homes": homes, "homes_claim_id": homes_claim, "total_homes": total, "income_limit": income,
+            "homes": homes, "homes_approx": homes_approx, "homes_claim_id": homes_claim, "total_homes": total,
+            "income_limit": income,
             "term_end": end["date"].isoformat() if end and end.get("date") else (estimate or {}).get("date"),
             "term_end_estimated": bool(estimate),
             "term_years": (end.get("years") if end and end.get("date") else None) or (estimate or {}).get("years"),

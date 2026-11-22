@@ -2264,3 +2264,8 @@ a.cc-src:hover { background: rgb(94 234 212 / .12); }
 .kpi, .ef-fact, .rs-stats dd, .stat, .m3-total, .mp-detail, .m3-hud { contain: layout style; }
 .county-table-card, .runway, #view-home .section:not(:first-of-type) { content-visibility: auto; contain-intrinsic-size: auto 900px; }
 @media print { .county-table-card, .runway, #view-home .section { content-visibility: visible; } }.info-list { margin: .5rem 0 0; padding-left: 1.2rem; display: grid; gap: .4rem; color: var(--ink-2); }
+
+/* Ask the county: the launcher folds to a round icon after the first screen, so it covers less while reading. */
+.cc-launch.cc-compact:not(:hover):not(:focus-visible) { padding: .8rem; gap: 0; }
+.cc-launch.cc-compact:not(:hover):not(:focus-visible) .cc-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.cc-launch.cc-compact:not(:hover):not(:focus-visible) .cc-dot { position: absolute; top: .45rem; right: .45rem; }

@@ -41,6 +41,37 @@ class Summaries(unittest.TestCase):
         self.assertEqual(removed, 2)
 
 
+
+class CountyChecks(unittest.TestCase):
+    """Sentences a careless or steered answer could write, each caught by code before anyone sees it."""
+
+    def _kept(self, text, ids):
+        agreements = county_ask._board_records(BOARD)
+        recs = county_ask._summary_records(BOARD, agreements) | agreements
+        reply = ask.AskReply(in_scope=True, sentences=[ask.AnswerSentence(text=text, claim_ids=ids)])
+        kept, _ = ask.check(reply, recs, extra=county_ask._county_ok(BOARD), echo_ok=False)
+        return bool(kept)
+
+    def test_a_county_total_is_not_pinned_on_one_agreement(self):
+        self.assertFalse(self._kept("Alpha Place states 150 affordable homes.", ["A1", "S11"]))
+        self.assertTrue(self._kept("Alpha Place states 100 affordable homes.", ["A1"]))
+
+    def test_another_agreements_figure_is_not_borrowed(self):
+        self.assertFalse(self._kept("Alpha Place states 50 affordable homes.", ["A1", "A2"]))
+
+    def test_every_or_none_needs_a_count_of_all_or_none(self):
+        self.assertFalse(self._kept("None of the agreements contain wording for remedies.", ["S3"]))
+        self.assertTrue(self._kept("Wording for reporting was found in every agreement read.", ["S1"]))
+
+    def test_stage_and_judgement_words_are_removed(self):
+        self.assertFalse(self._kept("Alpha Place is ratified and enforceable.", ["A1"]))
+        self.assertFalse(self._kept("The owner of Beta Homes failed to comply.", ["A2"]))
+        self.assertFalse(self._kept("Alpha Place's homes doubled.", ["A1"]))
+        self.assertTrue(self._kept("Alpha Place was adopted by the Council.", ["A1"]))
+
+    def test_a_summary_line_that_names_the_agreement_backs_its_numbers(self):
+        self.assertTrue(self._kept("Beta Homes has a stated term that runs out by 2040, about 2038.", ["S11"]))
+
 class Route(unittest.TestCase):
     def test_without_key_only_quotes(self):
         quotes = {"Q1": {"id": "Q1", "quote": "The term is 40 years.", "status": None, "deal_id": "d1", "deal": "Alpha Place",
@@ -51,6 +82,16 @@ class Route(unittest.TestCase):
         self.assertEqual(res["mode"], "quotes")
         self.assertEqual(res["sentences"][0]["text"], "“The term is 40 years.”")
         self.assertEqual(res["sources"]["Q1"]["claim_id"], "r1-01")
+
+    def test_without_key_a_count_question_gets_the_computed_count(self):
+        with mock.patch.dict(os.environ, {"GEMINI_API_KEY": ""}), \
+                mock.patch.object(county_ask, "_quote_records", return_value=({}, "keywords")):
+            homes = county_ask.answer("How many affordable homes are stated in total?", board=BOARD)
+            soon = county_ask.answer("Which terms run out soonest?", board=BOARD)
+            remedy = county_ask.answer("Which agreements have no remedy wording?", board=BOARD)
+        self.assertIn("state a count: 150.", homes["sentences"][0]["text"])
+        self.assertIn("Beta Homes (about 2038)", soon["sentences"][0]["text"])
+        self.assertIn("No wording found for remedies in 1 of 2", remedy["sentences"][0]["text"])
 
     def test_route_validates_question(self):
         client = TestClient(app)

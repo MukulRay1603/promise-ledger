@@ -477,7 +477,7 @@ def share_card(deal_id: str, request: Request):
     base = _base(request)
     target = f"{base}/#/deals/{quote(deal_id)}"
     image = f"{base}/static/og/{quote(deal_id)}.png" if (STATIC / "og" / f"{deal_id}.png").is_file() else f"{base}/static/og/site.png"
-    facts = [f"{row['homes']:,} affordable homes stated" if row.get("homes") else None,
+    facts = [f"{'over ' if row.get('homes_approx') else ''}{row['homes']:,} affordable homes stated" if row.get("homes") else None,
              f"stated term runs to {row['term_end'][:4]}{'+' if row.get('term_end_estimated') else ''}" if row.get("term_end") else None,
              f"Council file {row['file']}" if row.get("file") else None]
     title = f"{row['name']} · Promise Ledger"
@@ -489,7 +489,7 @@ def share_card(deal_id: str, request: Request):
 <meta property="og:image" content="{i}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{t}"><meta name="twitter:description" content="{d}">
 <meta name="twitter:image" content="{i}"><meta http-equiv="refresh" content="0; url={u}"><link rel="canonical" href="{u}"></head>
-<body><p><a href="{u}">Open {escape(row['name'])} in Promise Ledger</a></p><script>location.replace({json.dumps(target)})</script></body></html>"""
+<body><p><a href="{u}">Open {escape(row['name'])} in Promise Ledger</a></p></body></html>"""
     return HTMLResponse(page, headers={"Cache-Control": "public, max-age=300"})
 
 

@@ -271,7 +271,8 @@ let sampleId = "harbor-walk";
 function parseRoute() {
   const pathMatch = location.pathname.match(/^\/r\/([\w.-]+)/);
   if (pathMatch) return { view: "shared", token: pathMatch[1] };
-  const hash = decodeURIComponent(location.hash.replace(/^#/, ""));
+  let hash;
+  try { hash = decodeURIComponent(location.hash.replace(/^#/, "")); } catch { return { view: "missing" }; } // "%E0%A4%A"
   if (!hash || hash === "/") return { view: "home" };
   if (TAB_IDS.includes(hash)) return { view: "deal", id: sampleId, tab: hash }; // Links from the earlier one-page version.
   if (!hash.startsWith("/")) return { view: "home" };
@@ -749,6 +750,13 @@ const OBLIGATIONS = [
   ["term", "Term", "How many years the homes stay affordable"],
 ];
 
+// A label that fits the term chart: "New Carrollton - Affordable - Phase 1" → "New Carrollton Ph. 1",
+// "Park Place at Addison Road Apartments" → "Park Place at Addison Rd". The full name stays in the title and label.
+function shortDealName(name) {
+  return name.replace(/\s+-\s+Affordable\s+-\s+Phase\s+/i, " Ph. ").replace(/\s+-\s+Affordable\s+-\s+/i, " · ")
+    .replace(/\s+Apartments$/i, "").replace(/\bRoad\b/, "Rd");
+}
+
 function countyTimeline(rows) {
   // One bar per agreement from the Council's adoption to the end of its longest stated term, soonest first, so the
   // terms that run out first sit at the top. Amber bars end within 15 years: the window to plan for keeping them.
@@ -785,7 +793,7 @@ function countyTimeline(rows) {
           const label = `${r.term_end.slice(0, 4)}${est ? "+" : ""}`;
           return el("li", { class: `rw-row${soon ? " rw-soon" : ""}${est ? " rw-est" : ""}${over ? " rw-over" : ""}`, style: `--i:${i}` },
             el("a", { class: "rw-name", href: `#/deals/${encodeURIComponent(r.id)}`, title: r.name,
-              "aria-label": `${r.name}: ${r.term_years ? `${r.term_years}-year term, ` : ""}runs to ${est ? `about ${r.term_end.slice(0, 4)} or later` : formatDate(r.term_end)}${r.homes ? `, ${plural(r.homes, "affordable home")}` : ""}` }, r.name.replace(/\s+-\s+Affordable\s+-\s+/i, " · ")),
+              "aria-label": `${r.name}: ${r.term_years ? `${r.term_years}-year term, ` : ""}runs to ${est ? `about ${r.term_end.slice(0, 4)} or later` : formatDate(r.term_end)}${r.homes ? `, ${plural(r.homes, "affordable home")}` : ""}` }, shortDealName(r.name)),
             el("span", { class: "rw-track", "aria-hidden": "true" },
               el("span", { class: "rw-bar", style: `left:${left}%;width:${Math.max(1, x(endY) - left)}%` }),
               el("span", { class: "rw-end", style: `left:${x(endY)}%` }, over ? `${label} →` : label)));
@@ -885,7 +893,7 @@ function countyMap(board) {
       el("p", { class: "m3-hud-name" }, r.name),
       el("p", { class: "m3-hud-addr" }, `${loc.address}${loc.city ? `, ${loc.city}` : ""}`, loc.approx ? " · street located" : ""),
       el("dl", { class: "m3-hud-facts" },
-        el("div", {}, el("dt", {}, "Affordable homes"), el("dd", {}, r.homes ? r.homes.toLocaleString() : "Not stated")),
+        el("div", {}, el("dt", {}, "Affordable homes"), el("dd", {}, r.homes ? `${r.homes_approx ? "Over " : ""}${r.homes.toLocaleString()}` : "Not stated")),
         el("div", {}, el("dt", {}, "Stated term to"), el("dd", { class: p.soon ? "m3-amber" : "" }, r.term_end ? `${r.term_end.slice(0, 4)}${r.term_end_estimated ? "+" : ""}` : "Not stated")),
         el("div", {}, el("dt", {}, "Key terms found"), el("dd", {}, `${Object.values(r.found).filter(Boolean).length} of ${Object.keys(r.found).length}`))),
       el("p", { class: "m3-hud-src" }, `Council file ${r.file || "—"} · address from ${loc.record}, p. ${loc.page}`),
@@ -1144,7 +1152,7 @@ async function renderCounty() {
               el("span", { class: "ca-status" }, r.council_status || "—"), r.passed ? el("span", { class: "ca-date" }, formatDate(r.passed)) : null,
               r.source_url ? el("a", { class: "reminder-source", href: r.source_url, target: "_blank", rel: "noopener" }, "Council record", el("span", { class: "visually-hidden" }, ` for ${r.name} (opens in a new tab)`)) : null),
             el("td", { "data-label": "Affordable homes", class: "num" }, r.homes
-              ? [el("span", {}, String(r.homes)), r.homes_claim_id ? el("a", { class: "reminder-source", href: sourceHref(r.id, r.homes_claim_id) }, "Quote", el("span", { class: "visually-hidden" }, ` for ${r.name} homes`)) : null]
+              ? [el("span", { title: r.homes_approx ? "The record says over this number" : null }, `${r.homes}${r.homes_approx ? "+" : ""}`), r.homes_claim_id ? el("a", { class: "reminder-source", href: sourceHref(r.id, r.homes_claim_id) }, "Quote", el("span", { class: "visually-hidden" }, ` for ${r.name} homes`)) : null]
               : el("span", { class: "cell-muted" }, "—")),
             el("td", { "data-label": "Income limits" }, r.income_limit || el("span", { class: "cell-muted" }, "—")),
             el("td", { "data-label": "Longest stated term" }, r.term_end
@@ -1325,6 +1333,7 @@ async function renderDeal(id, tab, sourceClaim = null, withTour = false) {
     [deal, review] = await Promise.all([api(`/api/deals/${encodeURIComponent(id)}`), api(`/api/deals/${encodeURIComponent(id)}/review`)]);
   } catch (err) {
     if (current.view !== "deal" || current.id !== id) return;
+    document.title = `${err.status === 404 ? "Deal not found" : "Deal did not load"} · Promise Ledger`;
     view.replaceChildren(el("div", { class: "empty" },
       el("h1", { id: "deal-title" }, err.status === 404 ? "Deal not found" : "The deal did not load"),
       el("p", {}, err.status === 404 ? "There is no deal at this address." : `${err.message} Reload the page to try again.`),
@@ -2377,8 +2386,12 @@ const COUNTY_QUESTIONS = ["Which agreements have no remedy wording?", "What inco
 let ccAudience = "staff";
 function setupCountyChat() {
   const launch = el("button", { type: "button", class: "cc-launch", "aria-expanded": "false", "aria-controls": "cc-panel" },
-    el("span", { class: "cc-dot", "aria-hidden": "true" }), icon("ask"), el("span", {}, "Ask the county"));
-  const thread = el("ol", { class: "cc-thread", "aria-live": "polite", "aria-label": "Conversation" },
+    el("span", { class: "cc-dot", "aria-hidden": "true" }), icon("ask"), el("span", { class: "cc-label" }, "Ask the county"));
+  // Once the reader scrolls, the button folds to a round icon so it covers less of the page; hover or focus opens it out.
+  // The label stays in the accessibility tree either way.
+  const fold = () => launch.classList.toggle("cc-compact", window.scrollY > 160);
+  window.addEventListener("scroll", fold, { passive: true });
+  const thread = el("ol", { class: "cc-thread", "aria-live": "polite", "aria-label": "Conversation", tabindex: "0" },
     el("li", { class: "cc-msg cc-bot" }, el("p", {}, "Ask anything about the 21 Prince George's County agreements. I answer only from their checked records, and every sentence links to its source.")));
   const input = el("input", { type: "text", id: "cc-q", maxlength: "300", minlength: "3", required: true, autocomplete: "off",
     placeholder: "e.g. Which agreements have no reporting wording?", "aria-label": "Your question" });
@@ -2405,7 +2418,8 @@ function setupCountyChat() {
       const chip = (id) => {
         const s = src[id];
         if (!s) return null;
-        if (!s.deal_id) return el("span", { class: "cc-src" }, "County summary");
+        // A county-wide count: link to the table it is computed from.
+        if (!s.deal_id) return el("a", { class: "cc-src", href: "#/county", onclick: () => { closeChat(false); setTimeout(() => document.querySelector(".county-table-card")?.scrollIntoView({ block: "start" }), 300); } }, "County table (counted by code)");
         const href = s.claim_id ? sourceHref(s.deal_id, s.claim_id) : `#/deals/${encodeURIComponent(s.deal_id)}`;
         return el("a", { class: "cc-src", href, onclick: () => closeChat(false) }, s.deal, s.page ? `, p. ${s.page}` : "");
       };
@@ -2912,7 +2926,7 @@ function riseIn(root) {
       entry.target.classList.remove("rise-wait");
       riseObserver.unobserve(entry.target);
     }
-  }, { threshold: 0.08, rootMargin: "0px 0px -4% 0px" });
+  }, { threshold: 0, rootMargin: "0px 0px -4% 0px" }); // 0: a card taller than the screen (the phone table) still rises
   let i = 0;
   for (const node of root.querySelectorAll(RISE)) {
     if (node.closest(".rise-wait") || node.dataset.risen) continue;

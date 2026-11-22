@@ -87,7 +87,7 @@ Promise Ledger reads a deal's PDFs and builds **one checked receipt**:
 **Records to ask for next.** Under the documents, a short list names the records that would fill the deal's gaps: a signed agreement when nothing is signed, the full agreement and exhibits when a signed record leaves terms out, a staff report or affordability exhibit for missing homes, income or rent limits, council minutes when nothing shows a vote, and a certificate of occupancy or compliance report when nothing shows the homes were delivered. Each item lists the terms it would usually show. The list is decided by rules from the review; no model is asked.
 
 **County (real records).** Every PILOT agreement the Prince George's County Council considered since 2023: 21 agreements, 156 council records, 811 pages, read once and checked. The page shows:
-- **Figures.** Six of them, then a strip comparing about 27 hours of reading by hand (at 2 minutes a page, an estimate) with $0.59 to read everything here once.
+- **Figures.** Six of them, then a strip comparing about 27 hours of reading by hand (at 2 minutes a page, an estimate) with $0.61 to read everything here once.
 - **The map.** A night view with a column of light at each address the records state, as tall as the affordable homes stated, and amber when the term ends by 2040. Agreements whose records give no street address are listed beside it.
 - **Search.** Meaning search across all 588 checked quotes.
 - **Term chart.** One bar per agreement, from adoption to the end of its stated term.
@@ -372,7 +372,7 @@ Visitor requests carry an `X-Demo-Session` header (a random id the browser keeps
 ## 13. Testing
 
 ```bash
-python -m unittest discover -s tests -t .   # 467 tests
+python -m unittest discover -s tests -t .   # 474 tests
 python -m app.ledger                        # every demo quote is on its cited page
 python evals/run_pdf_evals.py               # score the pipeline (cached; at most 30 live calls)
 ```

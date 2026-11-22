@@ -69,7 +69,7 @@ def _read_pages(data: bytes) -> list[str]:
     except PdfError:
         raise
     except (PdfReadError, Exception) as err:
-        raise PdfError(f"The PDF could not be read ({type(err).__name__}).") from err
+        raise PdfError("The PDF could not be read. It may be damaged or not a PDF.") from err
 
 
 _SECRET_ENV = re.compile(r"KEY|TOKEN|SECRET|CREDENTIAL|PASSWORD", re.I)
@@ -99,7 +99,7 @@ def _worker_main() -> None:
     except PdfError as err:
         out = {"error": str(err)}
     except Exception as err:  # pragma: no cover - _read_pages wraps everything
-        out = {"error": f"The PDF could not be read ({type(err).__name__})."}
+        out = {"error": "The PDF could not be read. It may be damaged or not a PDF."}
     sys.stdout.write(json.dumps(out))
 
 

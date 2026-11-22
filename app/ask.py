@@ -80,8 +80,9 @@ _LOOKALIKE = str.maketrans({"ı": "i", "і": "i", "е": "e", "о": "o", "а": "a
 # Words that claim a stage, and the stages a cited record must have for them. English, plus Spanish, which a
 # resident answer could drift into. Hyphens and spaces inside a word are removed before matching ("sign-ed").
 _STAGE_CLAIMS = [
-    (re.compile(r"\b(signed|signing|signature[s]?|executed|binding|firmad[oa]s?|firm[oó])\b"), {"signed", "delivered"}),
-    (re.compile(r"\b(delivered|built|occupied|leased|completed?|entregad[oa]s?)\b"), {"delivered"}),
+    (re.compile(r"\b(signed|signing|signature[s]?|executed|binding|ratified|enforceable|in force|in effect|"
+                r"firmad[oa]s?|firm[oó])\b"), {"signed", "delivered"}),
+    (re.compile(r"\b(delivered|built|constructed|finished|occupied|leased|completed?|entregad[oa]s?)\b"), {"delivered"}),
     (re.compile(r"\b(approved|approval|approves|adopted|passed|enacted|voted|aprobad[oa]s?)\b"),
      {"supported", "signed", "delivered"}),
 ]
@@ -89,7 +90,8 @@ _STAGE_CLAIMS = [
 # "unsigned". "There is no doubt it is signed" does not.
 _GOVERNED_NEGATION = re.compile(r"\b(not|never|no longer|yet to be|has yet to be|nor)\s+(?:(?:yet|been|be|fully|in|a|an|any)\s+){0,3}$")
 # The answer reports records; it never judges anyone (the prompt says so, and code holds it to that).
-_JUDGMENT = re.compile(r"\b(broke|breach\w*|violat\w*|illegal\w*|unlawful|fraud\w*|sue|lawsuit|liable|lied|cheat\w*)\b", re.I)
+_JUDGMENT = re.compile(r"\b(broke|breach\w*|violat\w*|illegal\w*|unlawful|fraud\w*|sue|lawsuit|liable|lied|cheat\w*|"
+                       r"failed|defaulted|non-?complian\w*|did not comply|out of compliance|reneged)\b", re.I)
 
 
 def _clean(text: str) -> str:
@@ -130,8 +132,9 @@ def _numbers_ok(text: str, cited: list[dict]) -> bool:
     return _numbers(rest) <= _numbers(_DATE_WORDS.sub(" ", _ISO_DATE.sub(" ", quotes)))
 
 
-def _stage_ok(text: str, cited: list[dict]) -> bool:
-    """A stage word needs a cited record at that stage for every term the sentence cites."""
+def _stage_ok(text: str, cited: list[dict], echo_ok: bool = True) -> bool:
+    """A stage word needs a cited record at that stage for every term the sentence cites. With echo_ok, a stage
+    word that repeats a cited quote's own words is allowed (for a deal's records, where "signed" can be a stage)."""
     lowered = re.sub(r"(?<=[a-z])[-\s](?=(ed|ing|ned)\b)", "", text.lower())
     groups: dict[str, set] = {}
     for c in cited:
@@ -147,31 +150,33 @@ def _stage_ok(text: str, cited: list[dict]) -> bool:
             before = re.findall(r"[a-z0-9]+", lowered[:match.start()])
             after = re.findall(r"[a-z0-9]+", lowered[match.end():])[:1]
             windows = [before[-2:] + [match.group(0)], before[-1:] + [match.group(0)] + after]
-            if any(len(w) == 3 and f" {' '.join(w)} " in f" {quotes} " for w in windows):
+            if echo_ok and any(len(w) == 3 and f" {' '.join(w)} " in f" {quotes} " for w in windows):
                 continue
             if not all(stages & allowed for stages in groups.values()):
                 return False
     return True
 
 
-def _sentence_ok(text: str, cited: list[dict]) -> bool:
+def _sentence_ok(text: str, cited: list[dict], echo_ok: bool = True) -> bool:
     if _JUDGMENT.search(text):
         return False
     if all(c.get("not_located") for c in cited):
         # "No record states rent limits." It must name a missing term and claim no number or stage.
         missing = [label.lower() for c in cited for label in c["not_located"]]
         return not _numbers(text) and any(m in text.lower() for m in missing) and _stage_ok(text, [{"id": "none", "status": None}])
-    return _numbers_ok(text, cited) and _stage_ok(text, cited)
+    return _numbers_ok(text, cited) and _stage_ok(text, cited, echo_ok)
 
 
-def check(reply: AskReply, claims_by_id: dict[str, dict]) -> tuple[list[dict], int]:
-    """Keep sentences that cite real records and say nothing those records do not. Returns (kept, removed)."""
+def check(reply: AskReply, claims_by_id: dict[str, dict], extra=None, echo_ok: bool = True) -> tuple[list[dict], int]:
+    """Keep sentences that cite real records and say nothing those records do not. Returns (kept, removed).
+    `extra(text, cited)` is a further check a caller can add (Ask the county ties numbers to the deal named)."""
     kept, removed = [], 0
     for sentence in reply.sentences[:MAX_SENTENCES]:
         ids = list(dict.fromkeys(i for i in sentence.claim_ids if i in claims_by_id))
         cited = [claims_by_id[i] for i in ids]
         text = sentence.text.strip()
-        if not text or not cited or not _sentence_ok(_clean(text), cited):
+        if not text or not cited or not _sentence_ok(_clean(text), cited, echo_ok) or \
+                (extra and not extra(_clean(text), cited)):
             removed += 1
             continue
         kept.append({"text": text, "claim_ids": ids})
