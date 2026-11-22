@@ -209,7 +209,8 @@ class CheaperAnswers(unittest.TestCase):
                 mock.patch.object(ask, "generate") as gen:
             res = county_ask.answer("Why does Alpha Place matter?", board=BOARD)
         gen.assert_not_called()
-        self.assertIn("budget is used up", res["notice"])
+        self.assertEqual(res["notice"], ask.PAUSED_NOTE)
+        self.assertNotIn("$", res["notice"])
 
     def test_answers_use_the_lite_model_first(self):
         self.assertEqual(ask.ask_model(), os.getenv("ASK_MODEL") or county_ask.ai.FALLBACK_MODEL)

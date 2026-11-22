@@ -296,6 +296,8 @@ def generate(prompt: str, system: str, model: str) -> tuple[AskReply, float]:
 # A daily ceiling on what answers may spend, per server (DAILY_AI_BUDGET_USD, default $2, about 1,300 answers).
 # Past it, answers come from code and exact quotes until the next UTC day. 0 turns AI answers off.
 DAILY_AI_BUDGET_USD = float(os.getenv("DAILY_AI_BUDGET_USD") or 2.0)
+# All a visitor ever sees of the cap: no amounts, just that answers now come from the records.
+PAUSED_NOTE = "AI answers are paused for today, so answers come straight from the records."
 _spend = {"day": "", "usd": 0.0}
 
 
@@ -399,7 +401,7 @@ def answer(review: dict, question: str, audience: Audience = "staff") -> dict:
     if hit:  # The same question on the same checked quotes: no new call.
         return {**hit, "cached": True}
     if not budget_ok():
-        return _quotes_only(question, review, "Today's AI answer budget is used up.")
+        return {**_quotes_only(question, review, ""), "notice": PAUSED_NOTE}
     if not ai._allow_live_call():
         return _quotes_only(question, review, "The AI answer limit was reached for this minute.")
     prompt = f"<records>\n{_records_block(review)}\n</records>\n<question>\n{_data(question)}\n</question>"

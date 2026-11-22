@@ -2502,8 +2502,7 @@ function ccModeBadge(res) {
   if (res.cached) return el("span", { class: "cc-badge cc-b-cache" }, icon("refresh"), "Answered before · no new cost");
   if (res.mode === "computed") return el("span", { class: "cc-badge cc-b-code" }, icon("code"), "Answered by code · no AI cost");
   if (res.mode === "live") {
-    const cost = typeof res.cost_usd === "number" ? ` · $${res.cost_usd < 0.001 ? res.cost_usd.toFixed(5) : res.cost_usd.toFixed(4)}` : "";
-    return el("span", { class: "cc-badge cc-b-ai" }, icon("spark"), `AI, checked by code${cost}`);
+    return el("span", { class: "cc-badge cc-b-ai" }, icon("spark"), "AI, checked by code");
   }
   if (res.mode === "quotes") return el("span", { class: "cc-badge cc-b-quote" }, icon("file"), "Exact quotes");
   return null;

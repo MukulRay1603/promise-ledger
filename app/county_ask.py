@@ -391,7 +391,7 @@ def _answer(question: str, audience: ask.Audience = "staff", board: dict | None 
     if not os.getenv("GEMINI_API_KEY"):
         return _fallback(question, quotes, "AI answers are off.", summary, board, agreements)
     if not ask.budget_ok():
-        return _fallback(question, quotes, "Today's AI answer budget is used up.", summary, board, agreements)
+        return {**_fallback(question, quotes, "", summary, board, agreements), "notice": ask.PAUSED_NOTE}
     if not ai._allow_live_call():
         return _fallback(question, quotes, "The AI answer limit was reached for this minute.", summary, board, agreements)
     recs = _prompt_records(question, summaries, agreements, quotes)

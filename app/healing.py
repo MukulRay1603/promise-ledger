@@ -104,7 +104,7 @@ def run_once(store=None) -> dict:
                        "answer_model": ask.ask_model()}
     checks["storage_retries"] = dict(storage.storage_stats)
     checks["answer_cache"] = {"entries": len(ask.CACHE._items)}
-    checks["ai_budget"] = {"ok": True, "spent_today_usd": ask.spent_today(), "daily_cap_usd": ask.DAILY_AI_BUDGET_USD}
+    checks["ai_answers"] = {"ok": True, "paused_for_today": not ask.budget_ok()}  # no amounts in a public report
     with _lock:
         _status["runs"] += 1
         _status["last_run"] = datetime.now(timezone.utc).isoformat(timespec="seconds")

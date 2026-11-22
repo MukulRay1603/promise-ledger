@@ -127,7 +127,7 @@ The County page (`#/county`) runs the same pipeline on every payment-in-lieu-of-
 1. **Code.** A count, a list or one agreement's stated figure ("Which terms run out soonest?", "How long is Holly Place's stated term?") is read straight from the county board. No model call, no cost.
 2. **Memory.** The same question on the same records returns the earlier answer for 6 hours. Query embeddings are kept too.
 3. **The light model, on a short prompt.** Only the records the question needs (its topics' summary lines, the agreements it names or its closest quotes come from), `gemini-3.5-flash-lite` at thinking level MINIMAL. Measured on Nov 21, 2026: about $0.0015 an answer, against $0.0068 for the main model with its default thinking and the full prompt. The main model is the one fallback.
-Each chat answer says which path it took: "Answered by code · no AI cost", "Answered before", or "AI, checked by code · $0.0016".
+Each chat answer says which path it took: "Answered by code · no AI cost", "Answered before", or "AI, checked by code". A daily spend cap stays on the server; if it is reached, the chat says AI answers are paused for today and answers come from the records.
 
 **Self-healing.** A watchdog (`app/healing.py`, every 5 minutes) queues readings that stalled when an instance died (at most 3 tries, then marked failed for a person), re-seeds the county agreements if storage lost them, and reloads the search index. Cloud storage calls that hit a transient error are retried twice. In the browser, reads retry dropped connections and busy servers, an offline banner appears and the page reloads its data when the connection returns, and a view that fails to draw shows Try again instead of a blank page. `/api/health?deep=1` shows the latest report.
 
