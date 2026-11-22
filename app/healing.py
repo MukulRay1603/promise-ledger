@@ -29,10 +29,14 @@ def _note(repair: str) -> None:
                           + _status["repairs"])[:20]
 
 
-def heal_stuck_documents(store) -> dict:
+def heal_stuck_documents(store, all_deals: list[dict] | None = None) -> dict:
+    """Only visitor and staff deals can stall: sample and county deals are seeded from saved readings, and the seed
+    itself re-checks them. Skipping them keeps a pass to a few storage reads, well inside Firestore's free tier."""
     from app import deals
     requeued = failed = 0
-    for deal in store.list_deals():
+    for deal in (all_deals if all_deals is not None else store.list_deals()):
+        if deal.get("real") or deals.is_sample(deal):
+            continue
         for doc in store.list_documents(deal["id"]):
             if not deals.is_stale(doc):
                 continue
@@ -50,12 +54,12 @@ def heal_stuck_documents(store) -> dict:
     return {"ok": True, "requeued": requeued, "stopped": failed}
 
 
-def heal_county_data(store) -> dict:
+def heal_county_data(store, all_deals: list[dict] | None = None) -> dict:
     from app import deals
     if os.getenv("COUNTY_DEALS", "1") == "0" or not deals.COUNTY_DIR.is_dir():
         return {"ok": True, "skipped": True}
     expected = sum(1 for p in deals.COUNTY_DIR.glob("*/manifest.json"))
-    present = sum(1 for d in store.list_deals() if d.get("real"))
+    present = sum(1 for d in (all_deals if all_deals is not None else store.list_deals()) if d.get("real"))
     if expected and present == 0:
         seeded = deals.seed(store)
         _note(f"County agreements were missing; seeded {len(seeded)} again")
@@ -73,10 +77,10 @@ def heal_search_index() -> dict:
     return {"ok": bool(data.get("items")), "quotes": len(data.get("items") or [])}
 
 
-def check_storage(store) -> dict:
+def check_storage(store) -> tuple[dict, list[dict]]:
     started = time.monotonic()
-    count = len(store.list_deals())
-    return {"ok": True, "deals": count, "ms": round((time.monotonic() - started) * 1000)}
+    listed = store.list_deals()
+    return {"ok": True, "deals": len(listed), "ms": round((time.monotonic() - started) * 1000)}, listed
 
 
 def run_once(store=None) -> dict:
@@ -84,8 +88,13 @@ def run_once(store=None) -> dict:
     from app import ai, ask, storage
     store = store or storage.get_store()
     checks = {}
-    for name, fn in (("storage", lambda: check_storage(store)), ("stuck_documents", lambda: heal_stuck_documents(store)),
-                     ("county_data", lambda: heal_county_data(store)), ("search_index", heal_search_index)):
+    listed = None  # One listing of deals serves every check, so a pass costs few storage reads.
+    try:
+        checks["storage"], listed = check_storage(store)
+    except Exception as err:
+        checks["storage"] = {"ok": False, "error": type(err).__name__}
+    for name, fn in (("stuck_documents", lambda: heal_stuck_documents(store, listed)),
+                     ("county_data", lambda: heal_county_data(store, listed)), ("search_index", heal_search_index)):
         try:
             checks[name] = fn()
         except Exception as err:  # Reported, never raised: the watchdog must keep running.

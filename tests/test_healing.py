@@ -110,6 +110,15 @@ class CheaperAnswers(unittest.TestCase):
         self.assertEqual({r["deal_id"] for r in recs.values() if r["id"].startswith("A")}, {"d2"})
         self.assertTrue(all("remedies" in r["quote"] for r in recs.values() if r["id"].startswith("S")))
 
+    def test_names_are_found_as_people_write_them(self):
+        board = {"deals": [dict(BOARD["deals"][0], id="p1", name="New Carrollton - Affordable - Phase 3 - 9%"),
+                           dict(BOARD["deals"][0], id="p2", name="Park Place at Addison Road Apartments"),
+                           dict(BOARD["deals"][0], id="p3", name="The Promise")]}
+        agreements = county_ask._board_records(board)
+        self.assertEqual(county_ask._named("How long is the new carrollton phase 3 term?", agreements), {"p1"})
+        self.assertEqual(county_ask._named("park place at addison road homes", agreements), {"p2"})
+        self.assertEqual(county_ask._named("Which promises were kept?", agreements), set())
+
     def test_answers_use_the_lite_model_first(self):
         self.assertEqual(ask.ask_model(), os.getenv("ASK_MODEL") or county_ask.ai.FALLBACK_MODEL)
 

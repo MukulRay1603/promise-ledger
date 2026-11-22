@@ -185,9 +185,37 @@ def _summary_answer(question: str, summaries: dict[str, dict]) -> list[dict]:
 _CROSS = re.compile(r"\b(which|list|compare|lowest|highest|most|least|largest|smallest|every|all|any)\b", re.I)
 
 
+_NAME_FILLER = {"apartments", "affordable", "the", "at", "on", "by", "of", "senior"}
+
+
+def _name_tokens(name: str) -> set[str]:
+    """Distinctive words of a name. Only its first number counts ("Phase 3 - 9%" is "phase 3")."""
+    out, seen_number = set(), False
+    for w in re.findall(r"[a-z0-9]+", name.lower()):
+        if w in _NAME_FILLER or (w.isdigit() and seen_number):
+            continue
+        seen_number = seen_number or w.isdigit()
+        out.add(w)
+    return out
+
+
 def _named(question: str, agreements: dict[str, dict]) -> set[str]:
+    """Agreements a question names, as people write them: "New Carrollton phase 1", "holly place", "Park Place".
+    A name counts when every distinctive word of it is in the question; a one-word name must appear whole."""
     low = question.lower()
-    return {a["deal_id"] for a in agreements.values() if _short(a["deal"]) in low}
+    words = set(re.findall(r"[a-z0-9]+", low))
+    found = set()
+    for a in agreements.values():
+        tokens = _name_tokens(a["deal"])
+        if _short(a["deal"]) in low or (len(tokens) >= 2 and tokens <= words):
+            found.add(a["deal_id"])
+    # "Park Place" is inside "Park Place at Addison Road": keep only the most specific names.
+    return {d for d in found if not any(o != d and _name_tokens(_deal_name(agreements, d)) < _name_tokens(_deal_name(agreements, o))
+                                        for o in found)}
+
+
+def _deal_name(agreements: dict[str, dict], deal_id: str) -> str:
+    return next(a["deal"] for a in agreements.values() if a["deal_id"] == deal_id)
 
 
 def _prompt_records(question: str, summaries: dict, agreements: dict, quotes: dict) -> dict:
