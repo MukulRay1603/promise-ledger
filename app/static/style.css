@@ -2534,3 +2534,7 @@ html.text-large { font-size: clamp(112.5%, calc((100% + (100vw - 1440px) * .004)
 /* Section numbers are written in the markup: lazily drawn sections (content-visibility) scope CSS counters, which
    numbered every section "01". */
 #view-home .kicker[data-n]::before { counter-increment: none; content: attr(data-n) "  "; }
+
+/* While a modal dialog is open the page behind it cannot scroll (Space, arrows, Page Down, the wheel). The gutter
+   stays so nothing shifts sideways. .modal-lock is the same for browsers without :has(). */
+html:has(dialog:modal), html.modal-lock { overflow: hidden; scrollbar-gutter: stable; }

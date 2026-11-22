@@ -459,6 +459,7 @@ function buildStrip() {
 
 function openViewer(index, opener) {
   viewer.opener = opener;
+  document.documentElement.classList.add("modal-lock");
   byId("video-dialog").showModal();
   showVideo(index, true);
 }
@@ -515,7 +516,11 @@ function setupViewer() {
   byId("vv-next").addEventListener("click", () => showVideo(viewer.index + 1, true));
   dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
   dialog.addEventListener("keydown", (event) => {
-    if (event.target.closest?.("video") || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.target.closest?.("video")) {
+      if (event.key === " ") event.stopPropagation(); // the player's own Space handling plays or pauses
+      return;
+    }
     if (event.key === "ArrowRight" && viewer.index < viewer.list.length - 1) { event.preventDefault(); showVideo(viewer.index + 1, true); }
     if (event.key === "ArrowLeft" && viewer.index > 0) { event.preventDefault(); showVideo(viewer.index - 1, true); }
     if (event.key === " " && !event.target.closest?.("button, a, input, textarea")) {
@@ -525,6 +530,7 @@ function setupViewer() {
     }
   });
   dialog.addEventListener("close", () => {
+    document.documentElement.classList.remove("modal-lock");
     // Stop the download as well as the sound.
     const player = byId("vv-stage").querySelector("video");
     if (player) { player.pause(); player.removeAttribute("src"); player.replaceChildren(); player.load(); }
