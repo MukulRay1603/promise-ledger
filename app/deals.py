@@ -1395,9 +1395,10 @@ def seed_sample(manifest_path: Path, store: Storage, version: str | None = None)
         deal.update(real=True, county=manifest.get("county"), source=manifest.get("source") or {})
     store.put_deal(deal)
     keep = set()
+    stored = {d.get("sha256"): d for d in store.list_documents(slug)} if real else {}
     for entry in manifest.get("documents") or []:
         path = folder / (entry.get("file") or entry.get("filename") or "")
-        data = path.read_bytes() if path.is_file() else (record_bytes(entry) if real else None)
+        data = path.read_bytes() if path.is_file() else (real_record_bytes(entry, folder, store, stored) if real else None)
         if data is None:
             continue
         doc_id = sample_doc_id(slug, entry, path)
@@ -1458,6 +1459,34 @@ def record_bytes(entry: dict) -> bytes | None:
     except OSError:
         pass  # A read-only disk only costs a download next time.
     return data
+
+
+BUNDLED_DIR = "files"  # data/county/<deal>/files/<sha256[:32]>.pdf: records the source now serves changed
+
+
+def real_record_bytes(entry: dict, folder: Path, store: Storage, stored: dict) -> bytes | None:
+    """A real record's checked PDF, from the first place that has it with the checked hash:
+    1. a copy bundled with the repo, for records the county's server now regenerates on every download;
+    2. the copy this deployment already stores (so a redeploy never drops a record it had);
+    3. the local cache, or a fresh download from the official URL (record_bytes).
+    Any other file is never used: the readings and checks belong to the file with this hash."""
+    sha = str(entry.get("sha256") or "")
+    if not re.fullmatch(r"[0-9a-f]{64}", sha):
+        return None
+    bundled = folder / BUNDLED_DIR / f"{sha[:32]}.pdf"
+    if bundled.is_file():
+        data = bundled.read_bytes()
+        if hashlib.sha256(data).hexdigest() == sha:
+            return data
+    have = stored.get(sha)
+    if have and have.get("file_key"):
+        try:
+            data = store.get_blob(have["file_key"])
+        except Exception:  # Fall through to the download.
+            data = None
+        if data and hashlib.sha256(data).hexdigest() == sha:
+            return data
+    return record_bytes(entry)
 
 
 def sample_doc_id(slug: str, entry: dict, path: Path) -> str:
