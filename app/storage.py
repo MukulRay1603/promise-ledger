@@ -318,13 +318,16 @@ class GcpStorage:
 
 
 _store: Storage | None = None
+_store_lock = threading.Lock()  # Startup seeding runs in a thread; only one backend may be built.
 
 
 def get_store() -> Storage:
     global _store
     if _store is None:
-        kind = (os.getenv("STORAGE") or "local").lower()
-        _store = GcpStorage() if kind == "gcp" else LocalStorage()
+        with _store_lock:
+            if _store is None:
+                kind = (os.getenv("STORAGE") or "local").lower()
+                _store = GcpStorage() if kind == "gcp" else LocalStorage()
     return _store
 
 
