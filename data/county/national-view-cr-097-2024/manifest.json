@@ -1,0 +1,182 @@
+{
+  "notice": "Real public records of Prince George's County, Maryland, from the County Council's Legistar system. Promise Ledger lists what the records say; it does not judge whether any party met an obligation.",
+  "real": true,
+  "deal": "National View",
+  "slug": "national-view-cr-097-2024",
+  "city": "Prince George's County",
+  "county": "Prince George's County, MD",
+  "owner": null,
+  "as_of": "2024-11-19",
+  "source": {
+    "system": "Prince George's County Legistar",
+    "file": "CR-097-2024",
+    "title": "A RESOLUTION CONCERNING A PAYMENT IN LIEU OF TAXES (“PILOT”) AGREEMENT BETWEEN PRINCE GEORGE’S COUNTY, MARYLAND (“COUNTY”) AND PETRA DEVELOPMENT (“DEVELOPER”) for the National View Project.",
+    "status": "Adopted",
+    "introduced": "2024-10-29",
+    "passed": "2024-11-19",
+    "url": "https://princegeorgescountymd.legistar.com/gateway.aspx?M=L&ID=17567",
+    "api": "https://webapi.legistar.com/v1/princegeorgescountymd/matters/17567",
+    "votes": [
+      {
+        "date": "2024-11-12",
+        "body": "Sitting as the Committee of the Whole",
+        "action": "Held in Committee",
+        "passed": true,
+        "tally": null
+      },
+      {
+        "date": "2024-11-18",
+        "body": "Sitting as the Committee of the Whole",
+        "action": "Favorably recommended",
+        "passed": true,
+        "tally": null
+      },
+      {
+        "date": "2024-11-19",
+        "body": "County Council",
+        "action": "adopted",
+        "passed": true,
+        "tally": null
+      }
+    ],
+    "retrieved": "2026-11-18"
+  },
+  "documents": [
+    {
+      "type": "Presentation",
+      "title": "CR-097-2024 Pilot Agreement Presentation",
+      "date": "2024-10-29",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/32d05ab7-d428-448d-9f4d-4456a5d9ae9c.pdf",
+      "file": "01-presentation.pdf",
+      "id": "r01",
+      "sha256": "da023246dcd1ceede01c27b0042cfcda268c79fb0908087c2a94f1b8777b21e2",
+      "bytes": 617457,
+      "signed_by": []
+    },
+    {
+      "type": "PILOT agreement",
+      "title": "CR-097-2024 Exhibit C Master PILOT Agmt - Natl View",
+      "date": "2024-10-29",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/93fe9aed-1e5d-45ac-b263-1ecd1f55c729.pdf",
+      "file": "02-pilot-agreement.pdf",
+      "id": "r02",
+      "sha256": "eeee3acdabf052e83a0bffb4018b14966511428c6ce327655827c5e737cd6996",
+      "bytes": 228262,
+      "signed_by": []
+    },
+    {
+      "type": "Fiscal and policy note",
+      "title": "CR-097-2024 Fiscal Impact Summary",
+      "date": "2024-10-29",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/768eed8f-28c9-449f-a111-60ce48179116.pdf",
+      "file": "03-fiscal-and-policy-note.pdf",
+      "id": "r03",
+      "sha256": "25b8998b30d25f059ffa78942e027633215b60e128839ddf2a809dcaf1f5330c",
+      "bytes": 1410067,
+      "signed_by": []
+    },
+    {
+      "type": "Attachment",
+      "title": "CR-097-2024 Exhibit A",
+      "date": "2024-10-29",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/84de3461-4471-4fbf-9af7-b44715fef21e.pdf",
+      "file": "04-attachment.pdf",
+      "id": "r04",
+      "sha256": "8eedb413bed16989c51a7b468b4d90673c37f2b82c947c2b3cc5d6c5334b7b4d",
+      "bytes": 224277,
+      "signed_by": []
+    },
+    {
+      "type": "Attachment",
+      "title": "CR-097-2024 Exhibit B",
+      "date": "2024-10-29",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/9cf5b43f-1363-426a-b5a6-845e435e0ea4.pdf",
+      "file": "05-attachment.pdf",
+      "id": "r05",
+      "sha256": "391e126489100fa84ac220a7605f3279bf6c0ac818c231beb4c3742650045349",
+      "bytes": 767076,
+      "signed_by": []
+    },
+    {
+      "type": "Transmittal letter",
+      "title": "CR-097-2024 Transmittal",
+      "date": "2024-10-29",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/86c9b786-9674-46e1-b450-69139cd97ab4.pdf",
+      "file": "06-transmittal-letter.pdf",
+      "id": "r06",
+      "sha256": "4ce1e8f98ef89872fac10b174a77ee8b2bcf9b6f133ca13b9ba62332daa63a47",
+      "bytes": 215433,
+      "signed_by": []
+    },
+    {
+      "type": "Resolution",
+      "title": "CR-097-2024 R2024097",
+      "date": "2024-11-19",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/b1266580-0ac9-48c8-a94a-df05b7452dc2.docx",
+      "file": "07-resolution.from-docx.pdf",
+      "id": "r07",
+      "sha256": "eaa008fe96eb6e2636db82147914899bdb9fe5c1c3c427b3818d64797c7bcd83",
+      "bytes": 114271,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/b1266580-0ac9-48c8-a94a-df05b7452dc2.docx",
+        "sha256": "323bc2a4aab517a6a3abe70b44f0c30652e8003d67f30055ae20478bc70c5a97"
+      }
+    },
+    {
+      "type": "Fiscal and policy note",
+      "title": "CR-097-2024 PAFI",
+      "date": "2024-10-29",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/20781a12-676a-46c9-8315-a1d4e664001f.pdf",
+      "file": "08-fiscal-and-policy-note.pdf",
+      "id": "r08",
+      "sha256": "63c36e1ffc23f272d8b7fc64fbcede9022228c48077330ea4830e0106c5bdb7f",
+      "bytes": 578958,
+      "signed_by": []
+    },
+    {
+      "type": "Agency comments",
+      "title": "CR-097-2024 CR-096-2024 CEX Comment (DCAO Rodgers)",
+      "date": "2024-10-29",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/18894f85-9aa3-4fae-bbc9-52ebd32bfbc0.pdf",
+      "file": "09-agency-comments.pdf",
+      "id": "r09",
+      "sha256": "b75e931685ba3bd868201f9e9204b410f7da62d235f4fe564d3b438dfaea7499",
+      "bytes": 1562612,
+      "signed_by": []
+    },
+    {
+      "type": "Legislative summary",
+      "title": "CR-097-2024 Summary",
+      "date": "2024-10-29",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/6dcdbdb3-d14e-4708-92e0-8c9543634ea9.pdf",
+      "file": "10-legislative-summary.pdf",
+      "id": "r10",
+      "sha256": "4da0cfcb5d99cc1c1c35818b9cf7d5e6589a7b415b1dde9b54f622240c2df987",
+      "bytes": 93280,
+      "signed_by": []
+    },
+    {
+      "type": "Signed resolution",
+      "title": "CR-097-2024 - signed",
+      "date": "2024-11-19",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/e660ff7b-4990-4d8c-af18-c5ad15614552.pdf",
+      "file": "11-signed-resolution.pdf",
+      "id": "r11",
+      "sha256": "25ffa505bbcb4517c34ea3c809e6ba11db914705f0ef4f93c47b1fb079c169a2",
+      "bytes": 207692,
+      "signed_by": []
+    }
+  ],
+  "not_read": [
+    {
+      "type": "MBE plan",
+      "title": "CR-097-2024 Petra - MBE",
+      "date": "2024-10-29",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/f748b1e0-0c5d-4b0d-8c39-aa37a56ef104.docx",
+      "skipped": "not a housing record"
+    }
+  ]
+}

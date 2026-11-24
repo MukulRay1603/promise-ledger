@@ -1,0 +1,73 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "PRINCE GEORGE'S COUNTY COUNCIL COMMITTEE REPORT Reference No.: CR-036-2025",
+  "date": "2025-04-15",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "During the meeting, DHCD Director Aspasia Xypolia described the legislation and the terms of the PILOT agreement, which include 100% tax waivers of 168 units for the next 40 years, with a 2% annual escalation per unit over that period.",
+    "page": 1,
+    "wording": "168 units",
+    "value": "168 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted.",
+    "page": 1,
+    "wording": "All units",
+    "value": "All units"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "All units will be affordable, and rents will be restricted.",
+    "page": 1,
+    "wording": "rents will be restricted",
+    "value": "rents restricted"
+   },
+   {
+    "topic": "term",
+    "quote": "During the meeting, DHCD Director Aspasia Xypolia described the legislation and the terms of the PILOT agreement, which include 100% tax waivers of 168 units for the next 40 years, with a 2% annual escalation per unit over that period.",
+    "page": 1,
+    "wording": "40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "During the meeting, DHCD Director Aspasia Xypolia described the legislation and the terms of the PILOT agreement, which include 100% tax waivers of 168 units for the next 40 years, with a 2% annual escalation per unit over that period.",
+    "page": 1,
+    "wording": "100% tax waivers",
+    "value": "100% tax waivers"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT reduces the aggregate tax burden on the entire 168-unit Project by 43.2% of that amount, or approximately $132,048, equivalent to a $786 per unit tax burden on the 168 affordable units.",
+    "page": 1,
+    "wording": "PILOT",
+    "value": "43.2% tax reduction"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Under the agreement, the County would forgo real property tax revenue of approximately $100,755, or approximately $600 per affordable unit, in year one.",
+    "page": 1,
+    "wording": "forgo real property tax revenue",
+    "value": "$100,755 in year one"
+   },
+   {
+    "topic": "public_support",
+    "quote": "If the Council approves, the project will receive approximately $8,585,784 in total aid from the county, or 11% of its total funding.",
+    "page": 1,
+    "wording": "receive approximately $8,585,784 in total aid",
+    "value": "$8,585,784 total aid"
+   }
+  ]
+ },
+ "tokens_in": 1591,
+ "tokens_out": 863,
+ "cost_usd": 0.002635,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

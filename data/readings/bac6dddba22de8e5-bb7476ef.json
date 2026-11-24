@@ -1,0 +1,98 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "agreement",
+  "title": "Affordability Covenant",
+  "date": "2019-05-20",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "CANNERY FLATS HOUSING PARTNERS LLC",
+    "quote": "By: /s/ Managing Member",
+    "page": 3
+   },
+   {
+    "party": "TOWN OF PORT WREN",
+    "quote": "By: /s/ Town Administrator",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "The Town has paid the Owner a construction grant of $2,100,000 from the Port Wren Housing Fund.",
+    "page": 1,
+    "wording": "construction grant of $2,100,000",
+    "value": "$2,100,000 grant"
+   },
+   {
+    "topic": "units",
+    "quote": "The Owner shall keep 22 of the 140 apartments in the building as restricted apartments, in the mix shown in Schedule 1.",
+    "page": 1,
+    "wording": "shall keep 22 of the 140 apartments",
+    "value": "22 of 140 apartments"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "A restricted apartment shall be leased only to a household with income not greater than sixty percent (60%) of area median income.",
+    "page": 2,
+    "wording": "income not greater than sixty percent (60%) of area median income",
+    "value": "60% of AMI"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Owner shall check each household's income before the lease is signed and keep the papers for five years.",
+    "page": 2,
+    "wording": "keep the papers for five years",
+    "value": "5 years"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "Rent for a restricted apartment shall not exceed the maximum rent published each year by the Osprey County Housing Office for the sixty percent income level.",
+    "page": 2,
+    "wording": "shall not exceed the maximum rent published each year",
+    "value": "Osprey County Housing Office limit for 60% level"
+   },
+   {
+    "topic": "term",
+    "quote": "This Covenant shall remain in effect until June 30, 2049.",
+    "page": 2,
+    "wording": "remain in effect until June 30, 2049",
+    "value": "Until June 30, 2049"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "This Covenant runs with the land and binds the Owner and every later owner of the building.",
+    "page": 2,
+    "wording": "runs with the land and binds the Owner and every later owner",
+    "value": "Owner and later owners"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Owner shall submit a certified rent roll to the Town each year no later than February 15.",
+    "page": 2,
+    "wording": "shall submit a certified rent roll",
+    "value": "Yearly by February 15"
+   },
+   {
+    "topic": "remedies",
+    "quote": "The Town shall send the Owner written notice of a default.",
+    "page": 2,
+    "wording": "shall send the Owner written notice",
+    "value": "Written notice"
+   },
+   {
+    "topic": "remedies",
+    "quote": "If the Owner fails to cure a default within 90 days after written notice, the Owner shall repay the Town the full amount of the construction grant.",
+    "page": 2,
+    "wording": "repay the Town the full amount of the construction grant",
+    "value": "90 days to cure, then full grant repayment"
+   }
+  ]
+ },
+ "tokens_in": 1608,
+ "tokens_out": 1001,
+ "cost_usd": 0.002985,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

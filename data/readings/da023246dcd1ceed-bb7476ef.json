@@ -1,0 +1,122 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "NATIONAL VIEW PILOT AGREEMENT TRANSFORMATIVE URBAN RENEWAL @ OXON HILL / NATIONAL HARBOR",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "1545 residential units including senior mixed income",
+    "page": 2,
+    "wording": "1545 residential units",
+    "value": "1,545 residential units"
+   },
+   {
+    "topic": "units",
+    "quote": "Residential MF 195",
+    "page": 3,
+    "wording": "195",
+    "value": "195 units"
+   },
+   {
+    "topic": "units",
+    "quote": "Residential Senior 212",
+    "page": 3,
+    "wording": "212",
+    "value": "212 units"
+   },
+   {
+    "topic": "units",
+    "quote": "Residential MF 405",
+    "page": 3,
+    "wording": "405",
+    "value": "405 units"
+   },
+   {
+    "topic": "units",
+    "quote": "Residential MF 220",
+    "page": 3,
+    "wording": "220",
+    "value": "220 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Residential Senior Mixed Income 140",
+    "page": 3,
+    "wording": "Senior Mixed Income",
+    "value": "140 senior mixed income units"
+   },
+   {
+    "topic": "units",
+    "quote": "Residential Senior Mixed Income 140",
+    "page": 3,
+    "wording": "140",
+    "value": "140 units"
+   },
+   {
+    "topic": "units",
+    "quote": "Residential MF 373",
+    "page": 3,
+    "wording": "373",
+    "value": "373 units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "15 YEAR MULTI-PHASE TAX PILOT EQUAL TO THE SUM OF:",
+    "page": 4,
+    "wording": "15 YEAR MULTI-PHASE TAX PILOT",
+    "value": "15 year multi-phase tax PILOT"
+   },
+   {
+    "topic": "term",
+    "quote": "At the end of the PILOT term, property owner pays full real property tax",
+    "page": 4,
+    "wording": "PILOT term",
+    "value": "PILOT term"
+   },
+   {
+    "topic": "term",
+    "quote": "Allows 15-year term per phase",
+    "page": 4,
+    "wording": "15-year term",
+    "value": "15-year term per phase"
+   },
+   {
+    "topic": "public_support",
+    "quote": "FEE WAIVERS OF: 50% of Public Safety Waiver",
+    "page": 4,
+    "wording": "FEE WAIVERS OF",
+    "value": "50% of Public Safety Waiver"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Require substantial ongoing commitment prior to release of PILOT rebates",
+    "page": 6,
+    "wording": "Require",
+    "value": "PILOT rebates"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT incentive is projected to be worth approximately $74M to the developer between 2029 and 2052, and the public safety waiver is worth $2.6M",
+    "page": 9,
+    "wording": "worth approximately $74M",
+    "value": "$74M PILOT incentive and $2.6M public safety waiver"
+   },
+   {
+    "topic": "remedies",
+    "quote": "Failure to comply with minimum CBB, CBSB, CMBE and MBE requirements will result in the NON-RELEASE of PILOT incentive funds to Developer",
+    "page": 10,
+    "wording": "NON-RELEASE of PILOT incentive funds",
+    "value": "Non-release of PILOT incentive funds upon failure to comply"
+   }
+  ]
+ },
+ "tokens_in": 5522,
+ "tokens_out": 1191,
+ "cost_usd": 0.004634,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

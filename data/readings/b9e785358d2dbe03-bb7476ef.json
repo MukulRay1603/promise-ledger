@@ -1,0 +1,66 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Fiscal Impact Statement for CR-115-2025: A Resolution concerning Payments in Lieu of Taxes (PILOT) Agreement for the New Carrollton Affordable Phase 4 Project",
+  "date": "2025-10-07",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Resolution proposes to approve the terms and conditions of a Payment in Lieu of Taxes (PILOT) agreement between Prince George’s County and Urban Atlantic Development for a 102- unit multi-family development available at 70% of Area Median Income.",
+    "page": 1,
+    "wording": "proposes to approve",
+    "value": "102 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Resolution proposes to approve the terms and conditions of a Payment in Lieu of Taxes (PILOT) agreement between Prince George’s County and Urban Atlantic Development for a 102- unit multi-family development available at 70% of Area Median Income.",
+    "page": 1,
+    "wording": "available at",
+    "value": "70% of Area Median Income"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT would be in effect for 40 years.",
+    "page": 1,
+    "wording": "in effect for",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Assuming a first -year payment of $66,300 in FY 2027 instead of a real property tax payment of $172,747, the County loses -$106,447 in general fund revenue, growing to a loss of - $118,407 by FY 2030.",
+    "page": 1,
+    "wording": "Payment in Lieu of Taxes (PILOT)",
+    "value": "First-year payment of $66,300"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Over the 40- year term of the PILOT the County is estimated to lose -$4.6 million on a net present value basis.",
+    "page": 1,
+    "wording": "PILOT",
+    "value": "-$4.6 million net present value"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The first-year PILOT payment is specified at $66,300 growing by 2% annually over the 40-year term.",
+    "page": 2,
+    "wording": "PILOT payment is specified at",
+    "value": "$66,300 growing by 2% annually"
+   },
+   {
+    "topic": "units",
+    "quote": "The revenue loss should be weighed against the benefit of adding 102 affordable housing units that may not have been constructed in the absence of the PILOT agreement.",
+    "page": 2,
+    "wording": "adding",
+    "value": "102 affordable housing units"
+   }
+  ]
+ },
+ "tokens_in": 1866,
+ "tokens_out": 778,
+ "cost_usd": 0.002505,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

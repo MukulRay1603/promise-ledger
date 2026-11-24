@@ -3,7 +3,7 @@
 const byId = (id) => document.getElementById(id);
 const SVG_NS = "http://www.w3.org/2000/svg";
 const STAGES = ["proposed", "supported", "signed", "delivered"];
-const TAB_IDS = ["claims", "changes", "questions", "receipt", "extract", "glossary"];
+const TAB_IDS = ["claims", "ask", "changes", "questions", "receipt", "extract", "glossary"];
 const MAX_UPLOAD = 20 * 1024 * 1024;
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -40,7 +40,10 @@ function formatDate(iso) {
 const daysFromToday = (iso) => Math.round((new Date(`${iso.slice(0, 10)}T00:00:00`) - new Date(new Date().toDateString())) / 86400000);
 const plural = (count, one, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 const stageLabel = (status) => (status ? status[0].toUpperCase() + status.slice(1) : "None yet");
-const sourceShort = (claim) => `${claim.document_type} · ${formatDate(claim.date)} · p. ${claim.page}`;
+// An agreement whose record shows no completed signature says so, so its terms are not read as signed.
+const docLabel = (claim) => (/agreement/i.test(claim.document_type || "") && !["signed", "delivered"].includes(claim.status)
+  ? `${claim.document_type} (not signed)` : claim.document_type);
+const sourceShort = (claim) => `${docLabel(claim)} · ${formatDate(claim.date)} · p. ${claim.page}`;
 const fileSize = (bytes) => (bytes > 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`);
 
 const ICONS = {
@@ -67,6 +70,9 @@ const UI_ICONS = {
   file: [["path", { d: "M6 3h8l4 4v14H6z" }], ["path", { d: "M14 3v4h4M9 13h6M9 17h6" }]],
   link: [["path", { d: "M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" }], ["path", { d: "M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" }]],
   plus: [["path", { d: "M12 5v14M5 12h14" }]],
+  arrow: [["path", { d: "M5 12h14M13 6l6 6-6 6" }]],
+  ask: [["path", { d: "M4 5h16v11H9l-5 4z" }], ["path", { d: "M9 10h6M9 13h4" }]],
+  share: [["circle", { cx: 18, cy: 5, r: 2.5 }], ["circle", { cx: 6, cy: 12, r: 2.5 }], ["circle", { cx: 18, cy: 19, r: 2.5 }], ["path", { d: "M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4" }]],
   print: [["path", { d: "M7 9V3h10v6M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" }], ["rect", { x: 7, y: 14, width: 10, height: 7 }]],
   calendar: [["rect", { x: 3, y: 5, width: 18, height: 16, rx: 2 }], ["path", { d: "M3 10h18M8 3v4M16 3v4" }]],
   docq: [["path", { d: "M6 3h8l4 4v14H6z" }], ["path", { d: "M10.3 11a1.8 1.8 0 1 1 2.4 1.7c-.5.2-.7.6-.7 1.1M12 17v.1" }]],
@@ -76,6 +82,17 @@ const UI_ICONS = {
   info: [["circle", { cx: 12, cy: 12, r: 9 }], ["path", { d: "M12 11v5M12 8v.1" }]],
   prev: [["path", { d: "M15 6l-6 6 6 6" }]],
   next: [["path", { d: "M9 6l6 6-6 6" }]],
+  home: [["path", { d: "M3 11 12 4l9 7" }], ["path", { d: "M5 10v10h14V10" }], ["path", { d: "M10 20v-5h4v5" }]],
+  refresh: [["path", { d: "M20 11a8 8 0 1 0-2.3 5.7" }], ["path", { d: "M20 5v6h-6" }]],
+  code: [["path", { d: "M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14" }]],
+  spark: [["path", { d: "M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" }], ["path", { d: "M19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z" }]],
+  copy: [["rect", { x: 9, y: 9, width: 11, height: 11, rx: 2 }], ["path", { d: "M5 15V5a1 1 0 0 1 1-1h10" }]],
+  expand: [["path", { d: "M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" }]],
+  shrink: [["path", { d: "M20 10h-6V4M4 14h6v6M14 10l7-7M10 14l-7 7" }]],
+  x: [["path", { d: "M6 6l12 12M18 6 6 18" }]],
+  menu: [["path", { d: "M4 7h16M4 12h16M4 17h16" }]],
+  map: [["path", { d: "M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z" }], ["path", { d: "M9 4v14M15 6v14" }]],
+  road: [["path", { d: "M4 20 8 4M20 20 16 4M12 6v2M12 11v2M12 16v2" }]],
 };
 const icon = (name) => svg("0 0 24 24", UI_ICONS[name]);
 
@@ -98,6 +115,18 @@ function toast(message, { kind = "ok", detail = null, timeout = 4500 } = {}) {
 // ---------- API: the live server, or the in-browser mock until it is live ----------
 class ApiError extends Error { constructor(status, message) { super(message); this.status = status; } }
 let mock = null;
+let dealIsReal = false; // The open deal is a real county record: the nav marks County, and the banner says so.
+
+// The banner says what the visitor is looking at: made-up demo data, or a real public record.
+const BANNER_DEMO = "Demo deals use made-up data. Deals marked Real record are public records of Prince George's County, Maryland.";
+const BANNER_REAL = "Real public records of Prince George's County, Maryland. Promise Ledger lists what the records say; it does not judge whether anyone met an obligation.";
+function setBanner(real) {
+  const banner = document.querySelector(".demo-banner");
+  if (!banner) return;
+  banner.classList.toggle("real-banner", Boolean(real));
+  banner.querySelector("strong").textContent = real ? "Real records:" : "Demo:";
+  byId("demo-banner").textContent = real ? BANNER_REAL : BANNER_DEMO;
+}
 let ready = null;
 
 async function loadSeed() {
@@ -158,7 +187,18 @@ async function rawApi(path, { method = "GET", body = null, onProgress = null, re
   const headers = { Accept: "application/json", "X-Demo-Session": demoSession() };
   if (body) headers["Content-Type"] = "application/json";
   if (reviewer) headers["X-Reviewer-Name"] = encodeURIComponent(reviewer); // Read by current_reviewer() on the server.
-  const res = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : null });
+  // Self-healing: a read that hits a dropped connection or a busy server (502, 503, 504) is tried again twice,
+  // after 0.4 s and 1.2 s. Writes are never repeated, so nothing is sent twice.
+  let res;
+  for (const wait of method === "GET" ? [400, 1200, null] : [null]) {
+    try {
+      res = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : null });
+      if (wait === null || ![502, 503, 504].includes(res.status)) break;
+    } catch (err) {
+      if (wait === null) throw new ApiError(0, navigator.onLine === false ? "You're offline." : "The server could not be reached.");
+    }
+    await new Promise((r) => setTimeout(r, wait));
+  }
   const type = res.headers.get("content-type") || "";
   if (!res.ok) {
     let message = `The server returned ${res.status}.`;
@@ -247,18 +287,20 @@ function withTerm(text, phrase, key) {
 // ---------- Router ----------
 let current = { view: null };
 // Pages that are plain markup in index.html: route name -> title.
-const STATIC_PAGES = { roadmap: "Roadmap", about: "About" };
+const STATIC_PAGES = { roadmap: "Roadmap", about: "About", test: "Help us test" };
 let sampleId = "harbor-walk";
 
 function parseRoute() {
   const pathMatch = location.pathname.match(/^\/r\/([\w.-]+)/);
   if (pathMatch) return { view: "shared", token: pathMatch[1] };
-  const hash = decodeURIComponent(location.hash.replace(/^#/, ""));
+  let hash;
+  try { hash = decodeURIComponent(location.hash.replace(/^#/, "")); } catch { return { view: "missing" }; } // "%E0%A4%A"
   if (!hash || hash === "/") return { view: "home" };
   if (TAB_IDS.includes(hash)) return { view: "deal", id: sampleId, tab: hash }; // Links from the earlier one-page version.
   if (!hash.startsWith("/")) return { view: "home" };
   const parts = hash.split("/").filter(Boolean);
   if (parts[0] === "deals" && parts.length === 1) return { view: "deals" };
+  if (parts[0] === "county" && parts.length === 1) return { view: "county" };
   if (STATIC_PAGES[parts[0]] && parts.length === 1) return { view: parts[0] };
   if (parts[0] === "deals" && parts[1] && parts[2] === "source" && parts[3]) return { view: "deal", id: parts[1], tab: "claims", source: parts[3] };
   if (parts[0] === "deals" && parts[1] && parts[2] === "tour") return { view: "deal", id: parts[1], tab: "claims", tour: true };
@@ -271,10 +313,15 @@ function showView(view) {
   for (const section of document.querySelectorAll(".view")) section.hidden = section.dataset.view !== view;
   document.documentElement.classList.toggle("route-shared", view === "shared");
   document.documentElement.classList.toggle("route-app", view !== "home" && view !== "shared");
+  // The county chat is offered on Home, County and every real county agreement, where it starts with that agreement.
+  document.documentElement.classList.toggle("cc-on", view === "home" || view === "county" || (view === "deal" && dealIsReal));
+  countyChat?.setContext(view === "deal" && dealIsReal && dealState?.deal ? { id: dealState.id, name: dealState.deal.name } : null);
   for (const link of document.querySelectorAll("[data-nav]")) {
-    const on = link.dataset.nav === view || (view === "deal" && link.dataset.nav === "deals");
+    const on = link.dataset.nav === view || (view === "deal" && link.dataset.nav === (dealIsReal ? "county" : "deals"));
     if (on) link.setAttribute("aria-current", "page"); else link.removeAttribute("aria-current");
   }
+  placeNavIndicator();
+  setMenu(false, { focus: false });
 }
 
 async function route({ initial = false } = {}) {
@@ -288,20 +335,60 @@ async function route({ initial = false } = {}) {
     current = next;
     return;
   }
+  if (current.view === "deal" && next.view !== "deal") {
+    byId("view-deal").replaceChildren();
+    dealState = null;
+  }
   current = next;
   stopPolling();
   for (const dialog of document.querySelectorAll("dialog[open]")) dialog.close();
+  dealIsReal = false; // renderDeal sets it once the deal has loaded.
+  setBanner(next.view === "county");
+  document.querySelector(".demo-banner")?.classList.toggle("banner-pending", next.view === "deal");
   showView(next.view);
   if (!initial) {
     window.scrollTo(0, 0);
     byId("main").focus({ preventScroll: true });
   }
-  if (next.view === "home") { document.title = "Promise Ledger"; setupVideos(); if (!hero.running && hero.loops < HERO_LOOPS) heroPlay(); return; }
-  if (STATIC_PAGES[next.view]) { document.title = `${STATIC_PAGES[next.view]} · Promise Ledger`; return; }
+  if (next.view === "home") { document.title = "Promise Ledger"; setupVideos(); setupRealStrip(); if (!hero.running && hero.loops < HERO_LOOPS) heroPlay(); return; }
+  if (STATIC_PAGES[next.view]) { document.title = `${STATIC_PAGES[next.view]} · Promise Ledger`; if (next.view === "test") setupTester(); return; }
   if (next.view === "deals") return renderDeals();
+  if (next.view === "county") return renderCounty();
   if (next.view === "deal") return renderDeal(next.id, next.tab, next.source, next.tour);
   if (next.view === "shared") return renderShared(next.token);
   document.title = "Page not found · Promise Ledger";
+}
+
+// ---------- Recovery ----------
+// A view that throws while rendering shows a card that says so, with Try again, instead of a blank page. If the
+// browser is offline it tries again by itself when the connection returns.
+let routeFailed = false;
+async function safeRoute(options) {
+  try {
+    routeFailed = false;
+    await route(options);
+  } catch (err) {
+    routeFailed = true;
+    console.error(err);
+    const view = document.querySelector(".view:not([hidden])") || byId("view-missing");
+    const again = el("button", { type: "button", class: "btn btn-primary", onclick: () => safeRoute() }, "Try again");
+    view.replaceChildren(el("div", { class: "empty recover" },
+      el("h1", {}, "This page did not load"),
+      el("p", {}, navigator.onLine === false ? "You're offline. It will load again as soon as you reconnect." : "Something went wrong while drawing it. Trying again usually fixes it."),
+      el("div", { class: "page-actions" }, again, el("a", { class: "btn btn-secondary", href: "#/" }, "Go home"))));
+    view.hidden = false;
+  }
+}
+function setupConnectivity() {
+  const bar = el("div", { class: "net-banner", role: "status", hidden: true }, icon("warn"), "You're offline. What's on screen stays; anything new loads when you reconnect.");
+  document.body.prepend(bar);
+  window.addEventListener("offline", () => { bar.hidden = false; });
+  window.addEventListener("online", () => {
+    bar.hidden = true;
+    toast("Back online.");
+    if (routeFailed || document.querySelector(".view:not([hidden]) .empty .btn")) safeRoute();
+  });
+  if (navigator.onLine === false) bar.hidden = false;
 }
 
 // ---------- Home ----------
@@ -321,6 +408,10 @@ function setupOverview() {
     const frame = el("iframe", { src: OVERVIEW_EMBED, title: "Promise Ledger overview video", allow: "autoplay; encrypted-media; picture-in-picture; fullscreen",
       allowfullscreen: true, referrerpolicy: "strict-origin-when-cross-origin" });
     byId("overview-frame").replaceChildren(frame);
+    // Some networks and embedded browsers block YouTube players; the same video is one click away on YouTube.
+    byId("overview-frame").after(el("p", { class: "overview-alt" }, "Not playing? ",
+      el("a", { href: "https://www.youtube.com/watch?v=aD03n_4KfFc", target: "_blank", rel: "noopener" }, "Watch it on YouTube",
+        el("span", { class: "visually-hidden" }, " (opens in a new tab)"))));
     frame.focus();
   });
 }
@@ -346,6 +437,7 @@ async function setupVideos() {
     const open = el("button", { type: "button", class: "video-play", "aria-haspopup": "dialog",
       "aria-label": `Play ${video.title}${video.secs ? `, ${clock(video.secs)}` : ""}` },
       el("span", { class: "video-len" }, svg("0 0 24 24", [["path", { d: "M8 5v14l11-7z" }]]), video.secs ? clock(video.secs) : "Play"));
+    (viewer.tiles ||= [])[index] = open;
     open.addEventListener("click", () => openViewer(index, open));
     card.classList.add("is-ready");
     card.querySelector(".video-frame").replaceChildren(
@@ -367,6 +459,7 @@ function buildStrip() {
 
 function openViewer(index, opener) {
   viewer.opener = opener;
+  document.documentElement.classList.add("modal-lock");
   byId("video-dialog").showModal();
   showVideo(index, true);
 }
@@ -423,16 +516,26 @@ function setupViewer() {
   byId("vv-next").addEventListener("click", () => showVideo(viewer.index + 1, true));
   dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
   dialog.addEventListener("keydown", (event) => {
-    if (event.target.closest?.("video") || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.target.closest?.("video")) {
+      if (event.key === " ") event.stopPropagation(); // the player's own Space handling plays or pauses
+      return;
+    }
     if (event.key === "ArrowRight" && viewer.index < viewer.list.length - 1) { event.preventDefault(); showVideo(viewer.index + 1, true); }
     if (event.key === "ArrowLeft" && viewer.index > 0) { event.preventDefault(); showVideo(viewer.index - 1, true); }
+    if (event.key === " " && !event.target.closest?.("button, a, input, textarea")) {
+      event.preventDefault();
+      const player = byId("vv-stage").querySelector("video");
+      if (player) { if (player.paused) player.play().catch(() => {}); else player.pause(); }
+    }
   });
   dialog.addEventListener("close", () => {
+    document.documentElement.classList.remove("modal-lock");
     // Stop the download as well as the sound.
     const player = byId("vv-stage").querySelector("video");
     if (player) { player.pause(); player.removeAttribute("src"); player.replaceChildren(); player.load(); }
     byId("vv-stage").replaceChildren();
-    viewer.opener?.focus();
+    (viewer.tiles?.[viewer.index] || viewer.opener)?.focus();
   });
 }
 
@@ -560,13 +663,24 @@ async function renderDeals() {
   try {
     [deals, reminders] = await Promise.all([api("/api/deals"), api("/api/reminders").catch(() => [])]);
   } catch (err) {
-    tbody.replaceChildren(el("tr", {}, el("td", { colspan: 5 }, `The deals did not load. ${err.message} Reload the page to try again.`)));
+    routeFailed = true; // Reconnecting reloads the page (setupConnectivity).
+    tbody.replaceChildren(el("tr", {}, el("td", { colspan: 5 }, `The deals did not load. ${navigator.onLine === false ? "You're offline. It loads again by itself when you reconnect." : `${err.message} Reload the page to try again.`}`)));
     reminderList.replaceChildren();
     return;
   }
   if (current.view !== "deals") return;
   modeNote.hidden = !mock;
   rememberSample(deals);
+  // Real county deals have their own page; this table keeps the demo deals and the visitor's own.
+  const realCount = deals.filter((deal) => deal.real).length;
+  deals = deals.filter((deal) => !deal.real);
+  reminders = (Array.isArray(reminders) ? reminders : []).filter((r) => deals.some((deal) => deal.id === r.deal_id));
+  if (realCount) {
+    view.querySelector(".page-head").after(el("a", { class: "card county-callout", href: "#/county" },
+      el("span", { class: "real-badge" }, icon("check"), "Real records"),
+      el("span", { class: "cc-text" }, el("b", {}, `${realCount} Prince George's County agreements`), " read from the County Council's own records"),
+      el("span", { class: "cc-go", "aria-hidden": "true" }, "→")));
+  }
   // The deal row's next reminder may lack the as-of date; the full reminder list has it for each deal.
   const asOfByDeal = new Map((Array.isArray(reminders) ? reminders : []).filter((r) => r.as_of).map((r) => [r.deal_id, r.as_of]));
 
@@ -597,6 +711,541 @@ async function renderDeals() {
       el("a", { href: `#/deals/${encodeURIComponent(item.deal_id)}` }, item.deal_name || "Open deal"),
       item.claim_id ? [" · ", el("a", { href: sourceHref(item.deal_id, item.claim_id) }, "Source", el("span", { class: "visually-hidden" }, ` for: ${reminderText(item)}`))] : null)))
     : [el("li", { class: "reminder" }, el("p", { class: "reminder-text" }, "Nothing due."))]));
+}
+
+// ---------- Home: real records strip ----------
+// Live totals from the real county agreements, and one real quote of unfilled template text. Hidden if none are loaded.
+let realStripDone = false;
+async function setupRealStrip() {
+  const first = !realStripDone;
+  realStripDone = true;
+  const strip = byId("real-strip");
+  if (!strip) return;
+  let board;
+  try { board = await api("/api/county"); } catch { return; }
+  const t = board?.totals;
+  if (!t?.deals_read) return;
+  strip.hidden = false;
+  const values = { deals: t.deals_read, homes: t.homes, template_text: t.template_text };
+  for (const dd of strip.querySelectorAll("[data-count]")) {
+    const end = values[dd.dataset.count] || 0;
+    if (!first) { dd.textContent = end.toLocaleString(); continue; }
+    animateNumber(dd, end, 1100, (v) => Math.round(v).toLocaleString());
+  }
+  const effort = byId("rs-effort");
+  if (effort && t.pages && t.cost_usd != null) {
+    effort.replaceChildren(el("strong", {}, `${t.pages.toLocaleString()} pages`), " of council records: about ",
+      el("strong", {}, `${Math.round((t.pages * PAGE_MINUTES) / 60)} hours`), ` to read by hand at ${PAGE_MINUTES} minutes a page, `,
+      el("strong", { class: "rs-cost" }, `$${t.cost_usd.toFixed(2)}`), " to read them all here once.");
+    effort.hidden = false;
+  }
+  const pick = board.deals.find((r) => r.template_text?.length);
+  if (pick) {
+    const q = pick.template_text[0];
+    byId("rs-quote-text").textContent = `“${q.quote}”`;
+    byId("rs-quote-cite").replaceChildren(
+      el("a", { href: sourceHref(pick.id, q.claim_id) }, pick.name), `, ${q.document || "record"}${q.page ? `, p. ${q.page}` : ""} · council file ${pick.file}. `,
+      el("span", { class: "rs-note" }, "Approved text that still holds a template blank."));
+    byId("rs-quote").hidden = false;
+    // The real page of that quote, when it is the agreement the picture was made from (tools: element-shot.mjs).
+    const page = byId("rs-page");
+    if (page && page.dataset.deal === pick.id) {
+      page.hidden = false;
+      if (!reducedMotion.matches && "IntersectionObserver" in window) {
+        page.classList.add("rs-wait");
+        const seen = new IntersectionObserver(([entry]) => {
+          if (!entry.isIntersecting) return;
+          page.classList.add("rs-go"); page.classList.remove("rs-wait"); seen.disconnect();
+        }, { threshold: 0.4 });
+        seen.observe(page);
+      }
+    }
+  }
+}
+
+// ---------- Tester page (#/test) ----------
+// Timed tasks and a short form. Times are measured by the page; nothing about the tester is sent unless they type it.
+let testerReady = false;
+function setupTester() {
+  if (testerReady) return;
+  testerReady = true;
+  const form = byId("tester-form");
+  const times = {};
+  const fmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  for (const step of form.querySelectorAll("[data-timed]")) {
+    const key = step.dataset.timed;
+    const start = step.querySelector(".t-start"), stop = step.querySelector(".t-stop"), clock = step.querySelector(".t-clock");
+    let began = 0, tick = null;
+    start.addEventListener("click", () => {
+      began = Date.now();
+      start.disabled = true; stop.disabled = false; stop.focus();
+      clearInterval(tick);
+      tick = setInterval(() => { clock.textContent = fmt(Math.round((Date.now() - began) / 1000)); }, 1000);
+    });
+    stop.addEventListener("click", () => {
+      clearInterval(tick);
+      times[key] = Math.round((Date.now() - began) / 1000);
+      clock.textContent = fmt(times[key]);
+      stop.disabled = true; start.disabled = false; start.textContent = "Start again";
+    });
+  }
+  const named = form.querySelector(".t-named");
+  form.addEventListener("change", (event) => { if (event.target.name === "quote") named.hidden = event.target.value !== "named"; });
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const f = new FormData(form);
+    const err = byId("t-error");
+    if (!f.get("role")) { err.textContent = "Choose which describes you best (step 1)."; byId("t-role").focus(); return; }
+    const num = (k) => (f.get(k) ? Number(f.get(k)) : null);
+    const timed = (k) => ({ seconds: times[k] ?? null, found: f.get(`${k}_found`) || "skipped", answer: (f.get(`${k}_answer`) || "").trim() });
+    const body = { role: f.get("role"), by_hand: timed("by_hand"), with_tool: timed("with_tool"), county_task: timed("county_task"),
+      ask_rating: num("ask_rating"), easy_to_learn: num("easy_to_learn"), trust: num("trust"), would_use: num("would_use"),
+      confusing: (f.get("confusing") || "").trim(), more_useful: (f.get("more_useful") || "").trim(), quote: f.get("quote") || "no",
+      name: (f.get("name") || "").trim(), title: (f.get("title") || "").trim() };
+    const button = form.querySelector('[type="submit"]');
+    button.disabled = true;
+    err.textContent = "";
+    try {
+      await api("/api/feedback", { method: "POST", body });
+      form.hidden = true;
+      byId("tester-thanks").hidden = false;
+      byId("tester-thanks").focus();
+    } catch (e) {
+      err.textContent = `Your answers were not sent. ${e.message} Try again.`;
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
+
+// ---------- County board ----------
+// Every PILOT agreement the Prince George's County Council considered since 2023, from its own records. Each number
+// links back to checked quotes; "not found" means no wording was found in the records read, never a finding about
+// a party.
+const OBLIGATIONS = [
+  ["reporting", "Reporting", "A yearly report or certification to the County"],
+  ["remedies", "Remedies", "What happens if the terms are not met"],
+  ["rent_limits", "Rent limit", "A cap on rents"],
+  ["income_basis", "Income limit", "Who qualifies, as a share of area median income"],
+  ["term", "Term", "How many years the homes stay affordable"],
+];
+
+// A label that fits the term chart: "New Carrollton - Affordable - Phase 1" → "New Carrollton Ph. 1",
+// "Park Place at Addison Road Apartments" → "Park Place at Addison Rd". The full name stays in the title and label.
+function shortDealName(name) {
+  return name.replace(/\s+-\s+Affordable\s+-\s+Phase\s+/i, " Ph. ").replace(/\s+-\s+Affordable\s+-\s+/i, " · ")
+    .replace(/\s+Apartments$/i, "").replace(/\bRoad\b/, "Rd");
+}
+
+function countyTimeline(rows) {
+  // One bar per agreement from the Council's adoption to the end of its longest stated term, soonest first, so the
+  // terms that run out first sit at the top. Amber bars end within 15 years: the window to plan for keeping them.
+  const dated = rows.filter((r) => r.term_end).sort((a, b) => a.term_end.localeCompare(b.term_end));
+  if (!dated.length) return null;
+  const now = new Date().getFullYear();
+  const yr = (iso) => Number(iso.slice(0, 4)) + (Number(iso.slice(5, 7)) - 1) / 12;
+  const startOf = (r) => (r.passed ? yr(r.passed) : r.term_years ? yr(r.term_end) - r.term_years : now);
+  const first = Math.floor(Math.min(now, ...dated.map(startOf)) / 5) * 5;
+  const latest = Math.max(...dated.map((r) => yr(r.term_end)));
+  const cap = Math.min(Math.ceil(latest / 10) * 10, Math.max(now + 50, 2080));
+  const x = (y) => (100 * (Math.min(y, cap) - first)) / (cap - first);
+  const ticks = [];
+  for (let y = Math.ceil(first / 10) * 10; y <= cap; y += 10) ticks.push(y);
+  const soonEnd = now + 15;
+  const fig = el("figure", { class: "runway" },
+    el("figcaption", { class: "rw-head" },
+      el("div", {},
+        el("h2", { id: "county-timeline-title" }, "How long each agreement's homes stay affordable"),
+        el("p", { class: "hint" }, "Each bar runs from the Council's adoption to the end of the longest term the records state. A year with + is counted from adoption, so the real end is then or later. Amber bars run out within 15 years.")),
+      el("a", { class: "btn btn-secondary btn-small", href: "/api/reminders.ics?county=1", download: "prince-georges-terms.ics" }, icon("calendar"), "Add end dates to a calendar")),
+    el("div", { class: "rw-chart" },
+      el("div", { class: "rw-grid", "aria-hidden": "true" },
+        el("span", { class: "rw-window", style: `left:${x(now)}%;width:${x(soonEnd) - x(now)}%` }, el("span", {}, "Next 15 years")),
+        ...ticks.map((y) => el("span", { class: `rw-tick${y % 20 ? " rw-minor" : ""}`, style: `left:${x(y)}%` }, el("span", {}, String(y)))),
+        el("span", { class: "rw-today", style: `left:${x(now)}%` }, el("span", {}, "Today"))),
+      el("ol", { class: "rw-rows", "aria-labelledby": "county-timeline-title" },
+        ...dated.map((r, i) => {
+          const endY = yr(r.term_end);
+          const soon = Number(r.term_end.slice(0, 4)) <= soonEnd;
+          const est = r.term_end_estimated;
+          const over = endY > cap;
+          const left = x(startOf(r));
+          const label = `${r.term_end.slice(0, 4)}${est ? "+" : ""}`;
+          return el("li", { class: `rw-row${soon ? " rw-soon" : ""}${est ? " rw-est" : ""}${over ? " rw-over" : ""}`, style: `--i:${i}` },
+            el("a", { class: "rw-name", href: `#/deals/${encodeURIComponent(r.id)}`, title: r.name,
+              "aria-label": `${r.name}: ${r.term_years ? `${r.term_years}-year term, ` : ""}runs to ${est ? `about ${r.term_end.slice(0, 4)} or later` : formatDate(r.term_end)}${r.homes ? `, ${plural(r.homes, "affordable home")}` : ""}` }, shortDealName(r.name)),
+            el("span", { class: "rw-track", "aria-hidden": "true" },
+              el("span", { class: "rw-bar", style: `left:${left}%;width:${Math.max(1, x(endY) - left)}%` }),
+              el("span", { class: "rw-end", style: `left:${x(endY)}%` }, over ? `${label} →` : label)));
+        }))));
+  if (!reducedMotion.matches && "IntersectionObserver" in window) {
+    fig.classList.add("rw-wait");
+    const seen = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      fig.classList.add("rw-go");
+      seen.disconnect();
+    }, { threshold: 0.15 });
+    requestAnimationFrame(() => seen.observe(fig));
+  }
+  return fig;
+}
+
+// ---------- County map ----------
+// Each agreement at the property address its own records state (record and page shown), sized by the affordable
+// homes stated, amber when the stated term runs out by 2040. Deals whose records state no street address are listed,
+// never placed by guess.
+const SVGNS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs = {}, ...kids) {
+  const node = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) if (v != null) node.setAttribute(k, v);
+  node.append(...kids.filter((k) => k != null));
+  return node;
+}
+function countyMap(board) {
+  // A tilted night view of the county: the land as a raised slab, the highways people navigate by, and a column of
+  // light at each agreement, as tall as the affordable homes its records state. Pins come only from addresses the
+  // records state; nothing here is placed by guess.
+  const m = board.map;
+  const placed = board.deals.filter((r) => r.location?.lat);
+  if (!m?.shapes || !placed.length) return null;
+  const TILT = 0.6, W = 760, TOP = 120, DEPTH = 14;
+  const lons = placed.map((r) => r.location.lon), lats = placed.map((r) => r.location.lat);
+  const padLon = Math.max(0.05, 0.3 * (Math.max(...lons) - Math.min(...lons)));
+  const padLat = Math.max(0.04, 0.3 * (Math.max(...lats) - Math.min(...lats)));
+  const [minLon, maxLon, minLat, maxLat] = [Math.min(...lons) - padLon, Math.max(...lons) + padLon, Math.min(...lats) - padLat, Math.max(...lats) + padLat];
+  const k = Math.cos(((minLat + maxLat) / 2) * Math.PI / 180);
+  const scale = W / ((maxLon - minLon) * k);
+  const H = Math.round(TOP + (maxLat - minLat) * scale * TILT + 24);
+  const P = (lon, lat) => [(lon - minLon) * k * scale, TOP + (maxLat - lat) * scale * TILT];
+  const d = (rings, dy = 0) => rings.map((ring) => "M" + ring.map(([x, y]) => { const [a, b] = P(x, y); return `${a.toFixed(1)},${(b + dy).toFixed(1)}`; }).join("L") + "Z").join("");
+  const line = (pts) => "M" + pts.map(([x, y]) => P(x, y).map((v) => v.toFixed(1)).join(",")).join("L");
+  const county = m.shapes["Prince George's County"] || [], dc = m.shapes["Washington, DC"] || [];
+  const maxHomes = Math.max(1, ...placed.map((r) => r.homes || 0));
+  const uid = `m${Math.random().toString(36).slice(2, 7)}`;
+
+  // Grid lines every 0.02 degrees, clipped to the county top face.
+  const grid = [];
+  for (let lon = Math.ceil(minLon / 0.02) * 0.02; lon < maxLon; lon += 0.02) grid.push(line([[lon, minLat - 0.2], [lon, maxLat + 0.2]]));
+  for (let lat = Math.ceil(minLat / 0.02) * 0.02; lat < maxLat; lat += 0.02) grid.push(line([[minLon - 0.2, lat], [maxLon + 0.2, lat]]));
+
+  const roads = Object.entries(m.roads || {}).map(([name, r]) => ({ name, kind: r.kind, d: r.lines.map(line).join("") }));
+  // One shield per route, on its longest stretch inside the frame.
+  const inView = ([x, y]) => x > 40 && x < W - 40 && y > TOP + 10 && y < H - 30;
+  const inside = ([lon, lat], rings) => rings.some((ring) => {
+    let hit = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i], [xj, yj] = ring[j];
+      if ((yi > lat) !== (yj > lat) && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) hit = !hit;
+    }
+    return hit;
+  });
+  const shields = Object.entries(m.roads || {}).filter(([, r]) => r.kind !== "state").map(([name, r]) => {
+    const pts = r.lines.flat().filter((pt) => !inside(pt, dc)).map(([x, y]) => P(x, y)).filter(inView);
+    return pts.length > 6 ? { name, kind: r.kind, at: pts[Math.floor(pts.length / 2)] } : null;
+  }).filter(Boolean);
+  let places = Object.entries(m.places || {}).map(([name, [lon, lat]]) => ({ name, at: P(lon, lat) })).filter((p) => inView(p.at));
+
+  // Agreements at the same site fan out; beams are drawn back to front.
+  const seen = {};
+  const pins = placed.map((r, i) => {
+    const key = `${r.location.lat.toFixed(3)},${r.location.lon.toFixed(3)}`;
+    const n = (seen[key] = (seen[key] || 0) + 1) - 1;
+    let [x, y] = P(r.location.lon, r.location.lat);
+    if (n) { x += 12 * Math.cos(n * 2.1); y += 7 * Math.sin(n * 2.1); }
+    return { r, x, y, i, soon: Boolean(r.term_end && r.term_end < "2041-01-01"), h: 18 + 92 * Math.sqrt((r.homes || 0) / maxHomes) };
+  }).sort((a, b) => a.y - b.y);
+  // Labels never sit under a column or on top of each other: a town label is dropped near a site, and a home count
+  // shows only where it fits (largest first); every count still shows on hover or focus.
+  places = places.filter((pl) => pins.every((p) => Math.abs(pl.at[0] + 28 - p.x) > 34 || pl.at[1] < p.y - p.h - 12 || pl.at[1] > p.y + 10));
+  const taken = [];
+  for (const p of [...pins].sort((a, b) => (b.r.homes || 0) - (a.r.homes || 0))) {
+    const box = [p.x - 13, p.y - p.h - 20, p.x + 13, p.y - p.h - 6];
+    p.label = !taken.some((t) => box[0] < t[2] && box[2] > t[0] && box[1] < t[3] && box[3] > t[1]);
+    if (p.label) taken.push(box);
+  }
+
+  const hud = el("div", { class: "m3-hud", "aria-live": "polite" });
+  let svg;
+  const show = (p) => {
+    const r = p.r, loc = r.location;
+    hud.replaceChildren(
+      el("p", { class: "m3-hud-kicker" }, p.soon ? "Term ends by 2040" : "Agreement"),
+      el("p", { class: "m3-hud-name" }, r.name),
+      el("p", { class: "m3-hud-addr" }, `${loc.address}${loc.city ? `, ${loc.city}` : ""}`, loc.approx ? " · street located" : ""),
+      el("dl", { class: "m3-hud-facts" },
+        el("div", {}, el("dt", {}, "Affordable homes"), el("dd", {}, r.homes ? `${r.homes_approx ? "Over " : ""}${r.homes.toLocaleString()}` : "Not stated")),
+        el("div", {}, el("dt", {}, "Stated term to"), el("dd", { class: p.soon ? "m3-amber" : "" }, r.term_end ? `${r.term_end.slice(0, 4)}${r.term_end_estimated ? "+" : ""}` : "Not stated")),
+        el("div", {}, el("dt", {}, "Key terms found"), el("dd", {}, `${Object.values(r.found).filter(Boolean).length} of ${Object.keys(r.found).length}`))),
+      el("p", { class: "m3-hud-src" }, `Council file ${r.file || "—"} · address from ${loc.record}, p. ${loc.page}`),
+      el("a", { class: "m3-hud-go", href: `#/deals/${encodeURIComponent(r.id)}` }, "Open the agreement", icon("arrow")));
+    svg?.querySelectorAll(".m3-pin").forEach((g) => g.classList.toggle("on", g === p.node));
+  };
+
+  svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "m3-svg", role: "group", "aria-labelledby": "county-map-title" },
+    svgEl("defs", {},
+      svgEl("linearGradient", { id: `${uid}-beam`, x1: "0", y1: "1", x2: "0", y2: "0" },
+        svgEl("stop", { offset: "0", "stop-color": "#5EEAD4", "stop-opacity": ".95" }), svgEl("stop", { offset: "1", "stop-color": "#5EEAD4", "stop-opacity": "0" })),
+      svgEl("linearGradient", { id: `${uid}-beam-soon`, x1: "0", y1: "1", x2: "0", y2: "0" },
+        svgEl("stop", { offset: "0", "stop-color": "#FBBF24", "stop-opacity": ".95" }), svgEl("stop", { offset: "1", "stop-color": "#FBBF24", "stop-opacity": "0" })),
+      svgEl("linearGradient", { id: `${uid}-land`, x1: "0", y1: "0", x2: "1", y2: "1" },
+        svgEl("stop", { offset: "0", "stop-color": "#123B44" }), svgEl("stop", { offset: "1", "stop-color": "#0C2530" })),
+      svgEl("filter", { id: `${uid}-glow`, x: "-100%", y: "-100%", width: "300%", height: "300%" },
+        svgEl("feGaussianBlur", { stdDeviation: "3", result: "b" }), svgEl("feMerge", {}, svgEl("feMergeNode", { in: "b" }), svgEl("feMergeNode", { in: "SourceGraphic" }))),
+      svgEl("clipPath", { id: `${uid}-clip` }, svgEl("path", { d: d(county) }))),
+    svgEl("g", { class: "m3-terrain", "aria-hidden": "true" },
+      svgEl("path", { class: "m3-dc", d: d(dc) }),
+      svgEl("path", { class: "m3-side", d: d(county, DEPTH) }),
+      svgEl("path", { class: "m3-land", d: d(county), fill: `url(#${uid}-land)` }),
+      svgEl("g", { "clip-path": `url(#${uid}-clip)` }, svgEl("path", { class: "m3-grid", d: grid.join("") })),
+      svgEl("path", { class: "m3-edge-glow", d: d(county) }),
+      svgEl("path", { class: "m3-edge", d: d(county), pathLength: "1" }),
+      ...roads.map((r) => svgEl("path", { class: `m3-road m3-${r.kind}`, d: r.d, pathLength: "1" })),
+      ...places.map((p) => svgEl("g", { class: "m3-place" }, svgEl("circle", { cx: p.at[0].toFixed(1), cy: p.at[1].toFixed(1), r: "1.8" }),
+        svgEl("text", { x: (p.at[0] + 5).toFixed(1), y: (p.at[1] + 3).toFixed(1) }, p.name.toUpperCase()))),
+      ...shields.map((s) => svgEl("g", { class: `m3-shield m3-${s.kind}`, transform: `translate(${s.at[0].toFixed(1)} ${s.at[1].toFixed(1)})` },
+        svgEl("rect", { x: -16, y: -8, width: 32, height: 16, rx: s.kind === "interstate" ? 4 : 8 }),
+        svgEl("text", { y: 3.5, "text-anchor": "middle" }, s.name))),
+      (() => { const [x, y] = P(minLon + 0.012, 38.9); return svgEl("text", { class: "m3-dc-label", x: x.toFixed(1), y: y.toFixed(1) }, "WASHINGTON, DC"); })()),
+    ...pins.map((p) => {
+      const g = svgEl("a", { class: `m3-pin${p.soon ? " m3-soon" : ""}${p.r.location.approx ? " m3-approx" : ""}`, href: `#/deals/${encodeURIComponent(p.r.id)}`,
+        style: `--i:${p.i}`,
+        "aria-label": `${p.r.name}: ${p.r.homes ? plural(p.r.homes, "affordable home") : "home count not stated"}, ${p.r.location.address}${p.r.term_end ? `, stated term to ${p.r.term_end.slice(0, 4)}` : ""}` },
+        svgEl("ellipse", { class: "m3-ring", rx: 13, ry: 13 * TILT }),
+        svgEl("ellipse", { class: "m3-base", rx: 7, ry: 7 * TILT }),
+        svgEl("rect", { class: "m3-beam", x: -3, y: -p.h, width: 6, height: p.h, rx: 3, fill: `url(#${uid}-beam${p.soon ? "-soon" : ""})` }),
+        svgEl("circle", { class: "m3-halo", cy: -p.h, r: 8 }),
+        svgEl("circle", { class: "m3-cap", cy: -p.h, r: 4.2 }),
+        p.r.homes ? svgEl("text", { class: `m3-num${p.label ? "" : " m3-num-hide"}`, y: -p.h - 9, "text-anchor": "middle" }, p.r.homes.toLocaleString()) : null,
+        svgEl("ellipse", { class: "m3-hit", rx: 14, ry: 14, cy: -p.h / 2, "fill-opacity": 0 }));
+      p.node = g;
+      g.addEventListener("mouseenter", () => show(p));
+      g.addEventListener("focus", () => show(p));
+      return svgEl("g", { transform: `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})` }, g);
+    }));
+
+  show(pins.reduce((a, b) => ((b.r.homes || 0) > (a.r.homes || 0) ? b : a)));
+  const missing = board.deals.filter((r) => !r.location?.lat);
+  const fig = el("section", { class: "county-map m3", "aria-labelledby": "county-map-title" },
+    el("div", { class: "m3-head" },
+      el("div", {},
+        el("p", { class: "m3-kicker" }, el("span", { class: "m3-live", "aria-hidden": "true" }), "Prince George's County · live from public records"),
+        el("h2", { id: "county-map-title" }, "Where the homes are"),
+        el("p", { class: "m3-sub" }, `${placed.length} of ${board.deals.length} agreements at the address their records state. Taller column, more affordable homes; amber means the term ends by 2040.`)),
+      el("p", { class: "m3-total", "aria-hidden": "true" }, el("span", {}, placed.reduce((s, p) => s + (p.homes || 0), 0).toLocaleString()), " homes on the map")),
+    el("div", { class: "m3-body" },
+      el("div", { class: "m3-stage" }, svg,
+        el("span", { class: "m3-sweep", "aria-hidden": "true" }),
+        el("p", { class: "m3-legend", "aria-hidden": "true" },
+          el("span", {}, el("i", { class: "k-teal" }), "Term past 2040"),
+          el("span", {}, el("i", { class: "k-amber" }), "Term ends by 2040"),
+          el("span", {}, el("i", { class: "k-road" }), "Interstate"),
+          el("span", {}, el("i", { class: "k-approx" }), "Street located"))),
+      el("div", { class: "m3-side-col" }, hud,
+        missing.length ? el("div", { class: "m3-missing" },
+          el("p", { class: "m3-m-title" }, `Not on the map (${missing.length})`),
+          el("p", {}, "Their records state no street address, so they are not placed by guess."),
+          el("ul", {}, ...missing.map((r) => el("li", {}, el("a", { href: `#/deals/${encodeURIComponent(r.id)}` }, r.name))))) : null)),
+    el("p", { class: "m3-credit" }, "Addresses from the records. Located with the U.S. Census Geocoder",
+      placed.some((r) => r.location.geocoder?.includes("OpenStreetMap")) ? "; street-level ones with OpenStreetMap (© OpenStreetMap contributors)" : "",
+      ". Outlines, highways and places: U.S. Census Bureau."));
+  if (!reducedMotion.matches && "IntersectionObserver" in window) {
+    fig.classList.add("m3-wait");
+    const io = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      fig.classList.add("m3-go"); fig.classList.remove("m3-wait"); io.disconnect();
+    }, { threshold: 0.2 });
+    requestAnimationFrame(() => io.observe(fig));
+  }
+  return fig;
+}
+
+// Reading the council records by hand, next to what one read here cost. Pages and cost are counted; the hours are
+// an estimate at a stated pace, labeled as such.
+const PAGE_MINUTES = 2;
+function countyEffort(t) {
+  if (!t.pages || t.cost_usd == null) return null;
+  const hours = Math.round((t.pages * PAGE_MINUTES) / 60);
+  const counters = [];
+  const fact = (value, fmt, label, sub, tone = "") => {
+    const n = el("span", { class: "ef-n" }, fmt(value));
+    counters.push([n, value, fmt]);
+    return el("div", { class: `ef-fact ${tone}` }, el("p", { class: "ef-v" }, n), el("p", { class: "ef-l" }, label), el("p", { class: "ef-s" }, sub));
+  };
+  const box = el("section", { class: "effort", "aria-label": "By hand compared with Promise Ledger" },
+    fact(t.pages, (v) => Math.round(v).toLocaleString(), "pages of council records", `${t.records} records, ${t.deals} agreements`),
+    el("span", { class: "ef-arrow", "aria-hidden": "true" }, "→"),
+    fact(hours, (v) => `≈${Math.round(v)} h`, "to read them by hand", `at ${PAGE_MINUTES} minutes a page (an estimate)`, "ef-hand"),
+    el("span", { class: "ef-arrow", "aria-hidden": "true" }, "vs"),
+    fact(t.cost_usd, (v) => `$${v.toFixed(2)}`, "to read them all here, once", "total model cost; every quote then checked by code", "ef-tool"));
+  requestAnimationFrame(() => { for (const [n, v, f] of counters) animateNumber(n, v, 1100, f); });
+  return box;
+}
+
+// Search every checked quote across the county agreements. Results are quotes found word for word on their page.
+const TOPIC_LABEL = { units: "Homes", income_basis: "Income limit", rent_limits: "Rent limits", term: "Term", responsible_party: "Responsible party", reporting: "Reporting", remedies: "Remedies" };
+const SEARCH_EXAMPLES = ["how long must the homes stay affordable", "annual income certification", "what if the owner sells the property", "penalty if the owner defaults"];
+function countySearch() {
+  const input = el("input", { type: "search", id: "county-q", maxlength: "200", autocomplete: "off",
+    placeholder: "e.g. how long must the homes stay affordable", "aria-describedby": "county-search-note" });
+  const note = el("p", { class: "hint", id: "county-search-note", role: "status" },
+    "Finds matching sentences in every agreement's checked quotes.");
+  const list = el("ol", { class: "search-results" });
+  let seq = 0;
+  const run = async (q) => {
+    q = q.trim();
+    if (!q) { list.replaceChildren(); return; }
+    const mine = ++seq;
+    note.textContent = "Searching…";
+    try {
+      const res = await api(`/api/county/search?q=${encodeURIComponent(q)}`);
+      if (mine !== seq) return;
+      note.textContent = res.results.length ? `${plural(res.results.length, "match", "matches")}. ${res.notice}` : `No checked quote matches “${q}”. ${res.notice}`;
+      list.replaceChildren(...res.results.map((r) => el("li", {},
+        el("a", { class: "sr-quote", href: sourceHref(r.deal_id, r.claim_id) }, `“${r.quote}”`),
+        el("p", { class: "sr-meta" }, el("a", { href: `#/deals/${encodeURIComponent(r.deal_id)}` }, r.deal), ` · ${r.file} · ${r.document || "Record"}`,
+          r.page ? ` · p. ${r.page}` : "", ` · ${TOPIC_LABEL[r.topic] || r.topic}`))));
+    } catch (err) {
+      if (mine === seq) note.textContent = `Search did not run. ${err.message}`;
+    }
+  };
+  const form = el("form", { class: "county-search", role: "search", "aria-label": "Search the county agreements",
+    onsubmit: (event) => { event.preventDefault(); run(input.value); } },
+    el("label", { for: "county-q" }, "Search every agreement"),
+    el("div", { class: "cs-row" }, input, el("button", { type: "submit", class: "btn btn-primary" }, "Search")),
+    el("div", { class: "cs-examples" }, el("span", { class: "hint" }, "Try:"),
+      ...SEARCH_EXAMPLES.map((q) => el("button", { type: "button", class: "q-chip", onclick: () => { input.value = q; run(q); } }, q))));
+  return el("section", { class: "card county-search-card", "aria-label": "Search" }, form, note, list);
+}
+
+// Quick filters for the table: each shows only the agreements a busy reviewer would look at first.
+const COUNTY_FILTERS = [
+  ["all", "All"],
+  ["no-reporting", "No reporting wording"],
+  ["no-remedies", "No remedy wording"],
+  ["blanks", "Template blanks"],
+  ["soon", "Terms run out by 2040"],
+];
+function countyFlags(r) {
+  if (!r.records_read) return [];
+  return [
+    !r.found.reporting && "no-reporting",
+    !r.found.remedies && "no-remedies",
+    r.template_text?.length && "blanks",
+    r.term_end && r.term_end < "2041-01-01" && "soon",
+  ].filter(Boolean);
+}
+function countyFilters(rows) {
+  const count = (key) => (key === "all" ? rows.length : rows.filter((r) => countyFlags(r).includes(key)).length);
+  const status = el("p", { class: "visually-hidden", role: "status" });
+  const group = el("div", { class: "county-filters", role: "group", "aria-label": "Show agreements" },
+    ...COUNTY_FILTERS.map(([key, label]) => el("button", { type: "button", class: "q-chip", "aria-pressed": String(key === "all"),
+      onclick: (event) => {
+        group.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === event.currentTarget)));
+        let shown = 0;
+        document.querySelectorAll(".county-table tbody tr").forEach((tr) => {
+          const on = key === "all" || (tr.dataset.flags || "").split(" ").includes(key);
+          tr.hidden = !on;
+          shown += on;
+        });
+        status.textContent = `Showing ${plural(shown, "agreement")}.`;
+      } }, `${label} (${count(key)})`)));
+  return [group, status];
+}
+
+async function renderCounty() {
+  document.title = "Prince George's County · Promise Ledger";
+  setBanner(true);
+  const view = byId("view-county");
+  const body = el("div", { class: "county-body", "aria-busy": "true" }, el("div", { class: "skeleton", style: "height:10rem;border-radius:var(--r-lg)" }));
+  view.replaceChildren(
+    el("div", { class: "page-head" },
+      el("div", {},
+        el("p", { class: "eyebrow" }, el("span", { class: "real-badge" }, icon("check"), "Real public records")),
+        el("h1", { id: "county-title" }, "Prince George's County"),
+        el("p", { class: "page-sub" }, "Every PILOT (payment in lieu of taxes) agreement the County Council has considered since 2023, from its own records. Open one to see each commitment's quote and page.")),
+    ),
+    body);
+  let board;
+  try {
+    board = await api("/api/county");
+  } catch (err) {
+    routeFailed = true;
+    body.replaceChildren(el("p", {}, `The county records did not load. ${navigator.onLine === false ? "You're offline. It loads again by itself when you reconnect." : `${err.message} Reload the page to try again.`}`));
+    return;
+  }
+  if (current.view !== "county") return;
+  const t = board.totals;
+  const read = board.deals.filter((r) => r.records_read);
+  if (!board.deals.length) {
+    body.replaceChildren(el("p", {}, "No county records are loaded on this server yet."));
+    return;
+  }
+  const pct = (n) => (read.length ? Math.round((100 * n) / read.length) : 0);
+  const counters = [];
+  const kpi = (value, label, sub, tone = "", of = 0) => {
+    const n = el("span", { class: "kv-n" }, typeof value === "number" ? value.toLocaleString() : value);
+    if (typeof value === "number") counters.push([n, value]);
+    return el("div", { class: `kpi county-kpi ${tone}` },
+      el("p", { class: "kpi-label" }, label),
+      el("p", { class: "kpi-value" }, n, of ? el("span", { class: "kv-of" }, ` of ${of}`) : null),
+      of ? el("span", { class: "kpi-mini frac", "aria-hidden": "true", style: `--f:${value / of}` }, el("span")) : null,
+      el("p", { class: "kpi-sub" }, sub));
+  };
+  const dot = (found, row, key, label) => !row.records_read
+    ? el("td", { class: "ob-cell ob-unread", "data-label": label }, el("span", { class: "ob-text-always" }, "Not read yet"))
+    : el("td", { class: `ob-cell ${found ? "ob-found" : "ob-missing"}`, "data-label": label },
+      el("span", { class: "ob-dot", "aria-hidden": "true" }),
+      el("span", { class: "visually-hidden" }, found ? "Wording found" : "No wording found"),
+      el("span", { class: "ob-text", "aria-hidden": "true" }, found ? "Found" : "Not found"));
+  body.removeAttribute("aria-busy");
+  body.replaceChildren(
+    el("div", { class: "kpi-row county-kpis" },
+      kpi(t.deals, "Agreements", `${t.records_read} of ${t.records} council records read`, "kpi-hero"),
+      kpi(t.homes || "—", "Affordable homes stated", t.deals_with_homes ? `in ${plural(t.deals_with_homes, "agreement")} that state a count` : "No counts found yet", "kpi-hero"),
+      kpi(t.found.reporting, "Have reporting wording", `${pct(t.found.reporting)}% of agreements read`, t.found.reporting < read.length ? "kpi-warn" : "", read.length),
+      kpi(t.found.remedies, "Have remedy wording", `${pct(t.found.remedies)}% of agreements read`, t.found.remedies < read.length ? "kpi-warn" : "", read.length),
+      kpi(t.ending_by_2040, "Terms run out by 2040", `of ${plural(t.term_ends_known, "agreement")} that state a term`, t.ending_by_2040 ? "kpi-warn" : ""),
+      kpi(t.template_text, "Approved with blanks", "Unfilled template text, like “(insert specific dates)”", t.template_text ? "kpi-warn" : "")),
+    countyEffort(t),
+    countyMap(board),
+    countySearch(),
+    countyTimeline(read),
+    el("section", { class: "card county-table-card", "aria-labelledby": "county-table-cap" },
+      el("div", { class: "card-head" }, el("h2", { id: "county-table-cap" }, "What each agreement's records say"),
+        el("p", { class: "hint" }, "Found means wording for that term was found and checked on its page in the records read. Not found is a question to ask, not a finding."),
+        el("p", { class: "ob-legend", "aria-hidden": "true" },
+          el("span", { class: "ob-found" }, el("span", { class: "ob-dot" }), "Found"),
+          el("span", { class: "ob-missing" }, el("span", { class: "ob-dot" }), "Not found")),
+        countyFilters(board.deals)),
+      el("div", { class: "county-scroll" },
+        el("table", { class: "county-table stack" },
+          el("caption", { class: "visually-hidden" }, "County PILOT agreements, newest first"),
+          el("thead", {}, el("tr", {},
+            ["Agreement", "Council action", "Affordable homes", "Income limits", "Longest stated term"].map((h) => el("th", { scope: "col" }, h)),
+            ...OBLIGATIONS.map(([, label, help]) => el("th", { scope: "col", class: "ob-head", title: help }, label)))),
+          el("tbody", {}, ...board.deals.map((r) => el("tr", { class: r.records_read ? null : "row-pending", "data-flags": countyFlags(r).join(" ") },
+            el("th", { scope: "row", "data-label": "Agreement" },
+              el("a", { class: "deal-name", href: `#/deals/${encodeURIComponent(r.id)}` }, r.name),
+              el("span", { class: "deal-city" }, r.file, " · ", r.records_read < r.records ? `${r.records_read} of ${r.records} records read` : plural(r.records, "record")),
+              r.template_text?.length ? el("a", { class: "tag tag-differs template-flag", href: sourceHref(r.id, r.template_text[0].claim_id),
+                title: `“${r.template_text[0].quote}”` }, "Template blanks in the approved text") : null),
+            el("td", { "data-label": "Council action" },
+              el("span", { class: "ca-status" }, r.council_status || "—"), r.passed ? el("span", { class: "ca-date" }, formatDate(r.passed)) : null,
+              r.source_url ? el("a", { class: "reminder-source", href: r.source_url, target: "_blank", rel: "noopener" }, "Council record", el("span", { class: "visually-hidden" }, ` for ${r.name} (opens in a new tab)`)) : null),
+            el("td", { "data-label": "Affordable homes", class: "num" }, r.homes
+              ? [el("span", { title: r.homes_approx ? "The record says over this number" : null }, `${r.homes}${r.homes_approx ? "+" : ""}`), r.homes_claim_id ? el("a", { class: "reminder-source", href: sourceHref(r.id, r.homes_claim_id) }, "Quote", el("span", { class: "visually-hidden" }, ` for ${r.name} homes`)) : null]
+              : el("span", { class: "cell-muted" }, "—")),
+            el("td", { "data-label": "Income limits" }, r.income_limit || el("span", { class: "cell-muted" }, "—")),
+            el("td", { "data-label": "Longest stated term" }, r.term_end
+              ? [el("span", {}, r.term_years ? `${r.term_years} years` : formatDate(r.term_end)),
+                el("span", { class: "deal-city" }, r.term_end_estimated ? `to about ${r.term_end.slice(0, 4)} or later` : `ends ${formatDate(r.term_end)}`),
+                r.term_claim_id ? el("a", { class: "reminder-source", href: sourceHref(r.id, r.term_claim_id) }, "Quote", el("span", { class: "visually-hidden" }, ` for ${r.name} term`)) : null]
+              : el("span", { class: "cell-muted" }, "—")),
+            ...OBLIGATIONS.map(([key, label]) => dot(r.found[key], r, key, label)))))))),
+    el("p", { class: "hint county-source" }, `Source: ${board.source}${board.retrieved ? `, retrieved ${formatDate(board.retrieved)}` : ""}. Each record is read once and every quote is checked word for word against its page.`),
+  );
+  for (const [node, value] of counters) animateNumber(node, value, 900, (v) => Math.round(v).toLocaleString());
+  riseIn(body);
 }
 
 function rememberSample(deals) {
@@ -658,6 +1307,7 @@ const DEAL_TEMPLATE = `
       <div class="summary-box"><h2 id="glance-heading">At a glance</h2><ul class="glance-list" id="glance-list"></ul><p class="glance-foot" id="glance-foot"></p></div>
       <ul class="kpis" id="kpis" aria-label="Key figures"></ul>
     </section>
+    <section class="card promise-scene" id="promise-scene" aria-labelledby="scene-title" hidden></section>
     <div class="stepper-wrap"><h2 class="stepper-heading" id="stepper-heading"><span id="stage-term">Stages</span> on record</h2><ol class="stepper" id="stepper" aria-labelledby="stepper-heading"></ol></div>
     <section class="card review-panel" id="review-panel" aria-labelledby="review-title"></section>
   </div>
@@ -665,7 +1315,7 @@ const DEAL_TEMPLATE = `
     <div class="card-head"><h2 id="docs-title">Documents</h2><p class="hint" id="docs-count"></p></div>
     <div class="card-body">
       <ul class="doc-list" id="doc-list" aria-live="polite"></ul>
-      <div class="dropzone" id="dropzone">
+      <div class="dropzone" id="dropzone" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg>
         <p><strong>Drag PDFs here</strong> or</p>
         <button type="button" class="btn btn-secondary" id="choose-files">Choose PDFs</button>
@@ -682,6 +1332,7 @@ const DEAL_TEMPLATE = `
   <section class="tabs-wrap" id="details" aria-label="Review details">
     <div class="tablist" role="tablist" aria-label="Review details" id="tablist">
       <button type="button" role="tab" id="tab-claims" aria-controls="claims">Claims<span class="tab-count" id="count-claims"></span></button>
+      <button type="button" role="tab" id="tab-ask" aria-controls="ask">Ask</button>
       <button type="button" role="tab" id="tab-changes" aria-controls="changes">What changed</button>
       <button type="button" role="tab" id="tab-questions" aria-controls="questions">Open questions<span class="tab-count" id="count-questions"></span></button>
       <button type="button" role="tab" id="tab-receipt" aria-controls="receipt">Receipt</button>
@@ -696,8 +1347,30 @@ const DEAL_TEMPLATE = `
         <tbody id="claim-rows"></tbody>
       </table>
     </div>
+    <div class="panel" role="tabpanel" id="ask" aria-labelledby="tab-ask" tabindex="0" hidden>
+      <div class="panel-head"><h2>Ask this deal</h2><p class="panel-note">Answers come only from this deal’s checked quotes, and each sentence links to its source. Code removes any sentence its quotes do not back. Nothing is saved.</p></div>
+      <form id="ask-form" class="extract-form ask-form">
+        <div class="ask-audience" role="group" aria-labelledby="ask-audience-label">
+          <span class="ask-audience-label" id="ask-audience-label">Answer for</span>
+          <button type="button" class="chip" data-audience="staff" aria-pressed="true">Housing staff</button>
+          <button type="button" class="chip" data-audience="resident" aria-pressed="false">Residents, in plain words</button>
+        </div>
+        <label for="ask-text">Your question</label>
+        <div class="ask-row">
+          <input id="ask-text" name="question" type="text" required minlength="3" maxlength="300" autocomplete="off" aria-describedby="ask-hint" placeholder="Type a question about this deal">
+          <button type="button" class="btn btn-secondary" id="ask-mic" hidden aria-pressed="false">Speak</button>
+          <button type="submit" class="btn btn-primary">Ask</button>
+        </div>
+        <p id="ask-hint" class="hint">Do not type names, phone numbers or other personal details. Questions are not saved.</p>
+        <div class="ask-suggest" id="ask-suggest" role="group" aria-label="Example questions"></div>
+      </form>
+      <div id="ask-status" class="extract-status" role="status"></div>
+      <ol class="candidates ask-answer" id="ask-answer" aria-label="Answer"></ol>
+      <button type="button" class="btn btn-secondary btn-small ask-speak" id="ask-speak" hidden>Read answer aloud</button>
+    </div>
     <div class="panel" role="tabpanel" id="changes" aria-labelledby="tab-changes" tabindex="0" hidden>
       <div class="panel-head"><h2>What changed</h2><p class="panel-note">For each term, every record in date order. Words dropped since the previous record are struck through and labeled "Removed". New words are underlined and labeled "Added".</p></div>
+      <div id="paper-trail" class="trail-wrap" hidden></div>
       <div id="change-list" class="change-list"></div>
     </div>
     <div class="panel" role="tabpanel" id="questions" aria-labelledby="tab-questions" tabindex="0" hidden>
@@ -741,21 +1414,39 @@ async function renderDeal(id, tab, sourceClaim = null, withTour = false) {
     [deal, review] = await Promise.all([api(`/api/deals/${encodeURIComponent(id)}`), api(`/api/deals/${encodeURIComponent(id)}/review`)]);
   } catch (err) {
     if (current.view !== "deal" || current.id !== id) return;
+    document.title = `${err.status === 404 ? "Deal not found" : "Deal did not load"} · Promise Ledger`;
+    document.querySelector(".demo-banner")?.classList.remove("banner-pending");
     view.replaceChildren(el("div", { class: "empty" },
       el("h1", { id: "deal-title" }, err.status === 404 ? "Deal not found" : "The deal did not load"),
-      el("p", {}, err.status === 404 ? "There is no deal at this address." : `${err.message} Reload the page to try again.`),
+      el("p", {}, err.status === 404 ? "There is no deal at this address." : `${navigator.onLine === false ? "You're offline. It loads again by itself when you reconnect." : `${err.message} Reload the page to try again.`}`),
       el("a", { class: "btn btn-primary", href: "#/deals" }, "Go to deals")));
     return;
   }
   if (current.view !== "deal" || current.id !== id) return;
   setDeal(id, deal, review);
   document.title = `${deal.name} · Promise Ledger`;
+  dealIsReal = Boolean(deal.real);
+  setBanner(dealIsReal);
+  document.querySelector(".demo-banner")?.classList.remove("banner-pending");
+  showView("deal"); // Re-marks the nav: a real deal belongs to County.
   byId("crumb-name").textContent = deal.name;
   byId("deal-title").textContent = deal.name;
   byId("deal-sub").textContent = deal.city;
+  if (dealIsReal) {
+    const crumb = document.querySelector("#view-deal .crumbs a");
+    if (crumb) { crumb.href = "#/county"; crumb.textContent = "Prince George's County"; }
+    const src = deal.source || {};
+    byId("deal-sub").replaceChildren(
+      el("span", { class: "real-badge" }, icon("check"), "Real record"), " ",
+      src.file ? `Council file ${src.file}` : deal.city,
+      src.status ? ` · ${src.status}${src.passed ? ` ${formatDate(src.passed)}` : ""}` : "",
+      ...(src.url ? [" · ", el("a", { href: src.url, target: "_blank", rel: "noopener" }, "County record", el("span", { class: "visually-hidden" }, " (opens in a new tab)"))] : []));
+  }
   renderActions(id, deal);
+  if (dealIsReal) { addShareButton(id, deal.name); addBriefButton(id); byId("share-btn")?.remove(); }
   renderDocs();
   renderReview({ tab: sourceClaim ? null : tab });
+  if (!sourceClaim && !withTour) riseIn(view);
   if (sourceClaim) openSourceFromLink(sourceClaim);
   if (withTour) {
     history.replaceState(null, "", `#/deals/${encodeURIComponent(id)}`);
@@ -857,7 +1548,7 @@ function renderReview({ tab = null, keepTab = false } = {}) {
   const selected = keepTab ? document.querySelector('[role="tab"][aria-selected="true"]')?.id.replace("tab-", "") : null;
   const open = selected || tab || "claims";
   const panels = {
-    claims: renderClaims, changes: renderChanges, questions: renderQuestions,
+    claims: renderClaims, ask: renderAsk, changes: renderChanges, questions: renderQuestions,
     receipt: () => renderReceipt(byId("receipt-body"), review), glossary: renderGlossaryList, extract: () => {},
   };
   panels[open]?.();
@@ -889,18 +1580,25 @@ function viewSourceButton(claim, label = "View source") {
   }, label);
 }
 
-function countUp(node, value) {
-  node.textContent = String(value);
-  if (typeof value !== "number" || reducedMotion.matches || value === 0) return;
+// The real number is always in the page text (screen readers, copy, print); only a decorative copy counts up.
+function animateNumber(node, end, duration, format = (v) => String(Math.round(v))) {
+  if (typeof end !== "number" || !Number.isFinite(end)) { node.textContent = String(end); return; } // e.g. "Signed".
+  node.textContent = format(end);
+  if (!end || reducedMotion.matches) return;
+  const shown = el("span", { class: "count-anim", "aria-hidden": "true" }, format(0));
+  node.replaceChildren(shown, el("span", { class: "visually-hidden" }, format(end)));
   const start = performance.now();
-  const duration = 650;
   const step = (now) => {
     const t = Math.min(1, (now - start) / duration);
-    node.textContent = String(Math.round(value * (1 - (1 - t) ** 3)));
+    shown.textContent = format(end * (1 - (1 - t) ** 3));
     if (t < 1) requestAnimationFrame(step);
+    else node.textContent = format(end);
   };
-  node.textContent = "0";
   requestAnimationFrame(step);
+}
+
+function countUp(node, value) {
+  animateNumber(node, value, 650);
 }
 
 function renderSummary() {
@@ -948,7 +1646,173 @@ function renderSummary() {
         el("span", { class: "step-detail" }, located ? `Located · ${plural(stage.claim_ids.length, "claim")}` : "Not located")));
   }));
   byId("stepper").classList.toggle("draw", animate);
+  renderScene();
 }
+
+// ---------- Promise building ----------
+// An isometric building drawn from the deal's own checked numbers: one window per home, the promised homes lit
+// in the color of the stage a record reached. Nothing here decides anything; it pictures the checked claims.
+const SCENE_STAGE_TEXT = { proposed: "Proposed", supported: "Supported", signed: "Signed", delivered: "Delivered" };
+
+function homesOf(claim) {
+  const n = claim.homes?.count ?? parseInt(String(claim.value || "").match(/\d+/)?.[0] || "", 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function sceneData(review) {
+  const units = review.claims.filter((c) => c.topic === "units");
+  if (!units.length) return null;
+  const total = Math.max(0, ...units.map((c) => c.homes?.of || 0)) || null;
+  // For each stage, the record that went furthest at that stage (latest date), and how many homes it states.
+  const stages = STAGES.map((status) => {
+    const at = units.filter((c) => c.status === status && homesOf(c));
+    const lead = at.sort((a, b) => (b.date || "").localeCompare(a.date || ""))[0] || null;
+    return { status, claim: lead, homes: lead ? homesOf(lead) : null };
+  });
+  const furthest = [...stages].reverse().find((s) => s.homes);
+  if (!furthest) return null;
+  const promised = furthest.homes;
+  return { total: Math.max(total || 0, promised), totalStated: Boolean(total), stages, furthest, promised };
+}
+
+// Isometric projection: x runs right-down, y runs left-down, z is height.
+const ISO = (x, y, z) => [(x - y) * 0.866, (x + y) * 0.5 - z];
+const pts = (list) => list.map(([x, y, z]) => ISO(x, y, z).map((v) => v.toFixed(2)).join(",")).join(" ");
+
+function buildingLayout(total) {
+  const per = total >= 96 ? 12 : total >= 40 ? 10 : 6;   // Homes per floor.
+  const side = per >= 10 ? 4 : 2;                         // Windows on the short side.
+  const front = per - side;
+  const floors = Math.ceil(total / per);
+  return { per, side, front, floors };
+}
+
+function sceneSvg(data) {
+  const { per, side, front, floors } = buildingLayout(data.total);
+  const W = front + 0.6, D = side + 0.6, H = floors * 1.15 + 0.4;
+  // Spread the promised homes through the building, as regulatory agreements usually require.
+  // A golden-ratio order scatters them evenly without stripes, and is the same on every load.
+  const order = Array.from({ length: data.total }, (_, u) => u).sort((a, b) => ((a * 0.618034) % 1) - ((b * 0.618034) % 1));
+  const lit = new Set(order.slice(0, data.promised).sort((a, b) => a - b));
+  const root = document.createElementNS(SVG_NS, "svg");
+  // The frame includes the ground plate, so the plate is never cut off by the card edge.
+  const G = 1.2;
+  const corners = [ISO(0, 0, H), ISO(W, 0, H), ISO(0, D, H), ISO(-G, -G, 0), ISO(W + G, -G, 0), ISO(W + G, D + G, 0), ISO(-G, D + G, 0)];
+  const xs = corners.map((p) => p[0]), ys = corners.map((p) => p[1]);
+  const pad = 0.3;
+  root.setAttribute("viewBox", `${(Math.min(...xs) - pad).toFixed(2)} ${(Math.min(...ys) - pad).toFixed(2)} ${(Math.max(...xs) - Math.min(...xs) + 2 * pad).toFixed(2)} ${(Math.max(...ys) - Math.min(...ys) + 2 * pad).toFixed(2)}`);
+  root.setAttribute("class", "scene-svg");
+  root.setAttribute("aria-hidden", "true");
+  const add = (parent, tag, attrs) => { const n = document.createElementNS(SVG_NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); parent.append(n); return n; };
+  add(root, "polygon", { class: "scene-ground", points: pts([[-G, -G, 0], [W + G, -G, 0], [W + G, D + G, 0], [-G, D + G, 0]]) });
+  let unit = 0;
+  for (let f = 0; f < floors; f += 1) {
+    const g = add(root, "g", { class: "scene-floor", style: `--f:${f}` });
+    const z0 = 0.2 + f * 1.15, z1 = z0 + 1.15;
+    add(g, "polygon", { class: "scene-wall scene-wall-front", points: pts([[0, D, z0], [W, D, z0], [W, D, z1], [0, D, z1]]) });
+    add(g, "polygon", { class: "scene-wall scene-wall-side", points: pts([[W, 0, z0], [W, D, z0], [W, D, z1], [W, 0, z1]]) });
+    const windows = [];
+    for (let i = 0; i < front; i += 1) windows.push(pts([[0.4 + i, D, z0 + 0.3], [1.0 + i, D, z0 + 0.3], [1.0 + i, D, z0 + 0.9], [0.4 + i, D, z0 + 0.9]]));
+    for (let j = 0; j < side; j += 1) windows.push(pts([[W, 0.4 + j, z0 + 0.3], [W, 1.0 + j, z0 + 0.3], [W, 1.0 + j, z0 + 0.9], [W, 0.4 + j, z0 + 0.9]]));
+    for (const points of windows) {
+      if (unit >= data.total) break;
+      const on = lit.has(unit);
+      add(g, "polygon", { class: on ? "scene-win scene-lit" : "scene-win", points, style: on ? `--n:${[...lit].indexOf(unit)}` : "" });
+      unit += 1;
+    }
+  }
+  const roofZ = 0.2 + floors * 1.15;
+  add(root, "polygon", { class: "scene-roof", points: pts([[0, 0, roofZ], [W, 0, roofZ], [W, D, roofZ], [0, D, roofZ]]), style: `--f:${floors}` });
+  return root;
+}
+
+// What the picture means, in words: was the count kept, and does any record show the homes delivered?
+// Each line comes straight from the stage counts and the server's "wording differs" flag.
+function sceneFacts(data, review) {
+  const promisedAt = data.stages.filter((s) => s.homes && s.status !== "delivered");
+  const delivered = data.stages.find((s) => s.status === "delivered");
+  const lines = [];
+  const first = promisedAt[0], last = promisedAt[promisedAt.length - 1];
+  if (first && last && first !== last) {
+    lines.push(first.homes === last.homes
+      ? ["ok", `Same count, ${plural(last.homes, "home")}, at every stage that states one.`]
+      : ["warn", `Count changed: ${SCENE_STAGE_TEXT[first.status]} ${plural(first.homes, "home")}, ${SCENE_STAGE_TEXT[last.status]} ${plural(last.homes, "home")}.`]);
+  }
+  if (delivered?.homes && last) {
+    lines.push(delivered.homes >= last.homes
+      ? ["ok", `A record shows ${delivered.homes} of ${plural(last.homes, "promised home")} delivered.`]
+      : ["warn", `A record shows only ${delivered.homes} of ${plural(last.homes, "promised home")} delivered.`]);
+  } else if (!delivered?.homes) {
+    lines.push(["warn", "No record in this packet shows the homes delivered yet."]);
+  }
+  const units = review.terms.find((t) => t.key === "units");
+  if (units?.wording_differs) {
+    lines.push(["warn", ["The wording of the home count changed between records. ",
+      el("a", { href: `#/deals/${encodeURIComponent(dealState.id)}/changes` }, "See the paper trail")]]);
+  }
+  if (!lines.length) return null;
+  return el("ul", { class: "scene-facts" }, ...lines.map(([tone, text]) => el("li", { class: `fact-${tone}` }, text)));
+}
+
+function renderScene() {
+  const host = byId("promise-scene");
+  if (!host || !dealState) return;
+  const data = sceneData(dealState.review);
+  host.hidden = !data;
+  if (!data) { host.replaceChildren(); return; }
+  const picture = sceneSvg(data);
+  const figure = el("div", { class: "scene-figure", "data-stage": data.furthest.status });
+  figure.append(picture);
+  const show = (status) => {
+    figure.dataset.stage = status;
+    const row = data.stages.find((s) => s.status === status);
+    const lit = picture.querySelectorAll(".scene-lit");
+    lit.forEach((w, i) => w.classList.toggle("scene-off", !row?.homes || i >= row.homes));
+    host.querySelectorAll(".scene-step").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.status === status)));
+  };
+  const steps = el("ol", { class: "scene-steps" }, ...data.stages.map((s) => el("li", {},
+    el("button", {
+      type: "button", class: `scene-step stage-${s.status}`, "data-status": s.status, "aria-pressed": String(s.status === data.furthest.status),
+      disabled: s.homes ? null : true, onmouseenter: () => s.homes && show(s.status), onfocus: () => s.homes && show(s.status),
+      onclick: () => s.homes && show(s.status),
+    },
+      el("span", { class: "scene-swatch", "aria-hidden": "true" }),
+      el("span", { class: "scene-step-name" }, SCENE_STAGE_TEXT[s.status]),
+      el("span", { class: "scene-step-count" }, s.homes ? plural(s.homes, "home") : "No home count"),
+      el("span", { class: "scene-step-src" }, s.claim ? sourceShort(s.claim) : "No record at this stage states a number of homes",
+        s.status === "signed" && s.claim && dealState.review.summary.signed_by_developer_only ? " · signed by the developer only" : "")),
+    s.claim ? viewSourceButton(s.claim, "Quote") : null)));
+  steps.addEventListener("mouseleave", () => show(data.furthest.status));
+  const label = `${data.totalStated ? `${data.promised} of ${data.total} homes` : `${data.promised} homes (building total not stated)`} promised as affordable; furthest stage ${SCENE_STAGE_TEXT[data.furthest.status]}.`;
+  const facts = sceneFacts(data, dealState.review);
+  host.replaceChildren(
+    el("div", { class: "scene-visual", role: "img", "aria-label": label }, figure),
+    el("div", { class: "scene-text" },
+      el("p", { class: "kicker" }, "The promise, pictured"),
+      el("h2", { id: "scene-title", class: "scene-title" }, el("span", { class: "scene-big" }, String(data.promised)),
+        data.totalStated ? ` of ${data.total} homes` : " affordable homes stated"),
+      el("p", { class: "scene-lede" }, data.totalStated
+        ? `Each window is one home. Lit windows are the homes described as affordable, in the color of the furthest stage a record reached. Point at a stage to see what that record promised.`
+        : `Each window is one home described as affordable; no record states the building's total.`),
+      facts,
+      steps,
+      el("p", { class: "scene-note" }, "Drawn from checked quotes only. Where the homes sit in the building is illustrative.")));
+  show(data.furthest.status);
+  const animate = !reducedMotion.matches && !sceneSeen.has(dealState.id);
+  sceneSeen.add(dealState.id);
+  host.classList.toggle("scene-animate", animate);
+  // Hold the animation until the building is on screen, so it plays where someone can see it.
+  host.classList.toggle("scene-wait", animate && "IntersectionObserver" in window);
+  if (animate && "IntersectionObserver" in window) {
+    const seen = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { host.classList.remove("scene-wait"); seen.disconnect(); }
+    }, { threshold: 0.35 });
+    seen.observe(host);
+    setTimeout(() => { host.classList.remove("scene-wait"); seen.disconnect(); }, 5000); // Never leave it hidden.
+  }
+}
+const sceneSeen = new Set();
+
 
 // Tabs: ARIA tabs with arrow keys, Home and End. The hash names the open tab.
 let printed = null; // The deal whose receipt has already printed this visit.
@@ -1046,7 +1910,7 @@ function renderClaims() {
       el("th", { scope: "row", "data-label": "Term" }, termLabel(claim.topic)),
       el("td", { "data-label": "Exact quote" }, el("span", { class: "quote" }, `“${claim.quote}”`)),
       el("td", { "data-label": "Source" }, el("span", { class: "source-cell" },
-        el("span", { class: "source-line" }, docType(claim.document_type), ` · ${formatDate(claim.date)}`), quoteBadge(claim), viewSourceButton(claim))),
+        el("span", { class: "source-line" }, docType(claim.document_type), docLabel(claim) !== claim.document_type ? " (not signed)" : "", ` · ${formatDate(claim.date)}`), quoteBadge(claim), claim.from_scan ? tag("machine", "From scan") : null, viewSourceButton(claim))),
       el("td", { "data-label": "Stage" }, tag(claim.status)),
       el("td", { "data-label": "Wording" }, wording),
       el("td", { "data-label": "Review" }, decisionCell("claim", claim.id, `${review.topics[claim.topic] || claim.topic}, ${claim.document_type} page ${claim.page}`)));
@@ -1103,6 +1967,7 @@ function changeStep(claim, previous) {
 }
 
 function renderChanges() {
+  renderTrail();
   const { review, claimsById } = dealState;
   const located = review.terms.filter((term) => term.located);
   const missing = review.terms.filter((term) => !term.located);
@@ -1121,6 +1986,91 @@ function renderChanges() {
   );
 }
 
+// ---------- Paper trail ----------
+// Every record in date order, every term as a thread through them. A thread turns amber where the review says the
+// wording changed. The picture uses the server's own "wording differs" decision, so it cannot disagree with it.
+const normValue = (v) => String(v || "").toLowerCase().replace(/\s+/g, " ").trim();
+
+function renderTrail() {
+  const host = byId("paper-trail");
+  if (!host || !dealState) return;
+  const { review, claimsById } = dealState;
+  const located = review.terms.filter((t) => t.located);
+  const docIds = new Set(located.flatMap((t) => t.claim_ids.map((id) => claimsById.get(id)?.document)).filter(Boolean));
+  const docs = review.documents.filter((d) => docIds.has(d.id)).sort((a, b) => (a.date || "").localeCompare(b.date || "") || a.id.localeCompare(b.id));
+  if (docs.length < 2 || !located.length) { host.replaceChildren(); host.hidden = true; return; }
+  host.hidden = false;
+  const terms = [...located].sort((a, b) => Number(b.wording_differs) - Number(a.wording_differs));
+  const stageOf = (doc) => {
+    const ids = located.flatMap((t) => t.claim_ids).map((id) => claimsById.get(id)).filter((c) => c?.document === doc.id);
+    return ids.reduce((best, c) => (STAGES.indexOf(c.status) > STAGES.indexOf(best) ? c.status : best), "proposed");
+  };
+  const head = el("tr", {}, el("th", { scope: "col", class: "trail-corner" }, el("span", { class: "visually-hidden" }, "Term")),
+    ...docs.map((doc, i) => el("th", { scope: "col", class: "trail-doc", style: `--c:${i}` },
+      el("span", { class: "trail-sheet", "aria-hidden": "true" }, el("span"), el("span"), el("span")),
+      el("span", { class: "trail-doc-type" }, doc.type || "Record"),
+      el("span", { class: "trail-doc-date" }, doc.date ? formatDate(doc.date) : "Undated"),
+      tag(stageOf(doc)))));
+  // One pass decides each cell; the table (wide screens) and the summary list (phones) both draw from it.
+  const lines = terms.map((term) => {
+    let previous = null;
+    const cells = docs.map((doc) => {
+      const claim = term.claim_ids.map((id) => claimsById.get(id)).find((c) => c?.document === doc.id);
+      if (!claim) return { doc, kind: previous ? "through" : "gap" };
+      const value = comparedValue(claim);
+      const changed = Boolean(previous) && term.wording_differs && normValue(value) !== normValue(previous);
+      const kind = !previous ? "first" : changed ? "changed" : "same";
+      previous = value;
+      return { doc, claim, value, changed, kind };
+    });
+    return { term, cells, found: cells.filter((c) => c.claim) };
+  });
+  // The term name jumps to that term's full record-by-record wording further down.
+  const jump = (term) => el("button", { type: "button", class: "trail-jump", "aria-label": `${term.label}: show every quote`, onclick: () => {
+    const target = byId(`change-${term.key}`);
+    if (!target) return;
+    target.setAttribute("tabindex", "-1");
+    target.scrollIntoView({ block: "start", behavior: reducedMotion.matches ? "auto" : "smooth" });
+    target.focus({ preventScroll: true });
+  } }, term.label);
+  const pill = (term, cell) => el("button", { type: "button", class: "trail-pill", onclick: (event) => openSource(cell.claim, event.currentTarget),
+    "aria-label": `${term.label}: ${cell.value}, ${cell.doc.type || "record"} ${cell.doc.date ? formatDate(cell.doc.date) : ""}${cell.changed ? ", changed from the previous record" : ""}. Open source.` },
+    cell.changed ? el("span", { class: "trail-mark", "aria-hidden": "true" }, "Δ") : null, cell.value);
+  const rows = lines.map(({ term, cells }) => el("tr", { class: term.wording_differs ? "trail-row-differs" : null },
+    el("th", { scope: "row", class: "trail-term" }, jump(term), term.wording_differs ? el("span", { class: "trail-flag" }, "changed") : null),
+    ...cells.map((cell, i) => el("td", { class: `trail-cell trail-${cell.kind === "through" ? "gap trail-through" : cell.kind}`, style: `--c:${i}` },
+      cell.claim ? pill(term, cell) : el("span", { class: "visually-hidden" }, "Not in this record")))));
+  // Phones: one line per term, first wording to latest wording, with a dot for every record.
+  const mini = el("ul", { class: "trail-mini" }, ...lines.map(({ term, cells, found }) => {
+    const first = found[0], latest = found[found.length - 1];
+    const moved = term.wording_differs && normValue(first.value) !== normValue(latest.value);
+    const changes = cells.filter((c) => c.changed).length;
+    return el("li", { class: term.wording_differs ? "tm-differs" : null },
+      el("div", { class: "tm-head" }, jump(term), term.wording_differs ? el("span", { class: "trail-flag" }, "changed") : null,
+        el("span", { class: "tm-count" }, `${found.length} of ${plural(docs.length, "record")}`)),
+      el("div", { class: "tm-dots", "aria-hidden": "true" }, ...cells.map((cell) => el("span", { class: `tm-dot tm-${cell.kind}` }))),
+      el("p", { class: "tm-values" },
+        moved ? [el("span", { class: "tm-was" }, first.value), el("span", { class: "tm-arrow", "aria-hidden": "true" }, "→"), el("span", { class: "visually-hidden" }, " became ")] : null,
+        pill(term, latest), el("span", { class: "tm-src" }, latest.doc.type || "Record", latest.doc.date ? ` · ${formatDate(latest.doc.date)}` : "",
+          changes ? ` · changed in ${plural(changes, "record")}${moved ? "" : ", now back to the first wording"}` : "")));
+  }));
+  const animate = !reducedMotion.matches && !trailSeen.has(dealState.id);
+  trailSeen.add(dealState.id);
+  host.className = `trail-wrap${animate ? " trail-animate" : ""}`;
+  host.replaceChildren(
+    el("div", { class: "trail-head" },
+      el("h3", {}, "Paper trail"),
+      el("ul", { class: "trail-legend", "aria-label": "Legend" },
+        el("li", { class: "lg-same" }, "Same wording"), el("li", { class: "lg-changed" }, "Wording changed"), el("li", { class: "lg-gap" }, "Not in this record")),
+      el("p", { class: "trail-swipe", "aria-hidden": "true" }, "Swipe for later records →")),
+    el("div", { class: "trail-scroll", tabindex: "0", role: "region", "aria-label": "Paper trail: each term across the records, in date order" },
+      el("table", { class: "trail" },
+        el("caption", { class: "visually-hidden" }, "Each term's wording in every record, oldest first. Select a value to open its source page."),
+        el("thead", {}, head), el("tbody", {}, ...rows))),
+    mini);
+}
+const trailSeen = new Set();
+
 function renderQuestions() {
   const { questions } = dealState.review;
   byId("count-questions").textContent = String(questions.length);
@@ -1129,6 +2079,22 @@ function renderQuestions() {
     el("p", { class: "task-text" }, question.text),
     tag(question.tag),
     decisionCell("question", question.key, question.text.length > 120 ? `${question.text.slice(0, 117)}…` : question.text))));
+  renderPossible();
+}
+
+// Sentences found on their page that the term rules did not confirm. Optional; they count toward nothing.
+function renderPossible() {
+  byId("possible-list")?.remove();
+  const items = dealState.review.possible || [];
+  if (!items.length) return;
+  byId("question-list").after(el("details", { id: "possible-list", class: "possible" },
+    el("summary", {}, `${plural(items.length, "more sentence")} to check (optional)`),
+    el("p", { class: "panel-note" }, "The model filed these under a term and each quote is on its page, but the term rules did not confirm the sentence states that term. They are not counted in any stage, term or receipt."),
+    el("ul", { class: "task-list" }, ...items.map((item) => el("li", { class: "task" },
+      el("div", {},
+        el("p", { class: "task-text" }, el("strong", {}, `Possible ${item.label.toLowerCase()}: `), `“${item.quote}”`),
+        el("p", { class: "hint" }, `${item.document_title}, page ${item.page}`)),
+      tag("machine"))))));
 }
 
 // All parts of one highlighted quote (it can span several lines of the text layer).
@@ -1164,10 +2130,10 @@ function renderReceipt(target, review, { titleTag = "p" } = {}) {
     const earlier = term.claim_ids.map((cid) => claimsById.get(cid)).filter((claim) => claim && claim.status !== "signed");
     return el("tr", {},
       el("th", { scope: "row" }, term.label),
-      el("td", {}, signed
+      el("td", { "data-label": "Signed wording" }, signed
         ? [el("span", { class: "q" }, `“${signed.quote}”`), el("span", { class: "receipt-source" }, sourceShort(signed))]
         : el("span", { class: "not-located" }, term.located ? "Not located in a signed record" : "Not located")),
-      el("td", {}, earlier.length
+      el("td", { "data-label": "Earlier wording" }, earlier.length
         ? el("ul", { class: "plain" }, ...earlier.map((claim) => el("li", {}, `${comparedValue(claim)} (${claim.document_type}, p. ${claim.page})`)))
         : "None"));
   });
@@ -1236,6 +2202,112 @@ async function submitExtraction(event) {
   }
 }
 
+// ---------- Ask a deal ----------
+const ASK_EXAMPLES = ["How many homes are affordable?", "What income do you need to qualify?", "How long do the limits last?", "Is any of this signed?", "Who checks that the promises are kept?"];
+let askAudience = "staff";
+
+function renderAsk() {
+  const form = byId("ask-form");
+  if (!form || form.dataset.ready === dealState.id) return;
+  form.dataset.ready = dealState.id;
+  byId("ask-status").replaceChildren();
+  byId("ask-answer").replaceChildren();
+  byId("ask-speak").hidden = true;
+  form.querySelectorAll("[data-audience]").forEach((chip) => {
+    chip.setAttribute("aria-pressed", String(chip.dataset.audience === askAudience));
+    chip.onclick = () => {
+      askAudience = chip.dataset.audience;
+      form.querySelectorAll("[data-audience]").forEach((c) => c.setAttribute("aria-pressed", String(c === chip)));
+    };
+  });
+  byId("ask-suggest").replaceChildren(...ASK_EXAMPLES.map((q) => el("button", {
+    type: "button", class: "chip", onclick: () => { form.question.value = q; form.requestSubmit(); },
+  }, q)));
+  form.onsubmit = submitAsk;
+  setupDictation(form);
+  setupReadAloud();
+}
+
+async function submitAsk(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector('button[type="submit"]');
+  const dealId = dealState.id;
+  stopSpeaking();
+  button.disabled = true;
+  byId("ask-status").textContent = "Looking through the checked quotes.";
+  byId("ask-answer").replaceChildren();
+  byId("ask-speak").hidden = true;
+  try {
+    let result;
+    try {
+      result = await rawApi(`/api/deals/${encodeURIComponent(dealId)}/ask`, { method: "POST", body: { question: form.question.value, audience: askAudience } });
+    } catch (err) {
+      if (err.status === 422) throw new Error("Enter a question between 3 and 300 characters.");
+      throw err;
+    }
+    if (dealState?.id !== dealId) return;
+    const notes = [el("p", { class: "extract-notice" }, result.notice)];
+    if (result.removed) notes.push(el("p", {}, result.removed === 1
+      ? "1 sentence was removed because its quotes did not back it."
+      : `${result.removed} sentences were removed because their quotes did not back them.`));
+    byId("ask-status").replaceChildren(...notes);
+    byId("ask-answer").replaceChildren(...result.sentences.map((s) => el("li", { class: s.quote ? "ask-quote" : null },
+      el("p", { class: s.quote ? "quote" : null }, s.text),
+      el("span", { class: "candidate-tags" }, ...s.claim_ids.map((id, i) => {
+        const claim = dealState.claimsById.get(id);
+        if (!claim) return id === "not-located" ? el("span", { class: "tag tag-not_located" }, "Not located in any record") : null;
+        return viewSourceButton(claim, s.claim_ids.length > 1 ? `Source ${i + 1}` : "Source");
+      })))));
+    byId("ask-speak").hidden = !("speechSynthesis" in window) || !result.sentences.length;
+  } catch (err) {
+    byId("ask-status").textContent = err.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+// Voice uses the browser's own speech services. Dictation shows only where the browser supports it.
+function setupDictation(form) {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const mic = byId("ask-mic");
+  if (!Recognition || !mic) return;
+  mic.hidden = false;
+  mic.setAttribute("aria-label", "Speak your question");
+  mic.title = "Uses your browser's speech service";
+  mic.onclick = () => {
+    const rec = new Recognition();
+    rec.lang = document.documentElement.lang || "en-US";
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+    mic.setAttribute("aria-pressed", "true");
+    mic.textContent = "Listening";
+    rec.onresult = (e) => { form.question.value = e.results[0][0].transcript; form.requestSubmit(); };
+    rec.onerror = () => { byId("ask-status").textContent = "Could not hear a question. Type it instead."; };
+    rec.onend = () => { mic.setAttribute("aria-pressed", "false"); mic.textContent = "Speak"; };
+    rec.start();
+  };
+}
+
+function stopSpeaking() {
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  const btn = byId("ask-speak");
+  if (btn) btn.textContent = "Read answer aloud";
+}
+
+function setupReadAloud() {
+  const btn = byId("ask-speak");
+  if (!btn || !("speechSynthesis" in window)) return;
+  btn.onclick = () => {
+    if (window.speechSynthesis.speaking) { stopSpeaking(); return; }
+    const text = [...byId("ask-answer").querySelectorAll("li > p")].map((p) => p.textContent).join(" ");
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.onend = stopSpeaking;
+    btn.textContent = "Stop reading";
+    window.speechSynthesis.speak(utter);
+  };
+}
+
 // ---------- Documents and upload ----------
 const PHASES = [["uploading", "Uploading"], ["reading", "Reading"], ["checking", "Checking quotes"], ["done", "Done"]];
 const STATUS_ALIASES = { queued: "reading", uploaded: "reading", processing: "reading", extracting: "reading", verifying: "checking", ready: "done", complete: "done", error: "failed" };
@@ -1292,6 +2364,11 @@ function renderDocs() {
   byId("doc-list").hidden = items.length === 0;
   byId("docs-count").textContent = items.length ? plural(items.length, "file") : "No files yet";
   noClaimsNote({ canShow: false });
+  // Read-only deals fold their file list; anything still reading, failed or uploading keeps it open.
+  const busy = docs.some((doc) => ["queued", "reading", "checking", "failed"].includes(doc.status)) || local.length > 0;
+  const ask = (dealState.review?.next_records || []).length;
+  setCollapsible(byId("docs-card"), { open: !isReadOnly() || busy || !docs.length,
+    summary: `${plural(docs.length, "record")} on file${ask ? ` · ${plural(ask, "record")} to ask for` : ""}` });
 }
 
 // Every file was read and none states a housing commitment: say so, so the page does not look stuck.
@@ -1311,7 +2388,386 @@ function renderNextRecords() {
     : el("p", { class: "next-records-why" }, "Every term is located, and a record shows the homes were delivered. Nothing more to ask for.");
   (byId("no-claims-note") || list).after(el("section", { id: "next-records", class: "next-records", "aria-labelledby": "next-records-title" },
     el("h3", { id: "next-records-title" }, items.length ? "Records to ask for next" : "Records on file"),
-    body));
+    body,
+    items.length ? el("button", { type: "button", class: "btn btn-small", onclick: (event) => openLetter(event.currentTarget) },
+      icon("docq"), "Draft a records request") : null));
+}
+
+// ---------- Share a county agreement ----------
+// The /s/ link carries a link preview (name, homes, term, card image) and opens the agreement.
+function addShareButton(id, name) {
+  const actions = byId("deal-actions");
+  if (!actions || actions.querySelector(".share-card-btn")) return;
+  const url = `${location.origin}/s/${encodeURIComponent(id)}`;
+  actions.prepend(el("button", { type: "button", class: "btn share-card-btn", onclick: async () => {
+    if (navigator.share && matchMedia("(pointer: coarse)").matches) {
+      try { await navigator.share({ title: `${name} · Promise Ledger`, url }); return; } catch { /* Fall back to copying. */ }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast("Link copied. It shows a preview card with this agreement's numbers.");
+    } catch {
+      toast(`Copy this link: ${url}`);
+    }
+  } }, icon("share"), "Share"));
+}
+
+// ---------- One-page brief (county agreements) ----------
+// What a council member or staffer needs on one sheet: the stated figures with their pages, which key terms the records
+// contain, approved text still holding blanks, and the questions to ask. Built from the county board and this review.
+function addBriefButton(id) {
+  const actions = byId("deal-actions");
+  if (!actions || actions.querySelector(".brief-btn")) return;
+  actions.prepend(el("button", { type: "button", class: "btn brief-btn", onclick: () => printBrief(id) }, icon("print"), "Print brief"));
+}
+
+async function printBrief(id) {
+  let board;
+  try { board = await api("/api/county"); } catch (err) { toast(`The brief did not load. ${err.message}`, { kind: "error" }); return; }
+  const r = board.deals.find((d) => d.id === id);
+  const review = dealState?.review;
+  if (!r || !review) return;
+  const claims = new Map(review.claims.map((c) => [c.id, c]));
+  const at = (claimId) => { const c = claims.get(claimId); return c ? ` (${docLabel(c)}, p. ${c.page})` : ""; };
+  const row = (label, value, note = "") => el("tr", {}, el("th", { scope: "row" }, label), el("td", {}, value || "Not stated", note ? el("span", { class: "pb-note" }, note) : null));
+  const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  const sheet = el("section", { id: "print-brief", "aria-hidden": "true" },
+    el("header", { class: "pb-head" },
+      el("p", { class: "pb-kicker" }, "Promise Ledger brief · real public records · Prince George's County, MD"),
+      el("h1", {}, r.name),
+      el("p", { class: "pb-meta" }, [r.file && `Council file ${r.file}`, r.council_status && `${r.council_status}${r.passed ? ` ${formatDate(r.passed)}` : ""}`,
+        `${r.records_read} of ${r.records} records read`, `printed ${today}`].filter(Boolean).join(" · "))),
+    el("table", { class: "pb-figs" }, el("tbody", {},
+      row("Affordable homes", r.homes ? String(r.homes) : "", r.homes_claim_id ? at(r.homes_claim_id) : ""),
+      row("Income limits", r.income_limit || ""),
+      row("Longest stated term", r.term_years ? `${r.term_years} years, to ${r.term_end_estimated ? `about ${r.term_end.slice(0, 4)} or later` : formatDate(r.term_end)}` : "",
+        r.term_claim_id ? at(r.term_claim_id) : ""),
+      row("Furthest stage on record", stageLabel(r.furthest_stage)),
+      r.location ? row("Property", `${r.location.address}${r.location.city ? `, ${r.location.city}` : ""}`, ` (from ${r.location.record}, p. ${r.location.page})`) : null)),
+    el("h2", {}, "Key terms in the records"),
+    el("ul", { class: "pb-terms" }, ...OBLIGATIONS.map(([key, label, help]) => el("li", { class: r.found[key] ? "pb-yes" : "pb-no" },
+      el("b", {}, r.found[key] ? "Found" : "Not found"), ` ${label}: ${help[0].toLowerCase()}${help.slice(1)}.`))),
+    r.template_text?.length ? [el("h2", {}, "Approved text still holding blanks"),
+      el("ul", { class: "pb-blanks" }, ...r.template_text.slice(0, 2).map((t) => el("li", {}, `“${t.quote}”`, el("span", { class: "pb-note" }, ` (${t.document || "record"}${t.page ? `, p. ${t.page}` : ""})`))))] : null,
+    el("h2", {}, "Questions to ask"),
+    el("ol", { class: "pb-qs" }, ...review.questions.slice(0, 6).map((q) => el("li", {}, q.text))),
+    el("footer", { class: "pb-foot" },
+      el("p", {}, `Every quote was found word for word on its cited page. "Not found" means no wording was found in the records read: a question to ask, not a finding.`),
+      el("p", {}, `Open each quote and page: ${location.origin}/s/${id}`)));
+  byId("print-brief")?.remove();
+  document.body.append(sheet);
+  document.body.classList.add("printing-brief");
+  const done = () => { document.body.classList.remove("printing-brief"); window.removeEventListener("afterprint", done); };
+  window.addEventListener("afterprint", done);
+  window.print();
+}
+
+// ---------- Ask the county (chat) ----------
+// One question across every county agreement. Answers come only from checked records; every sentence links to the
+// agreement or the page it rests on. The server answers from code when it can (no AI cost), reuses an answer it gave
+// before, and only then asks the model. Beside each answer it recommends, by code, the agreements the answer rests on
+// and next questions the records can answer. Nothing is saved; the conversation lives only in this page.
+const CC_TOPICS = [
+  { icon: "home", title: "Homes", q: "How many affordable homes are stated in total?" },
+  { icon: "calendar", title: "Terms ending", q: "Which terms run out soonest?" },
+  { icon: "docq", title: "Missing wording", q: "Which agreements have no remedy wording?" },
+  { icon: "file", title: "Template blanks", q: "Which approved agreements still hold template blanks?" },
+];
+let ccAudience = "staff";
+let countyChat = null;
+
+// Agreement names in an answer become links to the agreement.
+function linkNames(text, mentions, onLink) {
+  const found = (mentions || []).map((m) => ({ ...m, at: text.indexOf(m.name) })).filter((m) => m.at >= 0)
+    .sort((a, b) => a.at - b.at || b.name.length - a.name.length);
+  const out = [];
+  let i = 0;
+  for (const m of found) {
+    if (m.at < i) continue;
+    out.push(text.slice(i, m.at), el("a", { class: "cc-name", href: `#/deals/${encodeURIComponent(m.id)}`, onclick: onLink }, m.name));
+    i = m.at + m.name.length;
+  }
+  out.push(text.slice(i));
+  return out;
+}
+
+// The clipboard API, and if the browser refuses it (no focus, older browsers, some embedded views) a hidden text area.
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch { /* fall through */ }
+  const area = el("textarea", { "aria-hidden": "true", style: "position:fixed;left:-9999px;top:0;opacity:0" });
+  area.value = text;
+  document.body.append(area);
+  area.select();
+  let ok = false;
+  try { ok = document.execCommand("copy"); } catch { ok = false; }
+  area.remove();
+  return ok;
+}
+
+function ccModeBadge(res) {
+  if (res.cached) return el("span", { class: "cc-badge cc-b-cache" }, icon("refresh"), "Answered before · no new cost");
+  if (res.mode === "computed") return el("span", { class: "cc-badge cc-b-code" }, icon("code"), "Answered by code · no AI cost");
+  if (res.mode === "live") {
+    return el("span", { class: "cc-badge cc-b-ai" }, icon("spark"), "AI, checked by code");
+  }
+  if (res.mode === "quotes") return el("span", { class: "cc-badge cc-b-quote" }, icon("file"), "Exact quotes");
+  return null;
+}
+
+function setupCountyChat() {
+  const launch = el("button", { type: "button", class: "cc-launch", "aria-expanded": "false", "aria-controls": "cc-panel",
+    "aria-keyshortcuts": "/" }, el("span", { class: "cc-dot", "aria-hidden": "true" }), icon("ask"), el("span", { class: "cc-label" }, "Ask the county"));
+  // Once the reader scrolls, the button folds to a round icon so it covers less of the page; hover or focus opens it out.
+  const fold = () => launch.classList.toggle("cc-compact", window.scrollY > 160);
+  window.addEventListener("scroll", fold, { passive: true });
+
+  const thread = el("ol", { class: "cc-thread", "aria-live": "polite", "aria-label": "Conversation", tabindex: "0" });
+  const input = el("textarea", { id: "cc-q", rows: "1", maxlength: "300", required: true, autocomplete: "off",
+    placeholder: "Ask a question…", "aria-label": "Your question", "aria-describedby": "cc-count" });
+  const count = el("span", { class: "cc-count", id: "cc-count", "aria-live": "off" }, "0/300");
+  const send = el("button", { type: "submit", class: "cc-send", "aria-label": "Send question", title: "Send (Enter)" }, icon("arrow"));
+  let asked = [];
+  let context = null; // { id, name } when a real county agreement is open.
+
+  const askNow = (q) => { input.value = q; resize(); form.requestSubmit(); };
+  const leave = () => closeChat(false);
+  const resize = () => {
+    input.style.height = "";
+    if (input.value) { input.style.height = "auto"; input.style.height = `${Math.max(44, Math.min(input.scrollHeight + 2, 120))}px`; }
+    count.textContent = `${input.value.length}/300`;
+  };
+  input.addEventListener("input", resize);
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey && !event.isComposing) { event.preventDefault(); form.requestSubmit(); }
+    if (event.key === "ArrowUp" && !input.value && asked.length) { event.preventDefault(); input.value = asked[asked.length - 1]; resize(); }
+  });
+
+  function contextCards() {
+    return [
+      { icon: "calendar", title: "Stated term", q: `How long is the stated term of ${context.name}?` },
+      { icon: "home", title: "Income limits", q: `What income limits does ${context.name} state?` },
+      { icon: "docq", title: "Remedies", q: `What does ${context.name} say about remedies?` },
+      { icon: "file", title: "Reporting", q: `What does ${context.name} say about reporting?` },
+    ];
+  }
+  const topicButton = (t) => el("button", { type: "button", class: "cc-topic", onclick: () => askNow(t.q) },
+    el("span", { class: "cc-topic-ico", "aria-hidden": "true" }, icon(t.icon)),
+    el("span", { class: "cc-topic-text" }, el("b", {}, t.title), el("span", {}, t.q)));
+  function welcome() {
+    const cards = (context ? contextCards() : CC_TOPICS).map(topicButton);
+    return el("li", { class: "cc-welcome" },
+      el("p", { class: "cc-hello" }, context
+        ? `Ask about ${context.name}, or any of the 21 county agreements.`
+        : "Ask anything about the 21 Prince George's County agreements."),
+      el("p", { class: "cc-sub" }, "I answer only from their checked records. Counts come straight from code; every sentence links to its source."),
+      el("div", { class: "cc-topics" }, ...cards));
+  }
+  function reset() { asked = []; thread.replaceChildren(welcome()); input.value = ""; resize(); }
+
+  function answerCard(q, res) {
+    const src = res.sources || {};
+    const chip = (id) => {
+      const s = src[id];
+      if (!s) return null;
+      if (!s.deal_id) return el("a", { class: "cc-src", href: "#/county", onclick: () => { leave(); setTimeout(() => document.querySelector(".county-table-card")?.scrollIntoView({ block: "start" }), 300); } },
+        icon("sheet"), "County table");
+      const href = s.claim_id ? sourceHref(s.deal_id, s.claim_id) : `#/deals/${encodeURIComponent(s.deal_id)}`;
+      return el("a", { class: "cc-src", href, onclick: leave }, icon("file"), s.deal, s.page ? `, p. ${s.page}` : "");
+    };
+    const body = res.sentences?.length
+      ? el("ul", { class: "cc-answer" }, ...res.sentences.map((s) => el("li", { class: s.quote ? "cc-quote" : null },
+        el("p", {}, ...(s.quote ? [s.text] : linkNames(s.text, res.mentions, leave))),
+        el("span", { class: "cc-srcs" }, ...s.claim_ids.map(chip)))))
+      : null;
+    const plain = ccAudience === "staff";
+    const actions = el("div", { class: "cc-actions" },
+      res.sentences?.length ? el("button", { type: "button", class: "cc-act", title: "Copy the answer and its sources", onclick: async (event) => {
+        const button = event.currentTarget; // null after the await
+        const text = res.sentences.map((s) => `- ${s.text}`).join("\n") + `\n\n${res.notice || ""}`;
+        if (await copyText(`Q: ${q}\n${text}`)) { button.classList.add("done"); toast("Answer copied."); }
+        else toast("Copy did not work in this browser. Select the answer and copy it.", { kind: "warn" });
+      } }, icon("copy"), "Copy") : null,
+      res.sentences?.length && res.mode !== "computed" ? el("button", { type: "button", class: "cc-act", title: plain ? "Ask again for residents, in plain words" : "Ask again for staff",
+        onclick: () => { setAudience(plain ? "resident" : "staff"); askNow(q); } }, icon("refresh"), plain ? "Plain words" : "Staff version") : null);
+    const related = res.related?.length ? el("div", { class: "cc-related" },
+      el("p", { class: "cc-label-sm" }, res.sentences?.length ? "Agreements in this answer" : "Agreements to look at"),
+      el("div", { class: "cc-cards" }, ...res.related.map((r) => el("a", { class: `cc-card${r.soon ? " soon" : ""}`, href: `#/deals/${encodeURIComponent(r.id)}`, onclick: leave },
+        el("b", {}, r.name),
+        el("span", { class: "cc-card-stats" },
+          el("span", {}, r.homes ? `${r.homes.toLocaleString()}${r.homes_approx ? "+" : ""} homes` : "Homes not stated"),
+          el("span", {}, r.term_end ? `to ${r.term_end}${r.term_estimated ? "+" : ""}` : "Term not stated"),
+          el("span", {}, `${r.found}/${r.of} terms`)),
+        r.blanks ? el("span", { class: "cc-flag" }, "Template blanks") : null)))) : null;
+    const next = (res.follow_ups || []).filter((f) => !asked.includes(f));
+    const follow = next.length ? el("div", { class: "cc-next" }, el("p", { class: "cc-label-sm" }, "Ask next"),
+      ...next.map((f) => el("button", { type: "button", class: "cc-chip", onclick: () => askNow(f) }, f, icon("next")))) : null;
+    return el("li", { class: "cc-msg cc-bot" },
+      el("div", { class: "cc-meta" }, ccModeBadge(res), res.removed ? el("span", { class: "cc-removed", title: "Sentences the code could not back were removed before you saw them" }, `${res.removed} removed by checks`) : null),
+      body, el("p", { class: "cc-note" }, res.notice), actions, related, follow);
+  }
+
+  let inFlight = false;
+  const form = el("form", { class: "cc-form", onsubmit: async (event) => {
+    event.preventDefault();
+    const q = input.value.trim();
+    if (inFlight) return; // Enter while an answer is pending waits for it
+    if (q.length < 3) { input.focus(); return; }
+    inFlight = true;
+    input.value = ""; resize();
+    thread.querySelector(".cc-welcome")?.remove();
+    asked.push(q);
+    thread.append(el("li", { class: "cc-msg cc-me" }, el("p", {}, q)));
+    const pending = el("li", { class: "cc-msg cc-bot cc-pending" }, el("span", { class: "cc-typing", role: "status", "aria-label": "Checking the records" }, el("i"), el("i"), el("i")),
+      el("span", { class: "cc-pending-text" }, "Checking the records…"));
+    thread.append(pending);
+    thread.scrollTop = thread.scrollHeight;
+    send.disabled = true;
+    try {
+      const res = await rawApi("/api/county/ask", { method: "POST", body: { question: q, audience: ccAudience } });
+      pending.replaceWith(answerCard(q, res));
+    } catch (err) {
+      const retry = el("button", { type: "button", class: "cc-act", onclick: () => { retry.closest("li").remove(); askNow(q); } }, icon("refresh"), "Try again");
+      pending.replaceWith(el("li", { class: "cc-msg cc-bot" }, el("p", { class: "cc-note" },
+        err.status === 422 ? "Enter a question between 3 and 300 characters."
+          : err.status === 429 ? "Too many questions from this network this hour. Try again later."
+            : navigator.onLine === false ? "You're offline. Reconnect and try again." : `The answer did not load. ${err.message}`),
+        err.status === 422 || err.status === 429 ? null : el("div", { class: "cc-actions" }, retry)));
+    } finally {
+      inFlight = false;
+      send.disabled = false;
+      thread.lastElementChild?.scrollIntoView({ block: "nearest" });
+      if (thread.scrollHeight > thread.clientHeight) thread.scrollTop = thread.lastElementChild.offsetTop - 8;
+      input.focus();
+    }
+  } }, el("div", { class: "cc-input" }, input, count), send);
+
+  const audience = el("div", { class: "cc-aud", role: "group", "aria-label": "Answer style" },
+    ...[["staff", "Staff"], ["resident", "Plain words"]].map(([key, label]) => el("button", { type: "button", "data-aud": key, "aria-pressed": String(key === ccAudience),
+      onclick: () => setAudience(key) }, label)));
+  function setAudience(key) {
+    ccAudience = key;
+    audience.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.aud === key)));
+  }
+  const iconBtn = (name, label, onclick, extra = {}) => el("button", { type: "button", class: "cc-icon", "aria-label": label, title: label, onclick, ...extra }, icon(name));
+  const expand = iconBtn("expand", "Expand", () => {
+    const wide = panel.classList.toggle("cc-wide");
+    fitPanel();
+    expand.setAttribute("aria-label", wide ? "Shrink" : "Expand");
+    expand.title = wide ? "Shrink" : "Expand";
+    expand.replaceChildren(icon(wide ? "shrink" : "expand"));
+  });
+  const panel = el("section", { class: "cc-panel", id: "cc-panel", role: "dialog", "aria-modal": "false", "aria-labelledby": "cc-title", hidden: true },
+    el("header", { class: "cc-head" },
+      el("span", { class: "cc-avatar", "aria-hidden": "true" }, icon("ask")),
+      el("div", { class: "cc-titles" }, el("h2", { id: "cc-title" }, "Ask the county"),
+        el("p", { class: "cc-status" }, el("span", { class: "cc-dot", "aria-hidden": "true" }), "Checked by code · 21 agreements")),
+      el("div", { class: "cc-tools" },
+        iconBtn("plus", "New conversation", () => { reset(); input.focus(); }),
+        expand,
+        iconBtn("x", "Close", () => closeChat(true)))),
+    el("div", { class: "cc-bar" }, el("span", { class: "cc-label-sm" }, "Answer for"), audience),
+    thread, form,
+    el("p", { class: "cc-foot" }, el("kbd", { class: "kbd" }, "Enter"), " send · ", el("kbd", { class: "kbd" }, "↑"), " last question · ",
+      el("kbd", { class: "kbd" }, "Esc"), " close. Nothing is saved. Not legal advice."));
+  let opener = launch;
+  function fitPanel() {
+    if (panel.hidden || window.innerWidth <= 560) { panel.style.maxHeight = ""; return; }
+    const header = document.querySelector(".site-header")?.getBoundingClientRect();
+    const top = Math.max(0, header ? header.bottom : 0);
+    panel.style.maxHeight = `${Math.max(320, window.innerHeight - top - 28)}px`;
+  }
+  window.addEventListener("resize", fitPanel, { passive: true });
+  window.addEventListener("scroll", () => { if (!panel.hidden) fitPanel(); }, { passive: true });
+  function openChat(from) {
+    opener = from instanceof HTMLElement ? from : launch;
+    panel.hidden = false;
+    document.documentElement.classList.add("cc-open");
+    fitPanel();
+    launch.setAttribute("aria-expanded", "true");
+    launch.hidden = true;
+    document.querySelectorAll("[data-open-chat]").forEach((b) => b.setAttribute("aria-expanded", "true"));
+    input.focus();
+  }
+  function closeChat(focusBack) {
+    panel.hidden = true;
+    document.documentElement.classList.remove("cc-open");
+    launch.setAttribute("aria-expanded", "false");
+    launch.hidden = false;
+    document.querySelectorAll("[data-open-chat]").forEach((b) => b.setAttribute("aria-expanded", "false"));
+    if (focusBack) (opener?.isConnected && opener.offsetParent ? opener : launch).focus();
+  }
+  launch.addEventListener("click", () => openChat(launch));
+  panel.addEventListener("keydown", (event) => { if (event.key === "Escape") { event.stopPropagation(); closeChat(true); } });
+  // "/" opens the chat from anywhere it is offered, unless the reader is typing.
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (!document.documentElement.classList.contains("cc-on") || !panel.hidden) return;
+    if (event.target.closest?.("input, textarea, select, [contenteditable='true']")) return;
+    event.preventDefault();
+    const headerAsk = document.querySelector(".nav-ask");
+    openChat(headerAsk?.offsetParent ? headerAsk : launch);
+  });
+  reset();
+  document.body.append(launch, panel);
+  return {
+    open: openChat, close: closeChat,
+    setContext(next) {
+      const changed = (next?.id || null) !== (context?.id || null);
+      context = next;
+      const label = launch.querySelector(".cc-label");
+      label.textContent = context ? `Ask about ${shortDealName(context.name)}` : "Ask the county";
+      if (!changed) return;
+      if (!asked.length) { reset(); return; }
+      // Mid-conversation: keep it, and offer this agreement's questions at the end of it.
+      thread.querySelector(".cc-context")?.remove();
+      if (context) {
+        thread.append(el("li", { class: "cc-welcome cc-context" },
+          el("p", { class: "cc-hello" }, `Now on ${context.name}`),
+          el("div", { class: "cc-topics" }, ...contextCards().map(topicButton))));
+      }
+    },
+  };
+}
+
+// ---------- Records request letter ----------
+// Code drafts the letter from the review; "Make it read better" asks the model to edit it, and the server keeps the
+// edit only if it adds no number, date or link and keeps every requested record. Nothing is sent from here.
+async function openLetter(opener) {
+  const dialog = byId("letter-dialog");
+  const subject = byId("letter-subject"), text = byId("letter-body"), note = byId("letter-note");
+  const polish = byId("letter-polish"), copy = byId("letter-copy");
+  const id = dealState.id;
+  const load = async (wantPolish) => {
+    polish.disabled = true;
+    note.textContent = wantPolish ? "Asking the model to edit the draft, then checking its edit…" : "Drafting…";
+    try {
+      const res = await api(`/api/deals/${encodeURIComponent(id)}/request-letter`, { method: "POST", body: { polish: wantPolish } });
+      subject.value = res.subject;
+      text.value = res.body;
+      note.textContent = res.notice;
+      note.classList.toggle("letter-ok", res.mode === "polished");
+      polish.hidden = res.mode === "polished";
+    } catch (err) {
+      note.textContent = `The draft did not load. ${err.message}`;
+    } finally {
+      polish.disabled = false;
+    }
+  };
+  polish.onclick = () => load(true);
+  copy.onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(`Subject: ${subject.value}\n\n${text.value}`);
+      toast("Letter copied. Paste it into an email to the records office.");
+    } catch {
+      text.select();
+      toast("Select all and copy the letter.");
+    }
+  };
+  dialog.onclose = () => opener?.focus();
+  polish.hidden = false;
+  dialog.showModal();
+  await load(false);
+  subject.focus();
 }
 
 function noClaimsNote({ canShow }) {
@@ -1482,7 +2938,7 @@ function openSource(claim, opener, { modal = true } = {}) {
   const pager = el("div", { class: "sp-pager" });
   byId("source-body").replaceChildren(...[
     el("blockquote", { class: "sp-quote", style: "margin:0" }, `“${claim.quote}”`),
-    el("div", { class: "sp-status" }, quoteBadge(claim), tag(claim.status)),
+    el("div", { class: "sp-status" }, quoteBadge(claim), tag(claim.status), claim.from_scan ? tag("machine", "From scan") : null),
     pager, stage, status, fallback,
     el("dl", { class: "facts" },
       el("dt", {}, "Document"), el("dd", {}, `${doc.type} · ${formatDate(doc.date)}`),
@@ -1636,8 +3092,69 @@ function setupToggles() {
     root.classList.toggle("text-large");
     try { localStorage.setItem("pl-text", root.classList.contains("text-large") ? "large" : "normal"); } catch (err) { /* This visit only. */ }
     syncText();
+    requestAnimationFrame(placeNavIndicator);
   });
   syncText();
+}
+
+// ---------- Navigation ----------
+// The header tightens and gains a shadow once the page scrolls, a thin bar shows how far down the page you are, and an
+// indicator slides to the current section. Below 1100px the links move into a menu. Every effect is skipped with
+// reduced motion, and the menu closes on Escape, on a click outside it, and when the route changes.
+const nav = { header: null, ind: null, menu: null, button: null };
+function placeNavIndicator() {
+  const { ind } = nav;
+  const on = document.querySelector('.main-nav a[aria-current="page"]');
+  if (!ind) return;
+  if (!on || !on.offsetParent) { ind.style.opacity = "0"; return; }
+  ind.style.opacity = "1";
+  ind.style.width = `${on.offsetWidth}px`;
+  ind.style.transform = `translateX(${on.offsetLeft}px)`;
+}
+function setMenu(open, { focus = true } = {}) {
+  if (!nav.menu) return;
+  nav.menu.hidden = !open;
+  nav.button.setAttribute("aria-expanded", String(open));
+  nav.button.setAttribute("aria-label", open ? "Close menu" : "Menu");
+  nav.header.classList.toggle("menu-open", open);
+  document.documentElement.classList.toggle("menu-open", open);
+  if (open && focus) (nav.menu.querySelector('[aria-current="page"]') || nav.menu.querySelector("a"))?.focus();
+  else if (!open && focus && nav.menu.contains(document.activeElement)) nav.button.focus();
+}
+function setupNav() {
+  nav.header = document.querySelector(".site-header");
+  nav.ind = document.querySelector(".nav-ind");
+  nav.menu = byId("mobile-menu");
+  nav.button = byId("menu-btn");
+  const bar = document.querySelector(".nav-progress span");
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      const y = window.scrollY;
+      nav.header.classList.toggle("scrolled", y > 8);
+      const room = document.documentElement.scrollHeight - window.innerHeight;
+      if (bar) bar.style.transform = `scaleX(${room > 0 ? Math.min(1, y / room) : 0})`;
+    });
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  if ("ResizeObserver" in window) new ResizeObserver(onScroll).observe(document.body);
+  window.addEventListener("resize", () => { placeNavIndicator(); if (window.innerWidth > 1100) setMenu(false, { focus: false }); }, { passive: true });
+  document.fonts?.ready.then(placeNavIndicator);
+  nav.button?.addEventListener("click", () => setMenu(nav.menu.hidden));
+  nav.menu?.addEventListener("click", (event) => { if (event.target.closest("a")) setMenu(false, { focus: false }); });
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && nav.menu && !nav.menu.hidden) setMenu(false); });
+  document.addEventListener("click", (event) => {
+    if (nav.menu && !nav.menu.hidden && !nav.menu.contains(event.target) && !nav.button.contains(event.target)) setMenu(false, { focus: false });
+  });
+  nav.button?.setAttribute("aria-expanded", "false");
+  for (const button of document.querySelectorAll("[data-open-chat]")) {
+    button.setAttribute("aria-expanded", "false");
+    button.addEventListener("click", () => { setMenu(false, { focus: false }); countyChat?.open(button); });
+  }
+  onScroll();
 }
 
 // ---------- Receipt printer ----------
@@ -1733,19 +3250,58 @@ function setupHeroMotion() {
 }
 
 function countStat(node) {
-  const target = Number(node.dataset.count);
   const decimals = Number(node.dataset.decimals || 0);
-  const show = (value) => { node.textContent = value.toFixed(decimals); };
-  if (reducedMotion.matches || !target) { show(target); return; }
-  const start = performance.now();
-  const duration = 900;
-  const step = (now) => {
-    const t = Math.min(1, (now - start) / duration);
-    show(target * (1 - (1 - t) ** 3));
-    if (t < 1) requestAnimationFrame(step);
-  };
-  show(0);
-  requestAnimationFrame(step);
+  animateNumber(node, Number(node.dataset.count), 900, (v) => v.toFixed(decimals));
+}
+
+// Cards on rendered views rise in as they come into view, a few at a time. Content is never hidden without script:
+// the class that hides it is added here and removed when the card is seen (or at once with reduced motion).
+const RISE = ".card, .kpi, .runway, .county-search-card, .county-table-card, .tile, .summary-box, .stepper-wrap, .deal-row";
+let riseObserver = null;
+function riseIn(root) {
+  if (!root || reducedMotion.matches || !("IntersectionObserver" in window)) return;
+  riseObserver ||= new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add("rise-in");
+      entry.target.classList.remove("rise-wait");
+      riseObserver.unobserve(entry.target);
+    }
+  }, { threshold: 0, rootMargin: "0px 0px -4% 0px" }); // 0: a card taller than the screen (the phone table) still rises
+  let i = 0;
+  for (const node of root.querySelectorAll(RISE)) {
+    if (node.closest(".rise-wait") || node.dataset.risen) continue;
+    node.dataset.risen = "1";
+    node.style.setProperty("--rise", String(i++ % 6));
+    node.classList.add("rise-wait");
+    riseObserver.observe(node);
+  }
+}
+
+// Looping decoration (glows, sweeps, pulses) pauses while its section is off screen, so it costs nothing there.
+function setupOffscreenPause() {
+  if (!("IntersectionObserver" in window)) return;
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) e.target.classList.toggle("is-off", !e.isIntersecting);
+  }, { rootMargin: "100px" });
+  const watch = () => document.querySelectorAll(".hero, .real-strip, .m3, .cta-band, .effort").forEach((n) => {
+    if (!n.dataset.watched) { n.dataset.watched = "1"; io.observe(n); }
+  });
+  watch();
+  new MutationObserver(watch).observe(document.querySelector("main") || document.body, { childList: true, subtree: true });
+}
+
+function setupSpotlight() {
+  // A soft light follows the pointer across cards: decoration only, mouse and pen only.
+  if (reducedMotion.matches || document.documentElement.classList.contains("lite") || !window.matchMedia("(hover: hover)").matches) return;
+  const SEL = ".card, .kpi, .tile, .bento-tile, .runway, .summary-box, .real-strip, .who-card";
+  document.addEventListener("pointermove", (event) => {
+    const card = event.target.closest?.(SEL);
+    if (!card) return;
+    const box = card.getBoundingClientRect();
+    card.style.setProperty("--mx", `${event.clientX - box.left}px`);
+    card.style.setProperty("--my", `${event.clientY - box.top}px`);
+  }, { passive: true });
 }
 
 function setupReveal() {
@@ -1816,6 +3372,7 @@ function renderCommands() {
   });
   byId("cmdk-list").replaceChildren(...rows);
   byId("cmdk-empty").hidden = cmd.shown.length > 0;
+  byId("cmdk-empty").textContent = query ? "No matches." : "Loading pages and deals…";
   markActive();
 }
 
@@ -2114,6 +3671,39 @@ function setupDecisionDialog() {
   });
 }
 
+// A card that folds to its heading and a one-line summary. Each deal starts open or folded by `open`; after that the
+// visitor's own choice holds until they open another deal. Nothing is removed: the content is one press away.
+function setCollapsible(section, { open, summary }) {
+  if (!section || !dealState) return;
+  const head = section.querySelector(":scope > .card-head");
+  const body = section.querySelector(":scope > .card-body");
+  if (!head || !body) return;
+  if (section.dataset.forDeal !== dealState.id) {
+    section.dataset.forDeal = dealState.id;
+    section.dataset.open = String(Boolean(open));
+  }
+  body.id ||= `${section.id}-body`;
+  let line = head.querySelector(".fold-summary");
+  if (!line) { line = el("p", { class: "fold-summary" }); head.append(line); }
+  let button = head.querySelector(".fold-toggle");
+  if (!button) {
+    button = el("button", { type: "button", class: "btn btn-ghost btn-small fold-toggle", "aria-controls": body.id,
+      onclick: () => { section.dataset.open = String(section.dataset.open !== "true"); section.foldApply?.(); } });
+    head.append(button);
+  }
+  const apply = () => {
+    const isOpen = section.dataset.open === "true";
+    body.hidden = !isOpen;
+    section.classList.toggle("folded", !isOpen);
+    button.setAttribute("aria-expanded", String(isOpen));
+    button.replaceChildren(isOpen ? "Hide" : "Show", el("span", { class: "visually-hidden" }, ` ${head.querySelector("h2")?.textContent || "details"}`));
+    line.textContent = isOpen ? "" : summary;
+    line.hidden = isOpen || !summary;
+  };
+  section.foldApply = apply; // The button always runs the latest render's summary.
+  apply();
+}
+
 // Progress meter and review log.
 function renderReviewPanel() {
   const panel = byId("review-panel");
@@ -2164,6 +3754,9 @@ function renderReviewPanel() {
         "This is a sample deal. Your review is kept for this browser only, and no one else sees it."),
       d.log.length ? resetControl() : null) : null
   ].filter(Boolean));
+  // Folded until the visitor starts reviewing: the summary line still shows where the review stands.
+  setCollapsible(panel, { open: d.log.length > 0 || !isReadOnly(),
+    summary: `${p.claims_reviewed} of ${p.claims_total} claims reviewed · ${p.flagged_reviewed} of ${p.flagged_total} open questions decided` });
 }
 
 // "Reset my review" on sample deals, with an inline confirm.
@@ -2415,6 +4008,7 @@ function setupPageTabs() {
 }
 
 setupToggles();
+setupNav();
 setupGlossaryPopovers();
 setupNewDeal();
 setupSourceDialog();
@@ -2424,11 +4018,15 @@ setupExportDialog();
 setupViewer();
 setupDecisionDialog();
 setupReveal();
+setupSpotlight();
+setupOffscreenPause();
+countyChat = setupCountyChat();
 setupHeroMotion();
 setupPageTabs();
 ready = detectMode();
-window.addEventListener("hashchange", () => route());
-route({ initial: true });
+window.addEventListener("hashchange", () => safeRoute());
+setupConnectivity();
+safeRoute({ initial: true });
 ready.then(async () => {
   if (current.view === "shared") return; // A shared link needs nothing beyond its receipt.
   try {

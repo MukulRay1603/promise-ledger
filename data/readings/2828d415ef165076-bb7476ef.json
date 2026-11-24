@@ -1,0 +1,45 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "PRINCE GEORGE'S COUNTY COUNCIL COMMITTEE REPORT Reference No.: CR-105-2023",
+  "date": "2023-11-02",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Promise project will consist of 841 residential units of all types, including age-restricted senior units and over 100 affordable units at 65% of the Area Median Income (AMI).",
+    "page": 1,
+    "wording": "will consist of",
+    "value": "over 100 affordable units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Promise project will consist of 841 residential units of all types, including age-restricted senior units and over 100 affordable units at 65% of the Area Median Income (AMI).",
+    "page": 1,
+    "wording": "at",
+    "value": "65% of the Area Median Income (AMI)"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The resolution seeks the Council’s approval for a Payment in Lieu of Taxes (“PILOT”) for Petra’s the “Promise” project located at 1502 Southern Avenue in Oxon Hill.",
+    "page": 1,
+    "wording": "approval for a Payment in Lieu of Taxes",
+    "value": "Payment in Lieu of Taxes (PILOT)"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Policy Analysis and Fiscal Impact Statement indicates that based upon the tax assessment projections supplied by the Administration and using a two percent (2%) annual escalator, the execution of the contemplated PILOT agreements after the adoption of CR-105-2023 will result in an estimated thirty-three million dollars ($33M) in foregone real property tax revenue between 2027 and 2045 after accounting for the PILOT payments.",
+    "page": 1,
+    "wording": "PILOT agreements",
+    "value": "estimated thirty-three million dollars ($33M) in foregone real property tax revenue between 2027 and 2045"
+   }
+  ]
+ },
+ "tokens_in": 2018,
+ "tokens_out": 556,
+ "cost_usd": 0.001995,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

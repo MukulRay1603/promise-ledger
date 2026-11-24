@@ -1,0 +1,120 @@
+{
+  "notice": "Real public records of Prince George's County, Maryland, from the County Council's Legistar system. Promise Ledger lists what the records say; it does not judge whether any party met an obligation.",
+  "real": true,
+  "deal": "Bowie Commons Apartments",
+  "slug": "bowie-commons-apartments-cr-034-2024",
+  "city": "Prince George's County",
+  "county": "Prince George's County, MD",
+  "owner": null,
+  "as_of": "2024-06-04",
+  "source": {
+    "system": "Prince George's County Legistar",
+    "file": "CR-034-2024",
+    "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR THE BOWIE COMMONS APARTMENTS for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Bowie Housing Partners, LP (the “Owner”).",
+    "status": "Adopted",
+    "introduced": "2024-04-23",
+    "passed": "2024-06-04",
+    "url": "https://princegeorgescountymd.legistar.com/gateway.aspx?M=L&ID=17013",
+    "api": "https://webapi.legistar.com/v1/princegeorgescountymd/matters/17013",
+    "votes": [
+      {
+        "date": "2024-05-28",
+        "body": "Sitting as the Committee of the Whole",
+        "action": "Favorably recommended",
+        "passed": true,
+        "tally": null
+      },
+      {
+        "date": "2024-06-04",
+        "body": "County Council",
+        "action": "adopted",
+        "passed": true,
+        "tally": null
+      }
+    ],
+    "retrieved": "2026-11-18"
+  },
+  "documents": [
+    {
+      "type": "Transmittal letter",
+      "title": "CR-034-2024 Transmittal",
+      "date": "2024-04-23",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/60c802a0-0b2b-45d2-a709-088f9d69cb72.pdf",
+      "file": "01-transmittal-letter.pdf",
+      "id": "r01",
+      "sha256": "17c816b828762ee28bfc6fc7351553c9e78226561c32e64b533d1c1731c3c94a",
+      "bytes": 218776,
+      "signed_by": []
+    },
+    {
+      "type": "Resolution",
+      "title": "CR-034-2024 R2024034",
+      "date": "2024-06-04",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/ea124b00-2aca-489e-b3b5-cf3a784fc05f.docx",
+      "file": "02-resolution.from-docx.pdf",
+      "id": "r02",
+      "sha256": "02fba40e6d95da5c3197eb656406f6d1a162a94e1797e96b92a299e78b96c684",
+      "bytes": 316320,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/ea124b00-2aca-489e-b3b5-cf3a784fc05f.docx",
+        "sha256": "87dadff3090bf9dda3b1b2b86d64f168be10fb16b5ea4a69e5281a1682f3cf05"
+      }
+    },
+    {
+      "type": "PILOT agreement",
+      "title": "CR-034-2024 Attachment B",
+      "date": "2024-04-23",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/438a5a13-81dd-4fd0-ad78-fdedc1a881aa.pdf",
+      "file": "03-pilot-agreement.pdf",
+      "id": "r03",
+      "sha256": "a874b55895a3ff31fd53445d9ee3c880c0ae4bece40f2cd0c5b6118b1c9542f8",
+      "bytes": 243674,
+      "signed_by": []
+    },
+    {
+      "type": "Fiscal and policy note",
+      "title": "CR-034-2024 PAFI",
+      "date": "2024-04-23",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/f3725f4a-bb64-4471-9adb-206493c448c2.pdf",
+      "file": "04-fiscal-and-policy-note.pdf",
+      "id": "r04",
+      "sha256": "172f40c8921c75324bd2e344fddbcb0ac69fadba49af903b835a030bb4b816da",
+      "bytes": 352945,
+      "signed_by": []
+    },
+    {
+      "type": "Legislative summary",
+      "title": "CR-034-2024 Summary",
+      "date": "2024-04-23",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/739708a8-d232-4c01-b596-ce45a0e40c5d.pdf",
+      "file": "05-legislative-summary.pdf",
+      "id": "r05",
+      "sha256": "9cd14344bf0b0609aa716e66670a6d553426edf78f383accf55b522c373bb5bb",
+      "bytes": 90428,
+      "signed_by": []
+    },
+    {
+      "type": "Signed resolution",
+      "title": "CR-034-2024 - signed",
+      "date": "2024-06-04",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/4aafc7ae-1308-4c38-9b6c-221fc39f4f14.pdf",
+      "file": "06-signed-resolution.pdf",
+      "id": "r06",
+      "sha256": "d3bf37cfd401b11194d6486f2a86f355444272d4fcaffcb5d68e44a58eb7dea0",
+      "bytes": 316438,
+      "signed_by": []
+    }
+  ],
+  "not_read": [
+    {
+      "type": "Presentation",
+      "title": "CR-034-2024 Presentation_Bowie Commons- COW 5-28-24",
+      "date": "2024-04-23",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/713a37d3-7515-4db3-956f-d92d5aaeeada.pptx",
+      "skipped": "not a PDF or Word file (pptx)"
+    }
+  ]
+}

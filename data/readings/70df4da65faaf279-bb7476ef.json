@@ -1,0 +1,51 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "PILOT Agreement Approval for 210 on the Park Apartments",
+  "date": "2023-05-09",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Prince George's County Government Office of the County Executive",
+    "quote": "Angela D. Alsobrooks  \n      County Executive",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Of the one hundred fifty eight (158) residential units, one hundred twenty eight (128) units will be income-restricted, and thirty (30) units will be market-rate.",
+    "page": 1,
+    "wording": "one hundred twenty eight (128) units will be income-restricted",
+    "value": "128 of 158 units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require the Owner to make a mandatory annual payment to the County in an amount of no less than approximately seven thousand, four hundred twenty-four dollars ($7,424) or approximately fifty eight dollars ($58) per unit for the one hundred twenty eight (128) affordable units for the first full tax year.",
+    "page": 1,
+    "wording": "PILOT will require the Owner to make a mandatory annual payment",
+    "value": "$7,424 or $58 per unit"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "required payment will increase by two percent (2%)",
+    "value": "2% increase per year"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for fifty (50) years.",
+    "page": 1,
+    "wording": "remain in effect for fifty (50) years",
+    "value": "50 years"
+   }
+  ]
+ },
+ "tokens_in": 1936,
+ "tokens_out": 526,
+ "cost_usd": 0.001896,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

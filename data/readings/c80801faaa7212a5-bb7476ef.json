@@ -1,0 +1,58 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "PILOT Agreement for Hamlet Woods Apartments",
+  "date": "2023-04-28",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Angela D. Alsobrooks",
+    "quote": "Angela D. Alsobrooks",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner is an entity to be formed by the development team of Osprey Property Company II LLC and Parallax Development Group, LLC for the purpose of acquiring land and constructing the Project, which will be fifty nine (59) units of new affordable townhouse-style multi-family rental housing for low-income to moderate-income families, known as Hamlet Woods, on a 13.3 acre parcel located at 57th Avenue, Bladensburg, Maryland 20710.",
+    "page": 1,
+    "wording": "will be",
+    "value": "59 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be reserved for households whose incomes are at or below eighty percent (80%) of the Area Median Income (“AMI”).",
+    "page": 1,
+    "wording": "All units will be reserved",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All units will be reserved for households whose incomes are at or below eighty percent (80%) of the Area Median Income (“AMI”).",
+    "page": 1,
+    "wording": "at or below eighty percent (80%) of the Area Median Income",
+    "value": "80% of AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for thirty (30) years, which includes the extended affordability period.",
+    "page": 1,
+    "wording": "will remain in effect for",
+    "value": "30 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require the Owner to make a mandatory annual payment in an amount of no less than approximately thirty five thousand, four hundred dollars ($35,400) or approximately six hundred dollars ($600) per unit for the full tax year.",
+    "page": 1,
+    "wording": "require the Owner to make a mandatory annual payment",
+    "value": "$35,400 annually"
+   }
+  ]
+ },
+ "tokens_in": 1830,
+ "tokens_out": 617,
+ "cost_usd": 0.002092,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

@@ -1,0 +1,31 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "other",
+  "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR THE HIGHLANDS SENIOR APARTMENTS",
+  "date": "2024-10-15",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR THE HIGHLANDS SENIOR APARTMENTS for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Highland Senior Living, LLLP (the “Owner”).",
+    "page": 1,
+    "wording": "approving the terms and conditions of a Payments in Lieu of Taxes",
+    "value": "Payments in Lieu of Taxes Agreement"
+   },
+   {
+    "topic": "public_support",
+    "quote": "This legislation is approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Highland Senior Living, LLLP (the “Owner”) concerning The Highlands Senior Apartments project.",
+    "page": 2,
+    "wording": "approving the terms and conditions of a Payments in Lieu of Taxes",
+    "value": "Payments in Lieu of Taxes Agreement"
+   }
+  ]
+ },
+ "tokens_in": 1583,
+ "tokens_out": 348,
+ "cost_usd": 0.001345,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

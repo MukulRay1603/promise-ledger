@@ -1,0 +1,66 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Fiscal Impact Statement for CR-118-2025: Payments in Lieu of Taxes (PILOT) Agreement for the Fort Washington by Vintage Project",
+  "date": "2025-10-07",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Summary: The Resolution proposes to approve the terms and conditions of a Payment in Lieu of Taxes (PILOT) agreement between Prince George’s County and Fort Washington by Vintage, L.P., Inc. for a 304-unit multi- family development available at 70% of Area Median Income.",
+    "page": 1,
+    "wording": "304-unit",
+    "value": "304 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Summary: The Resolution proposes to approve the terms and conditions of a Payment in Lieu of Taxes (PILOT) agreement between Prince George’s County and Fort Washington by Vintage, L.P., Inc. for a 304-unit multi- family development available at 70% of Area Median Income.",
+    "page": 1,
+    "wording": "70% of Area Median Income",
+    "value": "70% of AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT would be in effect for 40 years.",
+    "page": 1,
+    "wording": "in effect for 40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Assuming a first-year payment of $117,648 in FY 2027 instead of a real property tax payment of $482,511, the County loses -$364,863 in general fund revenue, growing to a loss of -$402,404 by FY 2030.",
+    "page": 1,
+    "wording": "first-year payment of $117,648",
+    "value": "$117,648 first year payment"
+   },
+   {
+    "topic": "term",
+    "quote": "Over the 40-year term of the PILOT the County is estimated to lose -$14.9 million on a net present value basis.",
+    "page": 1,
+    "wording": "40-year term",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The first-year PILOT payment is specified at $ 117,648 growing by 2% annually over the 40-year term.",
+    "page": 2,
+    "wording": "$ 117,648 growing by 2% annually",
+    "value": "$117,648 growing 2% annually"
+   },
+   {
+    "topic": "units",
+    "quote": "The revenue loss should be weighed against the benefit of adding 304 affordable housing units that may not have been constructed in the absence of the PILOT agreement.",
+    "page": 2,
+    "wording": "adding 304 affordable housing units",
+    "value": "304 affordable units"
+   }
+  ]
+ },
+ "tokens_in": 1872,
+ "tokens_out": 816,
+ "cost_usd": 0.002602,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

@@ -1,0 +1,185 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "agreement",
+  "title": "PAYMENTS IN LIEU OF TAXES AGREEMENT",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "income_basis",
+    "quote": "Eligible Households: Households earning at or below 60% AMI",
+    "page": 1,
+    "wording": "Households earning at or below 60% AMI",
+    "value": "at or below 60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Total Number of Units: 72",
+    "page": 1,
+    "wording": "Total Number of Units",
+    "value": "72 total units"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Affordable Units: 72",
+    "page": 1,
+    "wording": "Number of Affordable Units",
+    "value": "72 affordable units"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Market Rate Units: 0",
+    "page": 1,
+    "wording": "Number of Market Rate Units",
+    "value": "0 market rate units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Annual Payment: See Definition below.",
+    "page": 1,
+    "wording": "Annual Payment",
+    "value": "See Definition below"
+   },
+   {
+    "topic": "public_support",
+    "quote": "$43,200 per year or $732 per affordable unit per year.",
+    "page": 1,
+    "wording": "$43,200 per year or $732 per affordable unit per year",
+    "value": "$43,200 per year or $732 per affordable unit per year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The payment will escalate annually by an amount equal to the Annual Rate.",
+    "page": 1,
+    "wording": "escalate annually by an amount equal to the Annual Rate",
+    "value": "2% per year escalation"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Annual Rate (expressed as a percentage) 2% per year",
+    "page": 1,
+    "wording": "2% per year",
+    "value": "2% per year"
+   },
+   {
+    "topic": "term",
+    "quote": "Term (in years): 40 years",
+    "page": 1,
+    "wording": "40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "Long Term Affordability Covenant by Owner in favor of the County of even date hereof.",
+    "page": 2,
+    "wording": "Long Term Affordability Covenant by Owner",
+    "value": "Owner"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner has or will acquire the Property located in Prince George’s County, Maryland for the purpose of constructing or rehabilitating the Project to provide housing to Eligible Households.",
+    "page": 2,
+    "wording": "provide housing to Eligible Households",
+    "value": "Eligible Households"
+   },
+   {
+    "topic": "units",
+    "quote": "the owner of the real property agrees to (A) continue to commence or continue to maintain the real property as rental housing for lower income persons under the requirements of the governmental programs described in item (2) of this paragraph and agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement or (B) enters into an agreement with the governing body of the county to allow the entire property or the portion of the property which was maintained for lower income persons to remain as housing for lower income persons for a term of at least five years; and",
+    "page": 3,
+    "wording": "term of at least five years",
+    "value": "at least five years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "the owner and the governing body of the county where the real property is located agree that the owner shall pay a negotiated amount in lieu of the applicable county property taxes.",
+    "page": 3,
+    "wording": "pay a negotiated amount in lieu of the applicable county property taxes",
+    "value": "negotiated amount in lieu of taxes"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "“Affordability Covenants” means the covenants executed and recorded on the Property, in a form acceptable to the County, that require the Owner and all subsequent owners of the Property to offer for rent at least the Affordable Units to Eligible Households.",
+    "page": 3,
+    "wording": "Owner and all subsequent owners of the Property",
+    "value": "Owner and subsequent owners"
+   },
+   {
+    "topic": "units",
+    "quote": "“Affordable Units” mean those rental units in the Project that will be dedicated to the Eligible Households.",
+    "page": 3,
+    "wording": "rental units in the Project that will be dedicated to the Eligible Households",
+    "value": "Affordable Units dedicated to Eligible Households"
+   },
+   {
+    "topic": "public_support",
+    "quote": "“Affordable Unit Annual Payment” means the amount set forth in the Project Facts Section that represents the amount the Owner shall pay in lieu of taxes in accordance with this Agreement for the Affordable Units.",
+    "page": 3,
+    "wording": "amount the Owner shall pay in lieu of taxes",
+    "value": "Affordable Unit Annual Payment"
+   },
+   {
+    "topic": "public_support",
+    "quote": "For projects consisting entirely of Affordable Units, then the Annual Payment shall consist of the Affordable Unit Annual Payment.",
+    "page": 4,
+    "wording": "Annual Payment shall consist of the Affordable Unit Annual Payment",
+    "value": "Affordable Unit Annual Payment"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "“Eligible Households” mean the households as described in the Project Facts Section that are eligible to reside in the Project and whose initial annual income is sixty percent (60%) or less of the median income as set from time to time by the United States Department of Housing and Urban Development for Section 8 Programs in the Baltimore Metropolitan Statistical Area.",
+    "page": 4,
+    "wording": "initial annual income is sixty percent (60%) or less of the median income",
+    "value": "60% or less of area median income"
+   },
+   {
+    "topic": "units",
+    "quote": "“Market Rate Units ” means those rental units in the Project that are anticipated to be unrestricted and leased at market rate.",
+    "page": 4,
+    "wording": "unrestricted and leased at market rate",
+    "value": "market rate units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "“PILOT” means the negotiated payments in lieu of taxes.",
+    "page": 5,
+    "wording": "negotiated payments in lieu of taxes",
+    "value": "PILOT"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The payments to be made by the Owner to the County, provided for herein with respect to the Project, shall be in lieu of the payment of Prince George’s County taxes on real property under the Tax-Property Article of the Annotated Code of Maryland, as amended.",
+    "page": 5,
+    "wording": "in lieu of the payment of Prince George’s County taxes on real property",
+    "value": "payments in lieu of real property taxes"
+   },
+   {
+    "topic": "public_support",
+    "quote": "During that period commencing with the Substantial Completion Date until the Termination Date, the Project shall be exempt from paying full Prince George’s County real property taxes.",
+    "page": 6,
+    "wording": "exempt from paying full Prince George’s County real property taxes",
+    "value": "exemption from full real property taxes"
+   },
+   {
+    "topic": "public_support",
+    "quote": "If the Project consist entirely of Affordable Units, then the Annual Payment shall consist of the Affordable Unit Annual Payment.",
+    "page": 6,
+    "wording": "Annual Payment shall consist of the Affordable Unit Annual Payment",
+    "value": "Affordable Unit Annual Payment"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Owner agrees to maintain the Property as rental housing for lower income persons under the requirements a federal, State, or local government program and the Owner agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement.",
+    "page": 8,
+    "wording": "rental housing for lower income persons",
+    "value": "lower income persons"
+   }
+  ]
+ },
+ "tokens_in": 8778,
+ "tokens_out": 2248,
+ "cost_usd": 0.008253,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

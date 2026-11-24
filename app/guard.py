@@ -130,6 +130,11 @@ RULES = [
     ("deal", "POST", re.compile(r"^/api/deals/?$"), "RATE_LIMIT_DEALS_PER_HOUR", 3, "new deals"),
     ("share", "POST", re.compile(r"^/api/deals/[^/]+/share/?$"), "RATE_LIMIT_SHARES_PER_HOUR", 20, "share links"),
     ("extract", "POST", re.compile(r"^/api/extract/?$"), "RATE_LIMIT_EXTRACTS_PER_HOUR", 30, "text readings"),
+    ("ask", "POST", re.compile(r"^/api/deals/[^/]+/ask/?$"), "RATE_LIMIT_ASKS_PER_HOUR", 30, "questions"),
+    ("county-ask", "POST", re.compile(r"^/api/county/ask/?$"), "RATE_LIMIT_COUNTY_ASKS_PER_HOUR", 30, "questions"),
+    ("feedback", "POST", re.compile(r"^/api/feedback/?$"), "RATE_LIMIT_FEEDBACK_PER_HOUR", 10, "feedback forms"),
+    ("search", "GET", re.compile(r"^/api/county/search/?$"), "RATE_LIMIT_SEARCHES_PER_HOUR", 60, "searches"),
+    ("letter", "POST", re.compile(r"^/api/deals/[^/]+/request-letter/?$"), "RATE_LIMIT_LETTERS_PER_HOUR", 20, "letter drafts"),
     ("retry", "POST", re.compile(r"^/api/deals/[^/]+/documents/[^/]+/retry/?$"), "RATE_LIMIT_RETRIES_PER_HOUR", 10,
      "retries"),
     ("export", "GET", re.compile(r"^/api/deals/[^/]+/export\.(xlsx|csv|json)$"), "RATE_LIMIT_EXPORTS_PER_HOUR", 120,
@@ -338,6 +343,26 @@ def cache_control(path: str) -> str | None:
     return "no-cache"  # The ETag still lets the browser reuse an unchanged file with a 304.
 
 
+MAX_JSON_BODY = 64 * 1024  # Every JSON request is small; the largest is pasted text of 4,000 characters.
+
+
+class BodyTooLarge(Exception):
+    pass
+
+
+def _capped(receive, limit: int):
+    seen = 0
+
+    async def wrapped():
+        nonlocal seen
+        message = await receive()
+        seen += len(message.get("body", b""))
+        if seen > limit:
+            raise BodyTooLarge()
+        return message
+    return wrapped
+
+
 class SecurityHeaders:
     """Headers on every response, and an early 413 for uploads whose Content-Length is over the limit (S11)."""
 
@@ -347,12 +372,19 @@ class SecurityHeaders:
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
-        if scope["method"] == "POST" and UPLOAD_PATH.match(scope["path"]):
-            length = dict(scope.get("headers") or []).get(b"content-length", b"")
-            if length.isdigit() and int(length) > MAX_UPLOAD_BODY:
-                from fastapi.responses import JSONResponse
+        if scope["method"] in ("POST", "PUT", "PATCH", "DELETE") and scope["path"].startswith("/api/"):
+            from fastapi.responses import JSONResponse
 
-                return await JSONResponse({"detail": "The file is larger than 20 MB."}, status_code=413)(scope, receive, send)
+            headers = dict(scope.get("headers") or [])
+            length = headers.get(b"content-length", b"")
+            upload = UPLOAD_PATH.match(scope["path"])
+            limit = MAX_UPLOAD_BODY if upload else MAX_JSON_BODY
+            if length.isdigit() and int(length) > limit:
+                detail = "The file is larger than 20 MB." if upload else "The request is too large."
+                return await JSONResponse({"detail": detail}, status_code=413)(scope, receive, send)
+            if not upload and not length.isdigit() and b"chunked" in headers.get(b"transfer-encoding", b""):
+                # No length to check up front: count the bytes as they arrive and stop past the limit.
+                receive = _capped(receive, limit)
         csp = content_security_policy()
         cache = cache_control(scope["path"])
 
@@ -362,7 +394,8 @@ class SecurityHeaders:
                 present = {k.lower() for k, _v in headers}
                 extra = [(b"content-security-policy", csp.encode()), (b"x-content-type-options", b"nosniff"),
                          (b"referrer-policy", b"strict-origin-when-cross-origin"), (b"x-frame-options", b"DENY"),
-                         (b"permissions-policy", b"camera=(), microphone=(), geolocation=()")]
+                         (b"permissions-policy", b"camera=(), microphone=(self), geolocation=()"),
+                         (b"strict-transport-security", b"max-age=31536000; includeSubDomains")]
                 if cache:
                     extra.append((b"cache-control", cache.encode()))
                 message["headers"] = headers + [(k, v) for k, v in extra if k not in present]

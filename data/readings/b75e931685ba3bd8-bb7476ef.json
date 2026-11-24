@@ -1,0 +1,16 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "LEGISLATIVE COMMENT: CR-096-2024 and CR-97-2024",
+  "date": "2024-11-17",
+  "draft": false,
+  "signatures": [],
+  "candidates": []
+ },
+ "tokens_in": 3423,
+ "tokens_out": 132,
+ "cost_usd": 0.001357,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

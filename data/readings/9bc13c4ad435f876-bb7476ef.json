@@ -1,0 +1,65 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "Letter regarding Penn Place I project PILOT Agreement",
+  "date": "2025-03-07",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Tara H. Jackson",
+    "quote": "Tara H. Jackson",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Penn Place I project involves the new construction of a one hundred sixty eight (168) unit affordable rental housing community for families earning sixty percent (60%) or below of the Area Median Income (“AMI”), located at 5501 Penn Crossing Drive, District Heights, Maryland 20747.",
+    "page": 1,
+    "wording": "one hundred sixty eight (168) unit",
+    "value": "168 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Penn Place I project involves the new construction of a one hundred sixty eight (168) unit affordable rental housing community for families earning sixty percent (60%) or below of the Area Median Income (“AMI”), located at 5501 Penn Crossing Drive, District Heights, Maryland 20747.",
+    "page": 1,
+    "wording": "sixty percent (60%) or below of the Area Median Income",
+    "value": "60% or below of AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require a mandatory annual payment of no less than approximately one hundred thirty two thousand, forty eight dollars or seven hundred eighty six dollars per unit ($132,048 or $786, per unit) for the first year.",
+    "page": 1,
+    "wording": "PILOT",
+    "value": "$132,048 or $786 per unit for the first year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment for these affordable units will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%)",
+    "value": "increase by 2% each subsequent tax year"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for forty (40) years, including the extended affordability period.",
+    "page": 1,
+    "wording": "forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "When considering the financial effects of the PILOT, the County will be providing yearly operating support of approximately one hundred thousand, seven hundred fifty five dollars ($100,755) to this affordable family housing development.",
+    "page": 1,
+    "wording": "yearly operating support of approximately one hundred thousand, seven hundred fifty five dollars",
+    "value": "$100,755 yearly operating support"
+   }
+  ]
+ },
+ "tokens_in": 1708,
+ "tokens_out": 753,
+ "cost_usd": 0.002395,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

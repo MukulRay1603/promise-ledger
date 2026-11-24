@@ -1,0 +1,65 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "Letter regarding Payments in Lieu of Taxes (PILOT) Agreement for Queens Park Plaza Apartments",
+  "date": "",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Angela D. Alsobrooks",
+    "quote": "Angela D. Alsobrooks",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Project is a ninety-four (94) unit garden style apartment community, a portion of which will provide affordable housing for fifty seven (57) low-income to moderate-income households.",
+    "page": 1,
+    "wording": "will provide affordable housing for fifty seven (57) low-income to moderate-income households",
+    "value": "57 of 94 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Project is a ninety-four (94) unit garden style apartment community, a portion of which will provide affordable housing for fifty seven (57) low-income to moderate-income households.",
+    "page": 1,
+    "wording": "low-income to moderate-income households",
+    "value": "low-income to moderate-income"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require the Owner to make a mandatory annual payment to the County in an amount of no less than approximately seventeen thousand, one hundred dollars ($17,100), or approximately three hundred dollars ($300) per unit, for the fifty-seven (57) affordable units for the first full tax year.",
+    "page": 1,
+    "wording": "mandatory annual payment to the County in an amount of no less than approximately seventeen thousand, one hundred dollars ($17,100)",
+    "value": "$17,100 or $300 per unit for the first full tax year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%) for each subsequent tax year",
+    "value": "2% increase per year"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for fifteen (15) years.",
+    "page": 1,
+    "wording": "remain in effect for fifteen (15) years",
+    "value": "15 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "When considering the financial effects of the PILOT, the County will be providing yearly operating support of approximately twenty-nine thousand, two hundred seventy-seven dollars ($29,277) to this affordable housing development.",
+    "page": 1,
+    "wording": "County will be providing yearly operating support of approximately twenty-nine thousand, two hundred seventy-seven dollars ($29,277)",
+    "value": "$29,277 yearly operating support"
+   }
+  ]
+ },
+ "tokens_in": 1751,
+ "tokens_out": 758,
+ "cost_usd": 0.00242,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

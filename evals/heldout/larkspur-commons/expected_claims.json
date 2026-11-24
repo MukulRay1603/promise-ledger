@@ -1,0 +1,205 @@
+{
+  "notice": "Fictional held-out evaluation data. Alder Crossing, Port Wren, Stone Hollow and every company, date, number and quote in these documents are made up.",
+  "deal": "Larkspur Commons",
+  "terms": [
+    "units",
+    "income_basis",
+    "rent_limits",
+    "term",
+    "responsible_party",
+    "reporting",
+    "remedies"
+  ],
+  "stages": [
+    "proposed",
+    "supported",
+    "signed",
+    "delivered"
+  ],
+  "not_located": [
+    "remedies"
+  ],
+  "differs": [
+    {
+      "term": "term",
+      "values": [
+        "At least 30 years",
+        "Until at least January 1, 2066",
+        "January 1, 2066"
+      ],
+      "claims": [
+        "l04",
+        "l08",
+        "l13"
+      ]
+    }
+  ],
+  "story": "Slides offer 16 of 64 homes for at least thirty years. The adopted resolution and the declaration signed by the builder say January 1, 2066. Remedies are not located. The Village's line on the declaration is blank.",
+  "claims": [
+    {
+      "id": "l01",
+      "term": "units",
+      "quote": "We plan to offer 16 of the 64 homes at below-market rents.",
+      "file": "01-community-meeting-slides.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "plan to offer",
+      "value": "16 of 64 homes",
+      "review_note": ""
+    },
+    {
+      "id": "l02",
+      "term": "income_basis",
+      "quote": "Those 16 homes would be for families earning up to half of the area median income.",
+      "file": "01-community-meeting-slides.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "would be",
+      "value": "Half of area median income",
+      "review_note": "\"Half\", not a number."
+    },
+    {
+      "id": "l03",
+      "term": "public_support",
+      "quote": "We are asking the Village for a sales tax rebate on building materials.",
+      "file": "01-community-meeting-slides.pdf",
+      "page": 2,
+      "stage": "proposed",
+      "wording": "are asking",
+      "value": "Sales tax rebate on building materials",
+      "review_note": ""
+    },
+    {
+      "id": "l04",
+      "term": "term",
+      "quote": "The rent limits would stay in place for at least thirty years.",
+      "file": "01-community-meeting-slides.pdf",
+      "page": 3,
+      "stage": "proposed",
+      "wording": "would stay",
+      "value": "At least 30 years",
+      "review_note": "Later records say until January 1, 2066, about 40 years."
+    },
+    {
+      "id": "l05",
+      "term": "public_support",
+      "quote": "The Village Board approves a rebate of the Village share of sales tax on building materials for Larkspur Commons, not to exceed $350,000.",
+      "file": "02-village-board-resolution.pdf",
+      "page": 1,
+      "stage": "supported",
+      "wording": "approves",
+      "value": "Sales tax rebate up to $350,000",
+      "review_note": "Adopted 5 to 1."
+    },
+    {
+      "id": "l06",
+      "term": "units",
+      "quote": "Sixteen of the sixty-four homes are rented at restricted rents.",
+      "file": "02-village-board-resolution.pdf",
+      "page": 2,
+      "stage": "supported",
+      "wording": "are rented",
+      "value": "16 of 64 homes",
+      "review_note": "Exhibit table, numbers in words."
+    },
+    {
+      "id": "l07",
+      "term": "income_basis",
+      "quote": "Each of those homes is rented to a household at or below fifty percent of area median income.",
+      "file": "02-village-board-resolution.pdf",
+      "page": 2,
+      "stage": "supported",
+      "wording": "is rented",
+      "value": "50 percent of area median income",
+      "review_note": "Exhibit table."
+    },
+    {
+      "id": "l08",
+      "term": "term",
+      "quote": "The restrictions stay in place until at least January 1, 2066.",
+      "file": "02-village-board-resolution.pdf",
+      "page": 2,
+      "stage": "supported",
+      "wording": "stay in place",
+      "value": "Until at least January 1, 2066",
+      "review_note": "Exhibit table."
+    },
+    {
+      "id": "l09",
+      "term": "reporting",
+      "quote": "The builder gives the Village a yearly list of the restricted homes and the rents charged.",
+      "file": "02-village-board-resolution.pdf",
+      "page": 2,
+      "stage": "supported",
+      "wording": "gives",
+      "value": "Yearly list of restricted homes and rents",
+      "review_note": "Exhibit table."
+    },
+    {
+      "id": "l10",
+      "term": "units",
+      "quote": "Declarant shall rent sixteen (16) of the sixty-four (64) homes at Larkspur Commons as restricted homes.",
+      "file": "03-declaration-of-covenants.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "shall rent",
+      "value": "16 of 64 homes",
+      "review_note": "Signed by the builder only."
+    },
+    {
+      "id": "l11",
+      "term": "income_basis",
+      "quote": "A restricted home may be rented only to a household whose income does not exceed fifty percent of area median income.",
+      "file": "03-declaration-of-covenants.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "may be rented only",
+      "value": "50 percent of area median income",
+      "review_note": "Signed by the builder only."
+    },
+    {
+      "id": "l12",
+      "term": "rent_limits",
+      "quote": "The total of rent and tenant-paid utilities for a restricted home may not exceed thirty percent of the income limit for that home.",
+      "file": "03-declaration-of-covenants.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "may not exceed",
+      "value": "30 percent of the income limit",
+      "review_note": "Signed by the builder only."
+    },
+    {
+      "id": "l13",
+      "term": "term",
+      "quote": "These covenants expire on January 1, 2066.",
+      "file": "03-declaration-of-covenants.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "expire",
+      "value": "January 1, 2066",
+      "review_note": "Signed by the builder only."
+    },
+    {
+      "id": "l14",
+      "term": "responsible_party",
+      "quote": "These covenants bind Declarant and all later owners of the property.",
+      "file": "03-declaration-of-covenants.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "bind",
+      "value": "Declarant and all later owners",
+      "review_note": "Signed by the builder only."
+    },
+    {
+      "id": "l15",
+      "term": "reporting",
+      "quote": "Declarant shall give the Village a list of the restricted homes, the household incomes and the rents charged by March 1 of every year.",
+      "file": "03-declaration-of-covenants.pdf",
+      "page": 1,
+      "stage": "signed",
+      "wording": "shall give",
+      "value": "Yearly list by March 1",
+      "review_note": "Signed by the builder only."
+    }
+  ]
+}

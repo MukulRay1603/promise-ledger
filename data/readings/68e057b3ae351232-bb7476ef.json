@@ -1,0 +1,59 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "Cottage City Towers Repositioning",
+  "date": "2023-06-13",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "• Remain 100% Affordable at 50% Area Median Income",
+    "page": 2,
+    "wording": "100% Affordable",
+    "value": "100% of units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "• Remain 100% Affordable at 50% Area Median Income",
+    "page": 2,
+    "wording": "50% Area Median Income",
+    "value": "50% AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "• Funded by $12M LIHTC, $3.5M Partnership Rental Housing, $2.5M Housing Investment Trust Fund (HITF) and $25M bonds.",
+    "page": 2,
+    "wording": "Funded by",
+    "value": "$12M LIHTC, $3.5M Partnership Rental Housing, $2.5M Housing Investment Trust Fund, $25M bonds"
+   },
+   {
+    "topic": "units",
+    "quote": "▪ 100-unit mid-rise public housing building",
+    "page": 2,
+    "wording": "100-unit",
+    "value": "100 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "▪ 100% affordable at 50% Area Median Income",
+    "page": 2,
+    "wording": "50% Area Median Income",
+    "value": "50% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "▪ 100% affordable at 50% Area Median Income",
+    "page": 2,
+    "wording": "100% affordable",
+    "value": "100% of units"
+   }
+  ]
+ },
+ "tokens_in": 2940,
+ "tokens_out": 586,
+ "cost_usd": 0.002347,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

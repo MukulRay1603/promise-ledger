@@ -1,0 +1,73 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "HOLLY PLACE",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "• 51 one-bedroom apartments",
+    "page": 7,
+    "wording": "51 one-bedroom apartments",
+    "value": "51 units"
+   },
+   {
+    "topic": "units",
+    "quote": "• 21 two-bedroom apartments",
+    "page": 7,
+    "wording": "21 two-bedroom apartments",
+    "value": "21 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "• Affordability, Residents 62+",
+    "page": 8,
+    "wording": "Residents 62+",
+    "value": "Residents 62+"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "1 bedroom (~650 sf) 50% AMI 5 $1,353",
+    "page": 9,
+    "wording": "50% AMI",
+    "value": "50% AMI"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "1 bedroom (~650 sf) 60% AMI 46 $1,602",
+    "page": 9,
+    "wording": "60% AMI",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "2 bedroom (~850 sf) 50% AMI 3 $1,575",
+    "page": 9,
+    "wording": "50% AMI",
+    "value": "50% AMI"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "2 bedroom (~850 sf) 60% AMI 18 $1,915",
+    "page": 9,
+    "wording": "60% AMI",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Prince George's County HITF $ 2,500,000 7.90%",
+    "page": 10,
+    "wording": "Prince George's County HITF",
+    "value": "$2,500,000"
+   }
+  ]
+ },
+ "tokens_in": 3779,
+ "tokens_out": 719,
+ "cost_usd": 0.002931,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

@@ -1,0 +1,128 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Resolution No. CR-043-2023",
+  "date": "2023-06-20",
+  "draft": true,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Thomas E. Dernoga",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct one hundred fifty eight (158) units of new mixed use and mixed-income multi-family rental housing, known as the 210 on the Park, on a 3.78 acre parcel located at 210 Maryland Park Drive, Capitol Heights, Maryland 20743, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "one hundred fifty eight (158) units",
+    "value": "158 units"
+   },
+   {
+    "topic": "term",
+    "quote": "(a)(2)(iv)(2) enters into an agreement with the governing body of Prince George's County to allow the entire property or the portion of the property that was maintained for lower income persons to remain as housing for lower income persons for a term of at least 5 years; and",
+    "page": 2,
+    "wording": "term of at least 5 years",
+    "value": "at least 5 years"
+   },
+   {
+    "topic": "units",
+    "quote": "PROJECT DESCRIPTION: A one hundred fifty eight (158) unit mixed-use, mixed-income apartment community.",
+    "page": 4,
+    "wording": "one hundred fifty eight (158) unit",
+    "value": "158 units"
+   },
+   {
+    "topic": "term",
+    "quote": "Ownership proposes to restrict rents for one hundred twenty eight (128) of the units for at least fifty (50) years.",
+    "page": 4,
+    "wording": "at least fifty (50) years",
+    "value": "50 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Ownership proposes to restrict rents for one hundred twenty eight (128) of the units for at least fifty (50) years.",
+    "page": 4,
+    "wording": "one hundred twenty eight (128) of the units",
+    "value": "128 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "AFFORDABILITY:   80% or less of the AMI: 128 units",
+    "page": 4,
+    "wording": "80% or less of the AMI",
+    "value": "80% or less of the AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "AFFORDABILITY:   80% or less of the AMI: 128 units",
+    "page": 4,
+    "wording": "128 units",
+    "value": "128 units"
+   },
+   {
+    "topic": "units",
+    "quote": "Market Rate: 30 units",
+    "page": 4,
+    "wording": "30 units",
+    "value": "30 units"
+   },
+   {
+    "topic": "term",
+    "quote": "Community First Development Corporation, (the “Developer”) proposes to restric t rent levels for a period of at least fifty (50) years.",
+    "page": 5,
+    "wording": "at least fifty (50) years",
+    "value": "50 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The newly constructed Project will consist of one hundred fifty eight ( 158) residential dwelling units, of which one hundred twenty one ( 121) units will be income -restricted to family households that qualify at eighty percent (80%) or less of the Area Median Income (“AMI”).",
+    "page": 5,
+    "wording": "one hundred twenty one ( 121) units",
+    "value": "121 of 158 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The newly constructed Project will consist of one hundred fifty eight ( 158) residential dwelling units, of which one hundred twenty one ( 121) units will be income -restricted to family households that qualify at eighty percent (80%) or less of the Area Median Income (“AMI”).",
+    "page": 5,
+    "wording": "eighty percent (80%) or less of the Area Median Income",
+    "value": "80% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "It is anticipated that an additional seven (7) units will be provided for youth transitioning out of foster care earning not more than forty percent (40%) of the AMI.",
+    "page": 5,
+    "wording": "seven (7) units",
+    "value": "7 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "It is anticipated that an additional seven (7) units will be provided for youth transitioning out of foster care earning not more than forty percent (40%) of the AMI.",
+    "page": 5,
+    "wording": "not more than forty percent (40%) of the AMI",
+    "value": "40% AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Developer is applying for a Prince George’s County Payment in Lieu of Taxes (“PILOT”) and a Housing Investment Trust Fund ( “HITF”) loan since these subsidies will allow eighty percent",
+    "page": 5,
+    "wording": "Payment in Lieu of Taxes (“PILOT”) and a Housing Investment Trust Fund ( “HITF”) loan",
+    "value": "PILOT and HITF loan"
+   },
+   {
+    "topic": "term",
+    "quote": "The Prince George’s County subsidies consisting of a payment in lieu of taxes (“PILOT”) and a loan from its Housing Investment Trust Fund will provide affordable workforce housing for at least fifty (50) years and is a key investment in revitalization efforts within the Blue Line Transit Corridor.",
+    "page": 6,
+    "wording": "at least fifty (50) years",
+    "value": "50 years"
+   }
+  ]
+ },
+ "tokens_in": 4796,
+ "tokens_out": 1636,
+ "cost_usd": 0.005529,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

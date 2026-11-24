@@ -1,0 +1,38 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "Queens Park Plaza Apartments Presentation",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "• 370 affordable housing units",
+    "page": 5,
+    "wording": "370 affordable housing units",
+    "value": "370 units"
+   },
+   {
+    "topic": "units",
+    "quote": "57 of the 94 units restricted for 15 years on the following",
+    "page": 8,
+    "wording": "restricted",
+    "value": "57 of 94 units"
+   },
+   {
+    "topic": "term",
+    "quote": "57 of the 94 units restricted for 15 years on the following",
+    "page": 8,
+    "wording": "restricted for 15 years",
+    "value": "15 years"
+   }
+  ]
+ },
+ "tokens_in": 3805,
+ "tokens_out": 349,
+ "cost_usd": 0.002014,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

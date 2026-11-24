@@ -1,0 +1,122 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Payments in Lieu of Taxes (“PILOT”) Agreement for the Bowie Commons Apartments",
+  "date": "2024-06-04",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and renovate thirty six (36) units of new affordable multi-family rental housing for low-income to moderate-income seniors, earning sixty percent (60%) and below of the Area Median Income (“AMI”), known as the Bowie Commons, on a 3.18 acre parcel located at 3909 New Haven Court, Bowie, Maryland 20716, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "thirty six (36) units",
+    "value": "36 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "WHEREAS, the Owner proposes to acquire and renovate thirty six (36) units of new affordable multi-family rental housing for low-income to moderate-income seniors, earning sixty percent (60%) and below of the Area Median Income (“AMI”), known as the Bowie Commons, on a 3.18 acre parcel located at 3909 New Haven Court, Bowie, Maryland 20716, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "sixty percent (60%) and below of the Area Median Income",
+    "value": "60% AMI and below"
+   },
+   {
+    "topic": "term",
+    "quote": "WHEREAS, the owner and the governing body of Prince George’s County agree that the owner shall pay a negotiated amount in lieu of the applicable county property tax; and (a)(2)(iv) the owner of the real property: (a)(2)(iv)(1)(A) agrees to continue to maintain the real property as rental housing for lower income persons under the requirements of the government programs described in paragraph (a)(2)(ii) of this subsection; and (a)(2)(iv)(1)(B) agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement; or (a)(2)(iv)(2) enters into an agreement with the governing body of Prince George's County to allow the entire property or the portion of the property that was maintained for lower income persons to remain as housing for lower income persons for a term of at least 5 years; and",
+    "page": 2,
+    "wording": "term of at least 5 years",
+    "value": "at least 5 years"
+   },
+   {
+    "topic": "units",
+    "quote": "PROJECT DESCRIPTION: A thirty six (36) unit rental apartment community will be renovated in six (6) walk-up buildings on a 3.18 acre site in Bowie, Maryland.",
+    "page": 4,
+    "wording": "thirty six (36) unit",
+    "value": "36 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "All units will be affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "rents will be restricted",
+    "value": "rents restricted for 40 years"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income (AMI) for forty (40) years.",
+    "page": 4,
+    "wording": "All units will be priced",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income (AMI) for forty (40) years.",
+    "page": 4,
+    "wording": "sixty percent (60%) or less of the Area Median Income",
+    "value": "60% AMI or less"
+   },
+   {
+    "topic": "term",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning sixty percent (60%) or less of the Area Median Income (AMI) for forty (40) years.",
+    "page": 4,
+    "wording": "for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "All thirty-six (36) units are covered by a Housing Assistance Payments (HAP) contract and are restricted to senior residents.",
+    "page": 5,
+    "wording": "are covered by a Housing Assistance Payments",
+    "value": "36 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The residents at the project have an average income of around twenty three percent (23%) of the Area Median Income (AMI), which highlights the importance of extended affordability.",
+    "page": 5,
+    "wording": "average income of around twenty three percent (23%)",
+    "value": "23% of AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "At Acquisition closing, the HAP contract was renewed for a twenty (20) year term, subject to federal appropriations.",
+    "page": 5,
+    "wording": "renewed for a twenty (20) year term",
+    "value": "20 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Two (2) units (five percent – 5%) are set aside for mobility impairments and one (1) unit (two percent – 2%) is set aside for sensory impairments.",
+    "page": 5,
+    "wording": "are set aside for mobility impairments",
+    "value": "3 units"
+   },
+   {
+    "topic": "units",
+    "quote": "Two (2) units (five percent – 5%) are set aside for mobility impairments and one (1) unit (two percent – 2%) is set aside for sensory impairments.",
+    "page": 6,
+    "wording": "is set aside for sensory impairments",
+    "value": "1 unit"
+   }
+  ]
+ },
+ "tokens_in": 5184,
+ "tokens_out": 1734,
+ "cost_usd": 0.00589,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

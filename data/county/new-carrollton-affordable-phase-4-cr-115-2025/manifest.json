@@ -1,0 +1,148 @@
+{
+  "notice": "Real public records of Prince George's County, Maryland, from the County Council's Legistar system. Promise Ledger lists what the records say; it does not judge whether any party met an obligation.",
+  "real": true,
+  "deal": "New Carrollton - Affordable - Phase 4",
+  "slug": "new-carrollton-affordable-phase-4-cr-115-2025",
+  "city": "Prince George's County",
+  "county": "Prince George's County, MD",
+  "owner": null,
+  "as_of": "2025-11-17",
+  "source": {
+    "system": "Prince George's County Legistar",
+    "file": "CR-115-2025",
+    "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR THE NEW CARROLLTON - AFFORDABLE - PHASE 4 PROJECT for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Urban Atlantic Development LLC (the “Owner”).",
+    "status": "Adopted",
+    "introduced": "2025-10-07",
+    "passed": "2025-11-17",
+    "url": "https://princegeorgescountymd.legistar.com/gateway.aspx?M=L&ID=18440",
+    "api": "https://webapi.legistar.com/v1/princegeorgescountymd/matters/18440",
+    "votes": [
+      {
+        "date": "2025-11-10",
+        "body": "Sitting as the Committee of the Whole",
+        "action": "Favorably recommended",
+        "passed": true,
+        "tally": null
+      },
+      {
+        "date": "2025-11-17",
+        "body": "County Council",
+        "action": "adopted",
+        "passed": true,
+        "tally": null
+      }
+    ],
+    "retrieved": "2026-11-18"
+  },
+  "documents": [
+    {
+      "type": "PILOT agreement",
+      "title": "CR-115-2025 Attachment B",
+      "date": "2025-10-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/c6dc6c36-d7eb-47d0-a819-fca7b561e7f2.pdf",
+      "file": "01-pilot-agreement.pdf",
+      "id": "r01",
+      "sha256": "0eb1b0159706cb006c9996eef90da2c78dd1234b304cf060112a0d5ba7ddd4b3",
+      "bytes": 324422,
+      "signed_by": []
+    },
+    {
+      "type": "Resolution",
+      "title": "CR-115-2025 R2025115",
+      "date": "2025-11-17",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/01e986f4-fd72-494a-a311-d147fe6c1ef6.docx",
+      "file": "02-resolution.from-docx.pdf",
+      "id": "r02",
+      "sha256": "67e3a8ab46e64d452145bd5d423cdae554d4856d643816555835588b126b1420",
+      "bytes": 170590,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/01e986f4-fd72-494a-a311-d147fe6c1ef6.docx",
+        "sha256": "86d9fb2906f8c73b65f1e28629570813d1e6ee10403bff193a7d083faaf77555"
+      }
+    },
+    {
+      "type": "Transmittal letter",
+      "title": "CR-115-2025 Transmittal",
+      "date": "2025-10-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/0f0968aa-7edd-44e4-ba4c-7054e6de017e.pdf",
+      "file": "03-transmittal-letter.pdf",
+      "id": "r03",
+      "sha256": "6b29d24e206ebb112f02b20037a1350613b6c4b2bd769e198ab524b38c1f5773",
+      "bytes": 434475,
+      "signed_by": []
+    },
+    {
+      "type": "Agency comments",
+      "title": "CR-115-2025 OMB Comments",
+      "date": "2025-10-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/e608af4c-ead3-499e-a52f-e1f8491c2b13.pdf",
+      "file": "04-agency-comments.pdf",
+      "id": "r04",
+      "sha256": "b9e785358d2dbe03b1d5bfe918c6f4012c2e573b1a03765c2627f2922cce48e3",
+      "bytes": 163818,
+      "signed_by": []
+    },
+    {
+      "type": "Fiscal and policy note",
+      "title": "CR-115-2025 PAFI",
+      "date": "2025-10-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/f2d4f871-e470-49b3-b1ec-46545ae5a834.pdf",
+      "file": "05-fiscal-and-policy-note.pdf",
+      "id": "r05",
+      "sha256": "77d1065190616eb6785828e9c1d0e9b53c9044bb2523d4f31441cf15729905e8",
+      "bytes": 283914,
+      "signed_by": []
+    },
+    {
+      "type": "Committee report",
+      "title": "CR-115-2025 Committee Report - COW",
+      "date": "2025-11-10",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/c80a02a6-0228-4eca-b532-c6f9ebde9f4c.docx",
+      "file": "06-committee-report.from-docx.pdf",
+      "id": "r06",
+      "sha256": "6faa93b4dce432f570c6842d2f4b884e8affc02b4b6040d3928606b83dceae45",
+      "bytes": 100148,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/c80a02a6-0228-4eca-b532-c6f9ebde9f4c.docx",
+        "sha256": "b7c32143ecaca925fbfe179a6ec701ea79252ef2c98c659c0de2406e5d022572"
+      }
+    },
+    {
+      "type": "Legislative summary",
+      "title": "CR-115-2025 Summary",
+      "date": "2025-10-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/ce6f7230-dedb-4dba-8eb4-7e082cda805a.pdf",
+      "file": "07-legislative-summary.pdf",
+      "id": "r07",
+      "sha256": "eb5de80055476c6977223a6b228dee1b325db630680bc69d3e718c0f4c6591ee",
+      "bytes": 89531,
+      "signed_by": []
+    },
+    {
+      "type": "Signed resolution",
+      "title": "CR-115-2025 - signed",
+      "date": "2025-11-17",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/12eb0962-5919-4773-9faf-0a07f03837e3.pdf",
+      "file": "08-signed-resolution.pdf",
+      "id": "r08",
+      "sha256": "833b1a2656de262afb6142dee2924e3446f077ebd08e89f36bf2dd5994401628",
+      "bytes": 2186982,
+      "signed_by": []
+    }
+  ],
+  "not_read": [
+    {
+      "type": "Presentation",
+      "title": "CR-115-2025 Presentation COW 11102025",
+      "date": "2025-10-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/07a3a61c-78b8-4d7f-a7fb-9072ca435fb8.pptx",
+      "skipped": "not a PDF or Word file (pptx)"
+    }
+  ]
+}

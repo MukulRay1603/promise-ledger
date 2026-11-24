@@ -25,7 +25,7 @@ class Page(unittest.TestCase):
         cls.html = cls.client.get("/").text
 
     def test_hero_and_actions(self):
-        self.assertIn("Public support should come with a receipt.", self.html)
+        self.assertIn("Public support should come with a receipt.", re.sub(r"<[^>]+>", "", self.html))
         self.assertIn("Open a sample deal", self.html)
         self.assertIn("Start a new deal", self.html)
         self.assertIn("check the affordable-housing commitments a developer made in exchange for a tax break or other public support, with the source page one click away.", self.html)
@@ -34,7 +34,7 @@ class Page(unittest.TestCase):
         for title in ("The problem", "How it works", "Proof", "Learn the basics", "Who it’s for", "See a deal checked"):
             self.assertIn(title, self.html)
         # Proof figures are from evals/run_pdf_evals.py on the sample deals, and say so.
-        for count in ('data-count="96"', 'data-count="98"', 'data-count="0"', 'data-count="3"'):
+        for count in ('data-count="94"', 'data-count="96"', 'data-count="0"', 'data-count="3"'):
             self.assertIn(count, self.html)
         self.assertIn("On sample data", self.html)
         self.assertIn("https://github.com/MukulRay1603/promise-ledger", self.html)
@@ -103,7 +103,7 @@ class Page(unittest.TestCase):
             self.assertIn('rel="noopener"', tag)
             self.assertIn("opens in a new tab", tag)
         script = (STATIC / "app.js").read_text(encoding="utf-8")
-        self.assertIn('const STATIC_PAGES = { roadmap: "Roadmap", about: "About" };', script)
+        self.assertIn('const STATIC_PAGES = { roadmap: "Roadmap", about: "About", test: "Help us test" };', script)
         # The roadmap is six tabbed panels; each tab names the panel it controls.
         roadmap = self.html[self.html.index('id="view-roadmap"'):]
         roadmap = roadmap[:roadmap.index("</section>")]
@@ -210,6 +210,42 @@ class Rules(unittest.TestCase):
         self.assertIn("Records to ask for next", js)
         self.assertIn("renderNextRecords();", js)
         self.assertIn(".next-records", self.css)
+
+    def test_promise_building(self):
+        # The building pictures the checked home counts only; it respects reduced motion and is left out of print.
+        js = self.js["app.js"]
+        self.assertIn('id="promise-scene"', js)
+        self.assertIn("function sceneData(review)", js)
+        self.assertIn('role: "img"', js)
+        self.assertIn("Drawn from checked quotes only", js)
+        self.assertIn(".scene-animate .scene-lit { animation: none", self.css)
+        self.assertIn(".promise-scene { display: none !important; }", self.css)
+        # It says in words whether the count held and whether any record shows the homes delivered.
+        self.assertIn("function sceneFacts(data, review)", js)
+        self.assertIn("No record in this packet shows the homes delivered yet.", js)
+        # The frame includes the ground plate, and narrow screens put the number before the picture.
+        self.assertIn("ISO(-G, D + G, 0)", js)
+        self.assertIn(".scene-text { display: contents; }", self.css)
+
+    def test_paper_trail(self):
+        # The trail is a real table, uses the server's own "wording differs" decision, and links each value to its source.
+        js = self.js["app.js"]
+        self.assertIn('id="paper-trail"', js)
+        self.assertIn("term.wording_differs && normValue(value) !== normValue(previous)", js)
+        self.assertIn('el("table", { class: "trail" }', js)
+        self.assertIn("openSource(cell.claim, event.currentTarget)", js)
+        self.assertIn(".trail-wrap { display: none !important; }", self.css)
+        # Phones get one line per term instead of a table that shows one record at a time.
+        self.assertIn('el("ul", { class: "trail-mini" }', js)
+        self.assertIn(".trail-scroll, .trail-swipe { display: none; }", self.css)
+        # Term names jump to the full record-by-record wording.
+        self.assertIn("byId(`change-${term.key}`)", js)
+
+    def test_header_fits(self):
+        # The name never wraps; below 1100px the header is two rows, and on phones it scrolls away.
+        self.assertIn("white-space: nowrap; }", self.css.split(".brand {", 1)[1].split("\n", 1)[0])
+        self.assertIn("@media (max-width: 1100px)", self.css)
+        self.assertIn("@media (max-width: 720px) { .site-header { position: relative; } }", self.css)
 
     def test_reduced_motion_and_print(self):
         self.assertIn("prefers-reduced-motion: reduce", self.css)

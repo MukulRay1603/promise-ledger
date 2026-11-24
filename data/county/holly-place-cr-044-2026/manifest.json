@@ -1,0 +1,118 @@
+{
+  "notice": "Real public records of Prince George's County, Maryland, from the County Council's Legistar system. Promise Ledger lists what the records say; it does not judge whether any party met an obligation.",
+  "real": true,
+  "deal": "Holly Place",
+  "slug": "holly-place-cr-044-2026",
+  "city": "Prince George's County",
+  "county": "Prince George's County, MD",
+  "owner": null,
+  "as_of": "2026-07-07",
+  "source": {
+    "system": "Prince George's County Legistar",
+    "file": "CR-044-2026",
+    "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR THE HOLLY PLACE PROJECT for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Holly Place Limited Partnership (the “Owner”).",
+    "status": "Adopted",
+    "introduced": "2026-05-26",
+    "passed": "2026-07-07",
+    "url": "https://princegeorgescountymd.legistar.com/gateway.aspx?M=L&ID=19210",
+    "api": "https://webapi.legistar.com/v1/princegeorgescountymd/matters/19210",
+    "votes": [
+      {
+        "date": "2026-06-29",
+        "body": "Sitting as the Committee of the Whole",
+        "action": "Favorably recommended",
+        "passed": true,
+        "tally": null
+      },
+      {
+        "date": "2026-07-07",
+        "body": "County Council",
+        "action": "adopted",
+        "passed": true,
+        "tally": null
+      }
+    ],
+    "retrieved": "2026-11-18"
+  },
+  "documents": [
+    {
+      "type": "Transmittal letter",
+      "title": "CR-044-2026 Transmittal",
+      "date": "2026-05-26",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/90191c65-0410-48a3-8c11-b3a5bcabc64c.pdf",
+      "file": "01-transmittal-letter.pdf",
+      "id": "r01",
+      "sha256": "ee46466e03b61eb7cf67ffe8f12696a854c2bdb59f7c9e592b93e4dabf8b823d",
+      "bytes": 1321720,
+      "signed_by": []
+    },
+    {
+      "type": "Resolution",
+      "title": "CR-044-2026 R2026044",
+      "date": "2026-07-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/b19fe951-5d44-4302-92fa-b53e67f4af83.docx",
+      "file": "02-resolution.from-docx.pdf",
+      "id": "r02",
+      "sha256": "ee02d533a346a05b3983c0d491b9046ebc5ff63b2165b8786e65f9a28437aed0",
+      "bytes": 350334,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/b19fe951-5d44-4302-92fa-b53e67f4af83.docx",
+        "sha256": "a86ad07a177e6815a70e45be1c5f97b36fd1eddb8b85bdf99604a69a82bc961c"
+      }
+    },
+    {
+      "type": "PILOT agreement",
+      "title": "CR-044-2026 Attachment B",
+      "date": "2026-05-26",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/ffcab1bc-b88d-4974-b703-c0b8492139f1.pdf",
+      "file": "03-pilot-agreement.pdf",
+      "id": "r03",
+      "sha256": "d5eca6dfe46d99a2d1070b0f761fd7298d4e5cc7587a682c60743e82eb8e52c4",
+      "bytes": 265195,
+      "signed_by": []
+    },
+    {
+      "type": "Presentation",
+      "title": "CR-044-2026 & CR-043-2026 Presentation 06.29.2026",
+      "date": "2026-05-26",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/2b9870c7-b265-42d3-851b-4d568635f475.pdf",
+      "file": "04-presentation.pdf",
+      "id": "r04",
+      "sha256": "a55cf5d38e377b1240691cd602dca9d781ff9b2d46fd2d7af84d17335066a726",
+      "bytes": 2792496,
+      "signed_by": []
+    },
+    {
+      "type": "Legislative summary",
+      "title": "CR-044-2026 Summary",
+      "date": "2026-05-26",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/1adadcf5-a009-4800-b72a-e0dc3ec91b7a.pdf",
+      "file": "05-legislative-summary.pdf",
+      "id": "r05",
+      "sha256": "ae75c79c527089265487d0754397a0f96c5c8b93c6221527736728dcb0c1d0f6",
+      "bytes": 89951,
+      "signed_by": []
+    },
+    {
+      "type": "Committee report",
+      "title": "CR-044-2026 Committee Report",
+      "date": "2026-06-29",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/374bb6ea-d87e-4db2-b119-fba0f2c844bb.docx",
+      "file": "06-committee-report.from-docx.pdf",
+      "id": "r06",
+      "sha256": "961067f54b55a7e20a982249535cf566785301376dc90485eedf6e80e9c430a8",
+      "bytes": 97472,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/374bb6ea-d87e-4db2-b119-fba0f2c844bb.docx",
+        "sha256": "a6d5ca296f1c3076a54d543466416b02f7591dfa669db99774df982526e64a30"
+      }
+    }
+  ],
+  "not_read": []
+}

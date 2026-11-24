@@ -15,3 +15,10 @@ else if (/^#\/./.test(location.hash) || /^#[a-z]/.test(location.hash)) document.
 // The hero receipt assembles itself; hide its rows from the first paint so they do not flash.
 if (!document.documentElement.classList.contains("route-app") && !document.documentElement.classList.contains("route-shared")
   && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("hero-anim");
+
+// Low-end devices and data saver: skip looping decoration (a one-time intro still plays).
+try {
+  var n = navigator, c = n.connection || {};
+  if ((n.hardwareConcurrency && n.hardwareConcurrency <= 4) || (n.deviceMemory && n.deviceMemory <= 4) || c.saveData ||
+      (window.matchMedia && matchMedia("(prefers-reduced-data: reduce)").matches)) document.documentElement.classList.add("lite");
+} catch (e) { /* Decoration only. */ }

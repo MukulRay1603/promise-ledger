@@ -1,0 +1,257 @@
+{
+ "about": "Scores of the real record, one entry per run. \"Before\" is the prompt and rules as they were at commit 8664c5d (prompt 097eabff), read on 2026-11-11 and scored with this runner. \"After\" is the current prompt and rules. Each run is a fresh reading of both files. Written by evals/run_heldout_evals.py --set real --label.",
+ "note": "Run 1 was answered by the main model in both columns (in \"After, run 1\" the fallback answered two of the eight sections). Run 2 was answered by the fallback model alone, because the main model was out of quota. The fallback proposes fewer sentences, and that is most of the gap between the two runs. With the old readings and only the new rules (no new prompt, no reading in sections), recall was 74.2% on run 1 and 48.4% on run 2.",
+ "runs": {
+  "Before, run 1": {
+   "date": "2026-11-11",
+   "prompt_id": "097eabff",
+   "models": [
+    "gemini-3.5-flash"
+   ],
+   "candidates": 49,
+   "set_aside": 24,
+   "ignored": 0,
+   "gold": 31,
+   "kept": 21,
+   "matched": 15,
+   "page_ok": 15,
+   "stage_ok": 15,
+   "term_ok": 15,
+   "also_right": 5,
+   "false_signed_or_delivered": 0,
+   "off_page": 0,
+   "term_checks_ok": 0,
+   "deals": 1,
+   "documents": 2,
+   "terms_differ": {
+    "expected": [
+     "term"
+    ],
+    "got": [
+     "income_basis"
+    ]
+   },
+   "terms_not_located": {
+    "expected": [
+     "rent_limits"
+    ],
+    "got": [
+     "rent_limits",
+     "reporting",
+     "responsible_party",
+     "term"
+    ]
+   },
+   "missed": [
+    "t01",
+    "t04",
+    "t05",
+    "t09",
+    "t10",
+    "t12",
+    "r07",
+    "r08",
+    "r09",
+    "r11",
+    "r12",
+    "r14",
+    "r15",
+    "r16",
+    "r18",
+    "r19"
+   ],
+   "extra": [
+    {
+     "file": "43929.pdf",
+     "topic": "public_support",
+     "status": "proposed",
+     "quote": "This is a request for a recommendation from the Housing and Community Development Board"
+    }
+   ]
+  },
+  "Before, run 2": {
+   "date": "2026-11-11",
+   "prompt_id": "097eabff",
+   "models": [
+    "gemini-flash-lite-latest"
+   ],
+   "candidates": 29,
+   "set_aside": 9,
+   "ignored": 0,
+   "gold": 31,
+   "kept": 14,
+   "matched": 11,
+   "page_ok": 11,
+   "stage_ok": 11,
+   "term_ok": 11,
+   "also_right": 2,
+   "false_signed_or_delivered": 0,
+   "off_page": 0,
+   "term_checks_ok": 0,
+   "deals": 1,
+   "documents": 2,
+   "terms_differ": {
+    "expected": [
+     "term"
+    ],
+    "got": [
+     "income_basis"
+    ]
+   },
+   "terms_not_located": {
+    "expected": [
+     "rent_limits"
+    ],
+    "got": [
+     "remedies",
+     "rent_limits",
+     "reporting",
+     "responsible_party",
+     "term"
+    ]
+   },
+   "missed": [
+    "t04",
+    "t05",
+    "t06",
+    "t09",
+    "t10",
+    "t11",
+    "t12",
+    "r06",
+    "r07",
+    "r08",
+    "r09",
+    "r10",
+    "r12",
+    "r13",
+    "r14",
+    "r15",
+    "r16",
+    "r17",
+    "r18",
+    "r19"
+   ],
+   "extra": [
+    {
+     "file": "43929.pdf",
+     "topic": "units",
+     "status": "proposed",
+     "quote": "CB18-2025 provides incentives , such as waivers of APFO (adequate public facilities ordinance) tests"
+    }
+   ]
+  },
+  "After, run 1": {
+   "date": "2026-11-11",
+   "prompt_id": "bb7476ef",
+   "models": [
+    "gemini-3.5-flash",
+    "gemini-flash-lite-latest"
+   ],
+   "candidates": 72,
+   "set_aside": 10,
+   "ignored": 18,
+   "gold": 31,
+   "kept": 40,
+   "matched": 29,
+   "page_ok": 29,
+   "stage_ok": 29,
+   "term_ok": 28,
+   "also_right": 10,
+   "false_signed_or_delivered": 0,
+   "off_page": 0,
+   "term_checks_ok": 0,
+   "deals": 1,
+   "documents": 2,
+   "terms_differ": {
+    "expected": [
+     "term"
+    ],
+    "got": [
+     "income_basis",
+     "term"
+    ]
+   },
+   "terms_not_located": {
+    "expected": [
+     "rent_limits"
+    ],
+    "got": [
+     "rent_limits"
+    ]
+   },
+   "missed": [
+    "t11",
+    "r15"
+   ],
+   "extra": [
+    {
+     "file": "43929.pdf",
+     "topic": "income_basis",
+     "status": "proposed",
+     "quote": "Adding a requirement for DIHUs will increase the County's affordable housing inventory for households of very low, low and moderate income."
+    }
+   ]
+  },
+  "After, run 2": {
+   "date": "2026-11-11",
+   "prompt_id": "bb7476ef",
+   "models": [
+    "gemini-flash-lite-latest"
+   ],
+   "candidates": 66,
+   "set_aside": 5,
+   "ignored": 19,
+   "gold": 31,
+   "kept": 34,
+   "matched": 23,
+   "page_ok": 23,
+   "stage_ok": 23,
+   "term_ok": 19,
+   "also_right": 10,
+   "false_signed_or_delivered": 0,
+   "off_page": 0,
+   "term_checks_ok": 0,
+   "deals": 1,
+   "documents": 2,
+   "terms_differ": {
+    "expected": [
+     "term"
+    ],
+    "got": [
+     "income_basis",
+     "term",
+     "units"
+    ]
+   },
+   "terms_not_located": {
+    "expected": [
+     "rent_limits"
+    ],
+    "got": [
+     "remedies",
+     "rent_limits",
+     "reporting"
+    ]
+   },
+   "missed": [
+    "t06",
+    "r03",
+    "r12",
+    "r13",
+    "r14",
+    "r15",
+    "r16",
+    "r17"
+   ],
+   "extra": [
+    {
+     "file": "45240.pdf",
+     "topic": "income_basis",
+     "status": "supported",
+     "quote": "Council Bill 18-2025, which became effective July 8, 2025, provides incentives such as waivers of Adequate Public Facilities Ordinance tests and Payment in Lieu of Taxes Agreements for developments located near transit that provide at least five percent (5%) of the units to be rented as Disability Income Housing Units under the County's Moderate Income Housing Unit program."
+    }
+   ]
+  }
+ }
+}

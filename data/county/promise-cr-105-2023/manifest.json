@@ -1,0 +1,130 @@
+{
+  "notice": "Real public records of Prince George's County, Maryland, from the County Council's Legistar system. Promise Ledger lists what the records say; it does not judge whether any party met an obligation.",
+  "real": true,
+  "deal": "The Promise",
+  "slug": "promise-cr-105-2023",
+  "city": "Prince George's County",
+  "county": "Prince George's County, MD",
+  "owner": null,
+  "as_of": "2023-11-07",
+  "source": {
+    "system": "Prince George's County Legistar",
+    "file": "CR-105-2023",
+    "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR THE PROMISE PROJECT for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (“County”) and A Determined Seed I LLC (“Developer”) for the Promise Project.",
+    "status": "Adopted",
+    "introduced": "2023-10-23",
+    "passed": "2023-11-07",
+    "url": "https://princegeorgescountymd.legistar.com/gateway.aspx?M=L&ID=16508",
+    "api": "https://webapi.legistar.com/v1/princegeorgescountymd/matters/16508",
+    "votes": [
+      {
+        "date": "2023-11-02",
+        "body": "Government Operations and Fiscal Policy Committee",
+        "action": "Favorably recommended",
+        "passed": true,
+        "tally": null
+      },
+      {
+        "date": "2023-11-07",
+        "body": "County Council",
+        "action": "adopted",
+        "passed": true,
+        "tally": null
+      }
+    ],
+    "retrieved": "2026-11-18"
+  },
+  "documents": [
+    {
+      "type": "Attachment",
+      "title": "CR-105-2023 Attachment C",
+      "date": "2023-10-23",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/a48f693e-be6f-4574-893a-c1962c3dca68.pdf",
+      "file": "01-attachment.pdf",
+      "id": "r01",
+      "sha256": "1f24fb8175d14c272fee2ec7347aa0783872919a00dddd263c668f437542b7da",
+      "bytes": 2826042,
+      "signed_by": []
+    },
+    {
+      "type": "Transmittal letter",
+      "title": "CR-105-2023 Transmittal",
+      "date": "2023-10-23",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/9fcc6bb8-ee6a-473c-a66b-130bc113bb0b.pdf",
+      "file": "02-transmittal-letter.pdf",
+      "id": "r02",
+      "sha256": "75e3e12e16cc2d5107208368aa2d6a7ea5d6980106ba3034647f29bbde8c6439",
+      "bytes": 223961,
+      "signed_by": []
+    },
+    {
+      "type": "Committee report",
+      "title": "CR-105-2023 Report",
+      "date": "2023-11-02",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/a756044c-5f65-4d29-9ec6-e985ea20fd6b.docx",
+      "file": "03-committee-report.from-docx.pdf",
+      "id": "r03",
+      "sha256": "2828d415ef165076f4a3f1b92a533b542f84fb23185551a4b9685917487484ad",
+      "bytes": 101182,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/a756044c-5f65-4d29-9ec6-e985ea20fd6b.docx",
+        "sha256": "386fbf5efaccf99d914598b4f4dc7788b3cf4389e66def737d83e64d42f38ccc"
+      }
+    },
+    {
+      "type": "Legislative summary",
+      "title": "CR-105-2023 Summary",
+      "date": "2023-10-23",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/411bcf26-1c48-460e-bd75-4f761a1940d3.pdf",
+      "file": "04-legislative-summary.pdf",
+      "id": "r04",
+      "sha256": "0dc8db3c3e9aa11abe6194e2bbd03bf6d234afaf13121f3ebef0d7e32894b468",
+      "bytes": 91132,
+      "signed_by": []
+    },
+    {
+      "type": "Signed resolution",
+      "title": "CR-105-2023 - signed",
+      "date": "2023-11-07",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/8c0366e5-5f0b-4262-bf3c-cf84d7b17b75.pdf",
+      "file": "05-signed-resolution.pdf",
+      "id": "r05",
+      "sha256": "4e4c3562699ed07a610b48ed804f4b45b1b0c2ed8853843d2c93cd068e031655",
+      "bytes": 1351370,
+      "signed_by": []
+    }
+  ],
+  "not_read": [
+    {
+      "type": "Attachment",
+      "title": "CR-105-2023 Attachment A",
+      "date": "2023-10-23",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/a9d4f04f-a024-45bd-b892-d1430c0b6f9c.docx",
+      "skipped": "Word conversion failed (CalledProcessError)"
+    },
+    {
+      "type": "PILOT agreement",
+      "title": "CR-105-2023 Attachment B",
+      "date": "2023-10-23",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/f605a1f0-ecc1-4c39-a72c-f3fd51f64a02.docx",
+      "skipped": "Word conversion failed (CalledProcessError)"
+    },
+    {
+      "type": "Presentation",
+      "title": "CR-105-2023 Presentation 10-26-23 GOFP",
+      "date": "2023-10-23",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/0a24b856-c01e-4532-a8e0-a28053747506.pptx",
+      "skipped": "not a PDF or Word file (pptx)"
+    },
+    {
+      "type": "Fiscal and policy note",
+      "title": "CR-105-2023 PAFI",
+      "date": "2023-10-23",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/d0ffd016-c5a6-4f5f-99bb-e4613a01764d.pdf",
+      "skipped": "download failed (HTTPError)"
+    }
+  ]
+}

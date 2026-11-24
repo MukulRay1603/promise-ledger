@@ -321,13 +321,52 @@ _store: Storage | None = None
 _store_lock = threading.Lock()  # Startup seeding runs in a thread; only one backend may be built.
 
 
+TRANSIENT_ERRORS = {"ServiceUnavailable", "DeadlineExceeded", "TooManyRequests", "InternalServerError", "Aborted",
+                    "GatewayTimeout", "BadGateway", "ConnectionError", "TimeoutError", "RetryError"}
+RETRY_DELAYS = (0.25, 1.0)  # Two more tries after the first, then the error is raised as before.
+storage_stats = {"retried": 0, "recovered": 0, "gave_up": 0}
+
+
+class RetryingStorage:
+    """Wraps a cloud store: a call that fails with a transient error (busy, timeout, dropped connection) is tried again
+    after a short pause, so one hiccup does not fail a page or a reading. Locks are not retried: a lock call that timed
+    out may have succeeded, and its own expiry handles that."""
+
+    NO_RETRY = {"acquire_lock", "release_lock"}
+
+    def __init__(self, inner):
+        self._inner = inner
+
+    def __getattr__(self, name):
+        attr = getattr(self._inner, name)
+        if not callable(attr) or name.startswith("_") or name in self.NO_RETRY:
+            return attr
+
+        def call(*args, **kwargs):
+            import time
+            for attempt, delay in enumerate((*RETRY_DELAYS, None)):
+                try:
+                    out = attr(*args, **kwargs)
+                    if attempt:
+                        storage_stats["recovered"] += 1
+                    return out
+                except Exception as err:
+                    if type(err).__name__ not in TRANSIENT_ERRORS or delay is None:
+                        if attempt:
+                            storage_stats["gave_up"] += 1
+                        raise
+                    storage_stats["retried"] += 1
+                    time.sleep(delay)
+        return call
+
+
 def get_store() -> Storage:
     global _store
     if _store is None:
         with _store_lock:
             if _store is None:
                 kind = (os.getenv("STORAGE") or "local").lower()
-                _store = GcpStorage() if kind == "gcp" else LocalStorage()
+                _store = RetryingStorage(GcpStorage()) if kind == "gcp" else LocalStorage()
     return _store
 
 

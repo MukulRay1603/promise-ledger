@@ -1,0 +1,65 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "PILOT Agreement Transmittal Letter for Fort Washington by Vintage",
+  "date": "2025-09-10",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Aisha N. Braveboy",
+    "quote": "Aisha N. Braveboy",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Project involves the acquisition and rehabilitation of a three hundred four (304) unit affordable rental community for low and moderate-income households, earning seventy percent (70%) or below of the Area Median Income (\"AMI\"), located at 2428 Corning Avenue, Fort Washington, Maryland 20744.",
+    "page": 1,
+    "wording": "three hundred four (304) unit",
+    "value": "304 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Project involves the acquisition and rehabilitation of a three hundred four (304) unit affordable rental community for low and moderate-income households, earning seventy percent (70%) or below of the Area Median Income (\"AMI\"), located at 2428 Corning Avenue, Fort Washington, Maryland 20744.",
+    "page": 1,
+    "wording": "seventy percent (70%) or below of the Area Median Income",
+    "value": "70% AMI or below"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require a mandatory annual payment of no less than approximately one hundred seventeen thousand, six hundred forty-eight dollars or three hundred eighty-seven dollars per unit ($117,648 or $387 per unit) for the first year.",
+    "page": 1,
+    "wording": "mandatory annual payment of no less than",
+    "value": "$117,648 in year one"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment for these affordable units will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%)",
+    "value": "2% annual increase"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for forty (40) years, including the extended affordability period.",
+    "page": 1,
+    "wording": "remain in effect for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "When considering the financial effects of the PILOT, the County will be providing yearly operating support of approximately three hundred sixty-four thousand, eight hundred sixty-three dollars ($364,863) to this affordable family housing development.",
+    "page": 1,
+    "wording": "yearly operating support of approximately",
+    "value": "$364,863 yearly"
+   }
+  ]
+ },
+ "tokens_in": 1589,
+ "tokens_out": 752,
+ "cost_usd": 0.002357,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

@@ -1,7 +1,8 @@
 """Read one deal PDF, check what the model proposed, and decide stages by rule.
 
 1. Store the file.                         (app/deals.py)
-2. Extract text per page with pypdf; flag pages with no text.
+2. Extract text per page with pypdf; flag pages with no text. Those are transcribed by the model
+   (app/vision.py) and marked, so their quotes are checked like any other.
 3. Ask the model for candidates            (app/ai.read_document)
 4. Verify in code: the quote must be on the stated page, else on another page
    (page corrected), else dropped.
@@ -17,6 +18,7 @@ import os
 import re
 import unicodedata
 from datetime import date
+from functools import lru_cache
 from pathlib import Path
 
 from app import ai, ledger
@@ -50,7 +52,9 @@ def _read_pages(data: bytes) -> list[str]:
 
     try:
         reader = PdfReader(io.BytesIO(data))
-        if reader.is_encrypted:
+        # Many government PDFs are "secured": encrypted, but they open with an empty password and only restrict
+        # editing or printing. Those are read; a file that needs a real password to open is refused.
+        if reader.is_encrypted and not reader.decrypt(""):
             raise PdfError("The PDF is password protected.")
         if len(reader.pages) > MAX_PDF_PAGES:
             raise PdfError(f"The PDF has more than {MAX_PDF_PAGES} pages.")
@@ -65,7 +69,24 @@ def _read_pages(data: bytes) -> list[str]:
     except PdfError:
         raise
     except (PdfReadError, Exception) as err:
-        raise PdfError(f"The PDF could not be read ({type(err).__name__}).") from err
+        raise PdfError("The PDF could not be read. It may be damaged or not a PDF.") from err
+
+
+_SECRET_ENV = re.compile(r"KEY|TOKEN|SECRET|CREDENTIAL|PASSWORD", re.I)
+
+
+def sandbox_options(timeout: float) -> dict:
+    """Options for the PDF child process: no secrets in its environment, and on Linux limits on memory and CPU."""
+    import os
+
+    options: dict = {"env": {k: v for k, v in os.environ.items() if not _SECRET_ENV.search(k)}}
+    if os.name == "posix":
+        def limit():
+            import resource
+            resource.setrlimit(resource.RLIMIT_AS, (2 * 1024 ** 3, 2 * 1024 ** 3))
+            resource.setrlimit(resource.RLIMIT_CPU, (int(timeout) + 5, int(timeout) + 5))
+        options["preexec_fn"] = limit
+    return options
 
 
 def _worker_main() -> None:
@@ -78,7 +99,7 @@ def _worker_main() -> None:
     except PdfError as err:
         out = {"error": str(err)}
     except Exception as err:  # pragma: no cover - _read_pages wraps everything
-        out = {"error": f"The PDF could not be read ({type(err).__name__})."}
+        out = {"error": "The PDF could not be read. It may be damaged or not a PDF."}
     sys.stdout.write(json.dumps(out))
 
 
@@ -92,7 +113,7 @@ def _read_pages_sandboxed(data: bytes, timeout: float) -> list[str]:
 
     try:
         done = subprocess.run([sys.executable, "-c", "from app.pipeline import _worker_main; _worker_main()"],
-                              input=data, capture_output=True, timeout=timeout, cwd=str(ROOT))
+                              input=data, capture_output=True, timeout=timeout, cwd=str(ROOT), **sandbox_options(timeout))
     except subprocess.TimeoutExpired:
         raise PdfError("The PDF took too long to read. Try a simpler or shorter file.") from None
     try:
@@ -151,25 +172,143 @@ def _dehyphenate(text: str) -> str:
     return re.sub(r"(\w)-\s*\n\s*(\w)", r"\1\2", text)
 
 
-def quote_on_page(quote: str, page_text: str) -> bool:
+def _keep_hyphens(text: str) -> str:
+    """Join a compound that breaks at its own hyphen, as in "income-\neligible", keeping the hyphen."""
+    return re.sub(r"(\w)-\s*\n\s*(\w)", r"\1-\2", text)
+
+
+_LINE_NUMBERS = (re.compile(r"^\s*(\d{1,3})(?=\s|$)"), re.compile(r"(?<=\s)(\d{1,3})\s*$"))
+MIN_NUMBERED_LINES = 5
+
+
+def strip_line_numbers(text: str) -> str:
+    """Page text without the line numbers printed down the margin of bills and resolutions.
+
+    Council bills number every line ("1 WHEREAS, ...", "2 building near ..."), so a sentence that runs over
+    two lines has a number in the middle of it. The numbers are removed only when most lines carry one and
+    they count up by one, at the start or at the end of the line. Any other page is returned unchanged.
+    """
+    lines = text.split("\n")
+    filled = [i for i, line in enumerate(lines) if line.strip()]
+    for pattern in _LINE_NUMBERS:
+        hits = {i: m for i in filled if (m := pattern.search(lines[i]))}
+        if len(hits) < MIN_NUMBERED_LINES or len(hits) < 0.6 * len(filled):
+            continue
+        values = [int(m.group(1)) for m in hits.values()]
+        if sum(b - a == 1 for a, b in zip(values, values[1:])) < 0.8 * (len(values) - 1):
+            continue
+        return "\n".join(line[:hits[i].start()] + line[hits[i].end():] if i in hits else line
+                         for i, line in enumerate(lines))
+    return text
+
+
+@lru_cache(maxsize=512)
+def _page_forms(page_text: str) -> tuple[str, ...]:
+    """The normalized readings of one page that a quote may match: as printed, with words split across lines
+    joined (without and with the hyphen), and the same again without margin line numbers."""
+    texts = [page_text]
+    unnumbered = strip_line_numbers(page_text)
+    if unnumbered != page_text:
+        texts.append(unnumbered)
+    forms: list[str] = []
+    for text in texts:
+        for form in (normalize(text), normalize(_dehyphenate(text)), normalize(_keep_hyphens(text))):
+            if form not in forms:
+                forms.append(form)
+    return tuple(forms)
+
+
+_SPACES = re.compile(r"\s+")
+
+
+def printed_wording(quote: str, page_text: str) -> str | None:
+    """The quote as the page prints it, or None if the page does not have it.
+
+    Three small differences are tolerated: a trailing period the model added or dropped, spacing, and the case of
+    the first letter. A model often drops the lead-in of a recital and starts the rest with a capital ("The Company shall"
+    for "WHEREAS, the Company shall"). Every other character must match, and the page's own wording is returned.
+    """
     q = normalize(quote)
     if len(q) < 8:
+        return None
+    forms = _page_forms(page_text)
+    for form in forms:
+        if q in form:
+            return q
+    for candidate in (q.rstrip("."), q[0].swapcase() + q[1:], (q[0].swapcase() + q[1:]).rstrip(".")):
+        if len(candidate) >= 8 and any(candidate in form for form in forms):
+            return candidate
+    # A PDF text layer can put spaces where the page shows none ("$ 200", "Tax -Property", "re -developed").
+    # The same characters in the same order, compared without spaces, are the same words.
+    tight = _SPACES.sub("", q).rstrip(".")
+    if len(tight) >= 8 and any(tight in _SPACES.sub("", form) for form in forms):
+        return q
+    return None
+
+
+def quote_on_page(quote: str, page_text: str) -> bool:
+    return printed_wording(quote, page_text) is not None
+
+
+# A line at the foot or head of a page that is not part of a sentence: blank, or only a page number.
+_PAGE_EDGE = re.compile(r"^\W*(?:page\s*)?\d{0,4}(?:\s*of\s*\d+)?\W*$", re.I)
+
+
+def _across_break(first: str, second: str, chrome: frozenset[str]) -> str:
+    """Two pages as one text, without the page numbers, headers and footers printed between them."""
+    def edge(line: str) -> bool:
+        return bool(_PAGE_EDGE.match(line)) or normalize(line).lower() in chrome
+
+    head, tail = first.split("\n"), second.split("\n")
+    while head and edge(head[-1]):
+        head.pop()
+    while tail and edge(tail[0]):
+        tail.pop(0)
+    return "\n".join(head + tail)
+
+
+def wording_across_pages(quote: str, pages: list[str], start: int) -> str | None:
+    """The quote as printed, if it starts on page `start` and ends on the next page. None otherwise.
+
+    A sentence can run over a page break. It is matched against the two pages joined, with page numbers and
+    repeated header or footer lines at the break left out. A quote that is whole on either page is not a
+    cross-page quote.
+    """
+    if not 1 <= start < len(pages):
+        return None
+    first, second = pages[start - 1], pages[start]
+    if quote_on_page(quote, first) or quote_on_page(quote, second):
+        return None
+    return printed_wording(quote, _across_break(first, second, frozenset(repeated_lines(pages))))
+
+
+def quote_at(quote: str, pages: list[str], page: int) -> bool:
+    """True if the quote is on this page, or starts on it and ends on the next."""
+    if not 1 <= page <= len(pages):
         return False
-    if q in normalize(page_text) or q in normalize(_dehyphenate(page_text)):
-        return True
-    # Tolerate a trailing period the model added or dropped.
-    q2 = q.rstrip(".")
-    return len(q2) >= 8 and q2 in normalize(page_text)
+    return quote_on_page(quote, pages[page - 1]) or wording_across_pages(quote, pages, page) is not None
 
 
 def locate(quote: str, pages: list[str], stated: int) -> int | None:
-    """The page the quote is on: the stated page first, then any other. None if nowhere."""
+    """The page the quote is on: the stated page first, then any other. None if nowhere.
+
+    A quote that runs over a page break is cited to the page where it starts.
+    """
     if 1 <= stated <= len(pages) and quote_on_page(quote, pages[stated - 1]):
         return stated
     for number, text in enumerate(pages, 1):
         if number != stated and quote_on_page(quote, text):
             return number
+    # The model may cite the page where the sentence starts or the page where it ends.
+    for start in dict.fromkeys([stated, stated - 1, *range(1, len(pages))]):
+        if wording_across_pages(quote, pages, start) is not None:
+            return start
     return None
+
+
+def printed_quote(quote: str, pages: list[str], page: int) -> str:
+    """The located quote in the record's own words (see printed_wording)."""
+    return (printed_wording(quote, pages[page - 1]) or wording_across_pages(quote, pages, page) or normalize(quote))
 
 
 # ---------------------------------------------------------------------------
@@ -185,6 +324,9 @@ _WORD_NUMBER = re.compile(r"\b(?:(" + "|".join(_TENS[2:]) + r")(?:[- ](" + "|".j
                           + "|".join(_ONES) + r")|(one hundred|a hundred))\b", re.I)
 
 
+_DOUBLED = re.compile(r"\b(\d[\d,]*)(\s*percent)?\s*\(\s*\1\s*%?\s*\)", re.I)
+
+
 def numeric(text: str) -> str:
     """Normalized text with number words as digits ("thirty years" -> "30 years"), for code comparisons (L7).
 
@@ -196,7 +338,8 @@ def numeric(text: str) -> str:
         if m.group(3):
             return str(_ONES.index(m.group(3).lower()))
         return str(_TENS.index(m.group(1).lower()) * 10 + (_ONES.index(m.group(2).lower()) if m.group(2) else 0))
-    return _WORD_NUMBER.sub(word, normalize(text))
+    # Legal drafting repeats a number in brackets: "sixty percent (60%)", "eighteen (18)". Read it once.
+    return _DOUBLED.sub(r"\1\2", _WORD_NUMBER.sub(word, normalize(text)))
 
 
 def _int(s: str) -> int:
@@ -221,7 +364,9 @@ def numbers(topic: str, quote: str) -> dict:
         if pct * total % 100 == 0:
             out["math"] = {"percent": pct, "of": total, "equals": pct * total // 100}
         return out
-    m = re.search(rf"\b{_NUM} (?:affordable |income-restricted |workforce |reduced-rent )?{_UNITS}\b", quote, re.I)
+    # "95 affordable rental units, 50 units in Building 1": the count is the 95, so a second describing word may follow.
+    m = re.search(rf"\b{_NUM} (?:affordable |income-restricted |workforce |reduced-rent )?"
+                  rf"(?:rental |dwelling |housing )?{_UNITS}\b", quote, re.I)
     if m:
         out["homes"] = {"count": _int(m.group(1))}
     return out
@@ -282,7 +427,12 @@ def canonical_value(topic: str, quote: str, model_value: str) -> str:
 _AFFORD = re.compile(r"afford|income-restricted|workforce|reduced[- ]rent", re.I)
 _NOT_AFFORDABILITY = re.compile(r"\btax|payment in lieu|\bPILOT\b|abate", re.I)
 _DUE = re.compile(r"\bby\s+(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})", re.I)
-_END_DATE = re.compile(r"\bends?\b.*?\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2}),?\s+(\d{4})", re.I)
+
+
+_FULL_DATE = re.compile(r"\b(january|february|march|april|may|june|july|august|september|october|november|december)"
+                        r"\s+(\d{1,2}),?\s+(\d{4})\b", re.I)
+_END_WORDS = re.compile(r"\b(?:ends?|end date|until|through|thru|expires?|expiring|terminates?)\b", re.I)
+_END_OF_YEAR = re.compile(r"\bend of (\d{4})\b", re.I)
 
 
 def compare_key(topic: str, quote: str) -> str | None:
@@ -298,18 +448,29 @@ def compare_key(topic: str, quote: str) -> str | None:
         n = numbers(topic, quote)
         if "math" in n:
             return f"{n['math']['percent']} percent of {n['math']['of']} homes"
-        m = re.search(r"\bup to (\d[\d,]*)\b", q, re.I)
+        # A homes word must follow the number: "up to 20% of the median income" is an income limit, not a cap on homes.
+        m = re.search(rf"\bup to (\d[\d,]*)\b(?:\s+[A-Za-z-]+){{0,3}}?\s+{_UNITS}\b", q, re.I)
         if m and (_AFFORD.search(q) or _UNITS_WORDS.search(q)):
             return f"up to {_int(m.group(1))} homes"
         if "homes" in n and (_AFFORD.search(q) or "of" in n["homes"]):
             return f"{n['homes']['count']} homes"
         return None
     if topic == "term":
-        if _NOT_AFFORDABILITY.search(q):
+        # A tax period is not the affordability term, unless the sentence itself restricts the homes
+        # or defines the term ("restrict ... for 30 years", '"Term" means ... twenty (20) years').
+        if _NOT_AFFORDABILITY.search(q) and not (_RESTRICTS.search(q) or _TERM_DEFINITION.search(q)):
             return None
-        m = _END_DATE.search(q)
-        if m:
-            return f"ends {m.group(1).lower()} {int(m.group(2))} {m.group(3)}"
+        if _END_WORDS.search(q):
+            # "ends December 31, 2050", "until June 30, 2049", "expire on January 1, 2066". A start date comes
+            # first and an amendment ("changed from June 30, 2049 to June 30, 2059") states the old date first,
+            # so the last date in the sentence is the end date. "until the end of 2055" is December 31.
+            dates = _FULL_DATE.findall(q)
+            if dates:
+                month, day, year = dates[-1]
+                return f"ends {month.lower()} {int(day)} {year}"
+            m = _END_OF_YEAR.search(q)
+            if m:
+                return f"ends december 31 {m.group(1)}"
         years = term_years(q)
         return f"{years} years" if years else None
     if topic == "income_basis":
@@ -322,11 +483,14 @@ def compare_key(topic: str, quote: str) -> str | None:
         m = _DUE.search(q)
         return f"due {m.group(1).lower()} {int(m.group(2))}" if m else None
     if topic == "remedies":
-        m = re.search(r"\b(\d+)\s*days\b", q, re.I)
+        # Only a cure period is compared. An agreement states other spans of days in its remedies (a late charge
+        # after 5 days, termination on 90 days' notice), and those are different remedies, not a changed one.
+        m = re.search(r"\b(\d+)\s*days\b", q, re.I) if _CURE.search(q) else None
         return f"{m.group(1)} days to cure" if m else None
     return None
 
 
+_CURE = re.compile(r"\bcur(?:e|ed|ing)\b|\bcorrect|\bremed(?:y|ied)\b", re.I)
 _MONTHS = ["january", "february", "march", "april", "may", "june", "july",
            "august", "september", "october", "november", "december"]
 
@@ -377,7 +541,8 @@ _SUPPORT_ACTED = re.compile(r"\bpassed and adopted\b|\bmotion (?:passed|carried)
                             r"\bbe it resolved\b|\bvoted (\d+) to (\d+) to (?:support|approve|adopt|grant)\b", re.I)
 _SUPPORT_NOT = re.compile(r"\b(?:fail(?:ed|s)?|denied|denies|rejected|tabled|withdrawn|did not pass|not (?:adopt|approv|support)\w*|"
                           r"continued (?:to|until)|postponed|no action)\b|\bapproval of the (?:minutes|agenda)\b|"
-                          r"\b(?:minutes|agenda) (?:was|were) approved\b|\bapproved as posted\b|\bapproved by the council on\b", re.I)
+                          r"\b(?:minutes|agenda|consent calendar)\b[^.;]{0,60}\b(?:was|were) approved\b|"
+                          r"\bapproved as (?:posted|presented|submitted)\b|\bapproved by the council on\b", re.I)
 # A certificate states what was delivered: homes leased, occupied or certified (L4).
 _DELIVERY_EVIDENCE = re.compile(r"\bcertificate of occupancy\b|\b(?:were|was|are|is|has been|have been) (?:leased|occupied|"
                                 r"rented|placed in service)\b|\bleased to\b|\bcertif(?:y|ies) that\b", re.I)
@@ -394,6 +559,74 @@ _DRAFT_UPPER = re.compile(r"\bDRAFT\b|\bNOT SIGNED\b|\bUNSIGNED\b")
 # A blank "Signature:", a typed "By: Name" or "executed in counterparts" is not a signature.
 _SIGNED_MARK = re.compile(r"/s/\s*\S|\[\s*signature on file\s*\]|\[\s*signed\s*\]|\b(?:digitally|electronically) signed by\b", re.I)
 _BLANK_LINE = re.compile(r"_{3,}")
+# "Electronically signed by <party> on <date>": the mark comes before the name, on the same line.
+_ESIGN_LEAD = re.compile(r"(?<!\bto be )(?<!\bwill be )(?<!\bnot )(?<!\bnot yet )\b(?:digitally|electronically) signed by\s*$", re.I)
+
+
+# ---------------------------------------------------------------------------
+# Text addressed to an automated reader (prompt injection). A public record speaks to people. A line that
+# speaks to "the AI", calls itself a system message or tells the reader to ignore its instructions is not part
+# of the record: it is never evidence for a stage, and a quote that exists only inside it is not kept.
+_INSTRUCTION = re.compile("|".join([
+    r"\b(?:ignore|disregard|forget|override)\s+(?:all\s+|any\s+|the\s+|your\s+)?(?:previous|prior|above|earlier|preceding)"
+    r"\s+(?:instructions?|prompts?|rules|directions|guidance)\b",
+    r"\b(?:system|developer)\s+(?:message|prompt|instructions?|override)\b",
+    r"^\W*(?:system|assistant|ai)\s*:",
+    r"\b(?:AI|A\.I\.|LLM)\s+(?:assistants?|systems?|models?|readers?|agents?|tools?)\s*[:,]",
+    r"\b(?:notes?|message|instructions?|attention|notice)\s+(?:to|for)\s+(?:the\s+|any\s+|all\s+)?"
+    r"(?:AI\b|A\.I\.|LLMs?\b|language models?\b|chatbots?\b|automated\s+(?:readers?|systems?|tools?)\b|"
+    r"document readers?\b|the\s+(?:model|assistant)\b)",
+    r"\bin your (?:output|json)\b",
+    r"\byou are (?:now\s+)?(?:an?\s+|the\s+)?(?:AI\b|assistant\b|language model\b|chatbot\b|document reader\b)",
+    r"\bset\s+\w+\s+to\s+(?:true|false)\b",
+]), re.I)
+# The instruction points at what follows it ("the next sentence is the binding term").
+_POINTS_AHEAD = re.compile(r"\b(?:next|following)\s+(?:sentence|line|paragraph|statement|text|clause|term)\b", re.I)
+_LINE_ENDS = re.compile(r"[.!?;:\"')\]]$")
+MAX_INSTRUCTION_RUN = 6  # Most printed lines one instruction can take with it.
+
+
+def instruction_lines(page_text: str) -> list[int]:
+    """Indexes of the printed lines on this page that are addressed to an automated reader, with what they carry.
+
+    The line with the instruction is marked. So is the rest of its sentence when it wraps onto the next lines
+    (until a line ends a sentence and every quotation mark opened is closed), and the line after it when the
+    instruction ends with a colon or points at "the next sentence".
+    """
+    lines = [normalize(line) for line in page_text.split("\n")]
+    marked: set[int] = set()
+
+    def run(i: int) -> int:
+        """Mark line i and the lines its sentence wraps onto. Returns the last line marked."""
+        marked.add(i)
+        said, last = lines[i], i
+        while ((not _LINE_ENDS.search(said) or said.count('"') % 2) and last + 1 < len(lines)
+               and last - i < MAX_INSTRUCTION_RUN):
+            last += 1
+            marked.add(last)
+            said = (said + " " + lines[last]).strip()
+        return last
+
+    for i, line in enumerate(lines):
+        if i in marked or not _INSTRUCTION.search(line):
+            continue
+        last = run(i)
+        said = " ".join(lines[i:last + 1]).strip()
+        ahead = _POINTS_AHEAD.search(said)
+        # "The next sentence is binding." with nothing after it on these lines: the sentence meant is on the next line.
+        if said.endswith(":") or (ahead and not re.search(r"[.:!?]\s*\S", said[ahead.end():])):
+            nxt = next((j for j in range(last + 1, len(lines)) if lines[j]), None)
+            if nxt is not None and nxt not in marked:
+                run(nxt)
+    return sorted(marked)
+
+
+def without_instructions(page_text: str) -> str:
+    """The page with lines addressed to an automated reader left blank. Any other page is returned unchanged."""
+    marked = set(instruction_lines(page_text))
+    if not marked:
+        return page_text
+    return "\n".join("" if i in marked else line for i, line in enumerate(page_text.split("\n")))
 
 
 def type_key(label: str | None) -> str | None:
@@ -455,8 +688,8 @@ def signature_block(party: str, page_text: str) -> str | None:
     lines = [normalize(line) for line in page_text.split("\n")]
     for i, line in enumerate(lines):
         if want and want in line.lower():
-            same = line.lower().split(want, 1)[1]
-            if _signed_line(same):
+            lead, same = line.lower().split(want, 1)
+            if _signed_line(same) or (_ESIGN_LEAD.search(lead) and not _UNSIGNED.search(line)):
                 return line
             for nxt in lines[i + 1:i + 1 + SIGNATURE_WINDOW]:
                 if _signed_line(nxt):
@@ -491,19 +724,93 @@ def _sentences(text: str) -> list[str]:
     return [s for s in re.split(r"(?<=[.;:])\s+|\n", normalize(text)) if s.strip()]
 
 
-def support_actions(text: str) -> list[int]:
-    """Character offsets of recorded actions that passed: adopted, carried, or a vote with more ayes (L5)."""
-    found, at = [], 0
+# A sentence that records that a motion or measure did not pass.
+_VOTE_FAILED = re.compile(r"\b(?:motion|vote|resolution|ordinance|measure)\b[^.;]{0,160}\b(?:fail(?:ed|s)|defeated|denied|rejected|"
+                          r"lost|did not (?:pass|carry)|(?:was|were|is) not (?:adopted|approved))\b", re.I)
+_LOST_TALLY = re.compile(r"\bvoted (\d+) to (\d+) to (?:support|approve|adopt|grant)\b", re.I)
+# The heading of an agenda item in minutes: "4. Public hearing", "ITEM 4. Quarry Row".
+_ITEM_HEAD = re.compile(r"^(?:item\s+\d{1,3}\b|\d{1,2}[.)]\s+[A-Z])", re.I)
+
+
+def _item_starts(text: str, norm: str) -> list[int]:
+    """Offsets in the normalized text where each agenda item starts. The text before the first heading is item 0."""
+    starts, at = [0], 0
+    for line in text.split("\n"):
+        line = normalize(line)
+        if not line:
+            continue
+        pos = norm.find(line, at)
+        if pos < 0:
+            continue
+        if _ITEM_HEAD.match(line) and pos > 0:
+            starts.append(pos)
+        at = pos + len(line)
+    return starts
+
+
+# A sentence that records its own vote: a tally, or the motion it is about ("The motion to adopt the budget carried").
+_OWN_VOTE = re.compile(r"\bvoted \d+ to \d+\b|\bvote of \d+\s*(?:to|-)\s*\d+\b|\b\d+\s*-\s*\d+ vote\b|\bunanimous(?:ly)?\b|"
+                       r"\bmotion to \w+", re.I)
+
+
+def vote_record(text: str) -> tuple[list[int], list[int], bool]:
+    """(actions that passed, bare adoption lines that are contradicted, mixed), offsets in the normalized text (L5).
+
+    An action passed when a sentence says so: adopted, carried, or a vote with more ayes. A bare line that names no
+    motion and gives no tally ("PASSED AND ADOPTED.", "The motion carried.", "The request was approved.") refers to
+    the motion recorded beside it. When the same agenda item records that a motion failed, was defeated or was
+    denied, such a line is contradicted and the failed result wins, so a line added under a failed vote does not make
+    the record supported. A sentence with its own tally or its own motion still counts; `mixed` is True when one of
+    those shares an item with a failed motion, so the stage note can ask a person to check. A record without item
+    headings is one item.
+    """
+    from bisect import bisect_right
+
+    passed, failed, at = [], [], 0
     norm = normalize(text)
     for sentence in _sentences(text):
         at = norm.find(sentence, at)
+        lost = _LOST_TALLY.search(sentence)
+        if _VOTE_FAILED.search(sentence) or (lost and int(lost.group(1)) <= int(lost.group(2))):
+            failed.append(max(at, 0))
         if _SUPPORT_NOT.search(sentence):
             continue
         for m in _SUPPORT_ACTED.finditer(sentence):
             if m.group(1) and int(m.group(1)) <= int(m.group(2)):
                 continue  # "voted 2 to 5 to approve" did not pass.
-            found.append(max(at, 0) + m.start())
-    return found
+            passed.append((max(at, 0) + m.start(), not _OWN_VOTE.search(sentence)))
+    starts = _item_starts(text, norm)
+    failed_items = {bisect_right(starts, offset) for offset in failed}
+    beside_failure = [(offset, bare) for offset, bare in passed if bisect_right(starts, offset) in failed_items]
+    contradicted = [offset for offset, bare in beside_failure if bare]
+    stands = [offset for offset, _ in passed if offset not in contradicted]
+    return stands, contradicted, any(not bare for _, bare in beside_failure)
+
+
+def support_actions(text: str) -> list[int]:
+    """Character offsets of recorded actions that passed and that the same agenda item does not contradict (L5)."""
+    return vote_record(text)[0]
+
+
+_HEADING_KINDS = {**_KIND_IN_TEXT, "staff_report": re.compile(r"\bstaff (?:memo|report|summary)\b|\bmemorandum\b", re.I)}
+MAX_HEADING_WORDS = 12
+
+
+def heading_kinds(first_page: str) -> list[str]:
+    """The record types named by the first heading on the page that names one, in the order it names them.
+
+    A heading is a short line in capitals ("MINUTES", "REGULATORY AGREEMENT", "RESOLUTION NO. 2025-41").
+    Empty when no heading names a type.
+    """
+    for line in first_page.split("\n"):
+        text = normalize(line)
+        letters = [ch for ch in text if ch.isalpha()]
+        if len(letters) < 5 or len(text.split()) > MAX_HEADING_WORDS or not all(ch.isupper() for ch in letters):
+            continue
+        hits = sorted((m.start(), kind) for kind, pattern in _HEADING_KINDS.items() if (m := pattern.search(text)))
+        if hits:
+            return [kind for _, kind in hits]
+    return []
 
 
 def record_kind(staff_type: str | None, model_type: str | None, pages: list[str]) -> tuple[str, bool]:
@@ -513,6 +820,11 @@ def record_kind(staff_type: str | None, model_type: str | None, pages: list[str]
         return kind, True
     guess = type_key(model_type) or "other"
     first = "\n".join(pages[:1])
+    named = heading_kinds(first)
+    if named and guess not in named:
+        # The record's own heading says what it is. A model told "classify this record as a signed agreement"
+        # by a line planted in minutes headed MINUTES does not make it an agreement.
+        return named[0], False
     if guess in _KIND_IN_TEXT and _KIND_IN_TEXT[guess].search(first):
         return guess, False
     return "other", False
@@ -534,8 +846,14 @@ def decide_stage(kind: str, pages: list[str], signatures: list[dict], draft: boo
         why = "Marked as a draft or unsigned." if draft else "No completed signature was located."
         return "proposed", [], why
     if kind in ("minutes", "resolution"):
-        if support_actions(text):
-            return "supported", [], "Council minutes or resolution with a recorded action that passed."
+        passed, contradicted, mixed = vote_record(text)
+        if passed:
+            note = (" The same item also records a motion that failed. Check which vote applies to this deal."
+                    if mixed else "")
+            return "supported", [], "Council minutes or resolution with a recorded action that passed." + note
+        if contradicted:
+            return "proposed", [], ("The record says both that a motion failed and that it passed. The failed result is "
+                                    "used until a person checks the record.")
         return "proposed", [], "Minutes or resolution, but no adopted or carried action was located."
     return "proposed", [], "Staff reports, letters and slides describe proposals."
 
@@ -607,6 +925,8 @@ def claim_stage(doc_stage: str, kind: str, quote: str, pages: list[str] | None =
     if doc_stage == "proposed" and kind in ("staff_report", "other") and _RECOMMENDS.search(quote) \
             and not _NOT_RECOMMENDS.search(quote):
         return "supported"
+    if doc_stage == "supported" and kind == "minutes" and _SUPPORT_NOT.search(normalize(quote)):
+        return "proposed"  # A sentence that records a failed, denied or tabled motion is not support.
     if doc_stage == "supported" and kind == "minutes" and pages is not None:
         text = normalize("\n".join(pages))
         at = text.find(normalize(quote))
@@ -630,28 +950,60 @@ def canonical_party(party: str, known: list[str]) -> str:
 # Term fit and boilerplate: code rules that keep only sentences that state the term they are filed under
 
 _NUMBER_HOMES = re.compile(r"\b\d[\d,]*\b(?:[^.]{0,40}?)\b(?:homes?|units?|apartments?)\b", re.I)
-_UNITS_WORDS = re.compile(r"afford|reserve|set(?:ting)? aside|set-aside|workforce|income|restricted|required|leased|"
-                          r"reduced rents?", re.I)
-_TERM_WORDS = re.compile(r"\b\d+[\s-]*years?\b|\bends?\b|\buntil\b|\bexpires?\b|\bperiod\b|\bremain in effect\b", re.I)
-_SUPPORT_WORDS = re.compile(r"\btax|payment in lieu|\bPILOT\b|abate|exemption|subsid|loan|grant|incentive|support", re.I)
-_SUPPORT_ACTION = re.compile(r"recommend|approv|adopt|vote|support|award|grant|shall pay|asked staff|confirm", re.I)
+# The word lists below are ordinary drafting vocabulary from agreements, covenants, resolutions and staff memos.
+# They decide only whether a sentence states the kind of term it is filed under. They never set a stage.
+_UNITS_WORDS = re.compile(r"afford|reserve|set(?:ting)? aside|set-aside|workforce|income|restricted|requir|leased|"
+                          r"reduced rents?|below[- ]market", re.I)
+_MONTH = r"(?:january|february|march|april|may|june|july|august|september|october|november|december)"
+_TERM_WORDS = re.compile(r"\b\d+[\s-]*years?\b|\(\d+\)\s*years?\b|\bends?\b|\buntil\b|\bexpir\w*|\bperiods?\b|"
+                         rf"\bthrough (?:and including )?(?:the end of |{_MONTH}\b|\d{{4}}\b)|"
+                         r"\b(?:remain\w*|stay\w*|continu\w*) in (?:full force and )?(?:effect|force)\b|"
+                         r"\bruns? with the (?:land|property)\b|\bperpetu\w+|\brenew\w*|\bexten(?:d|sion)\w*", re.I)
+# Words that make the sentence a restriction on the homes, even when it also names the tax break.
+_RESTRICTS = re.compile(r"\brestrict\w*|\bcovenant\w*|\bremain\w* affordable\b|\baffordability (?:period|term|restriction)", re.I)
+# A definition of the term itself: '"Term" means ... twenty (20) years', '"Affordability Period" means ...'.
+_TERM_DEFINITION = re.compile(r'^(?:\(?[a-z0-9]{1,3}[.)]\s*)?"[^"]{0,40}\b(?:term|period)"\s+(?:means|shall mean|refers to)\b', re.I)
+_SUPPORT_WORDS = re.compile(r"\btax|payment in lieu|\bPILOT\b|abate|exemption|subsid|loan|grant|incentive|support|"
+                            r"rebate|\bwaive|\bfreeze|\bassessment", re.I)
+_SUPPORT_ACTION = re.compile(r"recommend|approv|adopt|vote|support|award|grant|shall pay|asked staff|confirm|"
+                             r"\boffer|\bfreeze|\bholds?\b|"
+                             r"\b(?:shall|will|agree[sd]? to) (?:make|pay|abate|accept|waive|rebate|exempt|reduce)\b|"
+                             r"\brevenue loss\b|\bforgone\b|\bforegone\b", re.I)
+# A request counts when it says how much or how long ("asked for a 50 percent reduction for 20 years").
+# "Asked the City for help with property taxes" states no term.
+_SUPPORT_REQUEST = re.compile(r"\brequest|\bask(?:s|ed|ing)?\b", re.I)
 _MOTION = re.compile(r"\bmoved to\b|\bseconded\b", re.I)
 # A condition the Council puts on its support, such as asking for the terms in writing.
 _SUPPORT_CONDITION = re.compile(r"\bCouncil\b.*\b(?:asked|directed|required) (?:the )?(?:staff|owner|developer)\b|"
                                 r"\bsubject to\b|\bon (?:the )?condition\b", re.I)
 # Status notes ("marked not received") are observations about a duty, not the duty itself.
 _STATUS_NOTE = re.compile(r"\bnot received\b|\bis marked\b|\bwas received\b|\breminder notice\b", re.I)
-_REPORT_WORDS = re.compile(r"report|certif|records?|submit|file|deliver", re.I)
+_REPORT_WORDS = re.compile(r"report|certif|records?|submit|file|deliver|rent roll|\blist\b|\bstatement|\baudit", re.I)
 # A reporting duty has a cadence. A one-off deadline ("a second notice ... by May 15") is a follow-up, not the duty.
 _REPORT_WHEN = re.compile(r"annual|yearly|each year|every year|submitted|reporting year \d{4}", re.I)
-_REMEDY_WORDS = re.compile(r"default|cure|repay|recapture|penalt|terminat|liquidated|breach", re.I)
-_PARTY_WORDS = re.compile(r"responsib|\bbinds?\b|successor|later owner|obligat|liable", re.I)
+# Or it is a standing duty with no date: "shall submit such reports as the County may require".
+_REPORT_DUTY = re.compile(r"\b(?:shall|must|is required to|agrees to)\s+(?:submit|file|deliver|furnish|provide|give|send)\b"
+                          r".*\b(?:reports?|certificat\w+|rent rolls?|statements?)\b", re.I)
+_REMEDY_WORDS = re.compile(r"default|cure|repay|recapture|penalt|terminat|liquidated|breach|violat|\bvoid\b|forfeit|"
+                           r"\brevok|\brescind|claw ?back|\blate (?:charge|fee|payment)|\bdue and payable\b|"
+                           r"\b(?:end|cancel|suspend|withhold|stop)s? (?:the )?(?:[a-z-]+ ){0,2}"
+                           r"(?:abatement|exemption|freeze|rebate|PILOT|payments?|agreement)\b", re.I)
+_PARTY_WORDS = re.compile(r"responsib|\bbinds?\b|\bbound\b|\bbinding (?:up)?on\b|successor|\bassigns\b|\bassignee|"
+                          r"later owner|subsequent owner|obligat|liable", re.I)
 _RENT_WORDS = re.compile(r"\brents?\b|\brental charge", re.I)
 _RENT_LIMIT = re.compile(r"limit|exceed|above|below|percent|%|\bcap\b|maximum|\bHUD\b", re.I)
-_INCOME_WORDS = re.compile(r"income|\bAMI\b|median", re.I)
+_INCOME_WORDS = re.compile(r"income|\bAMI\b|median|\bhouseholds? earning\b", re.I)
 _SELF_DESCRIPTION = re.compile(r"^(?:this|the) (?:memo|memorandum|report|letter|presentation|summary|document)\b"
-                               r"[^.]{0,20}\b(?:reports|describes|summarizes|follows|provides|is)\b", re.I)
+                               r"[^.]{0,20}\b(?:reports|describes|summarizes|follows|provides|is)\b|"
+                               r"^this is (?:a|an|the) (?:request|report|memo|memorandum|summary|update|letter)\b", re.I)
 _TAX_SPAN = re.compile(r"\btax|payment in lieu|\bPILOT\b|abate", re.I)
+
+
+# A question raised in a meeting states no term ("a member asked whether the limits would bind a buyer").
+_QUESTION = re.compile(r"\basked (?:whether|if|about|how|why)\b|\?\s*$", re.I)
+
+MAX_SET_ASIDE = 10
+MIN_PIECE_CHARS = 20  # A shorter quote is not treated as a piece of a longer one.
 
 
 def term_fits(topic: str, quote: str) -> bool:
@@ -660,25 +1012,49 @@ def term_fits(topic: str, quote: str) -> bool:
     Number words count as numbers here ("Twelve affordable homes", "thirty years") (L7).
     """
     q = numeric(quote)
+    if _QUESTION.search(q):
+        return False
     if topic == "units":
         return bool(_NUMBER_HOMES.search(q) and _UNITS_WORDS.search(q))
     if topic == "term":
-        return bool(_TERM_WORDS.search(q)) and not _TAX_SPAN.search(q)
+        if not _TERM_WORDS.search(q):
+            return False
+        # A span of years in a sentence about the tax break is the tax period, unless the sentence itself
+        # restricts the homes for that long or defines the term.
+        return not _TAX_SPAN.search(q) or bool(_RESTRICTS.search(q) or _TERM_DEFINITION.search(q))
     if topic == "public_support":
         if _MOTION.search(q):
             return False
-        return bool(_SUPPORT_WORDS.search(q) and _SUPPORT_ACTION.search(q)) or bool(_SUPPORT_CONDITION.search(q))
+        acts = _SUPPORT_ACTION.search(q) or (_SUPPORT_REQUEST.search(q) and re.search(r"\d", q))
+        return bool(_SUPPORT_WORDS.search(q) and acts) or bool(_SUPPORT_CONDITION.search(q))
     if topic == "reporting":
-        return bool(_REPORT_WORDS.search(q) and _REPORT_WHEN.search(q)) and not _STATUS_NOTE.search(q)
+        if _STATUS_NOTE.search(q) or not _REPORT_WORDS.search(q):
+            return False
+        return bool(_REPORT_WHEN.search(q) or _REPORT_DUTY.search(q))
     if topic == "remedies":
         return bool(_REMEDY_WORDS.search(q))
     if topic == "responsible_party":
         return bool(_PARTY_WORDS.search(q))
     if topic == "rent_limits":
-        return bool(_RENT_WORDS.search(q) and _RENT_LIMIT.search(q))
+        # "At below-market rents" describes the homes. It is not a limit on rent.
+        return bool(_RENT_WORDS.search(q) and _RENT_LIMIT.search(re.sub(r"below[- ]market", "", q, flags=re.I)))
     if topic == "income_basis":
         return bool(_INCOME_WORDS.search(q))
     return True
+
+
+def filed_term(topic: str, quote: str) -> str | None:
+    """The term a located sentence is kept under, or None if the rules do not confirm it.
+
+    It is the term the model filed it under, with one correction made by rule: a span of years in a sentence
+    about the tax break is filed by some readings under "term". It is the length of the public support, so it is
+    kept under public support when it passes that rule.
+    """
+    if term_fits(topic, quote):
+        return topic
+    if topic == "term" and _TAX_SPAN.search(numeric(quote)) and term_fits("public_support", quote):
+        return "public_support"
+    return None
 
 
 def repeated_lines(pages: list[str]) -> set[str]:
@@ -695,11 +1071,21 @@ _FOOTER = re.compile(r"sample document|\bpage \d+ of \d+\b|made-up demo record",
 _DEFINITION = re.compile(r'^(?:\(?[a-z0-9]{1,3}[.)]\s*)?["“][^"”]{2,60}["”]\s+(?:means|shall mean|refers to)\b', re.I)
 
 
+# A definition that states the term itself: a number of years or months, a percent, an amount, a home count or a date.
+_DEFINED_VALUE = re.compile(r"\b\d+[\s-]*(?:years?|months?|percent)\b|\d\s*%|\$\s*\d|" + _NUMBER_HOMES.pattern + "|"
+                            + _FULL_DATE.pattern, re.I)
+
+
 def is_boilerplate(quote: str, chrome: set[str]) -> bool:
-    """Headers, footers, page numbers and a record describing itself are not terms."""
+    """Headers, footers, page numbers, a record describing itself and definitions that carry no value are not terms.
+
+    A definition that carries the value ('"Term" means ... twenty (20) years') is kept and goes on to the term rules.
+    """
     q = normalize(quote)
     low = q.lower()
-    if _FOOTER.search(q) or _SELF_DESCRIPTION.search(q) or _DEFINITION.search(q):
+    if _FOOTER.search(q) or _SELF_DESCRIPTION.search(q):
+        return True
+    if _DEFINITION.search(q) and not _DEFINED_VALUE.search(numeric(q)):
         return True
     # A quote that sits inside a line repeated on every page is a header or footer.
     return any(low.rstrip(".") in line for line in chrome)
@@ -707,12 +1093,29 @@ def is_boilerplate(quote: str, chrome: set[str]) -> bool:
 
 def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_parties: list[str] | None = None) -> dict:
     """Check the model's reading against the page text. Returns the fields to save on the document."""
-    kind, _from_staff = record_kind(doc.get("type"), reading.document_type, pages)
+    # Lines addressed to an automated reader are not the record speaking. They are left out of everything that
+    # decides the type or the stage, and a quote found only inside them is not kept. A draft mark still counts
+    # wherever it is printed, because it can only hold a record back.
+    clean = [without_instructions(text) for text in pages]
+    planted = [n for n, (text, kept) in enumerate(zip(pages, clean), 1) if text != kept]
+    kind, _from_staff = record_kind(doc.get("type"), reading.document_type, clean)
     draft = is_draft(pages, reading.draft)
-    signatures = checked_signatures([s.model_dump() for s in reading.signatures], pages)
+    scans = set(doc.get("transcribed_pages") or [])
+    # Stage evidence (signatures, votes, delivery) counts only from pages with their own text layer. Text the
+    # model transcribed from a scan can hold claims, but it never moves a record past proposed by itself.
+    evidence = [("" if i in scans else text) for i, text in enumerate(clean, 1)]
+    signatures = checked_signatures([s.model_dump() for s in reading.signatures], evidence)
     for sig in signatures:
         sig["party"] = canonical_party(sig["party"], known_parties or [])
-    stage, signed_by, reason = decide_stage(kind, pages, signatures, draft)
+    stage, signed_by, reason = decide_stage(kind, evidence, signatures, draft)
+    if scans and stage == "proposed" and decide_stage(kind, clean, checked_signatures(
+            [s.model_dump() for s in reading.signatures], clean), draft)[0] != "proposed":
+        reason += (" A signature, vote or delivery statement appears only on a scanned page. "
+                   "A person must confirm it against the PDF before it counts.")
+    if planted:
+        where = f"page {planted[0]}" if len(planted) == 1 else "pages " + ", ".join(map(str, planted))
+        reason += (f" Text addressed to an automated reader was found on {where}. It was not used as evidence, "
+                   "and no quote was taken from it.")
 
     # The model's title is kept only if it is printed in the record (S10); otherwise the filename shows.
     found = normalize(reading.title or "").lower().rstrip(".")
@@ -729,9 +1132,11 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
 
     claims, counts = [], {"candidates": len(reading.candidates), "kept": 0, "page_corrected": 0,
                           "dropped": 0, "duplicates": 0, "absent": 0,
-                          "boilerplate": 0, "off_term": 0}
+                          "boilerplate": 0, "off_term": 0, "instruction_text": 0}
     chrome = repeated_lines(pages)
     seen = set()
+    kept_keys: list[tuple[str, str, int]] = []  # (term, quote, page) of each kept claim, in the same order as `claims`
+    set_aside: list[dict] = []  # Quotes found on the page whose wording the term rules did not confirm.
     label = doc.get("type") or TYPE_LABELS.get(kind, "Record")
     for cand in reading.candidates:
         if cand.topic not in ledger.TOPICS:
@@ -741,14 +1146,26 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
         if page is None:
             counts["dropped"] += 1
             continue
+        if planted:
+            # The words are on the page, but only inside text addressed to an automated reader: not a statement
+            # of the record. Dropped and counted, and never set aside as a sentence to check.
+            page = locate(cand.quote, clean, cand.page)
+            if page is None:
+                counts["instruction_text"] += 1
+                continue
         if _ABSENT.search(normalize(cand.quote)):
             counts["absent"] += 1
             continue
         if is_boilerplate(cand.quote, chrome):
             counts["boilerplate"] += 1
             continue
-        if not term_fits(cand.topic, cand.quote):
+        topic = filed_term(cand.topic, cand.quote)
+        if topic is None:
+            # Not dropped silently: the quote is real, so a person checks it. It counts toward no term or stage.
             counts["off_term"] += 1
+            key = normalize(cand.quote).lower().rstrip(".")
+            if len(set_aside) < MAX_SET_ASIDE and all(normalize(x["quote"]).lower().rstrip(".") != key for x in set_aside):
+                set_aside.append({"topic": cand.topic, "quote": normalize(cand.quote), "page": page})
             continue
         # One sentence is one claim: the same quote filed under a second term is a duplicate.
         key = normalize(cand.quote).lower().rstrip(".")
@@ -756,12 +1173,23 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
             counts["duplicates"] += 1
             continue
         seen.add(key)
+        # A piece of a sentence already kept from the same page under the same term is the same claim, not a second one.
+        if any((t, n) == (topic, page) and len(key) >= MIN_PIECE_CHARS and key in k for t, k, n in kept_keys):
+            counts["duplicates"] += 1
+            continue
+        # The other way round, the whole sentence replaces the pieces kept before it.
+        pieces = [i for i, (t, k, n) in enumerate(kept_keys)
+                  if (t, n) == (topic, page) and len(k) >= MIN_PIECE_CHARS and k in key]
+        for i in reversed(pieces):
+            del claims[i], kept_keys[i]
+            counts["duplicates"] += 1
+        kept_keys.append((topic, key, page))
         corrected = page != cand.page
         counts["page_corrected"] += corrected
         wording = cand.wording if normalize(cand.wording).lower() in normalize(cand.quote).lower() else ""
         claim = {
             "id": f"{doc['id']}-{len(claims) + 1:02d}",
-            "quote": normalize(cand.quote),
+            "quote": printed_quote(cand.quote, pages, page),  # The record's own words, not the model's copy.
             "document": doc["id"],
             "document_type": label,
             "document_title": title,
@@ -769,18 +1197,27 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
             "page": page,
             "stated_page": cand.page,
             "page_corrected": corrected,
-            "topic": cand.topic,
-            "status": claim_stage(stage, kind, cand.quote, pages),
+            "topic": topic,
+            "status": claim_stage(stage, kind, cand.quote, clean),
             "wording": wording,
-            "value": canonical_value(cand.topic, cand.quote, cand.value),
-            "compare": compare_key(cand.topic, cand.quote),
+            "value": canonical_value(topic, cand.quote, cand.value),
+            "compare": compare_key(topic, cand.quote),
             "verified": True,
             "review_note": ai.REVIEW_LABEL,
-            **numbers(cand.topic, cand.quote),
+            **numbers(topic, cand.quote),
         }
+        if not quote_on_page(cand.quote, pages[page - 1]):  # The sentence runs over the page break.
+            claim["ends_on_page"] = page + 1
+        if page in scans:  # The page was a scanned image; its text was transcribed by the model (app/vision.py).
+            claim["from_scan"] = True
         claims.append(claim)
+    for number, claim in enumerate(claims, 1):
+        claim["id"] = f"{doc['id']}-{number:02d}"
     counts["kept"] = len(claims)
+    kept_quotes = {normalize(c["quote"]).lower().rstrip(".") for c in claims}
+    set_aside = [x for x in set_aside if normalize(x["quote"]).lower().rstrip(".") not in kept_quotes]
     return {
+        "set_aside": set_aside,
         "type": label,
         "type_key": kind,
         "title": title,
@@ -794,4 +1231,5 @@ def verify_reading(reading: ai.PdfReading, pages: list[str], doc: dict, known_pa
         "draft": draft,
         "claims": claims,
         "counts": counts,
+        "instruction_pages": planted,
     }

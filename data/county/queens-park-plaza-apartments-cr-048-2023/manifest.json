@@ -1,0 +1,139 @@
+{
+  "notice": "Real public records of Prince George's County, Maryland, from the County Council's Legistar system. Promise Ledger lists what the records say; it does not judge whether any party met an obligation.",
+  "real": true,
+  "deal": "Queens Park Plaza Apartments",
+  "slug": "queens-park-plaza-apartments-cr-048-2023",
+  "city": "Prince George's County",
+  "county": "Prince George's County, MD",
+  "owner": null,
+  "as_of": "2023-07-05",
+  "source": {
+    "system": "Prince George's County Legistar",
+    "file": "CR-048-2023",
+    "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR QUEENS PARK PLAZA APARTMENTS for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and Queens Park Plaza MD LLC (the “Owner”).",
+    "status": "Adopted",
+    "introduced": "2023-05-16",
+    "passed": "2023-07-05",
+    "url": "https://princegeorgescountymd.legistar.com/gateway.aspx?M=L&ID=16090",
+    "api": "https://webapi.legistar.com/v1/princegeorgescountymd/matters/16090",
+    "votes": [
+      {
+        "date": "2023-07-05",
+        "body": "County Council",
+        "action": "adopted",
+        "passed": true,
+        "tally": null
+      }
+    ],
+    "retrieved": "2026-11-18"
+  },
+  "documents": [
+    {
+      "type": "PILOT agreement",
+      "title": "CR-048-2023 Attachment B",
+      "date": "2023-05-16",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/299fa171-0d8a-4bc8-bee5-bd4eb8db3b23.docx",
+      "file": "01-pilot-agreement.from-docx.pdf",
+      "id": "r01",
+      "sha256": "dcf0dfb69bd3bbc3da1cc12a29a629debacca72cff9be3dd684bc4a4ba41018d",
+      "bytes": 286765,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "docx",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/299fa171-0d8a-4bc8-bee5-bd4eb8db3b23.docx",
+        "sha256": "c4baf5faff47a3dbfd3b980ca5c4d27667bed01c9bc8709ad840c62b4c934396"
+      }
+    },
+    {
+      "type": "Transmittal letter",
+      "title": "CR-048-2023 Transmittal",
+      "date": "2023-05-16",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/d7eefbf9-e796-49c8-bef0-a464df74bbf3.doc",
+      "file": "02-transmittal-letter.from-doc.pdf",
+      "id": "r02",
+      "sha256": "76fccdcf8ceb8097e05dd8e0a2c2411afad3879f65558bd2478f6c062ec16bfc",
+      "bytes": 76813,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "doc",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/d7eefbf9-e796-49c8-bef0-a464df74bbf3.doc",
+        "sha256": "1318febbd56bd4a6454a8c9bcef5c18da1210d57e79e541d341e896fa6d8c480"
+      }
+    },
+    {
+      "type": "Presentation",
+      "title": "CR-048-2023 Queens Park Plaza - PILOT Presentation - 6-2023",
+      "date": "2023-05-16",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/c7ae35d3-f00c-4359-bafb-f0b2c7907086.pdf",
+      "file": "03-presentation.pdf",
+      "id": "r03",
+      "sha256": "fa1cbeeb39ed39ea6483cd8d00547c322bc517e53ad8736952f89d48271cc97b",
+      "bytes": 1520431,
+      "signed_by": []
+    },
+    {
+      "type": "Fiscal and policy note",
+      "title": "CR-048-2023 PAFI Statement",
+      "date": "2023-05-16",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/852fe64a-a51c-47e6-9834-f5db57c47613.pdf",
+      "file": "04-fiscal-and-policy-note.pdf",
+      "id": "r04",
+      "sha256": "ac2f8f8f4bff3dcebe997ed28fe1cc03ee92d3978a52549fbb1163a73bc06464",
+      "bytes": 298884,
+      "signed_by": []
+    },
+    {
+      "type": "Agency comments",
+      "title": "CR-048-2023 OOL Comment",
+      "date": "2023-05-16",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/928bcc62-c9cb-487b-9b39-7dacbd854c8b.pdf",
+      "file": "05-agency-comments.pdf",
+      "id": "r05",
+      "sha256": "40c8cb4053a72fe6f94756dc59e40e6dec57d0eb5707ccc105d08323516262fd",
+      "bytes": 111339,
+      "signed_by": []
+    },
+    {
+      "type": "Committee report",
+      "title": "CR-048-2023 Report",
+      "date": "2023-06-13",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/d8bfbc3d-aa61-4019-ac51-42f223e0854c.doc",
+      "file": "06-committee-report.from-doc.pdf",
+      "id": "r06",
+      "sha256": "d0e573d030509698c149275e9ffea4ea5a214d1d84bfe2c90ed22316dcdd7b15",
+      "bytes": 99462,
+      "signed_by": [],
+      "committed": true,
+      "converted_from": {
+        "format": "doc",
+        "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/d8bfbc3d-aa61-4019-ac51-42f223e0854c.doc",
+        "sha256": "8ac2ba328866d3f16949e8b879974cb3e062041653bd561d802b392f50937e92"
+      }
+    },
+    {
+      "type": "Legislative summary",
+      "title": "CR-048-2023 Summary",
+      "date": "2023-05-16",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/883fc65c-7414-4f9b-b5da-fa96359b4a06.pdf",
+      "file": "07-legislative-summary.pdf",
+      "id": "r07",
+      "sha256": "ed8f800afec9b8347297cfd6477d812d1676a743fbf61f412717c226388e9fec",
+      "bytes": 92767,
+      "signed_by": []
+    },
+    {
+      "type": "Signed resolution",
+      "title": "CR-048-2023 - signed",
+      "date": "2023-07-05",
+      "url": "https://princegeorgescountymd.legistar1.com/princegeorgescountymd/attachments/de091220-6f7d-44f7-a016-d62f440ccfc6.pdf",
+      "file": "08-signed-resolution.pdf",
+      "id": "r08",
+      "sha256": "a0ad8451cb528cb83c3c316136c4cceb4f5c2b40c05a5544bea466ec956582c3",
+      "bytes": 167042,
+      "signed_by": []
+    }
+  ],
+  "not_read": []
+}

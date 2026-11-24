@@ -1,0 +1,242 @@
+{
+ "210-on-the-park-apartments-cr-043-2023": {
+  "address": "210 Maryland Park Drive",
+  "city": "Capitol Heights",
+  "lat": 38.89096,
+  "lon": -76.90967,
+  "matched": "210 MARYLAND PARK DR, CAPITOL HEIGHTS, MD, 20743",
+  "source": {
+   "record": "CR-043-2023 Attachment B",
+   "type": "PILOT agreement",
+   "page": 1,
+   "context": "& Terms Owner Name: 210 MPD Partners, LLC Property Address: 210 Maryland Park Drive, Capitol Heights, MD 20743 Project Name: 210 on the Park Pr"
+  },
+  "approx": false,
+  "geocoder": "U.S. Census Geocoder"
+ },
+ "addison-park-apartments-cr-034-2023": {
+  "address": "216 Yolanda Avenue",
+  "city": "Capitol Heights",
+  "lat": 38.88613,
+  "lon": -76.90117,
+  "matched": "216 YOLANDA AVE, CAPITOL HEIGHTS, MD, 20743",
+  "source": {
+   "record": "CR-034-2023 Transmittal",
+   "type": "Transmittal letter",
+   "page": 1,
+   "context": "two (62) years and older, known as Addison Park, located at 216 Yolanda Avenue, Capitol Heights, Maryland 20743. All units will be reserve"
+  },
+  "approx": false,
+  "geocoder": "U.S. Census Geocoder"
+ },
+ "bowie-commons-apartments-cr-034-2024": {
+  "address": "3909 New Haven Court",
+  "city": "Bowie",
+  "lat": 38.94577,
+  "lon": -76.74168,
+  "matched": "3909 NEW HAVEN CT, BOWIE, MD, 20716",
+  "source": {
+   "record": "CR-034-2024 Transmittal",
+   "type": "Transmittal letter",
+   "page": 1,
+   "context": "60%) or below of the Area Median Income (“AMI”), located at 3909 New Haven Court, Bowie, Maryland 20716. The project consists of one (1) bed"
+  },
+  "approx": false,
+  "geocoder": "U.S. Census Geocoder"
+ },
+ "cottage-city-towers-apartments-cr-041-2023": {
+  "address": "4142 Bunker Hill Road",
+  "city": "Cottage City",
+  "lat": 38.93871,
+  "lon": -76.94883,
+  "matched": "4142 BUNKER HILL RD, COTTAGE CITY, MD, 20722",
+  "source": {
+   "record": "CR-041-2023 Transmittal",
+   "type": "Transmittal letter",
+   "page": 1,
+   "context": "e-income families, known as Cottage City Towers, located at 4142 Bunker Hill Road, Cottage City, Maryland 20722. The Project is located 0.5 m"
+  },
+  "approx": false,
+  "geocoder": "U.S. Census Geocoder"
+ },
+ "flats-at-college-park-apartments-cr-042-2023": {
+  "address": "9113 Baltimore Avenue",
+  "city": "College Park",
+  "lat": 39.00422,
+  "lon": -76.9303,
+  "matched": "9113 BALTIMORE AVE, COLLEGE PARK, MD, 20740",
+  "source": {
+   "record": "CR-042-2023 Transmittal",
+   "type": "Transmittal letter",
+   "page": 1,
+   "context": " as Flats at College Park, on a 4.26 acre parcel located at 9113 Baltimore Avenue, College Park, Maryland 20740. The Project will be located "
+  },
+  "approx": false,
+  "geocoder": "U.S. Census Geocoder"
+ },
+ "flats-at-glenridge-station-cr-117-2025": {
+  "address": "7011 Chesapeake Road",
+  "city": "Hyattsville",
+  "lat": 38.94963,
+  "lon": -76.88644,
+  "matched": "7011 CHESAPEAKE RD, HYATTSVILLE, MD, 20784",
+  "source": {
+   "record": "CR-117-2025 Attachment B",
+   "type": "PILOT agreement",
+   "page": 1,
+   "context": "t Facts & Terms Owner Name: Dominium Inc. Property Address: 7011 Chesapeake Road, Hyattsville, MD 20784 Project Name: Flats at Glenridge Sta"
+  },
+  "approx": false,
+  "geocoder": "U.S. Census Geocoder"
+ },
+ "fort-washington-by-vintage-cr-118-2025": {
+  "address": "2428 Corning Avenue",
+  "city": "Fort Washington",
+  "lat": 38.80761,
+  "lon": -76.96605,
+  "matched": "2428 CORNING AVE, FORT WASHINGTON, MD, 20744",
+  "source": {
+   "record": "CR-118-2025 R2025118",
+   "type": "Resolution",
+   "page": 1,
+   "context": "(“AMI”), known as Fort 10 Washington by Vintage, located at 2428 Corning Avenue, Fort Washington, Maryland 20744, as 11 more particularly d"
+  },
+  "approx": false,
+  "geocoder": "U.S. Census Geocoder"
+ },
+ "herman-apartments-cr-042-2026": {
+  "address": "6203 Ager Road",
+  "city": "Hyattsville",
+  "lat": 38.9658,
+  "lon": -76.9735,
+  "matched": "6203 AGER RD, HYATTSVILLE, MD, 20782",
+  "source": {
+   "record": "CR-042-2026 Transmittal",
+   "type": "Transmittal letter",
+   "page": 1,
+   "context": "60%) or below of the Area Median Income (\"AMI\"), located at 6203 Ager Road, Hyattsville, Maryland 20782. The unit mix will consist of "
+  },
+  "approx": false,
+  "geocoder": "U.S. Census Geocoder"
+ },
+ "highlands-senior-apartments-cr-077-2024": {
+  "address": "6801 Sheriff Road",
+  "city": "Landover",
+  "lat": 38.91036,
+  "lon": -76.88951,
+  "matched": "6801 SHERIFF RD, LANDOVER, MD, 20785",
+  "source": {
+   "record": "CR-077-2024 R2024077",
+   "type": "Resolution",
+   "page": 1,
+   "context": "ghlands Senior Apartments, on a 8.25 acre parcel located at 6801 Sheriff Road, Landover, Maryland 20785, as more particularly described i"
+  },
+  "approx": false,
+  "geocoder": "U.S. Census Geocoder"
+ },
+ "holly-place-cr-044-2026": {
+  "address": "4500 Saint Barnabas Road",
+  "city": "Temple Hills",
+  "lat": 38.82836,
+  "lon": -76.94307,
+  "matched": "4500 ST BARNABAS RD, TEMPLE HILLS, MD, 20748",
+  "source": {
+   "record": "CR-044-2026 R2026044",
+   "type": "Resolution",
+   "page": 1,
+   "context": " Median Income (“AMI”), known as Holly Place, located at 10 4500 Saint Barnabas Road, Temple Hills, Maryland 20748, as more particularly describ"
+  },
+  "approx": false,
+  "geocoder": "U.S. Census Geocoder"
+ },
+ "park-place-at-addison-road-apartments-cr-044-2023": {
+  "address": "6301 Central Avenue",
+  "city": "Capitol Heights",
+  "lat": 38.88668,
+  "lon": -76.89867,
+  "matched": "6301 CENTRAL AVE, CAPITOL HEIGHTS, MD, 20743",
+  "source": {
+   "record": "CR-044-2023 Transmittal",
+   "type": "Transmittal letter",
+   "page": 1,
+   "context": "ark Place at Addison Road, on a 3.70 acre parcel located at 6301 Central Avenue, 212 Zelma Avenue, and 109 Addison Road, Capitol Heights, M"
+  },
+  "approx": false,
+  "geocoder": "U.S. Census Geocoder"
+ },
+ "queens-park-plaza-apartments-cr-048-2023": {
+  "address": "2500 Queens Chapel Road",
+  "city": "Hyattsville",
+  "lat": 38.94799,
+  "lon": -76.97135,
+  "matched": "2500 QUEENS CHAPEL RD, HYATTSVILLE, MD, 20782",
+  "source": {
+   "record": "CR-048-2023 Attachment B",
+   "type": "PILOT agreement",
+   "page": 1,
+   "context": "erms Owner Name: Queens Park Plaza MD LLC Property Address: 2500 Queens Chapel Road Hyattsville, Maryland 20782 Project Name: Queens Park Plaza"
+  },
+  "approx": false,
+  "geocoder": "U.S. Census Geocoder"
+ },
+ "new-carrollton-affordable-phase-1-cr-028-2025": {
+  "address": "4051 Garden City Drive",
+  "city": "",
+  "lat": 38.94706,
+  "lon": -76.8703,
+  "matched": "Garden City Drive, Landover, Prince George's County, Maryland, 20785, United States",
+  "geocoder": "OpenStreetMap Nominatim",
+  "source": {
+   "record": "CR-028-2025 Transmittal",
+   "type": "Transmittal letter",
+   "page": 1,
+   "context": "70%) or below of the Area Median Income (“AMI”), located at 4051 Garden City Drive, Hyattsville, Maryland 20785. The unit mix will consist of "
+  },
+  "approx": true
+ },
+ "new-carrollton-affordable-phase-2-cr-030-2025": {
+  "address": "4051 Garden City Drive",
+  "city": "",
+  "lat": 38.94706,
+  "lon": -76.8703,
+  "matched": "Garden City Drive, Landover, Prince George's County, Maryland, 20785, United States",
+  "geocoder": "OpenStreetMap Nominatim",
+  "source": {
+   "record": "CR-030-2025 R2025030",
+   "type": "Resolution",
+   "page": 1,
+   "context": "own as New Carrollton 11 – Affordable – Phase 2, located at 4051 Garden City Drive, Hyattsville, Maryland 20785, as 12 more particularly descr"
+  },
+  "approx": true
+ },
+ "new-carrollton-affordable-phase-4-cr-115-2025": {
+  "address": "4041 Pennsy Drive",
+  "city": "",
+  "lat": 38.93506,
+  "lon": -76.88618,
+  "matched": "Pennsy Drive, Radiant Valley, Landover, Prince George's County, Maryland, 20784, United States",
+  "geocoder": "OpenStreetMap Nominatim",
+  "source": {
+   "record": "CR-115-2025 R2025115",
+   "type": "Resolution",
+   "page": 1,
+   "context": "own as New 11 Carrollton – Affordable – Phase 4, located at 4041 Pennsy Drive, Hyattsville, Maryland 20785, 12 as more particularly descr"
+  },
+  "approx": true
+ },
+ "penn-place-i-cr-036-2025": {
+  "address": "5501 Penn Crossing Drive",
+  "city": "",
+  "lat": 38.85767,
+  "lon": -76.91002,
+  "matched": "Penn Crossing Drive, Oakland, Suitland, Prince George's County, Maryland, 20233, United States",
+  "geocoder": "OpenStreetMap Nominatim",
+  "source": {
+   "record": "CR-036-2025 Transmittal",
+   "type": "Transmittal letter",
+   "page": 1,
+   "context": "60%) or below of the Area Median Income (“AMI”), located at 5501 Penn Crossing Drive, District Heights, Maryland 20747. The unit mix will consis"
+  },
+  "approx": true
+ }
+}

@@ -36,7 +36,13 @@ class NoKey(unittest.TestCase):
             import importlib
             fresh = importlib.reload(ai)
             self.assertEqual(fresh.MODEL, "gemini-3.5-flash")
-            self.assertEqual(fresh.FALLBACK_MODEL, "gemini-flash-lite-latest")
+            self.assertEqual(fresh.FALLBACK_MODEL, "gemini-3.5-flash-lite")
+            # Pinned versions only: a moving "-latest" alias would change results without a measured change.
+            self.assertNotIn("latest", fresh.MODEL + fresh.FALLBACK_MODEL)
+            # Each model is costed at its own price, and an unknown model is never costed as free.
+            self.assertAlmostEqual(fresh.cost_usd("gemini-3.5-flash-lite", 1_000_000, 0), 0.30)
+            self.assertAlmostEqual(fresh.cost_usd("gemini-3.8-flash", 0, 1_000_000), 3.75)
+            self.assertGreater(fresh.cost_usd("some-new-model", 1000, 1000), 0)
         importlib.reload(ai)
 
     def test_page_and_health(self):

@@ -1,0 +1,94 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Policy Analysis and Fiscal Impact Statement CR-073-2024 FY 2024 PILOT New Carrolton – Affordable – Phase 3 – 9% Project",
+  "date": "2024-10-04",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Description: A fifty (50) unit affordable family rental apartment community that will be constructed in New Carrollton, Maryland.",
+    "page": 2,
+    "wording": "A fifty (50) unit",
+    "value": "50 units"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 2,
+    "wording": "rents will be restricted",
+    "value": "40 years"
+   },
+   {
+    "topic": "term",
+    "quote": "Duration: At least 40 years",
+    "page": 2,
+    "wording": "At least 40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Under the proposed agreement, for at least a 40-year term, Urban Atlantic Development LLC (the “Developer”) will construct six (50) units for families whose incomes are at or below 50% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "construct six (50) units",
+    "value": "50 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Under the proposed agreement, for at least a 40-year term, Urban Atlantic Development LLC (the “Developer”) will construct six (50) units for families whose incomes are at or below 50% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "at or below 50% of the Area Median Income",
+    "value": "50% AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "Under the proposed agreement, for at least a 40-year term, Urban Atlantic Development LLC (the “Developer”) will construct six (50) units for families whose incomes are at or below 50% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "at least a 40-year term",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The terms of the PILOT agreement include 100% tax waivers of 50 units for the next 40 years, with a 2% annual escalation per unit over that period.",
+    "page": 4,
+    "wording": "100% tax waivers of 50 units",
+    "value": "50 units"
+   },
+   {
+    "topic": "term",
+    "quote": "The terms of the PILOT agreement include 100% tax waivers of 50 units for the next 40 years, with a 2% annual escalation per unit over that period.",
+    "page": 4,
+    "wording": "next 40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Based on the Washington- Arlington-Alexandria-DC-VA-MD-WV Metro Area regional guidelines, this project includes 175 affordable housing units at 60% or less than AMI.",
+    "page": 4,
+    "wording": "includes 175 affordable housing units",
+    "value": "175 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Based on the Washington- Arlington-Alexandria-DC-VA-MD-WV Metro Area regional guidelines, this project includes 175 affordable housing units at 60% or less than AMI.",
+    "page": 4,
+    "wording": "60% or less than AMI",
+    "value": "60% AMI or less"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Factoring in the 2% estimated average annual increase in the property tax assessment, the total impact is estimated at $ 1,513,070, forgoing 90.92% of the tax revenue cumulatively over the 40-year period that the PILOT agreement remains in effect.",
+    "page": 5,
+    "wording": "forgoing 90.92% of the tax revenue",
+    "value": "90.92% tax waiver over 40 years"
+   }
+  ]
+ },
+ "tokens_in": 4825,
+ "tokens_out": 1231,
+ "cost_usd": 0.004525,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

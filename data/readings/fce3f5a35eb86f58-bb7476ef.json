@@ -1,0 +1,143 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Fiscal and Policy Note CR-028-2025 PILOT New Carrolton – Affordable – Phase 1 Project",
+  "date": "2025-04-11",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "Revenue: $7,157,432 in tax revenue to be forgone over a 40-year period.",
+    "page": 2,
+    "wording": "tax revenue to be forgone over a 40-year period",
+    "value": "$7,157,432 over 40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Description: A one hundred twelve (112) unit affordable senior rental apartment community that will be constructed in New Carrollton, Maryland.",
+    "page": 2,
+    "wording": "one hundred twelve (112) unit affordable senior rental apartment community",
+    "value": "112 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 2,
+    "wording": "All units will be affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 2,
+    "wording": "rents will be restricted",
+    "value": "40 years"
+   },
+   {
+    "topic": "term",
+    "quote": "Duration: At least 40 years",
+    "page": 2,
+    "wording": "At least 40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The New Carrollton – Affordable - Phase 1 project (the “Project”) is to be located at 4051 Garden City Drive, Hyattsville, Maryland 20785, and is a 112- unit transit-oriented senior affordable housing development.",
+    "page": 3,
+    "wording": "112- unit",
+    "value": "112 units"
+   },
+   {
+    "topic": "term",
+    "quote": "Under the proposed agreement, for at least a 40- year term, Urban Atlantic Development LLC (the “Developer”) will construct one hundred twelve (112) units for seniors whose incomes are at or below seventy percent (70% ) of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "for at least a 40- year term",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Under the proposed agreement, for at least a 40- year term, Urban Atlantic Development LLC (the “Developer”) will construct one hundred twelve (112) units for seniors whose incomes are at or below seventy percent (70% ) of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "construct one hundred twelve (112) units",
+    "value": "112 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Under the proposed agreement, for at least a 40- year term, Urban Atlantic Development LLC (the “Developer”) will construct one hundred twelve (112) units for seniors whose incomes are at or below seventy percent (70% ) of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "incomes are at or below seventy percent (70% ) of the Area Median Income",
+    "value": "70% AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The project will receive approximately $9,657,432 or 27% of its total funding from the County, as demonstrated below.",
+    "page": 4,
+    "wording": "will receive approximately $9,657,432",
+    "value": "$9,657,432"
+   },
+   {
+    "topic": "units",
+    "quote": "The terms of the PILOT agreement include 100% tax waivers of 112 units for the next 40 years, with a 2% annual escalation per unit over that period.",
+    "page": 4,
+    "wording": "100% tax waivers of 112 units",
+    "value": "112 units"
+   },
+   {
+    "topic": "term",
+    "quote": "The terms of the PILOT agreement include 100% tax waivers of 112 units for the next 40 years, with a 2% annual escalation per unit over that period.",
+    "page": 4,
+    "wording": "for the next 40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT reduces the aggregate tax burden on the entire 112-unit Project by 71.34% of that amount, or approximately $47,600, equivalent to a $425 per unit tax burden on the 112 affordable units.",
+    "page": 4,
+    "wording": "reduces the aggregate tax burden on the entire 112-unit Project by 71.34%",
+    "value": "71.34% tax reduction"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Under the agreement, the County would forgo real property tax revenue of approximately $118,497, or approximately $1,058 per affordable unit, in year one4.",
+    "page": 4,
+    "wording": "forgo real property tax revenue of approximately $118,497",
+    "value": "$118,497 in year one"
+   },
+   {
+    "topic": "units",
+    "quote": "Based on the Washington- Arlington-Alexandria-DC-VA-MD-WV Metro Area regional guidelines, this project includes 112 affordable housing units at 70% or less than AMI.",
+    "page": 4,
+    "wording": "includes 112 affordable housing units",
+    "value": "112 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Based on the Washington- Arlington-Alexandria-DC-VA-MD-WV Metro Area regional guidelines, this project includes 112 affordable housing units at 70% or less than AMI.",
+    "page": 4,
+    "wording": "at 70% or less than AMI",
+    "value": "70% or less than AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Factoring in the 2% estimated average annual increase in the property tax assessment, the total impact is estimated at $ 7,157,432, forgoing 71.34% of the tax revenue cumulatively over the 40-year period that the PILOT agreement remains in effect.",
+    "page": 5,
+    "wording": "estimated at $ 7,157,432",
+    "value": "$7,157,432"
+   },
+   {
+    "topic": "term",
+    "quote": "Factoring in the 2% estimated average annual increase in the property tax assessment, the total impact is estimated at $ 7,157,432, forgoing 71.34% of the tax revenue cumulatively over the 40-year period that the PILOT agreement remains in effect.",
+    "page": 5,
+    "wording": "over the 40-year period",
+    "value": "40 years"
+   }
+  ]
+ },
+ "tokens_in": 4843,
+ "tokens_out": 2012,
+ "cost_usd": 0.006483,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

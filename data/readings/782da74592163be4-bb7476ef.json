@@ -1,0 +1,37 @@
+{
+ "mode": "live",
+ "model": "gemini-flash-lite-latest",
+ "reading": {
+  "document_type": "minutes",
+  "title": "MINUTES Lantern Bay City Council",
+  "date": "2025-03-11",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "City Clerk",
+    "quote": "[signature on file]",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Members stated their understanding that 12 homes would be affordable.",
+    "page": 1,
+    "wording": "12 homes would be affordable",
+    "value": "12 homes"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Council voted 5 to 2 to support the tax request.",
+    "page": 1,
+    "wording": "support the tax request",
+    "value": "tax request supported"
+   }
+  ]
+ },
+ "tokens_in": 1325,
+ "tokens_out": 231,
+ "cost_usd": 0.000975,
+ "notice": "Read by gemini-flash-lite-latest. Every quote is checked against the page text."
+}

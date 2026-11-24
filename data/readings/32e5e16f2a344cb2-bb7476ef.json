@@ -1,0 +1,65 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "Letter regarding Flats at College Park Apartments PILOT Agreement",
+  "date": "2023-04-28",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Angela D. Alsobrooks",
+    "quote": "Angela D. Alsobrooks",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner is an entity formed by RST Development, LLC for the purpose of acquiring and constructing the Project, which will be three hundred seventeen (317) units of multi-family rental housing for low-income to moderate-income residents, known as Flats at College Park, on a 4.26 acre parcel located at 9113 Baltimore Avenue, College Park, Maryland 20740.",
+    "page": 1,
+    "wording": "will be three hundred seventeen (317) units of multi-family rental housing",
+    "value": "317 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner is an entity formed by RST Development, LLC for the purpose of acquiring and constructing the Project, which will be three hundred seventeen (317) units of multi-family rental housing for low-income to moderate-income residents, known as Flats at College Park, on a 4.26 acre parcel located at 9113 Baltimore Avenue, College Park, Maryland 20740.",
+    "page": 1,
+    "wording": "low-income to moderate-income residents",
+    "value": "low-income to moderate-income"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require the Owner to make a mandatory annual payment to the County in an amount of no less than approximately sixty six thousand, one hundred ninety-nine dollars ($66,199), or approximately two hundred eight dollars ($208.83) per unit, for the three hundred seventeen (317) affordable units for the first full tax year.",
+    "page": 1,
+    "wording": "PILOT will require the Owner to make a mandatory annual payment",
+    "value": "$66,199 annual payment"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%)",
+    "value": "2% annual increase"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for thirty (30) years.",
+    "page": 1,
+    "wording": "remain in effect for thirty (30) years",
+    "value": "30 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "When considering the financial effects of the PILOT, the County will be providing yearly operating support of approximately four hundred forty three thousand, eight hundred one dollars ($443,801) to this affordable housing development.",
+    "page": 2,
+    "wording": "County will be providing yearly operating support of approximately four hundred forty three thousand, eight hundred one dollars ($443,801)",
+    "value": "$443,801 yearly operating support"
+   }
+  ]
+ },
+ "tokens_in": 1877,
+ "tokens_out": 825,
+ "cost_usd": 0.002626,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

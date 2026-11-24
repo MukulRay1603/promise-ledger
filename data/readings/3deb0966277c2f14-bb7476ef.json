@@ -1,0 +1,73 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "CR-044-2023",
+  "date": "2023-06-13",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner is an entity formed by Banneker Ventures, LLC to acquire and construct the Project, which will be one hundred ninety-three (193) units of multi-family rental housing for low-income to moderate-income residents, known as Park Place at Addison Road, on a 3.70-acre parcel located at 6301 Central Avenue, 212 Zelma Avenue, and 109 Addison Road, Capitol Heights, Maryland 20743.",
+    "page": 1,
+    "wording": "will be one hundred ninety-three (193) units",
+    "value": "193 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner is an entity formed by Banneker Ventures, LLC to acquire and construct the Project, which will be one hundred ninety-three (193) units of multi-family rental housing for low-income to moderate-income residents, known as Park Place at Addison Road, on a 3.70-acre parcel located at 6301 Central Avenue, 212 Zelma Avenue, and 109 Addison Road, Capitol Heights, Maryland 20743.",
+    "page": 1,
+    "wording": "low-income to moderate-income residents",
+    "value": "low-income to moderate-income"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require the Owner to make a mandatory annual payment to the County in an amount of no less than approximately sixteen thousand, five hundred twenty-eight dollars ($16,528) or approximately eighty-five dollars ($85.64) per unit, for",
+    "page": 1,
+    "wording": "require the Owner to make a mandatory annual payment",
+    "value": "$16,528 annual payment"
+   },
+   {
+    "topic": "units",
+    "quote": "the one hundred ninety-three (193) affordable units, for the first full tax year.",
+    "page": 2,
+    "wording": "one hundred ninety-three (193) affordable units",
+    "value": "193 affordable units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The required payment will increase by two percent (2%) for each subsequent tax year.",
+    "page": 2,
+    "wording": "increase by two percent (2%)",
+    "value": "2% annual increase"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for forty (40) years.",
+    "page": 2,
+    "wording": "remain in effect for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "When considering the financial effects of the PILOT, the County will be providing yearly operating support of approximately one hundred fifty-four thousand four hundred dollars ($154,400) to this affordable housing development.",
+    "page": 2,
+    "wording": "County will be providing yearly operating support",
+    "value": "$154,400 yearly"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "However, should CR-044-2023 not be adopted, the Owner may charge rents unaffordable to tenants at 70% AMI.",
+    "page": 2,
+    "wording": "tenants at 70% AMI",
+    "value": "70% AMI"
+   }
+  ]
+ },
+ "tokens_in": 2231,
+ "tokens_out": 942,
+ "cost_usd": 0.003024,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

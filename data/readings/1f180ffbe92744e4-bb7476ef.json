@@ -1,0 +1,121 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Resolution No. CR-020-2024",
+  "date": "2024-04-30",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Jolene Ivey, Chair",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct one hundred seventy-five (175) units of new affordable multi-family rental housing for low-income to moderate-income families, known as The Cassidy, on a 13.14 acre parcel located at Karen Boulevard and Wilberforce Court, Capitol Heights, Maryland 20743, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "one hundred seventy-five (175) units",
+    "value": "175 units"
+   },
+   {
+    "topic": "term",
+    "quote": "and (a)(2)(iv)(2) enters into an agreement with the governing body of Prince George's County to allow the entire property or the portion of the property that was maintained for lower income persons to remain as housing for lower income persons for a term of at least 5 years; and",
+    "page": 2,
+    "wording": "term of at least 5 years",
+    "value": "at least 5 years"
+   },
+   {
+    "topic": "units",
+    "quote": "PROJECT DESCRIPTION: A one hundred seventy-five (175) unit rental apartment community will be constructed in three (3) elevator buildings with four (4) stories or less on a 13.14-acre site in Capitol Heights, Maryland.",
+    "page": 4,
+    "wording": "one hundred seventy-five (175) unit",
+    "value": "175 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "All units will be affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "restricted for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "AFFORDABILITY:   All units will be priced at levels affordable to households earning sixty percent (60%) or below of the Area Median Income (AMI) for forty (40) years.",
+    "page": 4,
+    "wording": "All units",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "AFFORDABILITY:   All units will be priced at levels affordable to households earning sixty percent (60%) or below of the Area Median Income (AMI) for forty (40) years.",
+    "page": 4,
+    "wording": "households earning sixty percent (60%) or below of the Area Median Income (AMI)",
+    "value": "60% AMI or below"
+   },
+   {
+    "topic": "term",
+    "quote": "AFFORDABILITY:   All units will be priced at levels affordable to households earning sixty percent (60%) or below of the Area Median Income (AMI) for forty (40) years.",
+    "page": 4,
+    "wording": "for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The unit mix will include three (3) HOME–ARP units for households earning thirty percent (30%) or below of the AMI.",
+    "page": 4,
+    "wording": "three (3) HOME–ARP units",
+    "value": "3 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The unit mix will include three (3) HOME–ARP units for households earning thirty percent (30%) or below of the AMI.",
+    "page": 4,
+    "wording": "households earning thirty percent (30%) or below of the AMI",
+    "value": "30% AMI or below"
+   },
+   {
+    "topic": "units",
+    "quote": "All one hundred seventy-five (175) units will accommodate households earning up to sixty percent (60%) of the Area Median Income (AMI) and will include three (3) HOME-ARP units for households earning thirty percent (30%) or below of the AMI.",
+    "page": 5,
+    "wording": "All one hundred seventy-five (175) units",
+    "value": "175 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All one hundred seventy-five (175) units will accommodate households earning up to sixty percent (60%) of the Area Median Income (AMI) and will include three (3) HOME-ARP units for households earning thirty percent (30%) or below of the AMI.",
+    "page": 5,
+    "wording": "earning up to sixty percent (60%) of the Area Median Income",
+    "value": "60% AMI and 30% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "...and will include three (3) HOME-ARP units for households earning thirty percent (30%) or below of the AMI.",
+    "page": 5,
+    "wording": "three (3) HOME-ARP units",
+    "value": "3 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "...and will include three (3) HOME-ARP units for households earning thirty percent (30%) or below of the AMI.",
+    "page": 5,
+    "wording": "earning thirty percent (30%) or below of the AMI",
+    "value": "30% or below of AMI"
+   }
+  ]
+ },
+ "tokens_in": 5350,
+ "tokens_out": 1575,
+ "cost_usd": 0.005543,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

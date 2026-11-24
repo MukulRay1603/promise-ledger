@@ -1,0 +1,31 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "CR-043-2023 A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (\"PILOT\") AGREEMENT FOR 210 ON THE PARK APARTMENTS",
+  "date": "2023-06-13",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (“PILOT”) AGREEMENT FOR 210 ON THE PARK APARTMENTS for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and 210 MPD Partners, LLC (the “Owner”).",
+    "page": 1,
+    "wording": "approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement",
+    "value": "PILOT Agreement for 210 on the Park Apartments"
+   },
+   {
+    "topic": "public_support",
+    "quote": "This Resolution is approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement between Prince George’s County, Maryland (the “County”) and 210 MPD Partners, LLC (the “Owner”) concerning the 210 on the Park project.",
+    "page": 2,
+    "wording": "approving the terms and conditions of a Payments in Lieu of Taxes (“PILOT”) Agreement",
+    "value": "PILOT Agreement for 210 on the Park project"
+   }
+  ]
+ },
+ "tokens_in": 1593,
+ "tokens_out": 391,
+ "cost_usd": 0.001455,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

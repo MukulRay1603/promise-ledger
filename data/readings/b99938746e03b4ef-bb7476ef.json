@@ -1,0 +1,45 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Project PILOT Analysis and Projection",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "term",
+    "quote": "Term of PILOT - years: 99 Period of affordability - years: 99",
+    "page": 1,
+    "wording": "99",
+    "value": "99 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Total # of Units: 193 # of Market Rate Units: 0",
+    "page": 1,
+    "wording": "Total # of Units: 193",
+    "value": "193 units"
+   },
+   {
+    "topic": "units",
+    "quote": "# of Affordable Units: 193",
+    "page": 1,
+    "wording": "Affordable Units: 193",
+    "value": "193 affordable units"
+   },
+   {
+    "topic": "units",
+    "quote": "193 of the units are affordable / 0 are market rate",
+    "page": 1,
+    "wording": "193 of the units are affordable",
+    "value": "193 affordable units"
+   }
+  ]
+ },
+ "tokens_in": 3988,
+ "tokens_out": 334,
+ "cost_usd": 0.002031,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

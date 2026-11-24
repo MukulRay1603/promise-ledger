@@ -1,0 +1,87 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "agreement",
+  "title": "PAYMENTS IN LIEU OF TAXES AGREEMENT",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The new construction of 102 units of affordable multifamily rental housing for families.",
+    "page": 1,
+    "wording": "102 units of affordable multifamily rental housing",
+    "value": "102 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Households earning 70% of less of AMI",
+    "page": 1,
+    "wording": "Households earning 70% of less of AMI",
+    "value": "70% or less of AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Total Number of Units: 102",
+    "page": 1,
+    "wording": "Total Number of Units",
+    "value": "102 units"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Affordable Units: 102",
+    "page": 1,
+    "wording": "Number of Affordable Units",
+    "value": "102 units"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Market Rate Units: 0",
+    "page": 1,
+    "wording": "Number of Market Rate Units",
+    "value": "0 units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "$66,300 per year or $650 per Affordable Unit per year.",
+    "page": 1,
+    "wording": "$66,300 per year or $650 per Affordable Unit per year",
+    "value": "$66,300 per year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The payment will escalate annually by an amount equal to the Annual Rate.",
+    "page": 1,
+    "wording": "escalate annually by an amount equal to the Annual Rate",
+    "value": "2% per year"
+   },
+   {
+    "topic": "term",
+    "quote": "Term (in years): 40 years",
+    "page": 1,
+    "wording": "40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Eligible Households mean the households as described in the Project Facts Section that are eligible to reside in the Project and whose initial annual income is sixty percent (60%) or less of the median income as set from time to time by the United States Department of Housing and Urban Development for Section 8 Programs in the Baltimore Metropolitan Statistical Area.",
+    "page": 4,
+    "wording": "initial annual income is sixty percent (60%) or less of the median income",
+    "value": "60% or less of AMI"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Owner agrees to maintain the Property as rental housing for lower income persons under the requirements a federal, State, or local government program and the Owner agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement.",
+    "page": 8,
+    "wording": "maintain the Property as rental housing for lower income persons",
+    "value": "lower income persons"
+   }
+  ]
+ },
+ "tokens_in": 8785,
+ "tokens_out": 949,
+ "cost_usd": 0.005008,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

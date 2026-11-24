@@ -1,0 +1,80 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "PILOT AGREEMENT FOR “NATIONAL VIEW” PROJECT FISCAL IMPACT STATEMENT",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "15 YEAR MULTI-PHASE TAX PILOT EQUAL TO THE SUM OF:",
+    "page": 3,
+    "wording": "TAX PILOT",
+    "value": "15 year multi-phase tax PILOT"
+   },
+   {
+    "topic": "public_support",
+    "quote": "• Baseline real property tax",
+    "page": 3,
+    "wording": "Baseline real property tax",
+    "value": "Baseline real property tax"
+   },
+   {
+    "topic": "public_support",
+    "quote": "• 25% of incremental real property tax*",
+    "page": 3,
+    "wording": "25% of incremental real property tax",
+    "value": "25% of incremental real property tax"
+   },
+   {
+    "topic": "public_support",
+    "quote": "• At the end of the PILOT term, property owner pays full real property tax",
+    "page": 3,
+    "wording": "property owner pays full real property tax",
+    "value": "Full real property tax after term"
+   },
+   {
+    "topic": "public_support",
+    "quote": "50% FEE WAIVERS OF:",
+    "page": 3,
+    "wording": "FEE WAIVERS",
+    "value": "50% fee waivers"
+   },
+   {
+    "topic": "public_support",
+    "quote": "• Public Safety Impact Fee",
+    "page": 3,
+    "wording": "Public Safety Impact Fee",
+    "value": "Public Safety Impact Fee waiver"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT incentive is projected to be worth $74M to the developer from 2029-2052",
+    "page": 3,
+    "wording": "worth $74M to the developer",
+    "value": "$74M from 2029-2052"
+   },
+   {
+    "topic": "remedies",
+    "quote": "PILOT Benefits will be lost upon default of any performance milestone",
+    "page": 3,
+    "wording": "PILOT Benefits will be lost",
+    "value": "Loss of benefits upon default"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT incentive is projected to be worth approximately $74 million to the developer between 2029 and 2052",
+    "page": 5,
+    "wording": "PILOT incentive is projected to be worth",
+    "value": "$74 million"
+   }
+  ]
+ },
+ "tokens_in": 6134,
+ "tokens_out": 814,
+ "cost_usd": 0.003875,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

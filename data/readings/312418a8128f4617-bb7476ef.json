@@ -1,0 +1,66 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "PRINCE GEORGE'S COUNTY COUNCIL COMMITTEE REPORT Reference No.: CR-073-2024",
+  "date": "2024-10-08",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 1,
+    "wording": "All units will be affordable",
+    "value": "50 units"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 1,
+    "wording": "restricted for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "This project guarantees housing reserved at fifty percent (50%) of AMI or Area Median Income to be included in the center of a much larger development.",
+    "page": 1,
+    "wording": "reserved at fifty percent (50%) of AMI",
+    "value": "50% of AMI"
+   },
+   {
+    "topic": "remedies",
+    "quote": "Claw-back provisions are included if necessary, upon termination, the Owner shall pay the County all payments then due under this Agreement, including but not limited to the Deferred Amount, within sixty (60) calendar days.",
+    "page": 1,
+    "wording": "Claw-back provisions are included",
+    "value": "repayment within 60 calendar days"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require a mandatory annual payment of no less than approximately two thousand, five hundred dollars, or fifty dollars per unit ($2,500 or $50 per unit) for the first year.",
+    "page": 1,
+    "wording": "PILOT",
+    "value": "$2,500 or $50 per unit for the first year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment for these affordable units will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%) for each subsequent tax year",
+    "value": "2% increase per year"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for forty (40) years, including the extended affordability period.",
+    "page": 1,
+    "wording": "remain in effect for forty (40) years",
+    "value": "40 years"
+   }
+  ]
+ },
+ "tokens_in": 1654,
+ "tokens_out": 693,
+ "cost_usd": 0.002229,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

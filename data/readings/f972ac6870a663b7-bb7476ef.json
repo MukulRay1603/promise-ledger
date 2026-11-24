@@ -1,0 +1,150 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "New Carrollton Affordable Housing Development Summary",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "• 112 Senior units reserved at 60% AMI",
+    "page": 1,
+    "wording": "reserved",
+    "value": "112 Senior units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "• 112 Senior units reserved at 60% AMI",
+    "page": 1,
+    "wording": "60% AMI",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "• 204 Family Units Reserved at 60% AMI",
+    "page": 1,
+    "wording": "Reserved",
+    "value": "204 Family Units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "• 204 Family Units Reserved at 60% AMI",
+    "page": 1,
+    "wording": "60% AMI",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "• 50 Family Units reserved at 35% AMI",
+    "page": 1,
+    "wording": "reserved",
+    "value": "50 Family Units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "• 50 Family Units reserved at 35% AMI",
+    "page": 1,
+    "wording": "35% AMI",
+    "value": "35% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "1 Bedroom- 70% 20 $1,872",
+    "page": 4,
+    "wording": "20",
+    "value": "20 units"
+   },
+   {
+    "topic": "units",
+    "quote": "1 Bedroom- 60% 67 $1,740",
+    "page": 4,
+    "wording": "67",
+    "value": "67 units"
+   },
+   {
+    "topic": "units",
+    "quote": "2 Bedrooms- 60% 5 $2,088",
+    "page": 4,
+    "wording": "5",
+    "value": "5 units"
+   },
+   {
+    "topic": "units",
+    "quote": "1 Bedrooms- 50% 20 $1,387",
+    "page": 4,
+    "wording": "20",
+    "value": "20 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "1 Bedroom- 70% 20 $1,872",
+    "page": 4,
+    "wording": "70%",
+    "value": "70% of Median Income"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "1 Bedroom- 60% 67 $1,740",
+    "page": 4,
+    "wording": "60%",
+    "value": "60% of Median Income"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "2 Bedrooms- 60% 5 $2,088",
+    "page": 4,
+    "wording": "60%",
+    "value": "60% of Median Income"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "1 Bedrooms- 50% 20 $1,387",
+    "page": 4,
+    "wording": "50%",
+    "value": "50% of Median Income"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "1 Bedroom- 70% 20 $1,872",
+    "page": 4,
+    "wording": "$1,872",
+    "value": "$1,872 contract rent"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "1 Bedroom- 60% 67 $1,740",
+    "page": 4,
+    "wording": "$1,740",
+    "value": "$1,740 contract rent"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "2 Bedrooms- 60% 5 $2,088",
+    "page": 4,
+    "wording": "$2,088",
+    "value": "$2,088 contract rent"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "1 Bedrooms- 50% 20 $1,387",
+    "page": 4,
+    "wording": "$1,387",
+    "value": "$1,387 contract rent"
+   },
+   {
+    "topic": "public_support",
+    "quote": "PILOT deferral of $1,085/Unit per year totaling $121,520 in Yr 1*",
+    "page": 5,
+    "wording": "PILOT deferral",
+    "value": "$1,085/Unit per year totaling $121,520 in Yr 1"
+   }
+  ]
+ },
+ "tokens_in": 2738,
+ "tokens_out": 1430,
+ "cost_usd": 0.004396,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

@@ -1,0 +1,58 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "Letter regarding The Cassidy project PILOT Agreement",
+  "date": "2024-03-07",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Angela D. Alsobrooks",
+    "quote": "Angela D. Alsobrooks",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner, KCG SSP Capitol Heights, LP, is an entity formed for the purpose of acquiring and constructing the Project, which will be a one hundred seventy-five (175) unit affordable rental housing community for families earning sixty percent (60%) or below of the Area Median Income (“AMI”), located at Karen Boulevard and Wilberforce Court, Capitol Heights, Maryland, 20743.",
+    "page": 1,
+    "wording": "one hundred seventy-five (175) unit",
+    "value": "175 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner, KCG SSP Capitol Heights, LP, is an entity formed for the purpose of acquiring and constructing the Project, which will be a one hundred seventy-five (175) unit affordable rental housing community for families earning sixty percent (60%) or below of the Area Median Income (“AMI”), located at Karen Boulevard and Wilberforce Court, Capitol Heights, Maryland, 20743.",
+    "page": 1,
+    "wording": "sixty percent (60%) or below of the Area Median Income",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require the Owner to make a mandatory annual payment to the County in an amount of no less than approximately one hundred two thousand, nine hundred thirty-one dollars or five hundred eighty-eight dollars per unit ($102,931 or $588 per unit) for the first year.",
+    "page": 1,
+    "wording": "annual payment",
+    "value": "$102,931 or $588 per unit for the first year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment for these affordable units will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%)",
+    "value": "2% increase per year"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for forty (40) years, including the extended affordability period.",
+    "page": 1,
+    "wording": "forty (40) years",
+    "value": "40 years"
+   }
+  ]
+ },
+ "tokens_in": 1797,
+ "tokens_out": 684,
+ "cost_usd": 0.002249,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

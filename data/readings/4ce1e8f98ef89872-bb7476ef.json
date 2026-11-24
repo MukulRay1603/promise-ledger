@@ -1,0 +1,37 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "Payment in Lieu of Taxes (PILOT) for the National View Project",
+  "date": "2024-10-22",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Angela D. Alsobrooks",
+    "quote": "Angela D. Alsobrooks",
+    "page": 1
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Specifically, the project will include 1545 residential units with a portion dedicated to senior mixed income, and sixty thousand square feet of commercial space.",
+    "page": 1,
+    "wording": "will include 1545 residential units with a portion dedicated to senior mixed income",
+    "value": "1545 residential units with a portion dedicated to senior mixed income"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Enclosed for the County Council’s consideration is a Resolution to that seeks the County Council’s approval of a negotiated Payment in Lieu of Taxes (PILOT) for the National View Project within Forest Heights.",
+    "page": 1,
+    "wording": "Payment in Lieu of Taxes (PILOT)",
+    "value": "Payment in Lieu of Taxes (PILOT)"
+   }
+  ]
+ },
+ "tokens_in": 1202,
+ "tokens_out": 323,
+ "cost_usd": 0.001168,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

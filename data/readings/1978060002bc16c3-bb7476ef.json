@@ -1,0 +1,72 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "Enclosure for the County Council's consideration is a Resolution for the purpose of approving the terms and conditions of a Payments in Lieu of Taxes (\"PILOT\") Agreement",
+  "date": "2026-03-19",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Aisha N. Braveboy",
+    "quote": "Aisha N. Braveboy",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner, Community Housing Initiative, Inc., will form an entity for the purpose of acquiring land and constructing a one hundred forty five ( 145) unit affordable rental housing community for families earning sixty percent ( 60%) or below of the Area Median Income (\"AMI\"), located at 6203 Ager Road, Hyattsville, Maryland 20782.",
+    "page": 1,
+    "wording": "one hundred forty five ( 145) unit",
+    "value": "145 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner, Community Housing Initiative, Inc., will form an entity for the purpose of acquiring land and constructing a one hundred forty five ( 145) unit affordable rental housing community for families earning sixty percent ( 60%) or below of the Area Median Income (\"AMI\"), located at 6203 Ager Road, Hyattsville, Maryland 20782.",
+    "page": 1,
+    "wording": "sixty percent ( 60%) or below of the Area Median Income",
+    "value": "60% or below of AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Additionally, the Herman Apartments project will be financed by the Prince George's County Housing Investment Trust Fund (\"HITF\") Program loan in the amount of two million, five hundred thousand dollars ($2,500,000).",
+    "page": 1,
+    "wording": "financed by the Prince George's County Housing Investment Trust Fund",
+    "value": "$2,500,000 loan"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require mandatory annual payments in an amount of no less than approximately one hundred thousand, four hundred thirty seven dollars or six hundred ninety three dollars per unit ($100,437 or $693 per unit) for the first year.",
+    "page": 1,
+    "wording": "PILOT will require mandatory annual payments",
+    "value": "$100,437 or $693 per unit for the first year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment for these affordable units will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%)",
+    "value": "2% increase per subsequent tax year"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for forty ( 40) years, which includes the extended affordability period.",
+    "page": 1,
+    "wording": "remain in effect for forty ( 40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "When considering the financial effects of the PILOT, the County will be providing yearly operating support of approximately eighty seven thousand dollars ($87,000) to this affordable family housing development.",
+    "page": 1,
+    "wording": "providing yearly operating support",
+    "value": "$87,000 yearly operating support"
+   }
+  ]
+ },
+ "tokens_in": 1732,
+ "tokens_out": 922,
+ "cost_usd": 0.002825,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

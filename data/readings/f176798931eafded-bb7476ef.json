@@ -1,0 +1,143 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "agreement",
+  "title": "PAYMENTS IN LIEU OF TAXES AGREEMENT",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "income_basis",
+    "quote": "Eligible Households: Households earning at or below 60% AMI",
+    "page": 1,
+    "wording": "Households earning at or below 60% AMI",
+    "value": "Households earning at or below 60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Total Number of Units: 137",
+    "page": 1,
+    "wording": "Total Number of Units",
+    "value": "137"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Affordable Units: 137",
+    "page": 1,
+    "wording": "Number of Affordable Units",
+    "value": "137"
+   },
+   {
+    "topic": "public_support",
+    "quote": "$176,830 per year or $1,291 per affordable unit per year.",
+    "page": 1,
+    "wording": "$176,830 per year or $1,291 per affordable unit per year",
+    "value": "$176,830 per year or $1,291 per affordable unit per year"
+   },
+   {
+    "topic": "term",
+    "quote": "Term (in years): 40 years",
+    "page": 1,
+    "wording": "40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "A. The Owner has or will acquire the Property located in Prince George’s County, Maryland for the purpose of constructing or rehabilitating the Project to provide housing to Eligible Households.",
+    "page": 2,
+    "wording": "provide housing to Eligible Households",
+    "value": "Eligible Households"
+   },
+   {
+    "topic": "units",
+    "quote": "“Affordable Units” mean those rental units in the Project that will be dedicated to the Eligible Households.",
+    "page": 3,
+    "wording": "rental units in the Project that will be dedicated to the Eligible Households",
+    "value": "all affordable units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "“Affordable Unit Annual Payment ” means the amount set forth in the Project Facts Section that represents the amount the Owner shall pay in lieu of taxes in accordance with this Agreement for the Affordable Units.",
+    "page": 3,
+    "wording": "amount the Owner shall pay in lieu of taxes",
+    "value": "Affordable Unit Annual Payment"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "“Eligible Households” mean the households as described in the Project Facts Section that are eligible to reside in the Project and whose initial annual income is sixty percent (60%) or less of the median income as set from time to time by the United States Department of Housing and Urban Development for Section 8 Programs in the Baltimore Metropolitan Statistical Area.",
+    "page": 4,
+    "wording": "initial annual income is sixty percent (60%) or less of the median income",
+    "value": "60% or less of median income"
+   },
+   {
+    "topic": "units",
+    "quote": "If the Project consist entirely of Affordable Units, then the Annual Payment shall consist of the Affordable Unit Annual Payment.",
+    "page": 6,
+    "wording": "If the Project consist entirely of Affordable Units",
+    "value": "entirely of Affordable Units"
+   },
+   {
+    "topic": "units",
+    "quote": "If the Project consist of both Affordable Units and Market Rate Units, the Annual Payment shall consist of the Affordable Unit Annual Payment plus the Market Rate Unit Annual Payment.",
+    "page": 6,
+    "wording": "consist of both Affordable Units and Market Rate Units",
+    "value": "Affordable Units and Market Rate Units"
+   },
+   {
+    "topic": "term",
+    "quote": "“Term” means that period of time equal to the number of full tax years set forth in the Project Facts Section which commences on the Substantial Completion Date and expiring on the last day of such period.",
+    "page": 5,
+    "wording": "“Term” means",
+    "value": "number of full tax years set forth in the Project Facts Section"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "“Owner” means the Owner identified in the Project Facts Section who is also the signatory of and party to this Agreement.",
+    "page": 5,
+    "wording": "“Owner” means",
+    "value": "Owner identified in the Project Facts Section"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Owner shall fail to deliver the annual financial statement required hereunder, which failure continues for thirty (30) days following Owner’s receipt from the County of notice of such payment failure;",
+    "page": 7,
+    "wording": "fail to deliver the annual financial statement",
+    "value": "annual financial statement"
+   },
+   {
+    "topic": "reporting",
+    "quote": "Owner shall submit to the County’s Director of Finance and the County’s Director of the Department of Housing and Community Development, within five (5) business days after execution by Owner, the following documents: entity agreements, including but not limited to , the Operating Agreement or Limited Partnership Agreement , the Affordability Covenants, and any other agreement or documents deemed necessary for submission to the County.",
+    "page": 8,
+    "wording": "Owner shall submit",
+    "value": "entity agreements and Affordability Covenants within five business days"
+   },
+   {
+    "topic": "remedies",
+    "quote": "If the Owner has not paid the amount due under this Agreement before March 30th following the due date, the County may, at its option, declare a default by providing notice of such default to the Owner and to the Persons listed on Exhibit B attached hereto.",
+    "page": 7,
+    "wording": "declare a default",
+    "value": "default declared if not paid before March 30th"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The payments to be made by the Owner to the County, provided for herein with respect to the Project, shall be in lieu of the payment of Prince George’s County taxes on real property under the Tax-Property Article of the Annotated Code of Maryland, as amended.",
+    "page": 5,
+    "wording": "in lieu of the payment of Prince George’s County taxes",
+    "value": "payments in lieu of taxes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Owner agrees to maintain the Property as rental housing for lower income persons under the requirements a federal, State, or local government program and the Owner agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement.",
+    "page": 8,
+    "wording": "rental housing for lower income persons",
+    "value": "lower income persons"
+   }
+  ]
+ },
+ "tokens_in": 8789,
+ "tokens_out": 1841,
+ "cost_usd": 0.007239,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

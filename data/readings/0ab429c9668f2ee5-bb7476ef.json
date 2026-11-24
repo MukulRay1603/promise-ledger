@@ -1,0 +1,52 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "CR-043-2023",
+  "date": "2023-06-13",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Of the one hundred fifty-eight (158) residential units, one hundred twenty-eight (128) units will be income -restricted, and thirty (30) units will be market-rate.",
+    "page": 1,
+    "wording": "one hundred twenty-eight (128) units will be income -restricted",
+    "value": "128 of 158 units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require the Owner to make a mandatory annual payment to the County in an amount of no less than approximately seven thousand, four hundred twenty-four dollars ($7,424) or approximately fifty-eight dollars ($58) per unit for the one hundred twenty eight (128) affordable units for the first full tax year.",
+    "page": 1,
+    "wording": "mandatory annual payment",
+    "value": "$7,424 annually"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%)",
+    "value": "2% annual increase"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for fifty (50) years.",
+    "page": 1,
+    "wording": "remain in effect for fifty (50) years",
+    "value": "50 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "However, should CR-043-2023 not be adopted the Owner may raise rents, making the units unaffordable to tenants at 80% or youth transitioning out of foster care at 40% AMI.",
+    "page": 2,
+    "wording": "tenants at 80% or youth transitioning out of foster care at 40% AMI",
+    "value": "40% and 80% AMI"
+   }
+  ]
+ },
+ "tokens_in": 2088,
+ "tokens_out": 580,
+ "cost_usd": 0.002076,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

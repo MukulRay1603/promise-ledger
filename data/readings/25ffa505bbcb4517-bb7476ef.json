@@ -1,0 +1,58 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Resolution No. CR-097-2024",
+  "date": "2024-11-19",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Jolene Ivey, Chair",
+    "page": 4
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "WHEREAS, Section 7-516 of the Tax-Property Article of the Annotated Code of Maryland, as amended (the Act), provides that the County may exempt or partially exempt an economic development project within the meaning of the Act from County real property taxes under certain conditions and permits the County to enter into multiple payment in lieu of taxes agreements for different phases of the economic development project;",
+    "page": 1,
+    "wording": "exempt or partially exempt",
+    "value": "exemption from County real property taxes"
+   },
+   {
+    "topic": "public_support",
+    "quote": "WHEREAS, the Developer has requested that the County Council of Prince George’s County, Maryland, (“County Council”) authorize the Developer to make payments in lieu of County real property taxes for different phases of the economic development project pursuant to the Act;",
+    "page": 1,
+    "wording": "payments in lieu of County real property taxes",
+    "value": "PILOT agreement"
+   },
+   {
+    "topic": "public_support",
+    "quote": "WHEREAS, the County plans to provide other certain economic development incentives to the Project to assist with the costs of design, permitting, and construction of certain infrastructure improvements;",
+    "page": 2,
+    "wording": "economic development incentives",
+    "value": "incentives for design, permitting, and construction"
+   },
+   {
+    "topic": "public_support",
+    "quote": "WHEREAS, in order to facilitate the development of the Property, it is in the best interest of the County to accept payments in lieu of County real property taxes, subject to the terms and conditions of a negotiated Master Payment in Lieu of Taxes Agreement (the “Master PILOT Agreement”) for the Project;",
+    "page": 2,
+    "wording": "accept payments in lieu of County real property taxes",
+    "value": "Master PILOT Agreement"
+   },
+   {
+    "topic": "public_support",
+    "quote": "NOW, THEREFORE, BE IT RESOLVED that in accordance with the Act, the County shall accept payment in lieu of County real property taxes for the Property subject to the agreement attached to this Resolution.",
+    "page": 3,
+    "wording": "accept payment in lieu of County real property taxes",
+    "value": "PILOT for the Property"
+   }
+  ]
+ },
+ "tokens_in": 3800,
+ "tokens_out": 711,
+ "cost_usd": 0.002917,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

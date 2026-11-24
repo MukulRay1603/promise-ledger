@@ -1,0 +1,115 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "FISCAL AND POLICY NOTE CR-117-2025 PILOT for the Flats at Glenridge Station Project",
+  "date": "2025-11-07",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "Revenue: $17,758,183 in tax revenue to be forgone over a 40- year period.",
+    "page": 1,
+    "wording": "tax revenue to be forgone",
+    "value": "$17,758,183 over 40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Description: A two hundred forty- five (245) unit affordable rental apartment community for families that will be constructed in Hyattsville, Maryland.",
+    "page": 2,
+    "wording": "A two hundred forty- five (245) unit affordable rental apartment community",
+    "value": "245 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable.",
+    "page": 2,
+    "wording": "All units will be affordable",
+    "value": "100% of units"
+   },
+   {
+    "topic": "term",
+    "quote": "Duration: 40 years.",
+    "page": 2,
+    "wording": "40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The Flats at Glenridge Station Project (the “Project”) is to be located at 7011 Chesapeake Road, Hyattsville, Maryland 20784 and is a 245- unit multi- family affordable housing development.",
+    "page": 3,
+    "wording": "245- unit multi- family affordable housing development",
+    "value": "245 units"
+   },
+   {
+    "topic": "term",
+    "quote": "Under the proposed agreement, for at least a 40 -year term, Dominion Inc. (the “Developer”) will construct two hundred and forty- five (245) units for low- to-moderate-income families, earning sixty percent (60%) and below of the Area Median Income (“AMI”) .",
+    "page": 3,
+    "wording": "for at least a 40 -year term",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Under the proposed agreement, for at least a 40 -year term, Dominion Inc. (the “Developer”) will construct two hundred and forty- five (245) units for low- to-moderate-income families, earning sixty percent (60%) and below of the Area Median Income (“AMI”) .",
+    "page": 3,
+    "wording": "construct two hundred and forty- five (245) units",
+    "value": "245 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Under the proposed agreement, for at least a 40 -year term, Dominion Inc. (the “Developer”) will construct two hundred and forty- five (245) units for low- to-moderate-income families, earning sixty percent (60%) and below of the Area Median Income (“AMI”) .",
+    "page": 3,
+    "wording": "earning sixty percent (60%) and below of the Area Median Income",
+    "value": "60% AMI and below"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Twenty-six (26) units will be set-aside for families earning no more than 50% AMI, with the remaining two hundred nineteen (219) units retained for families earning no more than 60% AMI.",
+    "page": 3,
+    "wording": "earning no more than 50% AMI",
+    "value": "26 units at 50% AMI"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Twenty-six (26) units will be set-aside for families earning no more than 50% AMI, with the remaining two hundred nineteen (219) units retained for families earning no more than 60% AMI.",
+    "page": 3,
+    "wording": "earning no more than 60% AMI",
+    "value": "219 units at 60% AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The terms of the PILOT agreement include 100% tax waivers of 245 units for the next 40 years, with a 2% annual escalation per unit over that period.",
+    "page": 4,
+    "wording": "PILOT agreement include 100% tax waivers",
+    "value": "245 units for 40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Based on the Washington-Arlington-Alexandria- DC-VA-MD-WV Metro Area regional guidelines, this project includes 245 affordable housing units at 60% or less AMI.",
+    "page": 4,
+    "wording": "includes 245 affordable housing units",
+    "value": "245 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Based on the Washington-Arlington-Alexandria- DC-VA-MD-WV Metro Area regional guidelines, this project includes 245 affordable housing units at 60% or less AMI.",
+    "page": 4,
+    "wording": "60% or less AMI",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "Factoring in the estimated 2% average annual increase in property tax assessments, the total impact is estimated at $17,758,183, resulting in a cumulative forgoing of 64.03% of the tax revenue over the 40-year period that the PILOT agreement remains in effect.",
+    "page": 5,
+    "wording": "40-year period",
+    "value": "40 years"
+   }
+  ]
+ },
+ "tokens_in": 4960,
+ "tokens_out": 1599,
+ "cost_usd": 0.005485,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

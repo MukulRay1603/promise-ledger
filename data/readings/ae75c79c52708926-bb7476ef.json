@@ -1,0 +1,16 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (\"PILOT\") AGREEMENT FOR THE HOLLY PLACE PROJECT",
+  "date": "2026-07-07",
+  "draft": true,
+  "signatures": [],
+  "candidates": []
+ },
+ "tokens_in": 1583,
+ "tokens_out": 82,
+ "cost_usd": 0.00068,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

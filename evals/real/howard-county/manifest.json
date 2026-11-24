@@ -1,0 +1,36 @@
+{
+  "notice": "A real, public record. The PDFs are not in this repository. Download each file from its url into one folder, keep the file names below, and pass that folder as --pdf-dir. The runner checks each SHA-256 before it reads a file.",
+  "deal": "Annapolis Junction (Howard County, Maryland)",
+  "slug": "howard-county",
+  "city": "",
+  "county": "Howard County, Maryland",
+  "homes": 623,
+  "owner": "Midway 32, LLC",
+  "as_of": "2026-05-14",
+  "documents": [
+    {
+      "file": "43929.pdf",
+      "id": "testimony",
+      "type": "Staff report",
+      "date": "",
+      "title": null,
+      "pages": 5,
+      "signed_by": [],
+      "url": "https://apps.howardcountymd.gov/olis/api/Documents/LegislationDocument/43929",
+      "sha256": "7b5573a4f66867876e8469aea70f2c1055a6aa5a47f8bec0c6f30229cfe9b6b3",
+      "what": "Testimony on the PILOT resolution, with the fiscal memo to the Housing and Community Development Board. Howard County Department of Housing and Community Development, March 21, 2026."
+    },
+    {
+      "file": "45240.pdf",
+      "id": "resolution",
+      "type": "Resolution",
+      "date": "",
+      "title": null,
+      "pages": 21,
+      "signed_by": [],
+      "url": "https://apps.howardcountymd.gov/olis/api/Documents/LegislationDocument/45240",
+      "sha256": "97fa505d700bd10391131c272ce13c20bd5b5d378760cd949821d92bf070feb1",
+      "what": "Council Resolution 51-2026 as enacted, with the PILOT agreement attached as Exhibit 1. A scan with an OCR text layer. The agreement's signature blocks are blank."
+    }
+  ]
+}

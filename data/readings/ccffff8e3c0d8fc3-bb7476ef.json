@@ -1,0 +1,87 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "Presentation to Prince George's County Council Park Place at Addison Road Metro",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Park Place at Addison Road Metro, located at 6301 Central Avenue in Capitol Heights, and directly adjacent to the Addison Road Metro Station along the Blue Line Corridor, will include 193 units of Class A affordable housing and 11,000 sq. ft. of retail space, anchored by a community serving bank (Bank of America).",
+    "page": 3,
+    "wording": "will include",
+    "value": "193 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Park Place at Addison Road Metro, located at 6301 Central Avenue in Capitol Heights, and directly adjacent to the Addison Road Metro Station along the Blue Line Corridor, will include 193 units of Class A affordable housing and 11,000 sq. ft. of retail space, anchored by a community serving bank (Bank of America).",
+    "page": 3,
+    "wording": "affordable housing",
+    "value": "Class A affordable housing"
+   },
+   {
+    "topic": "units",
+    "quote": "Studios 5 600 $1,066 N/A $1,400",
+    "page": 5,
+    "wording": "5",
+    "value": "5 studios"
+   },
+   {
+    "topic": "units",
+    "quote": "1 Bedrooms 128 700 $1,142 $1,427 $1,650",
+    "page": 5,
+    "wording": "128",
+    "value": "128 1-bedroom units"
+   },
+   {
+    "topic": "units",
+    "quote": "2 Bedrooms 52 950 $1,370 $1,712 $1,900",
+    "page": 5,
+    "wording": "52",
+    "value": "52 2-bedroom units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "*Subject to change, but will not exceed 70% AMI.",
+    "page": 5,
+    "wording": "not exceed 70% AMI",
+    "value": "70% AMI max"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Amazon Housing Equity Fund Loan $20,000,000 23.3%",
+    "page": 6,
+    "wording": "Amazon Housing Equity Fund Loan",
+    "value": "$20,000,000 Amazon Housing Equity Fund Loan"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Prince George’s County DHCD HITF Loan $3,500,000 4.1%",
+    "page": 6,
+    "wording": "Prince George’s County DHCD HITF Loan",
+    "value": "$3,500,000 Prince George’s County DHCD HITF Loan"
+   },
+   {
+    "topic": "public_support",
+    "quote": "State of Maryland DHCD RHW Loan $3,500,000 4.1%",
+    "page": 6,
+    "wording": "State of Maryland DHCD RHW Loan",
+    "value": "$3,500,000 State of Maryland DHCD RHW Loan"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Low Income Housing Tax Credit Equity $25,183,366 29.4%",
+    "page": 6,
+    "wording": "Low Income Housing Tax Credit Equity",
+    "value": "$25,183,366 Low Income Housing Tax Credit Equity"
+   }
+  ]
+ },
+ "tokens_in": 2697,
+ "tokens_out": 1040,
+ "cost_usd": 0.003409,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

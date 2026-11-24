@@ -1,0 +1,66 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "Flats at College Park",
+  "date": "2023-06-01",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "317 Affordable Units",
+    "page": 5,
+    "wording": "317 Affordable Units",
+    "value": "317 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Affordability: 50% - 80% AMI (averaging 60% AMI)",
+    "page": 5,
+    "wording": "Affordability: 50% - 80% AMI",
+    "value": "50% - 80% AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "Average Rent: $1,733",
+    "page": 5,
+    "wording": "Average Rent",
+    "value": "$1,733"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Annual Rental Rate: $1.00",
+    "page": 5,
+    "wording": "Annual Rental Rate",
+    "value": "$1.00"
+   },
+   {
+    "topic": "term",
+    "quote": "Lease Term: 10 Years",
+    "page": 5,
+    "wording": "Lease Term",
+    "value": "10 Years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "(Value of PILOT toward Financing: $5,637,473)",
+    "page": 7,
+    "wording": "Value of PILOT",
+    "value": "$5,637,473"
+   },
+   {
+    "topic": "units",
+    "quote": "Total Units: 317 1,121 100% $1,733",
+    "page": 9,
+    "wording": "Total Units",
+    "value": "317 units"
+   }
+  ]
+ },
+ "tokens_in": 4069,
+ "tokens_out": 648,
+ "cost_usd": 0.002841,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

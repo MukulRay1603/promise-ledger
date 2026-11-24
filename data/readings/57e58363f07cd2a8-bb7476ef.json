@@ -1,0 +1,107 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Resolution No. CR-030-2025 Payments in Lieu of Taxes (“PILOT”) Agreement for the New Carrollton – Affordable – Phase 2 Project",
+  "date": "2025-04-29",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Jolene Ivey, Chair",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct one hundred two (102) units of new affordable multi-family rental housing for low-income to moderate-income families, earning seventy percent (70%) or below of the Area Median Income (“AMI”), known as New Carrollton – Affordable – Phase 2, located at 4051 Garden City Drive, Hyattsville, Maryland 20785, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "one hundred two (102) units",
+    "value": "102 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct one hundred two (102) units of new affordable multi-family rental housing for low-income to moderate-income families, earning seventy percent (70%) or below of the Area Median Income (“AMI”), known as New Carrollton – Affordable – Phase 2, located at 4051 Garden City Drive, Hyattsville, Maryland 20785, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "seventy percent (70%) or below of the Area Median Income (“AMI”)",
+    "value": "70% or below of AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "PROJECT DESCRIPTION: A one hundred two (102) unit affordable rental apartment community for families that will be constructed in New Carrollton, Maryland. All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "one hundred two (102) unit",
+    "value": "102 units"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "PROJECT DESCRIPTION: A one hundred two (102) unit affordable rental apartment community for families that will be constructed in New Carrollton, Maryland. All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "rents will be restricted for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "term",
+    "quote": "PROJECT DESCRIPTION: A one hundred two (102) unit affordable rental apartment community for families that will be constructed in New Carrollton, Maryland. All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "restricted for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning seventy percent (70%) or less of the Area Median Income (AMI) for forty (40) years",
+    "page": 4,
+    "wording": "All units",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning seventy percent (70%) or less of the Area Median Income (AMI) for forty (40) years",
+    "page": 4,
+    "wording": "seventy percent (70%) or less of the Area Median Income (AMI)",
+    "value": "70% or less of AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning seventy percent (70%) or less of the Area Median Income (AMI) for forty (40) years",
+    "page": 4,
+    "wording": "for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The New Carrollton – Affordable – Phase 2 project (the “Project”) is a proposed one hundred two (102) unit transit-oriented affordable housing development for families, to be located at 4051 Garden City Drive, Hyattsville, Maryland 20785, and developed by Urban Atlantic Development LLC.",
+    "page": 5,
+    "wording": "proposed",
+    "value": "102 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The target population will be families with household incomes at or below seventy percent (70%) of the Area Median Income (“AMI”).",
+    "page": 5,
+    "wording": "at or below",
+    "value": "70% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "The Project will consist of seventy two (72) one (1) bedroom units, fifteen (15) two (2) bedroom units, and fifteen (15) three (3) bedroom units within one (1) elevator building of four (4) or less stories.",
+    "page": 5,
+    "wording": "will consist of",
+    "value": "72 one-bedroom, 15 two-bedroom, and 15 three-bedroom units"
+   },
+   {
+    "topic": "units",
+    "quote": "By including high -quality affordable housing early in the master development of New Carrollton Metro Center, this project guarantees housing reserved at seventy percent (70%) of the AMI to be included in the center of a much larger development.",
+    "page": 5,
+    "wording": "guarantees",
+    "value": "102 units"
+   }
+  ]
+ },
+ "tokens_in": 4820,
+ "tokens_out": 1567,
+ "cost_usd": 0.005364,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

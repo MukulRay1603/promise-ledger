@@ -6,18 +6,22 @@ import csv
 import io
 import hashlib
 import json
+import os
 import re
 import secrets
 import uuid
 from concurrent.futures import ThreadPoolExecutor
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from app import guard, ledger, pipeline
+from app import guard, ledger, pipeline, vision
 from app.storage import Storage, get_store
 
 ROOT = Path(__file__).resolve().parent.parent
 SAMPLES_DIR = ROOT / "data" / "samples"
+# Real public records (tools/county_import.py). Each manifest entry keeps the official URL and SHA-256; PDFs that
+# are not committed are downloaded and checked when the deal is seeded.
+COUNTY_DIR = ROOT / "data" / "county"
 STATUSES = ("queued", "reading", "checking", "done", "failed")
 DEMO_DEAL_ID = "harbor-walk-demo"
 
@@ -93,7 +97,7 @@ def touch(deal_id: str, store: Storage) -> None:
 
 
 PUBLIC_DOC_FIELDS = ("id", "filename", "type", "type_key", "date", "date_note", "title", "pages", "status", "error",
-                     "scanned_pages", "stage", "stage_reason", "signed", "signed_by", "counts", "model",
+                     "scanned_pages", "transcribed_pages", "stage", "stage_reason", "signed", "signed_by", "counts", "model",
                      "from_cache", "tokens_in", "tokens_out", "cost_usd", "created_at", "updated_at")
 
 
@@ -144,8 +148,224 @@ def list_deals(store: Storage | None = None, session: str | None = None) -> list
             "next_reminder": {"date": nxt["date"], "due": nxt["date"], "days": nxt["days"], "text": nxt["text"],
                               "kind": nxt["kind"], "claim_id": nxt["claim_id"]} if nxt else None,
             "updated_at": deal.get("updated_at"),
+            "real": bool(deal.get("real")),
         })
     return sorted(rows, key=lambda r: r["updated_at"] or "", reverse=True)
+
+
+# Terms a monitoring office needs on file for every deal (Lincoln Institute 2015 practitioner list; DC Auditor 2024).
+OBLIGATION_TERMS = ("reporting", "remedies", "rent_limits", "income_basis", "term")
+_TEMPLATE = re.compile(r"\(insert\b|\[insert\b|(?-i:\bOR \[)|\[(?:name|date|number|amount)\b|_{5,}", re.I)
+_STATUTE = re.compile(r"governing body of|\(a\)\(\d\)|§|Tax[- ]Property Article|Section 7-50\d", re.I)
+_YEAR_TERM = re.compile(r"\b(\d{1,2})[- ]year (?:term|affordability|compliance|restriction)", re.I)
+
+
+# A record that corrects another states the corrected term after "but": "is listed as being for 99 years in
+# Attachment B ..., but the Agreement's affordability period is for 40 years as confirmed by DHCD staff."
+_CORRECTED_YEARS = re.compile(r"\bbut\b[^.;]*?\b(\d{1,2})\)?[- ]years?\b", re.I)
+
+
+def _term_years(c: dict) -> int | None:
+    fixed = _CORRECTED_YEARS.search(c["quote"])
+    if fixed:
+        return int(fixed.group(1))
+    m = _YEAR_TERM.search(c["quote"])
+    if m:
+        return int(m.group(1))
+    return (_years(c["value"]) or _years(c["quote"])) if c["topic"] == "term" else None
+
+
+# "60% of AMI", "seventy percent (70%) or below of the Area Median Income", "70% or less than AMI".
+_AMI = re.compile(r"(\d{2,3})\s*(?:%|percent)\)?\s+(?:or (?:less|below)\s+)?(?:(?:of|than)\s+)?(?:the\s+)?(?:area\s+)?"
+                  r"(?:median|AMI\b)", re.I)
+# A count the record gives only as a floor or an estimate: "over 100 affordable units".
+_DESCRIPTIVE_AMI = re.compile(r"\b(average|median of residents|around|currently earn)\b[^.]{0,60}$", re.I)
+
+
+def _ami_limits(quote: str) -> set[int]:
+    """Shares of median income a quote states as a limit. "An average income of around 23% of AMI" describes
+    today's residents, not a limit, and is left out."""
+    return {int(m.group(1)) for m in _AMI.finditer(quote)
+            if 10 <= int(m.group(1)) <= 150 and not _DESCRIPTIVE_AMI.search(quote[max(0, m.start() - 70):m.start()])}
+
+
+_APPROX_COUNT = re.compile(r"\b(?:over|more than|at least|approximately|about|nearly|roughly|up to)\s+$", re.I)
+
+
+# A count is taken as affordable homes only when the number sits right next to words that say so. In real county
+# records one sentence often holds several counts ("Of the 158 units, 128 will be income-restricted, and 30 units
+# will be market-rate"; "16 units will be designated for residents with mobility impairments"), so a looser reading
+# picks the wrong one. Numbers may be written "thirty six (36)"; the digits are used.
+# Most specific first: a count of the restricted homes out of a stated total ("57 of the 94 units", "restrict rents
+# for fifty seven (57) of the units", "affordable housing for fifty seven (57) low-income households").
+_RESTRICTED_COUNT = [
+    re.compile(r"(\d[\d,]*)\)?\s+of\s+the\s+(?:[\w-]+\s+){0,3}?\(?\d[\d,]*\)?\s+(?:[\w-]+\s+)?units?\b", re.I),
+    re.compile(r"affordable housing for\s+(?:[\w-]+\s+){0,3}?\(?(\d[\d,]*)\)?\s+(?:low|moderate|income|households|units|famil)", re.I),
+    re.compile(r"restrict\s+(?:rents?|rent levels)\s+for\s+(?:[\w-]+\s+){0,3}?\(?(\d[\d,]*)\)?\s+(?:of|units|homes)", re.I),
+    re.compile(r"(\d[\d,]*)\)?\s+(?:units?|homes?|apartments?)\s+(?:will|shall|are|to)\s+(?:be\s+)?"
+               r"(?:income[- ]restricted|set[- ]aside|rent[- ]restricted|reserved for (?:families|households))\b", re.I),
+]
+_AFFORDABLE_COUNT = [
+    re.compile(r"(\d[\d,]*)\)?\s+(?:new\s+)?(?:affordable|income[- ]restricted|rent[- ]restricted)\b", re.I),
+    re.compile(r"(\d[\d,]*)\)?[- ]unit\s+(?:affordable|income[- ]restricted)", re.I),
+    re.compile(r"(\d[\d,]*)\)?\s+(?:units?|homes?|apartments?)\s+(?:will|shall|are|to)\s+(?:be\s+)?"
+               r"(?:income[- ]restricted|affordable|set[- ]aside|rent[- ]restricted)\b", re.I),
+    re.compile(r"(\d[\d,]*)\)?\s+(?:units?|homes?)\s+(?:at|for households (?:earning|at))\s+(?:or below\s+)?\d{2}\s*(?:%|percent)", re.I),
+]
+
+
+_ACCESSIBLE = re.compile(r"mobility|sensory|hearing|visual|vision|disabilit|impair|accessib|wheelchair", re.I)
+
+
+def affordable_homes(claims: list[dict]) -> tuple[int | None, str | None]:
+    """The count of affordable homes the records state outright, and that claim's id.
+
+    The largest count that council records state as restricted or affordable ("57 of the 94 units", "a 245-unit
+    affordable community"). Counts of accessible units ("9 units will be set aside for residents with mobility
+    impairments") are not affordability counts and are skipped. A developer's slide is used only when no council
+    record states a count: slides also list the developer's other projects.
+    """
+    def best_in(keep) -> tuple[int, str] | None:
+        best = None
+        for c in claims:
+            if c["topic"] not in ("units", "income_basis") or not keep(c):
+                continue
+            for pattern in (*_RESTRICTED_COUNT, *_AFFORDABLE_COUNT):
+                for m in pattern.finditer(c["quote"]):
+                    if _ACCESSIBLE.search(c["quote"][m.end():m.end() + 90]):
+                        continue
+                    n = int(m.group(1).replace(",", ""))
+                    if 0 < n < 5000 and (best is None or n > best[0]):
+                        best = (n, c["id"])
+        return best
+
+    slide = lambda c: "presentation" in (c.get("document_type") or "").lower()  # noqa: E731
+    return best_in(lambda c: not slide(c)) or best_in(slide) or (None, None)
+
+
+def _homes(claims: list[dict]) -> tuple[int | None, int | None]:
+    """Affordable homes and total homes from the furthest-stage claim that states a count."""
+    order = {s: i for i, s in enumerate(ledger.STATUSES)}
+    counted = [c for c in claims if c["topic"] == "units" and (c.get("homes") or {}).get("count")]
+    if not counted:
+        return None, None
+    best = max(counted, key=lambda c: (order.get(c.get("status"), 0), c.get("date") or ""))
+    total = max((c["homes"].get("of") or 0 for c in counted), default=0) or None
+    return best["homes"]["count"], total
+
+
+def _county_json(name: str):
+    """A small JSON file shipped with the county records (locations, outline), or None when it is missing."""
+    path = COUNTY_DIR / name
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def county_board(store: Storage | None = None, today: date | None = None) -> dict:
+    """Every real county deal in one table, plus county-wide totals.
+
+    Each number comes from checked quotes in that deal's records ("not found" means no wording was found in the
+    records read, not that the agreement lacks it). Nothing here is a finding about any party.
+    """
+    store = store or get_store()
+    today = today or date.today()
+    rows = []
+    # Each location is the property address as a record states it (record and page kept), geocoded once.
+    places = _county_json("locations.json") or {}
+    for deal in store.list_deals():
+        if not deal.get("real"):
+            continue
+        docs = store.list_documents(deal["id"])
+        done = [d for d in docs if d.get("status") == "done"]
+        claims = [c for d in done for c in d.get("claims") or []]
+        review = build_deal_review(deal, docs)
+        located = {t["key"]: bool(t.get("located")) for t in review["terms"]}
+        _, total = _homes(claims)
+        homes, homes_claim = affordable_homes(claims)
+        end = term_end(claims, done)
+        source = deal.get("source") or {}
+        # Council files hold the approved agreement, rarely the executed copy, so a signed end date is often missing.
+        # Then the approved term is counted from the Council's adoption date and marked as an estimate: the signed
+        # agreement may start later (for example at occupancy), never earlier.
+        estimate = None
+        if not (end and end.get("date")) and source.get("passed"):
+            # Leave out template options ("OR [Owner agrees ... for a term of at least ...]") and quoted state law
+            # ("enters into an agreement with the governing body of the county ..."): they state minimums, not
+            # this deal's term. "for the 30-year term" counts wherever it is filed.
+            spans = [c for c in claims if (c["topic"] == "term" or _YEAR_TERM.search(c["quote"]))
+                     and not _TEMPLATE.search(c["quote"]) and not _STATUTE.search(c["quote"])
+                     and (_term_years(c))]
+            if spans:
+                # The longest term the records state (in PILOT records usually the PILOT term), not a judgement of
+                # which clause governs: the board links the quote so a person can check it.
+                pick = max(spans, key=lambda c: (_term_years(c) or 0, c.get("date") or ""))
+                years = _term_years(pick)
+                estimate = {"date": _add_years(date.fromisoformat(source["passed"]), years).isoformat(), "years": years,
+                            "claim_id": pick["id"]}
+        # Agreements often set several income tiers; list every share of median income the checked quotes state.
+        tiers = sorted({t for c in claims if c["topic"] == "income_basis" for t in _ami_limits(c["quote"])})
+        homes_quote = next((c["quote"] for c in claims if c["id"] == homes_claim), "") if homes else ""
+        if not tiers and homes_quote:
+            # The sentence that states the home count often states who the homes are for, too ("112 units ... for
+            # seniors earning seventy percent (70%) or below of the Area Median Income"). Only that sentence is used:
+            # other unit quotes (developer slides) can list a different phase's tiers.
+            tiers = sorted(_ami_limits(homes_quote))
+        at = re.search(rf"\b{homes:,}\b|\b{homes}\b", homes_quote) if homes else None
+        homes_approx = bool(at and _APPROX_COUNT.search(homes_quote[max(0, at.start() - 20):at.start()]))
+        income = ", ".join(f"{t}%" for t in tiers) + " of area median income" if tiers else None
+        rows.append({
+            "id": deal["id"], "name": deal["name"], "file": source.get("file"), "council_status": source.get("status"),
+            "introduced": source.get("introduced"), "passed": source.get("passed"), "source_url": source.get("url"),
+            "votes": source.get("votes") or [], "retrieved": source.get("retrieved"),
+            "records": len(docs), "records_read": len(done), "claims": len(claims),
+            "pages": sum(int(d.get("pages") or d.get("page_count") or 0) for d in done),
+            "cost_usd": round(sum(float(d.get("cost_usd") or 0) for d in done), 4),
+            "location": ({k: places[deal["id"]].get(k) for k in ("address", "city", "lat", "lon", "approx", "geocoder")}
+                         | {"record": places[deal["id"]]["source"].get("record"), "page": places[deal["id"]]["source"].get("page")})
+            if deal["id"] in places else None,
+            "homes": homes, "homes_approx": homes_approx, "homes_claim_id": homes_claim, "total_homes": total,
+            "income_limit": income,
+            "term_end": end["date"].isoformat() if end and end.get("date") else (estimate or {}).get("date"),
+            "term_end_estimated": bool(estimate),
+            "term_years": (end.get("years") if end and end.get("date") else None) or (estimate or {}).get("years"),
+            "term_claim_id": end["claim"]["id"] if end and end.get("date") else (estimate or {}).get("claim_id"),
+            "furthest_stage": review["summary"]["furthest_status"],
+            "found": {k: located.get(k, False) for k in OBLIGATION_TERMS},
+            "not_found": [k for k in OBLIGATION_TERMS if not located.get(k, False)],
+            "terms_differ": review["summary"]["terms_differ"],
+            # Approved text that still holds template blanks or alternatives, e.g. "(insert specific dates upon
+            # approval)" or "OR [Owner agrees ...]". Quoted so a person can see exactly what was left unfilled.
+            "template_text": [{"claim_id": c["id"], "quote": c["quote"][:160], "document": c.get("document_type"),
+                               "page": c.get("page")}
+                              for c in claims if _TEMPLATE.search(c["quote"])][:5],
+        })
+    rows.sort(key=lambda r: r["passed"] or r["introduced"] or "", reverse=True)
+    read = [r for r in rows if r["records_read"]]
+    ends = [r for r in read if r["term_end"]]
+    return {
+        "county": "Prince George's County, Maryland",
+        # When the records were last fetched from the Council's system and checked against their hashes.
+        "retrieved": max((r.get("retrieved") or "" for r in rows), default="") or None,
+        "source": "Prince George's County Council records (Legistar)",
+        "as_of": today.isoformat(),
+        "deals": rows,
+        "map": _county_json("boundary.json"),
+        "totals": {
+            "pages": sum(r["pages"] for r in rows), "located": sum(1 for r in rows if r["location"]),
+            "cost_usd": round(sum(r["cost_usd"] for r in rows), 2),
+            "deals": len(rows), "deals_read": len(read),
+            "records": sum(r["records"] for r in rows), "records_read": sum(r["records_read"] for r in rows),
+            "homes": sum(r["homes"] or 0 for r in read), "deals_with_homes": sum(1 for r in read if r["homes"]),
+            "total_homes": sum(r["total_homes"] or 0 for r in read if r["homes"]),
+            "found": {k: sum(1 for r in read if r["found"][k]) for k in OBLIGATION_TERMS},
+            "term_ends_known": len(ends),
+            "ending_by_2040": sum(1 for r in ends if r["term_end"] < "2041-01-01"),
+            "terms_differ": sum(1 for r in read if r["terms_differ"]),
+            "template_text": sum(1 for r in read if r["template_text"]),
+        },
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -209,7 +429,7 @@ def page_texts(deal_id: str, doc_id: str, store: Storage) -> list[str]:
 
 
 def process_document(deal_id: str, doc_id: str, store: Storage | None = None, reader=None,
-                     use_cache: bool = True) -> dict | None:
+                     use_cache: bool = True, transcriber=None, cached_only: bool = False) -> dict | None:
     """Read, check and save one document. Never raises; failures are recorded on the document."""
     store = store or get_store()
     doc = store.get_document(deal_id, doc_id)
@@ -217,6 +437,13 @@ def process_document(deal_id: str, doc_id: str, store: Storage | None = None, re
         return None
     try:
         pages = page_texts(deal_id, doc_id, store)
+        # Scanned pages are transcribed first (app/vision.py); the text takes the page's place from here on.
+        filled, scan = vision.fill_scanned(doc, pages, lambda: store.get_blob(doc["file_key"]), call=transcriber,
+                                           use_cache=use_cache, cached_only=cached_only)
+        if filled != pages:
+            pages = filled
+            store.put_blob(f"deals/{deal_id}/{doc_id}.pages.json", json.dumps(pages, ensure_ascii=False).encode(),
+                           "application/json")
         if not any(len(p.strip()) >= pipeline.MIN_PAGE_CHARS for p in pages):
             return _set(store, deal_id, doc, status="failed",
                         error="No text layer was found. The pages look scanned; run OCR and upload again.")
@@ -225,7 +452,8 @@ def process_document(deal_id: str, doc_id: str, store: Storage | None = None, re
         if result.mode != "live" or result.reading is None:
             return _set(store, deal_id, doc, status="failed", error=result.notice)
         _set(store, deal_id, doc, status="checking", model=result.model, from_cache=from_cache,
-             tokens_in=result.tokens_in, tokens_out=result.tokens_out, cost_usd=result.cost_usd)
+             tokens_in=result.tokens_in + scan.tokens_in, tokens_out=result.tokens_out + scan.tokens_out,
+             cost_usd=round(result.cost_usd + scan.cost_usd, 6))
         deal = store.get_deal(deal_id) or {}
         known = [deal.get("developer") or "", f"City of {deal.get('city')}" if deal.get("city") else ""]
         checked = pipeline.verify_reading(result.reading, pages, doc, known)
@@ -395,12 +623,7 @@ def build_deal_review(deal: dict, docs: list[dict], store: Storage | None = None
     for d in docs:
         # A failed document already has its own question; a scanned one that was read gets one (L13).
         if d.get("scanned_pages") and d.get("status") != "failed":
-            pages_list = d["scanned_pages"]
-            which = (f"page {pages_list[0]} has" if len(pages_list) == 1
-                     else f"pages {', '.join(map(str, pages_list[:-1]))} and {pages_list[-1]} have")
-            questions.append({"key": f"scanned-{d['id']}", "tag": "not_located",
-                              "text": f"{d.get('title') or d.get('filename')}: {which} no text layer and "
-                                      f"{'was' if len(pages_list) == 1 else 'were'} not read. Ask for a text copy or run OCR."})
+            questions.extend(vision.scan_questions(d))
         if d.get("status") == "failed":
             questions.append({"key": f"failed-{d['id']}", "tag": "not_located",
                               "text": f"{d.get('filename')}: not read. {d.get('error') or ''}".strip()})
@@ -435,6 +658,13 @@ def build_deal_review(deal: dict, docs: list[dict], store: Storage | None = None
         "open_questions": questions,
         "what_changed": what_changed,
         "next_records": next_records(claims, terms, done),
+        # Quotes found on their page that the term rules did not confirm. Optional to check; never counted.
+        "possible": [{"key": f"possible-{d['id']}-{i}", "topic": item["topic"],
+                      "label": ledger.TOPICS.get(item["topic"], item["topic"]), "quote": item["quote"],
+                      "page": item["page"], "document": d["id"],
+                      "document_title": d.get("title") or d.get("filename"), "document_type": d.get("type") or "Record",
+                      "date": d.get("date") or ""}
+                     for d in done for i, item in enumerate(d.get("set_aside") or [], 1)],
         "kpis": {
             "documents": len(docs),
             "documents_done": len(done),
@@ -792,6 +1022,86 @@ def all_reminders(store: Storage | None = None, today: date | None = None, sessi
     return _sort_reminders(rows)
 
 
+# Years before an affordability term ends when staff get a heads-up: the window to negotiate an extension,
+# a right of first refusal or a new regulatory agreement before the homes can leave the affordable stock.
+TERM_WARNING_YEARS = (5, 3, 1)
+
+
+def _ics_text(value: str) -> str:
+    """RFC 5545 TEXT escaping."""
+    return value.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\r", "").replace("\n", "\\n")
+
+
+def _ics_fold(line: str) -> str:
+    """Fold a content line at 75 octets (RFC 5545 3.1)."""
+    raw, out = line.encode("utf-8"), []
+    while len(raw) > 75:
+        cut = 75
+        while cut and (raw[cut] & 0xC0) == 0x80:  # Never split a UTF-8 character.
+            cut -= 1
+        out.append(raw[:cut].decode("utf-8"))
+        raw = b" " + raw[cut:]
+    out.append(raw.decode("utf-8"))
+    return "\r\n".join(out)
+
+
+def county_reminders(board: dict) -> list[dict]:
+    """Each county agreement's longest stated term as a calendar reminder, worded as what it is: the term the records
+    state, counted from the Council's adoption date unless a signed record dates it, so the real end is then or later."""
+    rows = []
+    for r in board["deals"]:
+        if not r.get("term_end"):
+            continue
+        how = (f"{r['term_years']}-year term counted from the Council's adoption, so it ends then or later"
+               if r.get("term_end_estimated") else "dated by a signed record")
+        rows.append({"deal_id": r["id"], "deal_name": r["name"], "city": "", "kind": "term_end", "date": r["term_end"],
+                     "text": f"Stated affordability term runs to {display_date(date.fromisoformat(r['term_end']))} ({how}). "
+                             f"Council file {r.get('file') or ''}.", "claim_id": r.get("term_claim_id")})
+    return rows
+
+
+def reminders_ics(reminders: list[dict], base_url: str = "", today: date | None = None) -> str:
+    """The reminders as an iCalendar file any calendar app can subscribe to or import.
+
+    Each term end also gets heads-up events TERM_WARNING_YEARS before it. Every event says where its date came
+    from, so a person can check it against the record before acting on it.
+    """
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Promise Ledger//Affordability reminders//EN",
+             "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:Promise Ledger reminders"]
+
+    def event(uid: str, when: date, summary: str, description: str, url: str) -> None:
+        lines.extend(["BEGIN:VEVENT", f"UID:{uid}@promise-ledger", f"DTSTAMP:{stamp}",
+                      f"DTSTART;VALUE=DATE:{when:%Y%m%d}", f"DTEND;VALUE=DATE:{(when + timedelta(days=1)):%Y%m%d}",
+                      f"SUMMARY:{_ics_text(summary)}", f"DESCRIPTION:{_ics_text(description)}"]
+                     + ([f"URL:{url}"] if url else []) + ["TRANSP:TRANSPARENT", "END:VEVENT"])
+
+    today = today or date.today()
+    for r in reminders:
+        when = date.fromisoformat(r["date"])
+        if when < today:
+            continue  # A calendar is for what is still ahead.
+        url = f"{base_url}/#/deals/{r['deal_id']}" if base_url else ""
+        note = f"{r['text']} Source: Promise Ledger, from a checked quote; confirm against the record."
+        key = f"{r['deal_id']}-{r['kind']}-{r['date']}"
+        title = (f"affordability term ends {display_date(when)}" if r["kind"] == "term_end"
+                 else r["text"].split(":")[0].split(",")[0])
+        event(key, when, f"{r['deal_name']}: {title}", note, url)
+        if r["kind"] == "term_end":
+            for years in TERM_WARNING_YEARS:
+                try:
+                    early = when.replace(year=when.year - years)
+                except ValueError:  # 29 February
+                    early = when.replace(year=when.year - years, day=28)
+                if early < today:
+                    continue
+                event(f"{key}-warn{years}", early,
+                      f"{r['deal_name']}: affordability ends in {years} year{'s' if years > 1 else ''}",
+                      f"{note} Time to plan for preservation before {display_date(when)}.", url)
+    lines.append("END:VCALENDAR")
+    return "\r\n".join(_ics_fold(line) for line in lines) + "\r\n"
+
+
 # ---------------------------------------------------------------------------
 # Export
 
@@ -958,7 +1268,7 @@ def shared_review(token: str, store: Storage | None = None) -> dict | None:
 REFRESH_LOCK = "sample-refresh"
 REFRESH_LOCK_TTL = 600  # Seconds before a lock left by a crashed instance is ignored.
 # Code that shapes stored claims. When it changes, sample deals are re-checked from the cached readings.
-_PIPELINE_FILES = [ROOT / "app" / "pipeline.py", ROOT / "app" / "deals.py"]
+_PIPELINE_FILES = [ROOT / "app" / "pipeline.py", ROOT / "app" / "deals.py", ROOT / "app" / "vision.py"]
 
 
 def _manifest(path: Path) -> dict | None:
@@ -980,7 +1290,12 @@ def sample_version(manifest_path: Path) -> str:
     for entry in manifest.get("documents") or []:
         path = manifest_path.parent / (entry.get("file") or entry.get("filename") or "")
         h.update(path.name.encode())
-        h.update(path.read_bytes() if path.is_file() else b"missing")
+        if entry.get("sha256"):  # Real records: the checked hash stands for the file, present on disk or not.
+            h.update(str(entry["sha256"]).encode())
+            # A record seeded before its saved reading existed is re-seeded once the reading arrives.
+            h.update(b"read" if pipeline.cached_reading(str(entry["sha256"])) else b"unread")
+        else:
+            h.update(path.read_bytes() if path.is_file() else b"missing")
     h.update(pipeline.PROMPT_ID.encode())
     for source in _PIPELINE_FILES:
         h.update(source.read_bytes() if source.exists() else b"")
@@ -1010,6 +1325,9 @@ def stale_samples(store: Storage, manifests: list[Path]) -> list[tuple[Path, str
         if existing and not is_sample_deal(existing, slug):
             continue  # Never touch a deal that is not a sample.
         if not existing or existing.get("sample_version") != version:
+            out.append((path, version))
+        elif manifest.get("real") and len(store.list_documents(slug)) < len(manifest.get("documents") or []):
+            # A record could not be fetched when this deal was last seeded: try again on this start.
             out.append((path, version))
     return out
 
@@ -1041,11 +1359,18 @@ def refresh_samples(store: Storage | None = None, samples_dir: Path = SAMPLES_DI
         store.release_lock(REFRESH_LOCK, owner)
 
 
-def seed(store: Storage | None = None, samples_dir: Path = SAMPLES_DIR) -> list[str]:
-    """Bring the sample deals up to date, or seed the Harbor Walk demo into an empty store without samples."""
+def seed(store: Storage | None = None, samples_dir: Path = SAMPLES_DIR, county_dir: Path | None = None) -> list[str]:
+    """Bring the sample deals (and the real county deals) up to date, or seed the Harbor Walk demo into an empty
+    store without samples."""
     store = store or get_store()
+    # COUNTY_DEALS=0 leaves the real county deals out (the test suite does, so tests never touch the network).
+    if county_dir is None:
+        county_dir = COUNTY_DIR if os.getenv("COUNTY_DEALS", "1") != "0" else Path("/nonexistent")
     if samples_dir.exists() and any(samples_dir.glob("*/manifest.json")):
-        return refresh_samples(store, samples_dir)
+        refreshed = refresh_samples(store, samples_dir)
+        if county_dir.exists() and any(county_dir.glob("*/manifest.json")):
+            refreshed += refresh_samples(store, county_dir)
+        return refreshed
     if store.list_deals():
         return []
     return [seed_demo(store)]
@@ -1063,34 +1388,112 @@ def seed_sample(manifest_path: Path, store: Storage, version: str | None = None)
     folder = manifest_path.parent
     slug = sample_slug(manifest, folder)
     existing = store.get_deal(slug)
+    real = bool(manifest.get("real"))
+    # A real deal's reminders count from today; a made-up sample is frozen at its own as_of date.
     deal = create_deal(manifest.get("deal") or manifest.get("name") or manifest.get("project") or folder.name,
                        manifest.get("city") or "", manifest.get("owner") or manifest.get("developer"),
-                       deal_id=slug, store=store, as_of=manifest.get("as_of"))
+                       deal_id=slug, store=store, as_of=None if real else manifest.get("as_of"))
     if existing and existing.get("created_at"):
         deal["created_at"] = existing["created_at"]
     deal.update(sample_slug=slug, sample_version=version or sample_version(manifest_path))
+    if real:
+        deal.update(real=True, county=manifest.get("county"), source=manifest.get("source") or {})
     store.put_deal(deal)
     keep = set()
+    stored = {d.get("sha256"): d for d in store.list_documents(slug)} if real else {}
     for entry in manifest.get("documents") or []:
         path = folder / (entry.get("file") or entry.get("filename") or "")
-        if not path.is_file():
+        data = path.read_bytes() if path.is_file() else (real_record_bytes(entry, folder, store, stored) if real else None)
+        if data is None:
             continue
         doc_id = sample_doc_id(slug, entry, path)
         keep.add(doc_id)
         try:
-            doc = add_document(deal["id"], path.name, path.read_bytes(), entry.get("type"), entry.get("date"),
+            doc = add_document(deal["id"], path.name, data, entry.get("type"), entry.get("date"),
                                entry.get("title"), store=store, process=False, demo=False, doc_id=doc_id)
         except (pipeline.PdfError, ValueError) as err:
             print(f"Seed skipped {path.name}: {err}")
             continue
+        if entry.get("url"):
+            doc["source_url"] = entry["url"]
+            store.put_document(deal["id"], doc)
         if pipeline.cached_reading(doc["sha256"]):
-            process_document(deal["id"], doc["id"], store)
-        else:
+            # Seeding from a saved reading never calls the model: a deploy costs nothing and always gives the same
+            # figures. Scanned pages without a saved transcription stay open questions.
+            process_document(deal["id"], doc["id"], store, cached_only=True)
+        elif not real:
             submit(deal["id"], doc["id"], store)
+        else:
+            # A real record with no saved reading waits for tools/county_read.py. It is marked, not queued, so a
+            # restart never picks it up and spends on a live read.
+            _set(store, deal["id"], doc, status="failed", error="Not read yet: this public record is waiting for its one-time reading.")
     for doc in store.list_documents(deal["id"]):  # Records no longer in the manifest. Visitor uploads go via the sweep.
         if doc["id"] not in keep and not doc.get("demo"):
             store.delete_document(deal["id"], doc["id"])
     return deal["id"]
+
+
+COUNTY_CACHE_DIR = ROOT / "data" / "runtime" / "county"
+RECORD_MAX_BYTES = 8_000_000
+
+
+def record_bytes(entry: dict) -> bytes | None:
+    """A real record's PDF: from the local cache, else downloaded from its official URL. Returned only if its
+    SHA-256 matches the manifest, so a changed or replaced file is never read as the one we checked."""
+    import urllib.request
+
+    sha, url = str(entry.get("sha256") or ""), str(entry.get("url") or "")
+    if not re.fullmatch(r"[0-9a-f]{64}", sha) or not url.startswith("https://"):
+        return None
+    cached = COUNTY_CACHE_DIR / f"{sha[:32]}.pdf"
+    if cached.is_file():
+        data = cached.read_bytes()
+        if hashlib.sha256(data).hexdigest() == sha:
+            return data
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "PromiseLedger/2.0 (open-source civic tool)"})
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = resp.read(RECORD_MAX_BYTES + 1)
+    except Exception as err:  # The record is listed as missing; the rest of the deal still seeds.
+        print(f"Seed could not download a county record: {type(err).__name__}")
+        return None
+    if len(data) > RECORD_MAX_BYTES or hashlib.sha256(data).hexdigest() != sha:
+        print("Seed skipped a county record whose file no longer matches its checked hash.")
+        return None
+    try:
+        COUNTY_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        cached.write_bytes(data)
+    except OSError:
+        pass  # A read-only disk only costs a download next time.
+    return data
+
+
+BUNDLED_DIR = "files"  # data/county/<deal>/files/<sha256[:32]>.pdf: records the source now serves changed
+
+
+def real_record_bytes(entry: dict, folder: Path, store: Storage, stored: dict) -> bytes | None:
+    """A real record's checked PDF, from the first place that has it with the checked hash:
+    1. a copy bundled with the repo, for records the county's server now regenerates on every download;
+    2. the copy this deployment already stores (so a redeploy never drops a record it had);
+    3. the local cache, or a fresh download from the official URL (record_bytes).
+    Any other file is never used: the readings and checks belong to the file with this hash."""
+    sha = str(entry.get("sha256") or "")
+    if not re.fullmatch(r"[0-9a-f]{64}", sha):
+        return None
+    bundled = folder / BUNDLED_DIR / f"{sha[:32]}.pdf"
+    if bundled.is_file():
+        data = bundled.read_bytes()
+        if hashlib.sha256(data).hexdigest() == sha:
+            return data
+    have = stored.get(sha)
+    if have and have.get("file_key"):
+        try:
+            data = store.get_blob(have["file_key"])
+        except Exception:  # Fall through to the download.
+            data = None
+        if data and hashlib.sha256(data).hexdigest() == sha:
+            return data
+    return record_bytes(entry)
 
 
 def sample_doc_id(slug: str, entry: dict, path: Path) -> str:

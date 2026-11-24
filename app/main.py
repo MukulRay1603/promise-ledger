@@ -1,4 +1,6 @@
 import json
+import re
+from urllib.parse import quote
 import mimetypes
 import os
 import threading
@@ -8,14 +10,15 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 load_dotenv()
 
-from app import ai, deals, guard, identity, ledger, pipeline  # noqa: E402  (needs env loaded first)
+from app import ai, ask, county_ask, deals, feedback, guard, healing, identity, ledger, pipeline, request_letter, search  # noqa: E402  (needs env loaded first)
 from app.storage import get_store  # noqa: E402
 
 STATIC = Path(__file__).parent / "static"
@@ -44,10 +47,24 @@ async def lifespan(_app: FastAPI):
         _startup_seed()
     elif mode != "0":
         threading.Thread(target=_startup_seed, name="startup-seed", daemon=True).start()
+    if mode != "sync":  # Tests run passes themselves (healing.run_once); a server keeps a watchdog.
+        healing.start()
     yield
 
 
-app = FastAPI(title="Promise Ledger", lifespan=lifespan)
+app = FastAPI(title="Promise Ledger", lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
+
+
+@app.exception_handler(RequestValidationError)
+async def _invalid(_request: Request, err: RequestValidationError):
+    # Say which field is wrong, but never echo the request body back.
+    fields = sorted({".".join(str(p) for p in e.get("loc", ())[1:]) or "body" for e in err.errors()})
+    return JSONResponse({"detail": f"Check these fields: {', '.join(fields)}."}, status_code=422)
+
+
+@app.exception_handler(guard.BodyTooLarge)
+async def _too_large(_request: Request, _err: Exception):
+    return JSONResponse({"detail": "The request is too large."}, status_code=413)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 guard.install(app)  # Public demo: rate limits, expiry of visitor deals (DEMO_MODE).
 
@@ -62,13 +79,33 @@ class NewDeal(BaseModel):
     developer: str | None = Field(default=None, max_length=120)
 
 
+@app.get("/robots.txt", include_in_schema=False)
+def robots():
+    """Pages may be indexed; the API may not (answers cost money, and the data is on the pages already)."""
+    return PlainTextResponse("User-agent: *\nAllow: /\nDisallow: /api/\n", headers={"Cache-Control": "public, max-age=86400"})
+
+
+# Shown by /api/health with Cloud Run's revision name, so anyone can check which build is live.
+APP_VERSION = "1.2.1 (2026-11-22)"
+
+
 # Cloud Run reserves paths ending in "z" (such as /healthz), so the health check is /api/health.
 @app.get("/api/health")
-def healthz():
+def healthz(deep: int = 0):
+    """Liveness for Cloud Run. With ?deep=1, the watchdog's latest report (app/healing.py): storage, stuck documents,
+    county data, search index, the model breaker, storage retries and cached answers. Counts only, no secrets."""
     checks = ledger.build_review()["checks"]
     model = ai.MODEL if os.getenv("GEMINI_API_KEY") else "saved output"
-    return {"ok": not checks["problems"], "model": model, "claims": checks["total"],
-            "storage": (os.getenv("STORAGE") or "local").lower()}
+    out = {"ok": not checks["problems"], "version": APP_VERSION, "revision": os.getenv("K_REVISION"), "model": model,
+           "claims": checks["total"],
+           "storage": (os.getenv("STORAGE") or "local").lower()}
+    if deep:
+        report = healing.status()
+        if not report["runs"]:
+            healing.run_once()
+            report = healing.status()
+        out["self_healing"] = report
+    return out
 
 
 @app.get("/api/review")
@@ -89,8 +126,13 @@ def extract(pasted: PastedText):
 # ---------------------------------------------------------------------------
 # Deals
 
+_ID = re.compile(r"[A-Za-z0-9_-]{1,80}")
+
+
 def _deal_or_404(deal_id: str, request: Request) -> dict:
     """The deal, if this browser may see it. Another visitor's deal answers 404, the same as a missing one (S2)."""
+    if not _ID.fullmatch(deal_id):
+        raise HTTPException(404, "Deal not found.")
     try:
         deal = get_store().get_deal(deal_id)
     except ValueError:
@@ -102,6 +144,8 @@ def _deal_or_404(deal_id: str, request: Request) -> dict:
 
 def _doc_or_404(deal_id: str, doc_id: str, request: Request) -> dict:
     _deal_or_404(deal_id, request)
+    if not _ID.fullmatch(doc_id):
+        raise HTTPException(404, "Document not found.")
     try:
         doc = get_store().get_document(deal_id, doc_id)
     except ValueError:
@@ -180,8 +224,10 @@ def document_file(deal_id: str, doc_id: str, request: Request):
     if data is None:
         raise HTTPException(404, "File not found.")
     name = "".join(ch for ch in (doc.get("filename") or "document.pdf") if ch.isprintable() and ch not in '"\\')
+    plain = name.encode("ascii", "ignore").decode() or "document.pdf"  # Headers are Latin-1; the full name goes in filename*.
     return Response(data, media_type="application/pdf", headers={
-        "Content-Disposition": f'inline; filename="{name}"', "X-Content-Type-Options": "nosniff",
+        "Content-Disposition": f"inline; filename=\"{plain}\"; filename*=UTF-8''{quote(name)}",
+        "X-Content-Type-Options": "nosniff",
         "Cache-Control": "private, max-age=3600"})
 
 
@@ -198,6 +244,23 @@ def document_page(deal_id: str, doc_id: str, n: int, request: Request):
 def deal_review(deal_id: str, request: Request):
     _deal_or_404(deal_id, request)
     return deals.deal_review(deal_id, session=identity.demo_session(request))
+
+
+@app.post("/api/deals/{deal_id}/ask")
+def ask_deal(deal_id: str, body: ask.Question, request: Request):
+    """Answer from this deal's checked quotes only. Nothing is saved; the question is not logged."""
+    _deal_or_404(deal_id, request)
+    review = deals.deal_review(deal_id, session=identity.demo_session(request))
+    return ask.answer(review, body.question, body.audience)
+
+
+@app.post("/api/deals/{deal_id}/request-letter")
+def request_letter_draft(deal_id: str, body: request_letter.LetterIn, request: Request):
+    """A records request for what this deal is missing. Drafted by code; optionally edited by the model and checked.
+    Nothing is sent or saved."""
+    deal = _deal_or_404(deal_id, request)
+    review = deals.deal_review(deal_id, session=identity.demo_session(request))
+    return request_letter.letter(deal, review, body.polish)
 
 
 @app.get("/api/deals/{deal_id}/export.xlsx")
@@ -341,6 +404,54 @@ def reminders(request: Request):
     return deals.all_reminders(session=identity.demo_session(request))
 
 
+@app.get("/api/county")
+def county(request: Request):
+    """The real Prince George's County deals in one table, with county-wide totals."""
+    return deals.county_board()
+
+
+@app.post("/api/feedback", status_code=201)
+def post_feedback(body: feedback.FeedbackIn):
+    """A tester's answers from #/test. Nothing that identifies them is kept unless they ask to be quoted by name."""
+    return feedback.save(body)
+
+
+@app.get("/api/feedback")
+def get_feedback(request: Request):
+    """All responses, for whoever runs the server (X-Feedback-Token must match FEEDBACK_TOKEN)."""
+    if not feedback.allowed(request.headers.get("x-feedback-token")):
+        raise HTTPException(404, "Not found.")
+    return feedback.read_all()
+
+
+@app.post("/api/county/ask")
+def ask_county(body: ask.Question):
+    """One question across every county agreement, answered only from checked records. Nothing is saved; the question
+    is not logged."""
+    return county_ask.answer(body.question, body.audience)
+
+
+@app.get("/api/county/search")
+def county_search(q: str = ""):
+    """Search every checked quote in the real county deals, by meaning when a key is set, else by keywords."""
+    return search.search(q)
+
+
+@app.get("/api/reminders.ics")
+def reminders_calendar(request: Request, deal: str | None = None, county: bool = False):
+    """Every reminder this browser can see (or one deal's, or the county agreements' stated terms with county=1) as a
+    calendar file, with heads-up events before term ends. Dates already past are left out."""
+    rows = deals.county_reminders(deals.county_board()) if county else deals.all_reminders(session=identity.demo_session(request))
+    if deal is not None:
+        if not _ID.fullmatch(deal):
+            raise HTTPException(404, "Deal not found.")
+        rows = [r for r in rows if r["deal_id"] == deal]
+    base = str(request.base_url).rstrip("/")
+    name = f"promise-ledger-{deal}.ics" if deal else ("prince-georges-terms.ics" if county else "promise-ledger-reminders.ics")
+    return Response(deals.reminders_ics(rows, base), media_type="text/calendar; charset=utf-8",
+                    headers={"Content-Disposition": f'attachment; filename="{name}"'})
+
+
 DATA_SLOT = '<script id="review-data" type="application/json"></script>'
 
 
@@ -361,12 +472,50 @@ def _page_with(data: dict) -> str:
     return _template().replace(DATA_SLOT, DATA_SLOT.replace("></script>", f">{raw}</script>"))
 
 
+def _base(request: Request) -> str:
+    return (os.getenv("PUBLIC_BASE_URL") or str(request.base_url)).rstrip("/")
+
+
 @app.get("/", response_class=HTMLResponse)
-def index():
-    # The home page ships the reviewed demo, which never changes while the process runs (P13).
+def index(request: Request):
+    # The home page ships the reviewed demo, which never changes while the process runs (P13). Link previews need an
+    # absolute image address, so the site card's address is filled in per host.
     if "home" not in _page_cache:
         _page_cache["home"] = _page_with(review())
-    return HTMLResponse(_page_cache["home"], headers={"Cache-Control": "no-cache"})
+    page = _page_cache["home"].replace('content="/static/og/site.png"', f'content="{_base(request)}/static/og/site.png"')
+    return HTMLResponse(page, headers={"Cache-Control": "no-cache"})
+
+
+@app.get("/s/{deal_id}", response_class=HTMLResponse)
+def share_card(deal_id: str, request: Request):
+    """A shareable link to one county agreement: link-preview tags (title, numbers, card image), then the agreement.
+    Only real county agreements have cards; everything shown is from the county board's checked quotes."""
+    from html import escape
+    row = next((r for r in deals.county_board()["deals"] if r["id"] == deal_id), None) if _ID.fullmatch(deal_id) else None
+    if not row:  # A person opened this link: a page with a way on, not raw JSON.
+        return HTMLResponse(
+            '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+            '<title>Link not found · Promise Ledger</title><meta name="robots" content="noindex"></head>'
+            '<body style="font:16px/1.5 system-ui,sans-serif;max-width:36rem;margin:4rem auto;padding:0 1rem;color:#0B1F3A">'
+            '<h1>This link does not match an agreement</h1><p>It may be mistyped or out of date.</p>'
+            '<p><a href="/#/county">See every Prince George\'s County agreement</a></p></body></html>', status_code=404)
+    base = _base(request)
+    target = f"{base}/#/deals/{quote(deal_id)}"
+    image = f"{base}/static/og/{quote(deal_id)}.png" if (STATIC / "og" / f"{deal_id}.png").is_file() else f"{base}/static/og/site.png"
+    facts = [f"{'over ' if row.get('homes_approx') else ''}{row['homes']:,} affordable homes stated" if row.get("homes") else None,
+             f"stated term runs to {row['term_end'][:4]}{'+' if row.get('term_end_estimated') else ''}" if row.get("term_end") else None,
+             f"Council file {row['file']}" if row.get("file") else None]
+    title = f"{row['name']} · Promise Ledger"
+    desc = "Prince George's County, MD, real public records: " + "; ".join(f for f in facts if f) + ". Every number opens its quote and page."
+    t, d, i, u = (escape(x, quote=True) for x in (title, desc, image, target))
+    page = f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><title>{t}</title>
+<meta name="description" content="{d}"><meta property="og:type" content="article"><meta property="og:site_name" content="Promise Ledger">
+<meta property="og:title" content="{t}"><meta property="og:description" content="{d}"><meta property="og:url" content="{u}">
+<meta property="og:image" content="{i}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{t}"><meta name="twitter:description" content="{d}">
+<meta name="twitter:image" content="{i}"><meta http-equiv="refresh" content="0; url={u}"><link rel="canonical" href="{u}"></head>
+<body><p><a href="{u}">Open {escape(row['name'])} in Promise Ledger</a></p></body></html>"""
+    return HTMLResponse(page, headers={"Cache-Control": "public, max-age=300"})
 
 
 app.mount("/static", StaticFiles(directory=STATIC), name="static")

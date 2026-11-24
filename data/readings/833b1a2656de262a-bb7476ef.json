@@ -1,0 +1,114 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Payments in Lieu of Taxes (\"PILOT\") Agreement for the New Carrollton – Affordable – Phase 4 Project",
+  "date": "2025-11-17",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE’S COUNTY, MARYLAND",
+    "quote": "Edward P. Burroughs, III, Chair",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct one hundred two (102) units of new affordable multi-family rental housing for low-income to moderate-income families, earning seventy percent (70%) and below of the Area Median Income (“AMI”), known as New Carrollton – Affordable – Phase 4, located at 4041 Pennsy Drive, Hyattsville, Maryland 20785, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (‘Property”); and",
+    "page": 1,
+    "wording": "proposes to acquire and construct one hundred two (102) units",
+    "value": "102 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "WHEREAS, the Owner proposes to acquire and construct one hundred two (102) units of new affordable multi-family rental housing for low-income to moderate-income families, earning seventy percent (70%) and below of the Area Median Income (“AMI”), known as New Carrollton – Affordable – Phase 4, located at 4041 Pennsy Drive, Hyattsville, Maryland 20785, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (‘Property”); and",
+    "page": 1,
+    "wording": "earning seventy percent (70%) and below of the Area Median Income (“AMI”)",
+    "value": "70% AMI and below"
+   },
+   {
+    "topic": "units",
+    "quote": "A one hundred two (102) unit affordable family rental apartment community that will be constructed in New Carrollton, Maryland.",
+    "page": 4,
+    "wording": "A one hundred two (102) unit affordable family rental apartment community",
+    "value": "102 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "All units will be affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "rents will be restricted",
+    "value": "restricted for 40 years"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "restricted for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be priced at levels affordable to households earning seventy percent (70%) or less of the Area Median Income (“AMI”) for forty (40) years",
+    "page": 4,
+    "wording": "All units will be priced",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All units will be priced at levels affordable to households earning seventy percent (70%) or less of the Area Median Income (“AMI”) for forty (40) years",
+    "page": 4,
+    "wording": "earning seventy percent (70%) or less of the Area Median Income (“AMI”)",
+    "value": "70% AMI or less"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be priced at levels affordable to households earning seventy percent (70%) or less of the Area Median Income (“AMI”) for forty (40) years",
+    "page": 4,
+    "wording": "for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The New Carrollton – Affordable – Phase 4 project (the “Project”) is a proposed one hundred two (102) unit transit-oriented family affordable housing development to be located at 4041 Pennsy Drive, Hyattsville, Maryland 20785.",
+    "page": 5,
+    "wording": "one hundred two (102) unit",
+    "value": "102 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The target population will be families that qualify at or less than seventy percent (70%) of the area median income (“AMI”).",
+    "page": 5,
+    "wording": "at or less than seventy percent (70%) of the area median income",
+    "value": "70% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Of the one hundred two (102) units, nine (9) units will be set-aside for residents with mobility impairments, including three (3) units set aside for residents with sensory impairments.",
+    "page": 5,
+    "wording": "set-aside for residents with mobility impairments",
+    "value": "9 units set aside"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "However, by including high-quality affordable housing early in the master development of New Carrollton Metro Center, this project guarantees housing reserved at seventy percent (70%) of AMI to be included in the center of a much larger development.",
+    "page": 6,
+    "wording": "reserved at seventy percent (70%) of AMI",
+    "value": "70% AMI"
+   }
+  ]
+ },
+ "tokens_in": 4831,
+ "tokens_out": 1532,
+ "cost_usd": 0.005279,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

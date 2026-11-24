@@ -1,0 +1,122 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Policy Analysis and Fiscal Impact Statement CR-077-2024 PILOT The Highlands Senior Apartments",
+  "date": "2024-10-04",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "Revenue: $4,965,043 in tax revenue to be forgone over a 40-year period.",
+    "page": 1,
+    "wording": "tax revenue to be forgone over a 40-year period",
+    "value": "$4,965,043 over 40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 2,
+    "wording": "All units will be affordable",
+    "value": "137 units"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 2,
+    "wording": "restricted for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "term",
+    "quote": "Duration: At least 40 years",
+    "page": 2,
+    "wording": "At least 40 years",
+    "value": "at least 40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Under the proposed agreement, for at least a 40 -year term, Highland Senior Living, L LLP, and Community Housing Initiative, Inc. (the “Developer”) will construct a building that is four (4) stories in the front and five (5) stories in the rear with elevator service for senior residents whose incomes are at or below 60% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "construct a building",
+    "value": "137 units"
+   },
+   {
+    "topic": "term",
+    "quote": "Under the proposed agreement, for at least a 40 -year term, Highland Senior Living, L LLP, and Community Housing Initiative, Inc. (the “Developer”) will construct a building that is four (4) stories in the front and five (5) stories in the rear with elevator service for senior residents whose incomes are at or below 60% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "for at least a 40 -year term",
+    "value": "at least 40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Under the proposed agreement, for at least a 40 -year term, Highland Senior Living, L LLP, and Community Housing Initiative, Inc. (the “Developer”) will construct a building that is four (4) stories in the front and five (5) stories in the rear with elevator service for senior residents whose incomes are at or below 60% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "incomes are at or below 60% of the Area Median Income",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The terms of the PILOT agreement include 100% tax waivers of 137 units for the next 40 years, with a 2% annual escalation per unit over that period.",
+    "page": 3,
+    "wording": "100% tax waivers of 137 units for the next 40 years",
+    "value": "100% tax waiver for 40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT reduces the aggregate tax burden on the entire 137-unit Project of 31.73% of that amount, or approximately $176,830, equivalent to a $1,291 per unit tax burden on the 137 affordable units.",
+    "page": 4,
+    "wording": "PILOT reduces",
+    "value": "137-unit Project"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Under the agreement, the County would forgo real property tax revenue of approximately $82,200, or approximately $600 per affordable unit, in year one2.",
+    "page": 4,
+    "wording": "would forgo",
+    "value": "$82,200 in year one"
+   },
+   {
+    "topic": "units",
+    "quote": "Based on the Washington- Arlington-Alexandria-DC-VA-MD-WV Metro Area regional guidelines, this project includes 175 affordable housing units at 60% or less than AMI.",
+    "page": 4,
+    "wording": "includes",
+    "value": "175 affordable housing units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Based on the Washington- Arlington-Alexandria-DC-VA-MD-WV Metro Area regional guidelines, this project includes 175 affordable housing units at 60% or less than AMI.",
+    "page": 4,
+    "wording": "at 60% or less than AMI",
+    "value": "60% or less than AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Total aid received from the County: PILOT Agreement: $ 4,965,043 HITF $ 2,500,000",
+    "page": 4,
+    "wording": "Total aid received",
+    "value": "$4,965,043 PILOT and $2,500,000 HITF"
+   },
+   {
+    "topic": "public_support",
+    "quote": "As described above, accepting the PILOT on the entire Project will result in a loss of approximately $82,200 in the first year of the term.",
+    "page": 5,
+    "wording": "will result in a loss",
+    "value": "$82,200 in the first year"
+   },
+   {
+    "topic": "term",
+    "quote": "Factoring in the 2% estimated average annual increase in the property tax assessment, the total impact is estimated at $ 4,965,043, forgoing 31.73% of the tax revenue cumulatively over the 40-year period that the PILOT agreement remains in effect.",
+    "page": 5,
+    "wording": "over the 40-year period",
+    "value": "40 years"
+   }
+  ]
+ },
+ "tokens_in": 4808,
+ "tokens_out": 1724,
+ "cost_usd": 0.005752,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

@@ -1,0 +1,52 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "PRINCE GEORGE'S COUNTY COUNCIL COMMITTEE REPORT Reference No.: CR-117-2025",
+  "date": "2025-11-10",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner, Dominium Inc., will form an entity for the purpose of acquiring land and constructing a 245-unit, affordable rental housing community for families earning 60% or below the Area Median Income (“AMI”).",
+    "page": 1,
+    "wording": "constructing a 245-unit",
+    "value": "245 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner, Dominium Inc., will form an entity for the purpose of acquiring land and constructing a 245-unit, affordable rental housing community for families earning 60% or below the Area Median Income (“AMI”).",
+    "page": 1,
+    "wording": "earning 60% or below the Area Median Income",
+    "value": "60% or below AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Additionally, the Flats at Glenridge Station project will be financed by the Prince George’s County Housing Investment Trust Fund Program loan in the amount of $3,500,000.",
+    "page": 1,
+    "wording": "financed by the Prince George’s County Housing Investment Trust Fund Program loan in the amount of $3,500,000",
+    "value": "$3,500,000 loan"
+   },
+   {
+    "topic": "term",
+    "quote": "Factoring in the estimated 2% average annual increase in property tax assessments, the total impact is estimated at $17,758,183, resulting in a cumulative forgoing of 64.03% of the tax revenue over the 40-year period that the PILOT agreement remains in effect.",
+    "page": 2,
+    "wording": "over the 40-year period",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Factoring in the estimated 2% average annual increase in property tax assessments, the total impact is estimated at $17,758,183, resulting in a cumulative forgoing of 64.03% of the tax revenue over the 40-year period that the PILOT agreement remains in effect.",
+    "page": 2,
+    "wording": "cumulative forgoing of 64.03% of the tax revenue",
+    "value": "64.03% tax revenue foregone"
+   }
+  ]
+ },
+ "tokens_in": 1747,
+ "tokens_out": 684,
+ "cost_usd": 0.002234,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

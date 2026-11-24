@@ -1,0 +1,143 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Policy Analysis and Fiscal Impact Statement CR-034-2024 FY 2024 PILOT Bowie Commons Apartments",
+  "date": "2024-05-23",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "Expenditures: $1,222,229 in tax revenue to be forgone over a 40-year period.",
+    "page": 1,
+    "wording": "tax revenue to be forgone over a 40-year period",
+    "value": "$1,222,229 over 40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Under the PILOT agreement, $1,680,866 in PILOT revenue will be collected over a 40-year period.",
+    "page": 2,
+    "wording": "PILOT revenue will be collected over a 40-year period",
+    "value": "$1,680,866 over 40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "All thirty -six (36) units are covered by a Housing Assistance Payments (HAP) contract and are restricted to senior residents.",
+    "page": 2,
+    "wording": "All thirty -six (36) units are covered",
+    "value": "36 units"
+   },
+   {
+    "topic": "units",
+    "quote": "A thirty six (36) unit rental apartment community will be renovated in six (6) walk-up buildings on a 3.18 acre site in Bowie, Ma ryland.",
+    "page": 2,
+    "wording": "thirty six (36) unit rental apartment community",
+    "value": "36 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 2,
+    "wording": "All units will be affordable",
+    "value": "All 36 units"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 2,
+    "wording": "restricted for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "term",
+    "quote": "Duration: At least 40 years",
+    "page": 2,
+    "wording": "At least 40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The Bowie Commons  (the “Project”) is located at 3909 New Haven Court, Bowie, Maryland 20716, and is a 36-unit rental apartment community.",
+    "page": 3,
+    "wording": "36-unit rental apartment community",
+    "value": "36 units"
+   },
+   {
+    "topic": "term",
+    "quote": "Under the proposed agreement, for at least a 40-year term, Bowie Housing Partners, LP, and Vitus Development IV, LLC  (the “Developer”) will renovate six (6) walk-up buildings for senior residents whose incomes are at or below 60% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "for at least a 40-year term",
+    "value": "40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Under the proposed agreement, for at least a 40-year term, Bowie Housing Partners, LP, and Vitus Development IV, LLC  (the “Developer”) will renovate six (6) walk-up buildings for senior residents whose incomes are at or below 60% of the Area Median Income (“AMI”).",
+    "page": 3,
+    "wording": "incomes are at or below 60% of the Area Median Income",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Financing includes tax-exempt Bond financing in the amount of $4,100,000, Prince George’s County HOME in the amount of $ 1,000,0002, a General Partner Note in the amount of $2,000,000, a deferred developer fee in the amount of $625,448, and funding from low-income housing tax credits in the amount of $3,100,892.",
+    "page": 4,
+    "wording": "Financing includes",
+    "value": "Bond financing $4,100,000; HOME $1,000,000; General Partner Note $2,000,000; deferred developer fee $625,448; low-income housing tax credits $3,100,892"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The project will receive approximately $ 2,222,229, or 20.52% of its total funding, from the County, as demonstrated below.",
+    "page": 4,
+    "wording": "will receive approximately",
+    "value": "$2,222,229"
+   },
+   {
+    "topic": "units",
+    "quote": "The terms of the PILOT agreement include 100% tax waivers of 36 units for the next 40 years, with a 2% annual escalation per unit over that period.",
+    "page": 4,
+    "wording": "36 units",
+    "value": "36 units"
+   },
+   {
+    "topic": "term",
+    "quote": "The terms of the PILOT agreement include 100% tax waivers of 36 units for the next 40 years, with a 2% annual escalation per unit over that period.",
+    "page": 4,
+    "wording": "next 40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT reduces the aggregate tax burden on the entire 36- unit Project to 42 % of that amount, or approximately $27,828, equivalent to $733 per unit tax burden on the 36 affordable units.",
+    "page": 4,
+    "wording": "PILOT reduces the aggregate tax burden",
+    "value": "42% of tax amount"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Under the agreement, the County would forgo real property tax revenue of approximately $20,233, or approximately $562 per affordable unit, in year one3.",
+    "page": 4,
+    "wording": "forgo real property tax revenue",
+    "value": "$20,233 in year one"
+   },
+   {
+    "topic": "public_support",
+    "quote": "As described above, accepting the PILOT on the entire Project will result in a loss of approximately $20,233 in the first year of the term.",
+    "page": 4,
+    "wording": "loss of approximately",
+    "value": "$20,233 in the first year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Factoring in the 2% estimated average annual increase in the property tax assessment, the total impact is estimated at $ 1,222,129, forgoing 42% of the tax revenue cumulatively over the 40-year period that the PILOT agreement remains in effect.",
+    "page": 5,
+    "wording": "total impact is estimated at",
+    "value": "$1,222,129 over 40 years"
+   }
+  ]
+ },
+ "tokens_in": 4248,
+ "tokens_out": 2023,
+ "cost_usd": 0.006332,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

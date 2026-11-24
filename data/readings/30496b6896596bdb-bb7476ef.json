@@ -1,0 +1,105 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Resolution No. CR-118-2025 Payments in Lieu of Taxes (\"PILOT\") Agreement for the Fort Washington by Vintage Project",
+  "date": "2025-10-07",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Edward P. Burroughs, III",
+    "page": 3
+   },
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Donna J. Brown",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to acquire and rehabilitate three hundred four (304) units of affordable multi-family rental housing for low-income to moderate-income households, earning seventy percent (70%) and below of the Area Median Income (\"AMI\"), known as Fort Washington by Vintage, located at 2428 Corning Avenue, Fort Washington, Maryland 20744, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (\"Property\"); and",
+    "page": 1,
+    "wording": "acquire and rehabilitate three hundred four (304) units",
+    "value": "304 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "WHEREAS, the Owner proposes to acquire and rehabilitate three hundred four (304) units of affordable multi-family rental housing for low-income to moderate-income households, earning seventy percent (70%) and below of the Area Median Income (\"AMI\"), known as Fort Washington by Vintage, located at 2428 Corning Avenue, Fort Washington, Maryland 20744, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (\"Property\"); and",
+    "page": 1,
+    "wording": "earning seventy percent (70%) and below of the Area Median Income",
+    "value": "70% AMI and below"
+   },
+   {
+    "topic": "term",
+    "quote": "(a)(2)(iv)(2) enters into an agreement with the governing body of Prince George's County to allow the entire property or the portion of the property that was maintained for lower income persons to remain as housing for lower income persons for a term of at least 5 years; and",
+    "page": 2,
+    "wording": "term of at least 5 years",
+    "value": "at least 5 years"
+   },
+   {
+    "topic": "units",
+    "quote": "PROJECT DESCRIPTION: A three hundred four (304) unit general occupancy rental apartment community will be acquired and rehabilitated.",
+    "page": 4,
+    "wording": "three hundred four (304) unit",
+    "value": "304 units"
+   },
+   {
+    "topic": "units",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "All units will be affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "term",
+    "quote": "All units will be affordable, and rents will be restricted for forty (40) years.",
+    "page": 4,
+    "wording": "restricted for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "units",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning seventy percent (70%) or less of the Area Median Income (\"AMI\") for forty (40) years",
+    "page": 4,
+    "wording": "All units will be priced at levels affordable",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning seventy percent (70%) or less of the Area Median Income (\"AMI\") for forty (40) years",
+    "page": 4,
+    "wording": "households earning seventy percent (70%) or less of the Area Median Income",
+    "value": "70% AMI or less"
+   },
+   {
+    "topic": "term",
+    "quote": "AFFORDABILITY: All units will be priced at levels affordable to households earning seventy percent (70%) or less of the Area Median Income (\"AMI\") for forty (40) years",
+    "page": 4,
+    "wording": "for forty (40) years",
+    "value": "40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Project will be income-restricted to households earning at or below seventy percent (70%) of the Area Median Income (\"AMI\").",
+    "page": 5,
+    "wording": "income-restricted",
+    "value": "70% of AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Of the three hundred four (304) units, sixteen (16) units will be designated for residents with mobility impairments, and seven (7) units will be reserved for residents with sensory impairments.",
+    "page": 5,
+    "wording": "designated for",
+    "value": "23 units for impairments out of 304 total"
+   }
+  ]
+ },
+ "tokens_in": 4606,
+ "tokens_out": 1377,
+ "cost_usd": 0.004824,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

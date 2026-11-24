@@ -1,0 +1,16 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "other",
+  "title": "A RESOLUTION CONCERNING PAYMENTS IN LIEU OF TAXES (\"PILOT\") AGREEMENT FOR HAMLET WOODS APARTMENTS",
+  "date": "2023-06-20",
+  "draft": true,
+  "signatures": [],
+  "candidates": []
+ },
+ "tokens_in": 1753,
+ "tokens_out": 84,
+ "cost_usd": 0.000736,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

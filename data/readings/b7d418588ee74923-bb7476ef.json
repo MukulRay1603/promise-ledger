@@ -1,0 +1,100 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "resolution",
+  "title": "Resolution No. CR-041-2023",
+  "date": "2023-05-09",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "COUNTY COUNCIL OF PRINCE GEORGE'S COUNTY, MARYLAND",
+    "quote": "Thomas E. Dernoga\nChair",
+    "page": 3
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "WHEREAS, the Owner proposes to rehabilitate a one hundred (100) unit affordable multi-family rental housing for low-income to moderate-income families, known as Cottage City Towers, located at 4142 Bunker Hill Road, Cottage City, Maryland 20722, as more particularly described in Exhibit A, attached hereto and herein incorporated by reference (“Property”); and",
+    "page": 1,
+    "wording": "one hundred (100) unit",
+    "value": "100 units"
+   },
+   {
+    "topic": "units",
+    "quote": "PROJECT DESCRIPTION: The Developer plans to rehabilitate the Cottage City Towers project, an existing one hundred (100) unit affordable elevator-served apartment building serving families in Cottage City.",
+    "page": 4,
+    "wording": "one hundred (100) unit",
+    "value": "100 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Units will be reserved for households earning sixty percent (60%) or less of the Area Median Income (“AMI”).",
+    "page": 4,
+    "wording": "sixty percent (60%) or less",
+    "value": "60% AMI or less"
+   },
+   {
+    "topic": "units",
+    "quote": "AFFORDABILITY: All units will be reserved for households earning sixty percent (60%) or less of the AMI.",
+    "page": 4,
+    "wording": "All units",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "AFFORDABILITY: All units will be reserved for households earning sixty percent (60%) or less of the AMI.",
+    "page": 4,
+    "wording": "sixty percent (60%) or less of the AMI",
+    "value": "60% AMI or less"
+   },
+   {
+    "topic": "public_support",
+    "quote": "WHEREAS, the Owner has requested that the County Council of Prince George’s County, Maryland, (the “County Council”) authorize the Owner to make payments in lieu of County real property taxes pursuant to Section 7-503 of the Tax-Property Article of the Annotated Code of Maryland, as amended; and",
+    "page": 1,
+    "wording": "payments in lieu of County real property taxes",
+    "value": "PILOT"
+   },
+   {
+    "topic": "public_support",
+    "quote": "WHEREAS, the Owner has demonstrated to the County that an agreement for payments in lieu of County real property taxes is necessary to make the Project economically feasible, as described in Attachments “A-1,” “A-2,” and “A-3,” attached hereto and made a part hereof; and",
+    "page": 2,
+    "wording": "agreement for payments in lieu of County real property taxes",
+    "value": "PILOT agreement"
+   },
+   {
+    "topic": "public_support",
+    "quote": "WHEREAS, in order to induce the Owner to provide housing for families with restricted incomes, it is in the interest of the County to accept payments in lieu of County real property taxes, subject to the terms and conditions of the PILOT Agreement (the “Agreement”) set forth in Attachment B, attached hereto and made a part hereof; and",
+    "page": 2,
+    "wording": "accept payments in lieu of County real property taxes",
+    "value": "PILOT"
+   },
+   {
+    "topic": "units",
+    "quote": "The HAPGC Affordable Housing Development Corporation, LLC C/O Housing Authority of Prince George’s County (“HAPGC” or the “Developer”) is proposing the substantial rehabilitation of Cottage City Towers (the “Project”) which consists of one hundred (100) units of public housing serving families that is located in Cottage City, Prince George’s County, Maryland.",
+    "page": 5,
+    "wording": "consists of",
+    "value": "100 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All units will be reserved for households earning sixty percent (60%) or less of the Area Median Income (“AMI”).",
+    "page": 6,
+    "wording": "earning sixty percent (60%) or less",
+    "value": "60% AMI or less"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Developer is applying for a Prince George’s County Payment in Lieu of Taxes (“PIL OT”), for a period of at least forty (40) years, and a Housing Investment Trust Fund (“HITF”) loan in the amount of two million, five hundred thousand dollars ($2,500,000) .",
+    "page": 6,
+    "wording": "applying for a Prince George’s County Payment in Lieu of Taxes",
+    "value": "PILOT for at least 40 years and $2,500,000 HITF loan"
+   }
+  ]
+ },
+ "tokens_in": 5201,
+ "tokens_out": 1394,
+ "cost_usd": 0.005045,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

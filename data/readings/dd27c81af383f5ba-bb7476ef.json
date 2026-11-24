@@ -1,0 +1,199 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "agreement",
+  "title": "PAYMENTS IN LIEU OF TAXES AGREEMENT",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The new construction of 245 units of affordable multifamily rental housing for families.",
+    "page": 1,
+    "wording": "245 units",
+    "value": "245 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Households earning 60% of less of AMI",
+    "page": 1,
+    "wording": "60% of less of AMI",
+    "value": "60% or less of AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "Total Number of Units: 245",
+    "page": 1,
+    "wording": "Total Number of Units",
+    "value": "245"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Affordable Units: 245",
+    "page": 1,
+    "wording": "Number of Affordable Units",
+    "value": "245"
+   },
+   {
+    "topic": "units",
+    "quote": "Number of Market Rate Units: 0",
+    "page": 1,
+    "wording": "Number of Market Rate Units",
+    "value": "0"
+   },
+   {
+    "topic": "term",
+    "quote": "Term (in years): 40 years",
+    "page": 1,
+    "wording": "40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "A. The Owner has or will acquire the Property located in Prince George’s County, Maryland for the purpose of constructing or rehabilitating the Project to provide housing to Eligible Households.",
+    "page": 2,
+    "wording": "provide housing to Eligible Households",
+    "value": "Eligible Households"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "B. The Owner has or will contract to construct or rehabilitate the Project to provide housing to Eligible Households as set forth in the Owner’s Application for a PILOT.",
+    "page": 2,
+    "wording": "provide housing to Eligible Households",
+    "value": "Eligible Households"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "(3) the owner of the real property agrees to (A) continue to commence or continue to maintain the real property as rental housing for lower income persons under the requirements of the governmental programs described in item (2) of this paragraph and agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement or (B) enters into an agreement with the governing body of the county to allow the entire property or the portion of the property which was maintained for lower income persons to remain as housing for lower income persons for a term of at least five years; and",
+    "page": 3,
+    "wording": "rental housing for lower income persons",
+    "value": "lower income persons"
+   },
+   {
+    "topic": "term",
+    "quote": "(3) the owner of the real property agrees to (A) continue to commence or continue to maintain the real property as rental housing for lower income persons under the requirements of the governmental programs described in item (2) of this paragraph and agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement or (B) enters into an agreement with the governing body of the county to allow the entire property or the portion of the property which was maintained for lower income persons to remain as housing for lower income persons for a term of at least five years; and",
+    "page": 3,
+    "wording": "for a term of at least five years",
+    "value": "at least five years"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "“Affordability Covenants” means the covenants executed and recorded on the Property, in a form acceptable to the County, that require the Owner and all subsequent owners of the Property to offer for rent at least the Affordable Units to Eligible Households.",
+    "page": 3,
+    "wording": "Owner and all subsequent owners",
+    "value": "Owner and all subsequent owners"
+   },
+   {
+    "topic": "units",
+    "quote": "“Affordable Units” mean those rental units in the Project that will be dedicated to the Eligible Households.",
+    "page": 3,
+    "wording": "dedicated to the Eligible Households",
+    "value": "Affordable Units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "“Eligible Households” mean the households as described in the Project Facts Section that are eligible to reside in the Project and whose initial annual income is sixty percent (60%) or less of the median income as set from time to time by the United States Department of Housing and Urban Development for Section 8 Programs in the Baltimore Metropolitan Statistical Area.",
+    "page": 4,
+    "wording": "sixty percent (60%) or less of the median income",
+    "value": "60% or less of median income"
+   },
+   {
+    "topic": "units",
+    "quote": "If the Project consist entirely of Affordable Units, then the Annual Payment shall consist of the Affordable Unit Annual Payment.",
+    "page": 6,
+    "wording": "If the Project consist entirely of Affordable Units",
+    "value": "entirely of Affordable Units"
+   },
+   {
+    "topic": "units",
+    "quote": "If the Project consist of both Affordable Units and Market Rate Units, the Annual Payment shall consist of the Affordable Unit Annual Payment plus the Market Rate Unit Annual Payment.",
+    "page": 6,
+    "wording": "If the Project consist of both Affordable Units and Market Rate Units",
+    "value": "Affordable Units and Market Rate Units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Such payments shall be made by the Owner in accordance with Sections 4 and 6 of this Agreement and shall be accepted by the County only as long as: (i) the Project is owned and used for the provision of rental housing and related Service Facilities, including parking facilities to Eligible Households and pursuant to the Affordability Covenants; (ii) the Owner complies in all other respects with the requirements of the Act, and (iii) the Owner complies with all of its obligations under this Agreement.",
+    "page": 5,
+    "wording": "Eligible Households",
+    "value": "Eligible Households"
+   },
+   {
+    "topic": "term",
+    "quote": "This Agreement shall become effective as of the Effective Date and the obligation to pay negotiated payments in lieu of taxes for the Project shall commence as of the Substantial Completion Date and shall remain effective until the Termination Date.",
+    "page": 5,
+    "wording": "until the Termination Date",
+    "value": "until the Termination Date"
+   },
+   {
+    "topic": "term",
+    "quote": "For the period from the Substantial Completion Date and until the Termination Date, the Owner shall make Annual Payments to the County for each tax year , subject to increase at the Annual Rate per year after the first full calendar year following Substantial Completion.",
+    "page": 6,
+    "wording": "until the Termination Date",
+    "value": "from Substantial Completion Date until Termination Date"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "“Owner” means the Owner identified in the Project Facts Section who is also the signatory of and party to this Agreement.",
+    "page": 5,
+    "wording": "Owner",
+    "value": "Owner identified in Project Facts Section"
+   },
+   {
+    "topic": "reporting",
+    "quote": "Owner shall submit to the County’s Director of Finance and the County’s Director of the Department of Housing and Community Development, within five (5) business days after execution by Owner, the following documents: entity agreements, including but not limited to , the Operating Agreement or Limited Partnership Agreement , the Affordability Covenants, and any other agreement or documents deemed necessary for submission to the County.",
+    "page": 8,
+    "wording": "Owner shall submit",
+    "value": "within five (5) business days after execution"
+   },
+   {
+    "topic": "reporting",
+    "quote": "If requested by the County, t he Owner shall provide a copy of the Certificate of Substantial Completion to the County’s Director of Finance and the Director of the Department of Housing and Community Development within five (5) business days after issuance.",
+    "page": 8,
+    "wording": "the Owner shall provide",
+    "value": "within five (5) business days after issuance"
+   },
+   {
+    "topic": "reporting",
+    "quote": "The Owner shall provide the amendments to any of the above documents or reports within five (5) business days after execution or receipt of such amendments.",
+    "page": 8,
+    "wording": "The Owner shall provide",
+    "value": "within five (5) business days"
+   },
+   {
+    "topic": "remedies",
+    "quote": "This Agreement shall terminate upon the occurrence of any of the following events, and upon termination all payments then due under this Agreement, including but not limited to the Deferred Amount (but subject to the terms of Section 6(d) above), shall be paid to the County by the Owner within sixty (60) calendar days thereof:",
+    "page": 7,
+    "wording": "This Agreement shall terminate",
+    "value": "within sixty (60) calendar days"
+   },
+   {
+    "topic": "remedies",
+    "quote": "If the Owner has not paid the amount due under this Agreement before March 30th following the due date, the County may, at its option, declare a default by providing notice of such default to the Owner and to the Persons listed on Exhibit B attached hereto.",
+    "page": 7,
+    "wording": "declare a default",
+    "value": "before March 30th following due date"
+   },
+   {
+    "topic": "public_support",
+    "quote": "During that period commencing with the Substantial Completion Date until the Termination Date, the Project shall be exempt from paying full Prince George’s County real property taxes.",
+    "page": 6,
+    "wording": "exempt from paying full Prince George’s County real property taxes",
+    "value": "exempt from full real property taxes"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Owner agrees to maintain the Property as rental housing for lower income persons under the requirements a federal, State, or local government program and the Owner agrees to renew any annual contributions contract or other agreement for rental subsidy or supplement.",
+    "page": 8,
+    "wording": "rental housing for lower income persons",
+    "value": "lower income persons"
+   }
+  ]
+ },
+ "tokens_in": 8787,
+ "tokens_out": 2708,
+ "cost_usd": 0.009406,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

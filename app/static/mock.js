@@ -320,6 +320,19 @@ export function createMock(seed) {
       (deal.decisions ||= []).push(event);
       return { event, ...decisionView(deal) };
     }
+    if (sub === "ask" && method === "POST") {
+      // Offline demo: no model, so return matching checked quotes word for word, like the server without a key.
+      const q = ` ${String(body?.question || "").toLowerCase()} `;
+      if (q.trim().length < 3) throw new MockError(422, "Enter a question.");
+      const words = { units: ["home", "homes", "unit", "units", "apartment", "how many", "set aside"], income_basis: ["income", "ami", "median", "earn", "qualify", "eligible"],
+        rent_limits: ["rent", "rents", "pay", "afford", "cost"], term: ["year", "years", "how long", "term", "last", "until", "expire", "end"],
+        responsible_party: ["responsible", "manage", "owner", "in charge"], reporting: ["report", "reports", "check", "monitor", "compliance", "annual"],
+        remedies: ["penalty", "enforce", "fail", "break", "remedy", "default"], public_support: ["tax", "support", "subsidy", "abatement", "vote", "council"] };
+      const wanted = Object.keys(words).filter((t) => words[t].some((w) => new RegExp(`\\b${w}\\b`).test(q)));
+      const found = deal.review.claims.filter((c) => wanted.includes(c.topic)).sort((a, b) => (b.date || "").localeCompare(a.date || "")).slice(0, 4);
+      return { mode: "quotes", in_scope: true, removed: 0, sentences: found.map((c) => ({ text: `“${c.quote}”`, claim_ids: [c.id], quote: true })),
+        notice: found.length ? "This offline demo has no AI. These are the matching checked quotes, word for word." : "No checked quote matched the words in your question. Try naming a term, such as homes, rent or years." };
+    }
     if (sub === "share" && method === "POST") {
       const token = `demo-${btoa(deal.id).replace(/=+$/, "")}`;
       return { token, url: `${location.origin}/#/r/${token}` };

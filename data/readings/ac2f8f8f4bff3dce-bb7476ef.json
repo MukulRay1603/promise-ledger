@@ -1,0 +1,101 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Policy Analysis and Fiscal Impact Statement CR-048-2023 Payment in Lieu of Taxes – Queens Park Plaza",
+  "date": "2023-06-01",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner agrees to acquire and renovate a 94- unit apartment community located at 2500 Queens Chapel Road Hyattsville, MD 20782, pledging to make 57 (61%) of the units rent -restricted for those making 60% or less of the Area Median Income.",
+    "page": 2,
+    "wording": "pledging to make 57 (61%) of the units rent -restricted",
+    "value": "57 of 94 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner agrees to acquire and renovate a 94- unit apartment community located at 2500 Queens Chapel Road Hyattsville, MD 20782, pledging to make 57 (61%) of the units rent -restricted for those making 60% or less of the Area Median Income.",
+    "page": 2,
+    "wording": "60% or less of the Area Median Income",
+    "value": "60% or less of AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "These units will remain rent- restricted for at least 15 years following project completion.",
+    "page": 2,
+    "wording": "at least 15 years",
+    "value": "15 years"
+   },
+   {
+    "topic": "responsible_party",
+    "quote": "CR-048-2023 approves the terms and c onditions of an agreement between Prince George’s County, Maryland, and Queens Park Plaza MD LLC (the \"Owner\") for a payment in lieu of taxes or “PILOT”  (the “Agreement”).",
+    "page": 2,
+    "wording": "Queens Park Plaza MD LLC (the \"Owner\")",
+    "value": "Queens Park Plaza MD LLC"
+   },
+   {
+    "topic": "units",
+    "quote": "The Project will be a 4.39 acre, 94- unit garden-style apartment complex, and will  offer 57 of the 94 units at rent -restricted rates for tenants with household income s that are 60% below the Area Median Income.",
+    "page": 3,
+    "wording": "offer 57 of the 94 units at rent -restricted rates",
+    "value": "57 of 94 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Project will be a 4.39 acre, 94- unit garden-style apartment complex, and will  offer 57 of the 94 units at rent -restricted rates for tenants with household income s that are 60% below the Area Median Income.",
+    "page": 3,
+    "wording": "60% below the Area Median Income",
+    "value": "60% or less of AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "40% or less of the AMI:  5 units",
+    "page": 3,
+    "wording": "40% or less of the AMI:  5 units",
+    "value": "5 units"
+   },
+   {
+    "topic": "units",
+    "quote": "50% or less of the AMI:  19 units",
+    "page": 3,
+    "wording": "50% or less of the AMI:  19 units",
+    "value": "19 units"
+   },
+   {
+    "topic": "units",
+    "quote": "60% or less of the AMI:  33 units",
+    "page": 3,
+    "wording": "60% or less of the AMI:  33 units",
+    "value": "33 units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The Agreement will allow the Owner to make payments in lieu of property taxes at a rate of $300 per affordable unit or $11,100 for the affordable unit property tax liability  in the first year of the agreement.",
+    "page": 3,
+    "wording": "$300 per affordable unit",
+    "value": "$300 per affordable unit"
+   },
+   {
+    "topic": "term",
+    "quote": "The term of the project (and the time duration for the rent restriction) is 15 years.",
+    "page": 3,
+    "wording": "15 years",
+    "value": "15 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "When accounting for the effects of the PILOT program the County will be providing annual support of $29,277 to this affordable housing project for the first year of its term.",
+    "page": 3,
+    "wording": "annual support of $29,277",
+    "value": "$29,277 annually"
+   }
+  ]
+ },
+ "tokens_in": 2961,
+ "tokens_out": 1275,
+ "cost_usd": 0.004076,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

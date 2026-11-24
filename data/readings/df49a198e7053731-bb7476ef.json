@@ -1,0 +1,59 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "THE CASSIDY CAPITOL HEIGHTS, PRINCE GEORGE’S COUNTY",
+  "date": "2024-04-23",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "100% of Units Under CDA LIHTC LURA",
+    "page": 4,
+    "wording": "100% of Units",
+    "value": "175 units (100%)"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "BR TYPE (SF) 5% AMI (COUNT/RENT) 40% AMI (COUNT/RENT) 60% AMI (COUNT/RENT)",
+    "page": 4,
+    "wording": "5% AMI",
+    "value": "5% AMI, 40% AMI, and 60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "1 / $56 7 / $1,045 48 / $1,610 56",
+    "page": 4,
+    "wording": "56",
+    "value": "56 1-bedroom units"
+   },
+   {
+    "topic": "units",
+    "quote": "1 / $42 78 / $1,908 79",
+    "page": 4,
+    "wording": "79",
+    "value": "79 2-bedroom units"
+   },
+   {
+    "topic": "units",
+    "quote": "1 / $33 39 / $2,189 40",
+    "page": 4,
+    "wording": "40",
+    "value": "40 3-bedroom units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "PILOT ($800/unit) Prince George’s County DHCD $140,000 $ 2,100,000* 3%",
+    "page": 7,
+    "wording": "PILOT ($800/unit)",
+    "value": "$800/unit"
+   }
+  ]
+ },
+ "tokens_in": 3510,
+ "tokens_out": 617,
+ "cost_usd": 0.002596,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

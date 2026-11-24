@@ -1,0 +1,80 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "slides",
+  "title": "Flats at Glenridge Station",
+  "date": "",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "income_basis",
+    "quote": "Rents targeting populations at 60% AMI with 50% in coordination with Prince George’s DHCD",
+    "page": 4,
+    "wording": "targeting populations at 60% AMI with 50%",
+    "value": "60% AMI and 50% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "245 Unit affordable development serving families",
+    "page": 4,
+    "wording": "245 Unit affordable development",
+    "value": "245 units"
+   },
+   {
+    "topic": "units",
+    "quote": "245 Total Units:",
+    "page": 6,
+    "wording": "Total Units",
+    "value": "245 units"
+   },
+   {
+    "topic": "units",
+    "quote": "• 20 Units @ 50% AMI",
+    "page": 6,
+    "wording": "Units",
+    "value": "20 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "• 20 Units @ 50% AMI",
+    "page": 6,
+    "wording": "50% AMI",
+    "value": "50% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "• 225 Units @ 60% AMI",
+    "page": 6,
+    "wording": "Units",
+    "value": "225 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "• 225 Units @ 60% AMI",
+    "page": 6,
+    "wording": "60% AMI",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "rent_limits",
+    "quote": "•  $1441 - $2379",
+    "page": 6,
+    "wording": "$1441 - $2379",
+    "value": "$1441 - $2379"
+   },
+   {
+    "topic": "public_support",
+    "quote": "*PILOT deferral of $1,200/Unit per year totaling $294,000 in Yr 1*",
+    "page": 7,
+    "wording": "PILOT deferral",
+    "value": "$1,200/Unit per year"
+   }
+  ]
+ },
+ "tokens_in": 3138,
+ "tokens_out": 727,
+ "cost_usd": 0.002759,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

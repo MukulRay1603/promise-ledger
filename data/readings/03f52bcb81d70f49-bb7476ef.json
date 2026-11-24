@@ -1,0 +1,51 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "PILOT Agreement Approval for Cottage City Towers Apartments",
+  "date": "2023-04-28",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Prince George's County Government Office of the County Executive",
+    "quote": "Angela D. Alsobrooks  \nCounty Executive",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner is an entity to be formed by Developer: HAPGC Affordable Housing Development Corporation, LLC C/O Housing Authority of Prince George's County for the purpose of acquiring and rehabilitating the Project, which is an existing one hundred (100) unit affordable multi-family rental housing for low-income to moderate-income families, known as Cottage City Towers, located at 4142 Bunker Hill Road, Cottage City, Maryland 20722.",
+    "page": 1,
+    "wording": "one hundred (100) unit",
+    "value": "100 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All units will be reserved for households earning sixty percent (60%) or less of the Area Median Income (“AMI”).",
+    "page": 1,
+    "wording": "reserved for households earning sixty percent (60%) or less",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will exempt the Owner from making a mandatory annual property tax payment to the County and will remain in effect for a period of at least forty (40) years.",
+    "page": 2,
+    "wording": "PILOT will exempt",
+    "value": "PILOT exemption"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT will exempt the Owner from making a mandatory annual property tax payment to the County and will remain in effect for a period of at least forty (40) years.",
+    "page": 2,
+    "wording": "remain in effect for a period of at least forty (40) years",
+    "value": "40 years"
+   }
+  ]
+ },
+ "tokens_in": 1766,
+ "tokens_out": 544,
+ "cost_usd": 0.00189,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

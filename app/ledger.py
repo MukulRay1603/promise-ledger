@@ -165,7 +165,15 @@ def _homes(claim: dict) -> tuple[int | None, int | None]:
         return claim["homes"].get("count"), claim["homes"].get("of")
     if claim.get("math"):
         return claim["math"]["equals"], claim["math"]["of"]
+    # Code-read claims with no parsed count still carry their value, e.g. "100 homes": the deal page's picture reads
+    # the same number, so the summary and the picture never disagree.
+    m = _VALUE_HOMES.match(str(claim.get("value") or "").strip())
+    if m:
+        return int(m.group(1).replace(",", "")), None
     return None, None
+
+
+_VALUE_HOMES = re.compile(r"^(\d[\d,]*)\s+(?:affordable\s+)?(?:homes?|units?)$", re.I)
 
 
 def build_summary(claims: list[dict], terms: list[dict], stages: list[dict], packet: dict) -> dict:
@@ -236,11 +244,11 @@ def build_questions(claims: list[dict], terms: list[dict], stages: list[dict], s
         # Keys carry the tag, so a term that is both unsigned and differs has two questions, decided apart (L9).
         if not term["located"]:
             questions.append({"key": f"{term['key']}:not_located", "term": term["key"], "tag": "not_located",
-                              "text": f"{label}: not located. Ask staff whether an agreement covers {lower}."})
+                              "text": f"{label}: not located. Ask staff for the record that states the {lower}."})
         elif not term["signed_claim_id"]:
             questions.append({"key": f"{term['key']}:not_signed", "term": term["key"], "tag": "not_located",
                               "text": f"{label}: not located in a signed record. "
-                                      f"Ask staff whether an agreement covers {lower}."})
+                                      f"Ask staff for the signed record that states the {lower}."})
         if term["wording_differs"]:
             found = [by_id[i] for i in term["claim_ids"]]
             questions.append({"key": f"{term['key']}:differs", "term": term["key"], "tag": "differs",

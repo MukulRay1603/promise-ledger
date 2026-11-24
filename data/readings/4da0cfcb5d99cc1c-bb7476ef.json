@@ -1,0 +1,31 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "A RESOLUTION CONCERNING A PAYMENT IN LIEU OF TAXES (\"PILOT\") AGREEMENT BETWEEN PRINCE GEORGE'S COUNTY, MARYLAND (\"COUNTY\") AND PETRA DEVELOPMENT (\"DEVELOPER\") for the National View Project.",
+  "date": "2024-11-19",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Specifically, the project will include 1545 residential units with a portion dedicated to senior mixed income, and sixty thousand square feet of commercial space.",
+    "page": 2,
+    "wording": "will include 1545 residential units",
+    "value": "1545 residential units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "A RESOLUTION CONCERNING A PAYMENT IN LIEU OF TAXES (“PILOT”) AGREEMENT BETWEEN PRINCE GEORGE’S COUNTY, MARYLAND (“COUNTY”) AND PETRA DEVELOPMENT (“DEVELOPER”) for the National View Project.",
+    "page": 1,
+    "wording": "PAYMENT IN LIEU OF TAXES (“PILOT”) AGREEMENT",
+    "value": "PILOT Agreement"
+   }
+  ]
+ },
+ "tokens_in": 1815,
+ "tokens_out": 307,
+ "cost_usd": 0.001312,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

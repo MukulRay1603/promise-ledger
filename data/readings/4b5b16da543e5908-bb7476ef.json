@@ -1,0 +1,52 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "CR-042-2023 Payments In Lieu of Taxes (PILOT) Agreement for the Flats at College Park Apartments",
+  "date": "2023-06-13",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "Further, the Owner is an entity formed by RST Development, LLC for the purpose of acquiring and constructing the Project, which will be three hundred seventeen (317) units of multi -family rental housing for low-income to moderate-income residents, known as Flats at College Park, on a 4.26-acre parcel located at 9113 Baltimore Avenue, College Park, Maryland 20740.",
+    "page": 1,
+    "wording": "will be",
+    "value": "317 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Further, the Owner is an entity formed by RST Development, LLC for the purpose of acquiring and constructing the Project, which will be three hundred seventeen (317) units of multi -family rental housing for low-income to moderate-income residents, known as Flats at College Park, on a 4.26-acre parcel located at 9113 Baltimore Avenue, College Park, Maryland 20740.",
+    "page": 1,
+    "wording": "low-income to moderate-income",
+    "value": "low-income to moderate-income residents"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require the Owner to make a mandatory annual payment to the County in an amount of no less than approximately sixty-six thousand, one hundred ninety-nine dollars ($66,199), or approximately two hundred eight dollars ($208.83) per unit, for the three hundred seventeen (317) affordable units for the first full tax year.",
+    "page": 1,
+    "wording": "PILOT will require",
+    "value": "$66,199 annual payment"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for thirty (30) years.",
+    "page": 1,
+    "wording": "will remain in effect for",
+    "value": "30 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "However, should CR-042-2023 not be adopted the Owner may raise rents, making the units unaffordable to tenants at 80% or below, AMI.",
+    "page": 2,
+    "wording": "tenants at",
+    "value": "80% or below AMI"
+   }
+  ]
+ },
+ "tokens_in": 2075,
+ "tokens_out": 671,
+ "cost_usd": 0.0023,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

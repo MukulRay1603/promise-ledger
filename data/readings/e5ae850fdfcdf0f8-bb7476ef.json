@@ -1,0 +1,101 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "other",
+  "title": "Policy Analysis and Fiscal Impact Statement CR-041-2023, Payment in Lieu of Taxes (“PILOT”) – Agreement for the Cottage City Towers Apartments",
+  "date": "2023-06-13",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "public_support",
+    "quote": "Revenues:      Forgone tax revenues totaling approximately $ 3,351,766 over a 30-year period.",
+    "page": 2,
+    "wording": "Forgone tax revenues",
+    "value": "$3,351,766 over 30 years"
+   },
+   {
+    "topic": "units",
+    "quote": "Under the proposed agreement, for the 30-year term, HAPGC Affordable Housing Development Corporation, LLC C/O Housing Authority of Prince George's County (“Owner”) will reserve one hundred (100) units for households whose incomes are at or below 60% of the Area Median Income (“AMI”) 3.",
+    "page": 3,
+    "wording": "reserve one hundred (100) units",
+    "value": "100 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "Under the proposed agreement, for the 30-year term, HAPGC Affordable Housing Development Corporation, LLC C/O Housing Authority of Prince George's County (“Owner”) will reserve one hundred (100) units for households whose incomes are at or below 60% of the Area Median Income (“AMI”) 3.",
+    "page": 3,
+    "wording": "at or below 60% of the Area Median Income",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "Under the proposed agreement, for the 30-year term, HAPGC Affordable Housing Development Corporation, LLC C/O Housing Authority of Prince George's County (“Owner”) will reserve one hundred (100) units for households whose incomes are at or below 60% of the Area Median Income (“AMI”) 3.",
+    "page": 3,
+    "wording": "30-year term",
+    "value": "30 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "CR-041-2023 would authorize the County to accept a payment in lieu of taxes equal to a $0.00 payment per affordable unit in year one, which will escalate by two percent (2%) per year  during the term of the PILOT agreement.",
+    "page": 3,
+    "wording": "payment in lieu of taxes",
+    "value": "$0.00 in year one escalating 2% per year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The 30-year value of the County PILOT is approximately $8,262,077.",
+    "page": 3,
+    "wording": "value of the County PILOT",
+    "value": "$8,262,077 over 30 years"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT will remain in effect for thirty (30) years.",
+    "page": 4,
+    "wording": "will remain in effect for",
+    "value": "30 years"
+   },
+   {
+    "topic": "units",
+    "quote": "The PILOT results in the aggregate tax burden on the entire 100-unit Project being at zero percent (0%) of that amount, or approximately $0; this is equivalent to zero dollars ($0) per unit tax burden on the one hundred (100) affordable units.",
+    "page": 4,
+    "wording": "one hundred (100) affordable units",
+    "value": "100 affordable units"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Under the agreement, the County would be forgoing real property tax revenue of approximately $82,621, or approximately $826 per affordable unit, in year one8.",
+    "page": 4,
+    "wording": "forgoing real property tax revenue",
+    "value": "$82,621 in year one"
+   },
+   {
+    "topic": "public_support",
+    "quote": "As described above, accepting the PILOT on the entire Project of $ 0 will result in a loss of approximately $82,621 in the first year of the term.",
+    "page": 4,
+    "wording": "accepting the PILOT on the entire Project",
+    "value": "$82,621 in the first year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Factoring in the 2% estimated average annual increase in the property tax assessment, the total impact is estimated at $3,351,766.00 over the 30- year period that the PILOT agreement remains in effect.",
+    "page": 4,
+    "wording": "total impact is estimated at",
+    "value": "$3,351,766.00 over 30 years"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "However, should CR -041-2023 not be adopted the Owner may raise rents, making the un its unaffordable to tenants at 60% AMI.",
+    "page": 4,
+    "wording": "tenants at 60% AMI",
+    "value": "60% AMI"
+   }
+  ]
+ },
+ "tokens_in": 4535,
+ "tokens_out": 1440,
+ "cost_usd": 0.00496,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

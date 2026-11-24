@@ -1,0 +1,66 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "CR-036-2023",
+  "date": "2023-06-06",
+  "draft": true,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "All units will be reserved for senior households whose incomes are at or below sixty percent (60%) of the Area Median Income (“AMI”).",
+    "page": 1,
+    "wording": "All units will be reserved",
+    "value": "All units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All units will be reserved for senior households whose incomes are at or below sixty percent (60%) of the Area Median Income (“AMI”).",
+    "page": 1,
+    "wording": "at or below sixty percent (60%) of the Area Median Income",
+    "value": "60% AMI"
+   },
+   {
+    "topic": "units",
+    "quote": "The Owner and development team of Osprey Property Company II LLC and Parallax Development Group, LLC shall acquire land and construct the Project, which will be fifty -nine (59) units of new affordable townhouse-style multi-family rental housing for low-income to moderate-income families, known as Hamlet Woods, on a 13.3-acre parcel located at 57th Avenue, Bladensburg, Maryland 20710.",
+    "page": 1,
+    "wording": "fifty -nine (59) units",
+    "value": "59 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "All units will be reserved for households whose incomes are at or below eighty percent (80%) of the Area Median Income (“AMI”).",
+    "page": 1,
+    "wording": "at or below eighty percent (80%) of the Area Median Income",
+    "value": "80% AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require the Owner to make a mandatory annual payment in an amount of no less than approximately thirty-five thousand, four hundred dollars ($35,400) or approximately six hundred dollars ($600) per unit for the full tax year.",
+    "page": 1,
+    "wording": "mandatory annual payment in an amount of no less than approximately thirty-five thousand, four hundred dollars",
+    "value": "$35,400 annually"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment for these affordable units will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%) for each subsequent tax year",
+    "value": "2% annual increase"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for thirty (30) years, which includes the extended affordability period.",
+    "page": 1,
+    "wording": "remain in effect for thirty (30) years",
+    "value": "30 years"
+   }
+  ]
+ },
+ "tokens_in": 2216,
+ "tokens_out": 771,
+ "cost_usd": 0.002592,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

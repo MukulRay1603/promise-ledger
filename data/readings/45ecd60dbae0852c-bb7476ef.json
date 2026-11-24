@@ -1,0 +1,58 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "letter",
+  "title": "Enclosure for the County Council's consideration is a Resolution approving the terms and conditions of a Payments in Lieu of Taxes (\"PILOT\") Agreement",
+  "date": "2025-03-07",
+  "draft": false,
+  "signatures": [
+   {
+    "party": "Tara H. Jackson",
+    "quote": "Tara H. Jackson",
+    "page": 2
+   }
+  ],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Owner, New Carrollton Affordable Senior I, LLC, will form an entity for the purpose of constructing a one hundred twelve (112) unit affordable rental housing community for seniors earning seventy percent (70%) or below of the Area Median Income (“AMI”), located at 4051 Garden City Drive, Hyattsville, Maryland 20785.",
+    "page": 1,
+    "wording": "constructing a one hundred twelve (112) unit",
+    "value": "112 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Owner, New Carrollton Affordable Senior I, LLC, will form an entity for the purpose of constructing a one hundred twelve (112) unit affordable rental housing community for seniors earning seventy percent (70%) or below of the Area Median Income (“AMI”), located at 4051 Garden City Drive, Hyattsville, Maryland 20785.",
+    "page": 1,
+    "wording": "earning seventy percent (70%) or below of the Area Median Income",
+    "value": "70% or below of AMI"
+   },
+   {
+    "topic": "public_support",
+    "quote": "The PILOT will require the Owner to make a mandatory annual payment to the County in an amount of no less than approximately forty seven thousand, six hundred dollars or four hundred twenty-five dollars per unit ($47,600 or $425 per unit) for the first year.",
+    "page": 1,
+    "wording": "mandatory annual payment",
+    "value": "$47,600 or $425 per unit for the first year"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Thereafter, the required payment for these affordable units will increase by two percent (2%) for each subsequent tax year.",
+    "page": 1,
+    "wording": "increase by two percent (2%)",
+    "value": "increase by 2% each subsequent tax year"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT agreement will remain in effect for forty (40) years which includes the extended affordability period.",
+    "page": 1,
+    "wording": "remain in effect for forty (40) years",
+    "value": "40 years"
+   }
+  ]
+ },
+ "tokens_in": 1670,
+ "tokens_out": 693,
+ "cost_usd": 0.002234,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}

@@ -1,0 +1,52 @@
+{
+ "mode": "live",
+ "model": "gemini-3.5-flash-lite",
+ "reading": {
+  "document_type": "staff_report",
+  "title": "Fiscal Impact Statement for CR-117-2025: A Resolution concerning Payments in Lieu of Taxes (PILOT) Agreement for the Flats at Glenridge Station Project",
+  "date": "2025-10-07",
+  "draft": false,
+  "signatures": [],
+  "candidates": [
+   {
+    "topic": "units",
+    "quote": "The Resolution proposes to approve the terms and conditions of a Payment in Lieu of Taxes (PILOT) agreement between Prince George’s County and Dominion, Inc. for a 245-unit multi- family development available at 60% of Area Median Income.",
+    "page": 1,
+    "wording": "245-unit",
+    "value": "245 units"
+   },
+   {
+    "topic": "income_basis",
+    "quote": "The Resolution proposes to approve the terms and conditions of a Payment in Lieu of Taxes (PILOT) agreement between Prince George’s County and Dominion, Inc. for a 245-unit multi- family development available at 60% of Area Median Income.",
+    "page": 1,
+    "wording": "60% of Area Median Income",
+    "value": "60% of AMI"
+   },
+   {
+    "topic": "term",
+    "quote": "The PILOT would be in effect for 40 years.",
+    "page": 1,
+    "wording": "in effect for 40 years",
+    "value": "40 years"
+   },
+   {
+    "topic": "public_support",
+    "quote": "Assuming a first -year payment of $165,147 in FY 2027 instead of a real property tax payment of $459,147, the County loses - $294,000 in general fund revenue, growing to a loss of - $326,467 by FY 2030.",
+    "page": 1,
+    "wording": "Payment in Lieu of Taxes (PILOT)",
+    "value": "PILOT agreement starting at $165,147 in FY 2027"
+   },
+   {
+    "topic": "units",
+    "quote": "The revenue loss should be weighed against the benefit of adding 245 affordable housing units that may not have been constructed in the absence of the PILOT agreement.",
+    "page": 2,
+    "wording": "adding 245 affordable housing units",
+    "value": "245 units"
+   }
+  ]
+ },
+ "tokens_in": 1873,
+ "tokens_out": 621,
+ "cost_usd": 0.002114,
+ "notice": "Read by gemini-3.5-flash-lite. Every quote is checked against the page text."
+}
